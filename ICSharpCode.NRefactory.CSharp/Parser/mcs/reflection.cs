@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 using System.Reflection.Emit;
 using System.Security;
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 #if STATIC
 	public class ReflectionImporter

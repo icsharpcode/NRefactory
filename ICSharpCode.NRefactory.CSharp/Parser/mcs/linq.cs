@@ -12,7 +12,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace Mono.CSharp.Linq
+namespace ICSharpCode.NRefactory.MonoCSharp.Linq
 {
 	public class QueryExpression : AQueryClause
 	{

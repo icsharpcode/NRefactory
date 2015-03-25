@@ -32,7 +32,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace Mono.CSharp {
+namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	//
 	// Better name would be DottenName

@@ -15,7 +15,7 @@ using System;
 using System.Text;
 using System.Collections.Generic;
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	// <summary>
 	//   This is used by the flow analysis code to keep track of the type of local variables.

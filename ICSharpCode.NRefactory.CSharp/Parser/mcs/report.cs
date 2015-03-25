@@ -14,7 +14,7 @@ using System.Text;
 using System.Collections.Generic;
 using System.Diagnostics;
 
-namespace Mono.CSharp {
+namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	//
 	// Errors and warnings manager

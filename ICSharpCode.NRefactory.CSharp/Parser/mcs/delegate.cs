@@ -23,7 +23,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace Mono.CSharp {
+namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	//
 	// Delegate container implementation

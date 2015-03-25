@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace Mono.CSharp {
+namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	struct TypeAndMethods {
 		public TypeSpec          type;

@@ -29,7 +29,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
-using Mono.CSharp;
+using ICSharpCode.NRefactory.MonoCSharp;
 using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.CSharp

@@ -16,7 +16,7 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Diagnostics;
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	public enum LookupMode
 	{

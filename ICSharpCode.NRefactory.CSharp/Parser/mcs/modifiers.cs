@@ -18,7 +18,7 @@ using IKVM.Reflection;
 using System.Reflection;
 #endif
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	[Flags]
 	public enum Modifiers

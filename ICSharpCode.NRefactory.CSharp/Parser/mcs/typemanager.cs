@@ -18,7 +18,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.IO;
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	//
 	// All compiler built-in types (they have to exist otherwise the compiler will not work)

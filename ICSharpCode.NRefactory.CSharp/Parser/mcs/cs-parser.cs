@@ -20,7 +20,7 @@ using System.IO;
 using System;
 using System.Collections.Generic;
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	/// <summary>
 	///    The C# Parser

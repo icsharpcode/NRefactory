@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.CSharp.Analysis;
 using System.Threading;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
-using Mono.CSharp;
+using ICSharpCode.NRefactory.MonoCSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
 {

@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			set { checkForOverflow = value; }
 		}
 		
-		Version languageVersion = new Version((int)Mono.CSharp.LanguageVersion.Default, 0);
+		Version languageVersion = new Version((int)ICSharpCode.NRefactory.MonoCSharp.LanguageVersion.Default, 0);
 		
 		/// <summary>
 		/// Gets/Sets the language version used by the parser.
@@ -131,12 +131,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			get { return disabledWarnings; }
 		}
 		
-		internal Mono.CSharp.CompilerSettings ToMono()
+		internal ICSharpCode.NRefactory.MonoCSharp.CompilerSettings ToMono()
 		{
-			var s = new Mono.CSharp.CompilerSettings();
+			var s = new ICSharpCode.NRefactory.MonoCSharp.CompilerSettings();
 			s.Unsafe = allowUnsafeBlocks;
 			s.Checked = checkForOverflow;
-			s.Version = (Mono.CSharp.LanguageVersion)languageVersion.Major;
+			s.Version = (ICSharpCode.NRefactory.MonoCSharp.LanguageVersion)languageVersion.Major;
 			s.WarningsAreErrors = treatWarningsAsErrors;
 			s.WarningLevel = warningLevel;
 			foreach (int code in disabledWarnings)

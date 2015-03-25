@@ -22,7 +22,7 @@ using MetaType = System.Type;
 using System.Reflection;
 #endif
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	//
 	// Inflated or non-inflated representation of any type. 

@@ -26,7 +26,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	//
 	// This is an user operator expression, automatically created during
@@ -759,16 +759,16 @@ namespace Mono.CSharp
 		//
 		protected virtual Expression ResolveUserOperator (ResolveContext ec, Expression expr)
 		{
-			CSharp.Operator.OpType op_type;
+			MonoCSharp.Operator.OpType op_type;
 			switch (Oper) {
 			case Operator.LogicalNot:
-				op_type = CSharp.Operator.OpType.LogicalNot; break;
+				op_type = MonoCSharp.Operator.OpType.LogicalNot; break;
 			case Operator.OnesComplement:
-				op_type = CSharp.Operator.OpType.OnesComplement; break;
+				op_type = MonoCSharp.Operator.OpType.OnesComplement; break;
 			case Operator.UnaryNegation:
-				op_type = CSharp.Operator.OpType.UnaryNegation; break;
+				op_type = MonoCSharp.Operator.OpType.UnaryNegation; break;
 			case Operator.UnaryPlus:
-				op_type = CSharp.Operator.OpType.UnaryPlus; break;
+				op_type = MonoCSharp.Operator.OpType.UnaryPlus; break;
 			default:
 				throw new InternalErrorException (Oper.ToString ());
 			}
@@ -3424,43 +3424,43 @@ namespace Mono.CSharp
 			}
 		}
 
-		static CSharp.Operator.OpType ConvertBinaryToUserOperator (Operator op)
+		static MonoCSharp.Operator.OpType ConvertBinaryToUserOperator (Operator op)
 		{
 			switch (op) {
 			case Operator.Addition:
-				return CSharp.Operator.OpType.Addition;
+				return MonoCSharp.Operator.OpType.Addition;
 			case Operator.BitwiseAnd:
 			case Operator.LogicalAnd:
-				return CSharp.Operator.OpType.BitwiseAnd;
+				return MonoCSharp.Operator.OpType.BitwiseAnd;
 			case Operator.BitwiseOr:
 			case Operator.LogicalOr:
-				return CSharp.Operator.OpType.BitwiseOr;
+				return MonoCSharp.Operator.OpType.BitwiseOr;
 			case Operator.Division:
-				return CSharp.Operator.OpType.Division;
+				return MonoCSharp.Operator.OpType.Division;
 			case Operator.Equality:
-				return CSharp.Operator.OpType.Equality;
+				return MonoCSharp.Operator.OpType.Equality;
 			case Operator.ExclusiveOr:
-				return CSharp.Operator.OpType.ExclusiveOr;
+				return MonoCSharp.Operator.OpType.ExclusiveOr;
 			case Operator.GreaterThan:
-				return CSharp.Operator.OpType.GreaterThan;
+				return MonoCSharp.Operator.OpType.GreaterThan;
 			case Operator.GreaterThanOrEqual:
-				return CSharp.Operator.OpType.GreaterThanOrEqual;
+				return MonoCSharp.Operator.OpType.GreaterThanOrEqual;
 			case Operator.Inequality:
-				return CSharp.Operator.OpType.Inequality;
+				return MonoCSharp.Operator.OpType.Inequality;
 			case Operator.LeftShift:
-				return CSharp.Operator.OpType.LeftShift;
+				return MonoCSharp.Operator.OpType.LeftShift;
 			case Operator.LessThan:
-				return CSharp.Operator.OpType.LessThan;
+				return MonoCSharp.Operator.OpType.LessThan;
 			case Operator.LessThanOrEqual:
-				return CSharp.Operator.OpType.LessThanOrEqual;
+				return MonoCSharp.Operator.OpType.LessThanOrEqual;
 			case Operator.Modulus:
-				return CSharp.Operator.OpType.Modulus;
+				return MonoCSharp.Operator.OpType.Modulus;
 			case Operator.Multiply:
-				return CSharp.Operator.OpType.Multiply;
+				return MonoCSharp.Operator.OpType.Multiply;
 			case Operator.RightShift:
-				return CSharp.Operator.OpType.RightShift;
+				return MonoCSharp.Operator.OpType.RightShift;
 			case Operator.Subtraction:
-				return CSharp.Operator.OpType.Subtraction;
+				return MonoCSharp.Operator.OpType.Subtraction;
 			default:
 				throw new InternalErrorException (op.ToString ());
 			}
@@ -4845,12 +4845,12 @@ namespace Mono.CSharp
 			if (!TypeSpec.IsReferenceType (l) || !TypeSpec.IsReferenceType (r))
 				return null;
 
-			if (l.BuiltinType == BuiltinTypeSpec.Type.String || l.BuiltinType == BuiltinTypeSpec.Type.Delegate || l.IsDelegate || MemberCache.GetUserOperator (l, CSharp.Operator.OpType.Equality, false) != null)
+			if (l.BuiltinType == BuiltinTypeSpec.Type.String || l.BuiltinType == BuiltinTypeSpec.Type.Delegate || l.IsDelegate || MemberCache.GetUserOperator (l, MonoCSharp.Operator.OpType.Equality, false) != null)
 				ec.Report.Warning (253, 2, loc,
 					"Possible unintended reference comparison. Consider casting the right side expression to type `{0}' to get value comparison",
 					l.GetSignatureForError ());
 
-			if (r.BuiltinType == BuiltinTypeSpec.Type.String || r.BuiltinType == BuiltinTypeSpec.Type.Delegate || r.IsDelegate || MemberCache.GetUserOperator (r, CSharp.Operator.OpType.Equality, false) != null)
+			if (r.BuiltinType == BuiltinTypeSpec.Type.String || r.BuiltinType == BuiltinTypeSpec.Type.Delegate || r.IsDelegate || MemberCache.GetUserOperator (r, MonoCSharp.Operator.OpType.Equality, false) != null)
 				ec.Report.Warning (252, 2, loc,
 					"Possible unintended reference comparison. Consider casting the left side expression to type `{0}' to get value comparison",
 					r.GetSignatureForError ());

@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Runtime.InteropServices;
-using Mono.CSharp;
+using ICSharpCode.NRefactory.MonoCSharp;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
 {

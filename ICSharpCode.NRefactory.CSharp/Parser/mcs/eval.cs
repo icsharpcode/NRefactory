@@ -21,7 +21,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 
-namespace Mono.CSharp
+namespace ICSharpCode.NRefactory.MonoCSharp
 {
 
 	/// <summary>
@@ -159,7 +159,7 @@ namespace Mono.CSharp
 		///
 		///   This is the base class that will host the code
 		///   executed by the Evaluator.  By default
-		///   this is the Mono.CSharp.InteractiveBase class
+		///   this is the ICSharpCode.NRefactory.MonoCSharp.InteractiveBase class
 		///   which is useful for interactive use.
 		///
 		///   By changing this property you can control the

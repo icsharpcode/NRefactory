@@ -32,7 +32,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace Mono.CSharp {
+namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	/// <summary>
 	///   Base class for objects that can have Attributes applied to them.
@@ -1965,7 +1965,7 @@ namespace Mono.CSharp {
 				return;
 
 			MethodSpec ctor = null;
-			foreach (MethodSpec m in MemberCache.FindMembers (atype.TypeSpec, CSharp.Constructor.ConstructorName, true)) {
+			foreach (MethodSpec m in MemberCache.FindMembers (atype.TypeSpec, MonoCSharp.Constructor.ConstructorName, true)) {
 				if (m.Parameters.Count != 1)
 					continue;
 

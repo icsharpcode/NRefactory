@@ -27,7 +27,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace Mono.CSharp {
+namespace ICSharpCode.NRefactory.MonoCSharp {
 	public class VarianceDecl
 	{
 		public VarianceDecl (Variance variance, Location loc)

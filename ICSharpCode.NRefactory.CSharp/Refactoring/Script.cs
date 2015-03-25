@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
-using Mono.CSharp;
+using ICSharpCode.NRefactory.MonoCSharp;
 using ITypeDefinition = ICSharpCode.NRefactory.TypeSystem.ITypeDefinition;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring
