@@ -16,11 +16,11 @@ namespace NR6Pack.DocGenerator
 	{
 		static void Main(string[] args)
 		{
-			var codeActions = typeof(ICSharpCode.NRefactory6.CSharp.DescriptionAttribute).Assembly.GetTypes()
+			var codeActions = typeof(ICSharpCode.NRefactory6.CSharp.NRefactoryCodeRefactoringProviderAttribute).Assembly.GetTypes()
 				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName))
 				.ToArray();
 
-			var codeIssues = typeof(ICSharpCode.NRefactory6.CSharp.DescriptionAttribute).Assembly.GetTypes()
+			var codeIssues = typeof(ICSharpCode.NRefactory6.CSharp.NRefactoryCodeDiagnosticAnalyzerAttribute).Assembly.GetTypes()
 				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(DiagnosticAnalyzerAttribute).FullName))
 				.ToArray();
 
@@ -49,7 +49,7 @@ namespace NR6Pack.DocGenerator
 
 		private static string GetActionDescription(Type t)
 		{
-			var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.DescriptionAttribute>().FirstOrDefault();
+			var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.NRefactoryCodeRefactoringProviderAttribute>().FirstOrDefault();
 			if (description != null && description.Description.Length > 0)
 				return description.Description;
 			var exportAttribute = t.GetCustomAttributes(false).OfType<ExportCodeRefactoringProviderAttribute>().First();
@@ -58,9 +58,9 @@ namespace NR6Pack.DocGenerator
 
 		private static string GetIssueDescription(Type t)
 		{
-			var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.DescriptionAttribute>().FirstOrDefault();
-			if (description != null && description.Description.Length > 0)
-				return description.Description;
+			//var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.NRefactoryCodeDiagnosticAnalyzerAttribute>().FirstOrDefault();
+			//if (description != null && description.Description.Length > 0)
+			//	return description.Description;
 			return t.GetField("Description", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)?.ToString() ?? "";
 		}
 	}

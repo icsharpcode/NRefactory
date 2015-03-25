@@ -25,7 +25,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -34,13 +34,65 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\AddBracesCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Custom\AddBracesCodeRefactoringProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\AddOptionalParameterToInvocationCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\AddOptionalParameterToInvocationCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertBitwiseFlagComparisonToHasFlagsCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertBitwiseFlagComparisonToHasFlagsCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertDoWhileToWhileLoopCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertDoWhileToWhileLoopCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertForToWhileCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertForToWhileCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertHasFlagsToBitwiseFlagComparisonCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertHasFlagsToBitwiseFlagComparisonCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertMultiplyToShiftCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertMultiplyToShiftCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertShiftToMultiplyCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertShiftToMultiplyCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ConvertWhileToDoWhileLoopCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ConvertWhileToDoWhileLoopCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\CreateChangedEventCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\CreateChangedEventCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\GenerateSwitchLabelsCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\GenerateSwitchLabelsCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\InvertLogicalExpressionCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\InvertLogicalExpressionCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\NegateIsExpressionCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\NegateIsExpressionCodeRefactoringProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\RemoveBracesCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Custom\RemoveBracesCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\ReplaceWithOperatorAssignmentCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Custom\ReplaceWithOperatorAssignmentCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\SpecializedCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\SpecializedCodeRefactoringProvider.cs</Link>
@@ -60,8 +112,23 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\AddNewFormatItemCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\AddNewFormatItemCodeRefactoringProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CheckArrayIndexValueCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\CheckArrayIndexValueCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CheckCollectionIndexValueCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\CheckCollectionIndexValueCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CheckDictionaryKeyValueCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\CheckDictionaryKeyValueCodeRefactoringProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CheckIfParameterIsNullCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\CheckIfParameterIsNullCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CheckStringBuilderIndexValueCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\CheckStringBuilderIndexValueCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CheckStringIndexValueCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\CheckStringIndexValueCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ComputeConstantValueCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\ComputeConstantValueCodeRefactoringProvider.cs</Link>
@@ -131,6 +198,9 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ConvertSwitchToIfCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\ConvertSwitchToIfCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CreateEventInvocatorCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\CreateEventInvocatorCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\FlipEqualsTargetAndArgumentCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\FlipEqualsTargetAndArgumentCodeRefactoringProvider.cs</Link>
@@ -206,6 +276,90 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\AutoLinqSumAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\AutoLinqSumAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ChangeAccessModifierAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ChangeAccessModifierAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertAssignmentToIfAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ConvertAssignmentToIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertIfStatementToNullCoalescingExpressionAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ConvertIfStatementToNullCoalescingExpressionAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertIfStatementToReturnStatementAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ConvertIfStatementToReturnStatementAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertReturnStatementToIfAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ConvertReturnStatementToIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateCustomEventImplementationAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\CreateCustomEventImplementationAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateDelegateAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\CreateDelegateAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateIndexerAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\CreateIndexerAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateOverloadWithoutParameterAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\CreateOverloadWithoutParameterAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ExtractAnonymousMethodAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ExtractAnonymousMethodAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ExtractFieldAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ExtractFieldAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\GenerateGetterAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\GenerateGetterAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\GeneratePropertyAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\GeneratePropertyAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\IntroduceConstantAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\IntroduceConstantAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\IterateViaForeachAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\IterateViaForeachAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\LinqFluentToQueryAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\LinqFluentToQueryAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\LinqQueryToFluentAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\LinqQueryToFluentAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\MergeNestedIfAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\MergeNestedIfAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\MoveToOuterScopeAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\MoveToOuterScopeAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\PutInsideUsingAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\PutInsideUsingAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ReverseDirectionForForLoopAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\ReverseDirectionForForLoopAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SortUsingsAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\SortUsingsAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SplitStringAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\SplitStringAction.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\UseStringFormatAction.cs">
+      <Link>CodeRefactoringProviders\Uncategorized\UseStringFormatAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\CodeActionFactory.cs">
       <Link>Common\CodeActionFactory.cs</Link>
@@ -907,6 +1061,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SimpleNameSyntaxExtensions.cs">
       <Link>Common\SimpleNameSyntaxExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SourceTextExtensions.cs">
+      <Link>Common\SourceTextExtensions.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\SpecializedCollections.cs">
       <Link>Common\SpecializedCollections.cs</Link>
     </Compile>
@@ -955,6 +1112,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TaskExtensions.cs">
       <Link>Common\TaskExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TextLineExtension.cs">
+      <Link>Common\TextLineExtension.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TokenComparer.cs">
       <Link>Common\TokenComparer.cs</Link>
     </Compile>
@@ -973,8 +1133,14 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\TypeSyntaxExtensions.cs">
       <Link>Common\TypeSyntaxExtensions.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\UnicodeNewline.cs">
+      <Link>Common\UnicodeNewline.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\UsingsAndExternAliasesDirectiveComparer.cs">
       <Link>Common\UsingsAndExternAliasesDirectiveComparer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\UsingsAndExternAliasesOrganizer.cs">
+      <Link>Common\UsingsAndExternAliasesOrganizer.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\ValueTuple.cs">
       <Link>Common\ValueTuple.cs</Link>
