@@ -36,13 +36,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Creates a changed event for an property.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create changed event for property")]
-	public class CreateChangedEventAction : CodeRefactoringProvider
+	public class CreateChangedEventCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 			var property = root.FindNode(span) as PropertyDeclarationSyntax;
@@ -68,9 +74,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					"Create changed event",
 					t2 => {
 						var eventDeclaration = CreateChangedEventDeclaration(property);
-						var methodDeclaration = RefactoringHelpers.CreateEventInvocator (
-							model,
-							type, 
+						var methodDeclaration = CreateEventInvocatorCodeRefactoringProvider.CreateEventInvocator (
+							document,
+							type.Identifier.ToString (), 
+							type.Modifiers.Any(m => m.IsKind(SyntaxKind.SealedKeyword)),
 							eventDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)),
 							eventDeclaration.Declaration.Variables.First().Identifier.ToString(),
 							resolvedType.GetDelegateInvokeMethod (), 

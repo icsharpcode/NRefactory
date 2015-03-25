@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		[Test]
 		public void TestSimple()
 		{
-			Test<AddOptionalParameterToInvocationAction>(@"
+			Test<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(string msg = ""Hello"") {}
@@ -55,7 +55,7 @@ class TestClass
 		[Test]
 		public void TestSimpleWithComment()
 		{
-			Test<AddOptionalParameterToInvocationAction>(@"
+			Test<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(string msg = ""Hello"") {}
@@ -77,7 +77,7 @@ class TestClass
 		[Test]
 		public void TestMultiple1()
 		{
-			Test<AddOptionalParameterToInvocationAction>(@"
+			Test<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
@@ -97,7 +97,7 @@ class TestClass
 		[Test]
 		public void TestExtensionMethod()
 		{
-			Test<AddOptionalParameterToInvocationAction>(@"
+			Test<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 static class Extensions
 {
     public static void Foo(this string self, string msg = ""Hello"") {}
@@ -123,7 +123,7 @@ class TestClass
 		[Test]
 		public void TestMultiple2()
 		{
-			Test<AddOptionalParameterToInvocationAction>(@"
+			Test<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
@@ -143,7 +143,7 @@ class TestClass
 		[Test]
 		public void TestMultiple3()
 		{
-			Test<AddOptionalParameterToInvocationAction>(@"
+			Test<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") { }
@@ -165,7 +165,7 @@ class TestClass
 		[Test]
 		public void TestNoMoreParameters()
 		{
-			TestWrongContext<AddOptionalParameterToInvocationAction>(@"
+			TestWrongContext<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(string msg = ""Hello"", string msg2 = ""Bar"") {}
@@ -179,7 +179,7 @@ class TestClass
 		[Test]
 		public void TestParams()
 		{
-			TestWrongContext<AddOptionalParameterToInvocationAction>(@"
+			TestWrongContext<AddOptionalParameterToInvocationCodeRefactoringProvider>(@"
 class TestClass
 {
     public void Foo(params string[] p) {}

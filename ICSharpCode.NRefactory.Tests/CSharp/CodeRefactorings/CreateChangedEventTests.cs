@@ -34,7 +34,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		[Test]
 		public void TestSimpleCase()
 		{
-			Test<CreateChangedEventAction>(@"class TestClass
+			Test<CreateChangedEventCodeRefactoringProvider>(@"class TestClass
 {
     string test;
     public string $Test {
@@ -60,9 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 
     protected virtual void OnTestChanged(System.EventArgs e)
     {
-        var handler = TestChanged;
-        if (handler != null)
-            handler(this, e);
+        TestChanged?.Invoke(this, e);
     }
 
     public event System.EventHandler TestChanged;
@@ -72,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		[Test]
 		public void TestSimplify()
 		{
-			Test<CreateChangedEventAction>(@"using System;
+			Test<CreateChangedEventCodeRefactoringProvider>(@"using System;
 class TestClass
 {
     string test;
@@ -100,9 +98,7 @@ class TestClass
 
     protected virtual void OnTestChanged(EventArgs e)
     {
-        var handler = TestChanged;
-        if (handler != null)
-            handler(this, e);
+        TestChanged?.Invoke(this, e);
     }
 
     public event EventHandler TestChanged;
@@ -112,7 +108,7 @@ class TestClass
 		[Test]
 		public void TestStaticClassCase()
 		{
-			Test<CreateChangedEventAction>(@"static class TestClass
+			Test<CreateChangedEventCodeRefactoringProvider>(@"static class TestClass
 {
     static string test;
     public static string $Test {
@@ -138,9 +134,7 @@ class TestClass
 
     static void OnTestChanged(System.EventArgs e)
     {
-        var handler = TestChanged;
-        if (handler != null)
-            handler(null, e);
+        TestChanged?.Invoke(null, e);
     }
 
     public static event System.EventHandler TestChanged;
@@ -150,7 +144,7 @@ class TestClass
 		[Test]
 		public void TestSealedCase()
 		{
-			Test<CreateChangedEventAction>(@"sealed class TestClass
+			Test<CreateChangedEventCodeRefactoringProvider>(@"sealed class TestClass
 {
     string test;
     public string $Test {
@@ -173,11 +167,10 @@ class TestClass
             OnTestChanged(System.EventArgs.Empty);
         }
     }
+
     void OnTestChanged(System.EventArgs e)
     {
-        var handler = TestChanged;
-        if (handler != null)
-            handler(this, e);
+        TestChanged?.Invoke(this, e);
     }
 
     public event System.EventHandler TestChanged;
@@ -187,7 +180,7 @@ class TestClass
 		[Test]
 		public void TestWrongLocation()
 		{
-			TestWrongContext<CreateChangedEventAction>(@"class TestClass
+			TestWrongContext<CreateChangedEventCodeRefactoringProvider>(@"class TestClass
 {
     string test;
     public $string Test {
@@ -200,7 +193,7 @@ class TestClass
     }
 }");
 
-			TestWrongContext<CreateChangedEventAction>(@"class TestClass
+			TestWrongContext<CreateChangedEventCodeRefactoringProvider>(@"class TestClass
 {
     string test;
     public string $FooBar.Test {
@@ -213,7 +206,7 @@ class TestClass
     }
 }");
 
-			TestWrongContext<CreateChangedEventAction>(@"class TestClass
+			TestWrongContext<CreateChangedEventCodeRefactoringProvider>(@"class TestClass
 {
     string test;
     public string Test ${

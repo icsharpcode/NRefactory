@@ -40,13 +40,19 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Add one or more optional parameters to an invocation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add one or more optional parameters to an invocation, using their default values")]
-	public class AddOptionalParameterToInvocationAction : CodeRefactoringProvider
+	public class AddOptionalParameterToInvocationCodeRefactoringProvider : CodeRefactoringProvider
 	{
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
+			if (!span.IsEmpty)
+				return;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
 
@@ -79,8 +85,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			}
 			if (!foundOptionalParameter)
 				return;
-
-			var result = new List<CodeAction>();
 
 			//Basic sanity checks done, now see if there are any missing optional arguments
 			var missingParameters = new List<IParameterSymbol>(method.Parameters);

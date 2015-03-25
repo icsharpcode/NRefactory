@@ -203,7 +203,6 @@
     <Compile Include="CodeRefactorings\Custom\ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\ConvertWhileToDoWhileLoopCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\AddOptionalParameterToInvocationAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\AutoLinqSumAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ChangeAccessModifierAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ConvertAssignmentToIfAction.cs" />
@@ -211,7 +210,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\ConvertIfStatementToReturnStatementAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ConvertReturnStatementToIfAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CopyCommentsFromInterface.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\CreateChangedEventAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateCustomEventImplementationAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateDelegateAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateIndexerAction.cs" />
@@ -446,6 +444,8 @@
     <Compile Include="CodeRefactorings\Synced\CheckStringIndexValueCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\CheckStringBuilderIndexValueCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\CheckDictionaryKeyValueCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\CreateChangedEventCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\AddOptionalParameterToInvocationCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -77,52 +77,68 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					DiagnosticSeverity.Info, 
 					"Create event invocator", 
 					t2 => {
-						var options = document.Project.ParseOptions as CSharpParseOptions;
-
-						SyntaxNode eventInvocator;
-
-						if (options != null && options.LanguageVersion < LanguageVersion.CSharp6) {
-							eventInvocator = CreateOldEventInvocator (declaredSymbol);
-						} else {
-							eventInvocator = CreateEventInvocator (declaredSymbol);
-						}
+						SyntaxNode eventInvocator = CreateEventInvocator(document, declaredSymbol);
 						return Task.FromResult (new InsertionResult (context, eventInvocator, declaredSymbol.ContainingType, declaredSymbol.Locations.First ()));
 					}
 				) 
 			);
 		}
 
-		static MethodDeclarationSyntax CreateMethodStub (ISymbol member)
+		public static MethodDeclarationSyntax CreateEventInvocator(Document document, ISymbol eventMember, bool useExplictType = false)
 		{
-			var node = SyntaxFactory.MethodDeclaration (SyntaxFactory.PredefinedType (SyntaxFactory.Token (SyntaxKind.VoidKeyword)), SyntaxFactory.Identifier (GetEventMethodName (member.Name)));
-			if (member.IsStatic) {
+			var options = document.Project.ParseOptions as CSharpParseOptions;
+
+			if (options != null && options.LanguageVersion < LanguageVersion.CSharp6)
+				return CreateOldEventInvocator (eventMember.ContainingType.Name, eventMember.ContainingType.IsSealed, eventMember.IsStatic, eventMember.Name, eventMember.GetReturnType ().GetDelegateInvokeMethod (), useExplictType);
+			
+			return CreateEventInvocator (eventMember.ContainingType.Name, eventMember.ContainingType.IsSealed, eventMember.IsStatic, eventMember.Name, eventMember.GetReturnType ().GetDelegateInvokeMethod (), useExplictType);
+		}
+
+		public static MethodDeclarationSyntax CreateEventInvocator(Document document, string declaringTypeName, bool isSealed, bool isStatic, string eventName, IMethodSymbol invokeMethod, bool useExplictType = false)
+		{
+			var options = document.Project.ParseOptions as CSharpParseOptions;
+
+			if (options != null && options.LanguageVersion < LanguageVersion.CSharp6)
+				return CreateOldEventInvocator (declaringTypeName, isSealed, isStatic, eventName, invokeMethod, useExplictType);
+			return CreateEventInvocator (declaringTypeName, isSealed, isStatic, eventName, invokeMethod, useExplictType);
+		}
+
+		static MethodDeclarationSyntax CreateMethodStub (bool isSealed, bool isStatic, string eventName, IMethodSymbol invokeMethod)
+		{
+			var node = SyntaxFactory.MethodDeclaration (SyntaxFactory.PredefinedType (SyntaxFactory.Token (SyntaxKind.VoidKeyword)), SyntaxFactory.Identifier (GetEventMethodName (eventName)));
+			if (isStatic) {
 				node = node.WithModifiers (SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.StaticKeyword))); 
+			} else if (isSealed) {
+				
 			} else {
 				node = node.WithModifiers (SyntaxFactory.TokenList (SyntaxFactory.Token (SyntaxKind.ProtectedKeyword), SyntaxFactory.Token (SyntaxKind.VirtualKeyword))); 
 			}
-			var invokeMethod = member.GetReturnType ().GetDelegateInvokeMethod ();
 			node = node.WithParameterList (SyntaxFactory.ParameterList (SyntaxFactory.SeparatedList<ParameterSyntax> (new[] {
 				SyntaxFactory.Parameter (SyntaxFactory.Identifier (invokeMethod.Parameters [1].Name)).WithType (invokeMethod.Parameters [1].Type.GenerateTypeSyntax ())
 			})));
 			return node;
 		}
 
-		static ExpressionSyntax GetTargetExpression (ISymbol member)
+		static ExpressionSyntax GetTargetExpression (string declaringTypeName, bool isStatic, string eventName)
 		{
-			if (member.Name != "e")
-				return (ExpressionSyntax)SyntaxFactory.IdentifierName (member.Name);
+			if (eventName != "e")
+				return (ExpressionSyntax)SyntaxFactory.IdentifierName (eventName);
 
-			if (member.IsStatic)
-				return SyntaxFactory.MemberAccessExpression (SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName (member.ContainingType.Name), SyntaxFactory.IdentifierName (member.Name));
+			if (isStatic)
+				return SyntaxFactory.MemberAccessExpression (SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.IdentifierName (declaringTypeName), SyntaxFactory.IdentifierName (eventName));
 			
-			return SyntaxFactory.MemberAccessExpression (SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression (), SyntaxFactory.IdentifierName (member.Name));
+			return SyntaxFactory.MemberAccessExpression (SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression (), SyntaxFactory.IdentifierName (eventName));
 		}
-	
-		static SyntaxNode CreateEventInvocator (ISymbol member)
+
+		static ArgumentSyntax GetInvokeArgument (bool isStatic)
 		{
-			var invokeMethod = member.GetReturnType ().GetDelegateInvokeMethod ();
-			var result = CreateMethodStub (member);
-			var targetExpr = GetTargetExpression (member);
+			return SyntaxFactory.Argument (isStatic ? (ExpressionSyntax)SyntaxFactory.LiteralExpression (SyntaxKind.NullLiteralExpression) : SyntaxFactory.ThisExpression ());
+		}
+
+		static MethodDeclarationSyntax CreateEventInvocator (string declaringTypeName, bool isSealed, bool isStatic, string eventName, IMethodSymbol invokeMethod, bool useExplictType)
+		{
+			var result = CreateMethodStub (isSealed, isStatic, eventName, invokeMethod);
+			var targetExpr = GetTargetExpression (declaringTypeName, isStatic, eventName);
 			result = result.WithBody (SyntaxFactory.Block (
 				SyntaxFactory.ExpressionStatement (
 					SyntaxFactory.InvocationExpression (
@@ -132,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 						),
 						SyntaxFactory.ArgumentList (
 							SyntaxFactory.SeparatedList<ArgumentSyntax> (new [] {
-								GetInvokeArgument (member),
+								GetInvokeArgument (isStatic),
 								SyntaxFactory.Argument (SyntaxFactory.IdentifierName (invokeMethod.Parameters [1].Name))
 							})
 						)
@@ -143,17 +159,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			return result;
 		}
 
-		static ArgumentSyntax GetInvokeArgument (ISymbol member)
-		{
-			return SyntaxFactory.Argument (member.IsStatic ? (ExpressionSyntax)SyntaxFactory.LiteralExpression (SyntaxKind.NullLiteralExpression) : SyntaxFactory.ThisExpression ());
-		}
 
-		static SyntaxNode CreateOldEventInvocator (ISymbol member)
+		static MethodDeclarationSyntax CreateOldEventInvocator (string declaringTypeName, bool isSealed, bool isStatic, string eventName, IMethodSymbol invokeMethod, bool useExplictType)
 		{
-			var invokeMethod = member.GetReturnType ().GetDelegateInvokeMethod ();
-			var result = CreateMethodStub (member);
+		//	var invokeMethod = member.GetReturnType ().GetDelegateInvokeMethod ();
+			var result = CreateMethodStub (isSealed, isStatic, eventName, invokeMethod);
 			const string handlerName = "handler";
-			var targetExpr = GetTargetExpression (member);
+			var targetExpr = GetTargetExpression (declaringTypeName, isStatic, eventName);
 			result = result.WithBody (SyntaxFactory.Block (
 				SyntaxFactory.LocalDeclarationStatement (
 					SyntaxFactory.VariableDeclaration (
@@ -178,7 +190,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 							SyntaxFactory.IdentifierName (handlerName), 
 							SyntaxFactory.ArgumentList (
 								SyntaxFactory.SeparatedList<ArgumentSyntax> (new [] {
-									GetInvokeArgument (member),
+									GetInvokeArgument (isStatic),
 									SyntaxFactory.Argument (SyntaxFactory.IdentifierName (invokeMethod.Parameters [1].Name))
 								})
 							)
