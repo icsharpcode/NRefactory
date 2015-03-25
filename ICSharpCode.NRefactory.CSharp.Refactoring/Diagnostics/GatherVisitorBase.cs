@@ -247,17 +247,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 					if (string.IsNullOrEmpty(txt))
 						return;
 					if (isAllDisabled) {
-						isAllDisabled &= txt.IndexOf(GatherVisitorConstants.RestoreAllString, StringComparison.InvariantCultureIgnoreCase) < 0;
+						isAllDisabled &= txt.IndexOf(GatherVisitorConstants.RestoreAllString, StringComparison.OrdinalIgnoreCase) < 0;
 					} else {
-						isAllDisabled |= txt.IndexOf(GatherVisitorConstants.DisableAllString, StringComparison.InvariantCultureIgnoreCase) > 0;
+						isAllDisabled |= txt.IndexOf(GatherVisitorConstants.DisableAllString, StringComparison.OrdinalIgnoreCase) > 0;
 					}
 	
 					if (restoreString != null) {
 						if (isDisabled) {
-							isDisabled &= txt.IndexOf(restoreString, StringComparison.InvariantCulture) < 0;
+							isDisabled &= txt.IndexOf(restoreString, StringComparison.Ordinal) < 0;
 						} else {
-							isDisabled |= txt.IndexOf(disableString, StringComparison.InvariantCulture) > 0;
-							isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.InvariantCulture) > 0;
+							isDisabled |= txt.IndexOf(disableString, StringComparison.Ordinal) > 0;
+							isDisabledOnce |= txt.IndexOf(disableOnceString, StringComparison.Ordinal) > 0;
 						}
 					}
 					break;

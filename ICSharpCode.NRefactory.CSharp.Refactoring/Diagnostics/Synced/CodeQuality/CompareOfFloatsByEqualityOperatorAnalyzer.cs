@@ -119,7 +119,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				token.Value is decimal && (decimal)token.Value == 0m)
 				return true;
 
-			return !token.ValueText.Any(c => char.IsDigit(c) && c != '0');
+			foreach (char c in token.ValueText) {
+				if (char.IsDigit (c) && c != '0')
+					return false;
+			}
+
+			return true;
 		}
 
 		internal static bool IsNegativeInfinity (SemanticModel semanticModel, SyntaxNode node)
