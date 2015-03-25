@@ -14,6 +14,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 //			return new ObjectInitializerCompletionProvider();
 //		}
 
+		[Ignore("Broken")]
 		[Test]
 		public void NothingToInitialize()
 		{

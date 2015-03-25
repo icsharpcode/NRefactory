@@ -272,5 +272,92 @@ class $TestClass : Base
 
 
 
+		[Test]
+		public void TestInterfaceSimpleCase()
+		{
+			Test<CopyCommentsFromBaseCodeRefactoringProvider>(@"
+interface ITest
+{
+	///sssss
+	void Method ();
+}
+class TestClass : ITest
+{
+	public void $Method ()
+	{
+	}
+}", @"
+interface ITest
+{
+	///sssss
+	void Method ();
+}
+class TestClass : ITest
+{
+	///sssss
+	public void Method ()
+	{
+	}
+}");
+		}
+
+		[Test]
+		public void TestInterfaceMultiCase()
+		{
+			Test<CopyCommentsFromBaseCodeRefactoringProvider>(@"
+interface ITest
+{
+	///sssss
+	///sssss
+	void Method ();
+}
+class TestClass : ITest
+{
+	public void $Method ()
+	{
+	}
+}", @"
+interface ITest
+{
+	///sssss
+	///sssss
+	void Method ();
+}
+class TestClass : ITest
+{
+	///sssss
+	///sssss
+	public void Method ()
+	{
+	}
+}");
+		}	
+
+		[Ignore]
+		public void TestInterfaceNoProblem()
+		{
+			Test<CopyCommentsFromBaseCodeRefactoringProvider>(@"
+interface ITest
+{
+	void Method ();
+}
+class TestClass : ITest
+{
+	public void $Method ()
+	{
+	}
+}", @"
+interface ITest
+{
+	void Method ();
+}
+class TestClass : ITest
+{
+	public void Method ()
+	{
+	}
+}");
+		}
+
 	}
 }

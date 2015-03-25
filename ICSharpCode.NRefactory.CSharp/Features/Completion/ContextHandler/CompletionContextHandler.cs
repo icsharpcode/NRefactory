@@ -33,6 +33,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading.Tasks;
 using System.Security.Policy;
+using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -61,6 +62,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return false;
 		}
 
+		public virtual Task<bool> IsExclusiveAsync(Document document, int position, CompletionTriggerInfo triggerInfo, CancellationToken cancellationToken)
+		{
+			return Task.FromResult (false);
+		}
+
 		public virtual bool IsTriggerCharacter (SourceText text, int position)
 		{
 			var ch = text [position];
@@ -74,7 +80,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		internal protected static bool IsTriggerAfterSpaceOrStartOfWordCharacter(SourceText text, int characterPosition)
 		{
 			var ch = text[characterPosition];
-			return ch == ' ' || IsStartingNewWord(text, characterPosition);
+			if (ch == ' ') {
+				ch = text[characterPosition - 1];
+				return !char.IsWhiteSpace (ch);
+			}
+			return IsStartingNewWord(text, characterPosition);
 		}
 
 		internal protected static bool IsStartingNewWord (SourceText text, int position)

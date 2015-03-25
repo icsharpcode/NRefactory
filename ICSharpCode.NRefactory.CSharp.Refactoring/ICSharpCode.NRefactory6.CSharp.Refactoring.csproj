@@ -209,7 +209,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ConvertIfStatementToReturnStatementAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ConvertReturnStatementToIfAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\CopyCommentsFromInterface.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateCustomEventImplementationAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateDelegateAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateIndexerAction.cs" />

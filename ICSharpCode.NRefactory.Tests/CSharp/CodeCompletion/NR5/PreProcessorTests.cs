@@ -72,8 +72,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 		public void TestBug10051 ()
 		{
 			var provider = CodeCompletionBugTests.CreateProvider (@"$#if $");
-			Assert.IsTrue (provider == null || provider.Count == 0);
-			
+			Assert.IsNotNull (provider.Find ("DEBUG"), "define 'DEBUG' not found.");
+
 			provider = CodeCompletionBugTests.CreateProvider (@"$#if $", true);
 			Assert.IsNotNull (provider.Find ("DEBUG"), "define 'DEBUG' not found.");
 		}	

@@ -857,11 +857,22 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool CanSupportCollectionInitializer(this ITypeSymbol typeSymbol)
 		{
-			return
-				typeSymbol.AllInterfaces.Any(i => i.SpecialType == SpecialType.System_Collections_IEnumerable) &&
-				typeSymbol.GetMembers(WellKnownMemberNames.CollectionInitializerAddMethodName)
-					.OfType<IMethodSymbol>()
-					.Any(m => m.Parameters.Any());
+			if (typeSymbol.AllInterfaces.Any (i => i.SpecialType == SpecialType.System_Collections_IEnumerable)) {
+				var curType = typeSymbol;
+				while (curType != null) {
+					if (HasAddMethod (curType))
+						return true;
+					curType = curType.BaseType;
+				}
+			}
+			return false;
+		}
+
+		static bool HasAddMethod (ITypeSymbol typeSymbol)
+		{
+			return typeSymbol
+				.GetMembers (WellKnownMemberNames.CollectionInitializerAddMethodName)
+				.OfType<IMethodSymbol> ().Any (m => m.Parameters.Any ());
 		}
 
 		public static INamedTypeSymbol GetDelegateType(this ITypeSymbol typeSymbol, Compilation compilation)

@@ -217,7 +217,6 @@
     <Compile Include="CSharp\CodeRefactorings\ConvertSwitchToIfTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertWhileToDoWhileLoopTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromBaseTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromIntefaceTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateChangedEventTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateCustomEventImplementationTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateDelegateTests.cs" />
@@ -488,6 +487,7 @@
     <Compile Include="CSharp\CodeRefactorings\CheckDictionaryKeyValueTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ImportStaticClassWithUsingTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\EnumMemberContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\KeywordCompletionContextHandlerTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

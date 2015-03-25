@@ -192,12 +192,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new YieldKeywordRecommender()
 		};
 
-		public override bool IsTriggerCharacter (SourceText text, int position)
+		public override bool IsTriggerCharacter (Microsoft.CodeAnalysis.Text.SourceText text, int position)
 		{
 			var ch = text [position];
-			return ch == ' ' || base.IsTriggerCharacter (text, position);
+			return ch == '#' || 
+				IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
 		}
-
 
 		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
@@ -207,13 +207,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return Enumerable.Empty<ICompletionData> ();
 			}
 
-			if (info.TriggerCharacter == ' ' && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped) {
-				if (!ctx.CSharpSyntaxContext.IsEnumBaseListContext)
-					return Enumerable.Empty<ICompletionData> ();
-			}
+			if (ctx.TargetToken.IsKind (SyntaxKind.OverrideKeyword))
+				return Enumerable.Empty<ICompletionData> ();
+			
 
 			var result = new List<ICompletionData> ();
-	
+			if (ctx.IsPreProcessorExpressionContext) {
+				var parseOptions = model.SyntaxTree.Options as CSharpParseOptions;
+				foreach (var define in parseOptions.PreprocessorSymbolNames) {
+					result.Add(engine.Factory.CreateGenericData (this, define, GenericDataType.PreprocessorSymbol));
+				}
+			}
+
 			foreach (var r in recommender) {
 				var recommended = r.RecommendKeywords (completionContext.Position, ctx.CSharpSyntaxContext, cancellationToken);
 				if (recommended == null)
@@ -228,12 +233,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //					result.Add(factory.CreateGenericData (this, kw, GenericDataType.PreprocessorKeyword));
 //			}
 //			
-			if (ctx.IsPreProcessorExpressionContext) {
-				var parseOptions = model.SyntaxTree.Options as CSharpParseOptions;
-				foreach (var define in parseOptions.PreprocessorSymbolNames) {
-					result.Add(engine.Factory.CreateGenericData (this, define, GenericDataType.PreprocessorSymbol));
-				}
-			}
+
 //			if (parent.IsKind(SyntaxKind.TypeParameterConstraintClause)) {
 //				result.Add(factory.CreateGenericData (this, "new()", GenericDataType.PreprocessorKeyword));
 //			}

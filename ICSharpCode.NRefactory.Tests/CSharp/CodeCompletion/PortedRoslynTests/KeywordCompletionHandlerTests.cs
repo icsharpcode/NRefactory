@@ -54,30 +54,30 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 //			VerifyNoItemsExist(markup);
 //		}
 //
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInCharLiteral()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var c = '$$';
-//";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInUnterminatedCharLiteral()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var c = '$$   ";
-//
-//			VerifyNoItemsExist(markup);
-//		}
+		[Test]
+		public void NotInCharLiteral()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var c = '$$';
+";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInUnterminatedCharLiteral()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var c = '$$   ";
+
+			VerifyNoItemsExist(markup);
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
 //		public void NotInUnterminatedCharLiteralAtEndOfFile()

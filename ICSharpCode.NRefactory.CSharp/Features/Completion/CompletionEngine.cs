@@ -116,8 +116,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var result = new CompletionResult();
 
 			if (position > 0) {
+				var nonExclusiveHandlers = new List<CompletionContextHandler> ();
+				var exclusiveHandlers = new List<CompletionContextHandler> ();
 				foreach (var handler in handlers.Concat (completionContext.AdditionalContextHandlers)) {
 					if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand || handler.IsTriggerCharacter (text, position - 1)) {
+						if (await handler.IsExclusiveAsync (document, position, info, cancellationToken)) {
+							exclusiveHandlers.Add (handler);
+						} else {
+							nonExclusiveHandlers.Add (handler);
+						}
+					}
+				}
+
+				foreach (var handler in exclusiveHandlers) {
+					var handlerResult = handler.GetCompletionDataAsync (result, this, completionContext, info, cancellationToken).Result;
+					if (handlerResult != null)
+						result.AddRange (handlerResult);
+				}
+
+				if (result.Count == 0) {
+					foreach (var handler in nonExclusiveHandlers) {
 						var handlerResult = handler.GetCompletionDataAsync (result, this, completionContext, info, cancellationToken).Result;
 						if (handlerResult != null)
 							result.AddRange (handlerResult);
