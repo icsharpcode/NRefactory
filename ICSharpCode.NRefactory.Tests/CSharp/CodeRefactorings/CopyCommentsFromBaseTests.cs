@@ -35,7 +35,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		[Test]
 		public void TestCopyMethodMultiString ()
 		{
-            
+
 			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 namespace TestNS
 {
@@ -126,7 +126,7 @@ namespace TestNS
 		[Test]
 		public void TestCopyMethodAbstractClassString ()
 		{
-            
+
 			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 namespace TestNS
 {
@@ -163,8 +163,8 @@ namespace TestNS
     }
 }");
 		}
-	
-	
+
+
 		[Test]
 		public void TestCopyProperty ()
 		{
@@ -239,7 +239,7 @@ class TestClass : Base
 		[Test]
 		public void TestSkipExisting ()
 		{
-			TestWrongContext <CopyCommentsFromBaseCodeRefactoringProvider> (@"
+			TestWrongContext<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 /// <summary>
 /// FooBar
 /// </summary>
@@ -259,7 +259,7 @@ class $TestClass : Base
 		[Test]
 		public void TestSkipEmpty ()
 		{
-			TestWrongContext <CopyCommentsFromBaseCodeRefactoringProvider> (@"
+			TestWrongContext<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 class Base 
 {
 }
@@ -273,89 +273,89 @@ class $TestClass : Base
 
 
 		[Test]
-		public void TestInterfaceSimpleCase()
+		public void TestInterfaceSimpleCase ()
 		{
-			Test<CopyCommentsFromBaseCodeRefactoringProvider>(@"
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 interface ITest
 {
-	///sssss
-	void Method ();
+    ///sssss
+    void Method ();
 }
 class TestClass : ITest
 {
-	public void $Method ()
-	{
-	}
+    public void $Method ()
+    {
+    }
 }", @"
 interface ITest
 {
-	///sssss
-	void Method ();
+    ///sssss
+    void Method ();
 }
 class TestClass : ITest
 {
-	///sssss
-	public void Method ()
-	{
-	}
+    /// sssss
+    public void Method ()
+    {
+    }
 }");
 		}
 
 		[Test]
-		public void TestInterfaceMultiCase()
+		public void TestInterfaceMultiCase ()
 		{
-			Test<CopyCommentsFromBaseCodeRefactoringProvider>(@"
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 interface ITest
 {
-	///sssss
-	///sssss
-	void Method ();
+    ///sssss
+    ///sssss
+    void Method ();
 }
 class TestClass : ITest
 {
-	public void $Method ()
-	{
-	}
+    public void $Method ()
+    {
+    }
 }", @"
 interface ITest
 {
-	///sssss
-	///sssss
-	void Method ();
+    ///sssss
+    ///sssss
+    void Method ();
 }
 class TestClass : ITest
 {
-	///sssss
-	///sssss
-	public void Method ()
-	{
-	}
+    /// sssss
+    /// sssss
+    public void Method ()
+    {
+    }
 }");
-		}	
+		}
 
 		[Ignore]
-		public void TestInterfaceNoProblem()
+		public void TestInterfaceNoProblem ()
 		{
-			Test<CopyCommentsFromBaseCodeRefactoringProvider>(@"
+			Test<CopyCommentsFromBaseCodeRefactoringProvider> (@"
 interface ITest
 {
-	void Method ();
+    void Method ();
 }
 class TestClass : ITest
 {
-	public void $Method ()
-	{
-	}
+    public void $Method ()
+    {
+    }
 }", @"
 interface ITest
 {
-	void Method ();
+    void Method ();
 }
 class TestClass : ITest
 {
-	public void Method ()
-	{
-	}
+    public void Method ()
+    {
+    }
 }");
 		}
 

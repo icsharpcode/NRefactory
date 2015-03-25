@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create (
 					span,
 					DiagnosticSeverity.Info,
-					baseMember.ContainingType.TypeKind == TypeKind.Interface ? "Copy comments from interface" : "Copy comments from base",
+					baseMember.ContainingType != null && baseMember.ContainingType.TypeKind == TypeKind.Interface ? "Copy comments from interface" : "Copy comments from base",
 					t2 => {
 						var triva = node.GetLeadingTrivia ();
 
@@ -109,9 +109,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		static ISymbol GetBaseMember (ISymbol declaredSymbol, out string documentation, CancellationToken cancellationToken)
 		{
 			var overriddenMember = declaredSymbol.OverriddenMember ();
-			documentation = overriddenMember.GetDocumentationCommentXml(null, false, cancellationToken);
+			documentation = overriddenMember != null ? overriddenMember.GetDocumentationCommentXml(null, false, cancellationToken) : "";
 
-			if (!string.IsNullOrEmpty (documentation))
+			if (!string.IsNullOrEmpty (documentation) || declaredSymbol.Kind == SymbolKind.NamedType)
 				return overriddenMember;
 
 			var containingType = declaredSymbol.ContainingType;
@@ -123,7 +123,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				foreach (var member in iface.GetMembers()) {
 					var implementation = containingType.FindImplementationForInterfaceMember(member);
 					if (implementation == declaredSymbol) {
-						documentation = implementation.GetDocumentationCommentXml(null, false, cancellationToken);
+						documentation = member.GetDocumentationCommentXml(null, false, cancellationToken);
 						if (!string.IsNullOrEmpty (documentation))
 							return implementation;
 					}
