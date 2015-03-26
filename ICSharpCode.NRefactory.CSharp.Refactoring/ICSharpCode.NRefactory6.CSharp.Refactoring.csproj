@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.CSharp.Refactoring</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory6.CSharp.Refactoring</AssemblyName>
-    <SignAssembly>false</SignAssembly>
+    <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
     <DelaySign>False</DelaySign>
     <AssemblyOriginatorKeyMode>File</AssemblyOriginatorKeyMode>

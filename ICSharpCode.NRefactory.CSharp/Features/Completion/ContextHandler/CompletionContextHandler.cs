@@ -39,7 +39,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public abstract class CompletionContextHandler : ICompletionKeyHandler
 	{
-		public abstract Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken));
+		public async Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			// If we were triggered by typign a character, then do a semantic check to make sure
+			// we're still applicable.  If not, then return immediately.
+			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped)
+			{
+				var isSemanticTriggerCharacter = await IsSemanticTriggerCharacterAsync(completionContext.Document, completionContext.Position - 1, cancellationToken).ConfigureAwait(false);
+				if (!isSemanticTriggerCharacter)
+					return null;
+			}
+
+			return await GetItemsWorkerAsync(result, engine, completionContext, info, cancellationToken).ConfigureAwait(false);
+
+		}
+
+		protected virtual Task<bool> IsSemanticTriggerCharacterAsync(Document document, int characterPosition, CancellationToken cancellationToken)
+        {
+			return Task.FromResult (true);
+        }
+
+		protected abstract Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken);
 
 		static readonly char[] csharpCommitChars = {
 			' ', '{', '}', '[', ']', '(', ')', '.', ',', ':',

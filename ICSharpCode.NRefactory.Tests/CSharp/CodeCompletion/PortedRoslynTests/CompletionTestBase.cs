@@ -35,6 +35,28 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 {
 	public class CompletionTestBase
 	{
+		CompletionContextHandler [] originalHandler;
+
+		internal virtual CompletionContextHandler CreateContextHandler()
+		{
+			return null;
+		}
+
+		[SetUp]
+		public void SetUpTests ()
+		{
+			originalHandler = CompletionEngine.handlers;
+			var handler = CreateContextHandler ();
+			if (handler != null)
+				CompletionEngine.handlers = new CompletionContextHandler [] { handler };
+		}
+
+		[TearDown]
+		public void TearDown ()
+		{
+			CompletionEngine.handlers = originalHandler;
+		}
+
 		protected void VerifyItemsExist(string input, params string[] items)
 		{
 			foreach (var item in items) {
@@ -56,7 +78,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 
 		protected void VerifyItemIsAbsent(string input, string expectedItem, string expectedDescriptionOrNull = null, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false)
 		{
-			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input) : CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"));
+			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input, sourceCodeKind) : 
+			                                                                CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"), sourceCodeKind);
 
 			if (provider.Find (expectedItem) != null) {
 				foreach (var item in provider)

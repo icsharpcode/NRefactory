@@ -78,51 +78,51 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 
 			VerifyNoItemsExist(markup);
 		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInUnterminatedCharLiteralAtEndOfFile()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var c = '$$";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInString()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var s = ""$$"";
-//";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInStringInDirective()
-//		{
-//			var markup = "#r \"$$\"";
-//
-//			VerifyNoItemsExist(markup, SourceCodeKind.Interactive);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInUnterminatedString()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var s = ""$$   ";
-//
-//			VerifyNoItemsExist(markup);
-//		}
+
+		[Test]
+		public void NotInUnterminatedCharLiteralAtEndOfFile()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var c = '$$";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInString()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var s = ""$$"";
+";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		//[Test]
+		//public void NotInStringInDirective()
+		//{
+		//	var markup = "#r \"$$\"";
+
+		//	VerifyNoItemsExist(markup, SourceCodeKind.Interactive);
+		//}
+
+		[Test]
+		public void NotInUnterminatedString()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var s = ""$$   ";
+
+			VerifyNoItemsExist(markup);
+		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
 //		public void NotInUnterminatedStringInDirective()
@@ -132,97 +132,97 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 //			VerifyNoItemsExist(markup, SourceCodeKind.Interactive);
 //		}
 //
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInUnterminatedStringAtEndOfFile()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var s = ""$$";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInVerbatimString()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var s = @""
-//$$
-//"";
-//";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInUnterminatedVerbatimString()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var s = @""
-//$$
-//";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInUnterminatedVerbatimStringAtEndOfFile()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        var s = @""$$";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInSingleLineComment()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-//        // $$
-//";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInSingleLineCommentAtEndOfFile()
-//		{
-//			var markup = @"namespace A
-//{
-//}// $$";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
-//		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
-//		public void NotInMutliLineComment()
-//		{
-//			var markup = @"class C
-//{
-//    void M()
-//    {
-///*
-//    $$
-//*/
-//";
-//
-//			VerifyNoItemsExist(markup);
-//		}
-//
+		[Test]
+		public void NotInUnterminatedStringAtEndOfFile()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var s = ""$$";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInVerbatimString()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var s = @""
+$$
+"";
+";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInUnterminatedVerbatimString()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var s = @""
+$$
+";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInUnterminatedVerbatimStringAtEndOfFile()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        var s = @""$$";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInSingleLineComment()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+        // $$
+";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInSingleLineCommentAtEndOfFile()
+		{
+			var markup = @"namespace A
+{
+}// $$";
+
+			VerifyNoItemsExist(markup);
+		}
+
+		[Test]
+		public void NotInMutliLineComment()
+		{
+			var markup = @"class C
+{
+    void M()
+    {
+/*
+    $$
+*/
+";
+
+			VerifyNoItemsExist(markup);
+		}
+
 //		[WorkItem(968256)]
 //		[Fact, Trait(Traits.Feature, Traits.Features.KeywordRecommending)]
 //		public void UnionOfItemsFromBothContexts()
@@ -235,9 +235,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 //#if FOO
 //    void foo() {
 //#endif
-//
+
 //$$
-//
+
 //#if FOO
 //    }
 //#endif

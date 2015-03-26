@@ -73,16 +73,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return IsException (type.BaseType);
 		}
 
-		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		protected async override Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var result = new List<ICompletionData> ();
-			if (info.TriggerCharacter == ' ') {
-				var newExpression = ObjectCreationContextHandler.GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
-				if (newExpression == null && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped)
-					return Enumerable.Empty<ICompletionData> ();
-			}
+			//if (info.TriggerCharacter == ' ') {
+			//	var newExpression = ObjectCreationContextHandler.GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
+			//	if (newExpression == null && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped)
+			//		return Enumerable.Empty<ICompletionData> ();
+			//}
 
 
 			var parent = ctx.TargetToken.Parent;
@@ -142,5 +142,36 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			}
 			return result;
 		}
+
+		protected override async Task<bool> IsSemanticTriggerCharacterAsync(Document document, int characterPosition, CancellationToken cancellationToken)
+		{
+			bool? result = await IsTriggerOnDotAsync(document, characterPosition, cancellationToken).ConfigureAwait(false);
+			if (result.HasValue)
+			{
+				return result.Value;
+			}
+
+			return true;
+		}
+
+		private async Task<bool?> IsTriggerOnDotAsync(Document document, int characterPosition, CancellationToken cancellationToken)
+		{
+			var text = await document.GetTextAsync(cancellationToken).ConfigureAwait(false);
+			if (text[characterPosition] != '.')
+			{
+				return null;
+			}
+
+			// don't want to trigger after a number.  All other cases after dot are ok.
+			var tree = await document.GetCSharpSyntaxRootAsync(cancellationToken).ConfigureAwait(false);
+			var token = tree.FindToken(characterPosition);
+			if (token.Kind() == SyntaxKind.DotToken)
+			{
+				token = token.GetPreviousToken();
+			}
+
+			return token.Kind() != SyntaxKind.NumericLiteralToken;
+		}
+
 	}
 }

@@ -38,7 +38,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public class CastCompletionContextHandler : CompletionContextHandler
 	{
-		public override async Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		protected async override Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var position = completionContext.Position;
 			var document = completionContext.Document;

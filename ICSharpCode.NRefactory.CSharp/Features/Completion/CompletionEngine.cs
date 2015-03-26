@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public partial class CompletionEngine 
 	{
-		static readonly CompletionContextHandler[] handlers = {
+		internal static CompletionContextHandler[] handlers = {
 			new RoslynRecommendationsCompletionContextHandler (),
 			new KeywordContextHandler(),
 			new OverrideContextHandler(),

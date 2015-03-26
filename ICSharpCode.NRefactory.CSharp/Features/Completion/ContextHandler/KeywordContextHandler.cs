@@ -199,7 +199,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
 		}
 
-		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		protected async override Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var model = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);

@@ -35,6 +35,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 	[TestFixture]
 	public class OverrideCompletionProviderTests : CompletionTestBase
 	{
+		internal override CompletionContextHandler CreateContextHandler()
+		{
+			return new OverrideContextHandler();
+		}
+
 //		#region "CompletionItem tests"
 
 		[Test]

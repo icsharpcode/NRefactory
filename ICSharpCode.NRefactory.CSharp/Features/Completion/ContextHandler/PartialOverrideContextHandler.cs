@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
 		}
 
-		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
+		protected async override Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
 			var document = completionContext.Document;
 			var position = completionContext.Position;

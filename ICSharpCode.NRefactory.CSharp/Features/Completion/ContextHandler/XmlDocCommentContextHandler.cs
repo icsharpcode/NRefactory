@@ -39,9 +39,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	class XmlDocCommentContextHandler : CompletionContextHandler
 	{
-		public async override Task<IEnumerable<ICompletionData>> GetCompletionDataAsync (CompletionResult result, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo triggerInfo, CancellationToken cancellationToken)
+		protected async override Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
 		{
-			if (triggerInfo.IsDebugger)
+			if (info.IsDebugger)
 			{
 				return null;
 			}
