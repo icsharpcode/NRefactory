@@ -29,14 +29,14 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[TestFixture, Ignore("Not implemented!")]
+	[TestFixture]
 	public class SplitStringTests : ContextActionTestBase
 	{
 		[Test()]
 		public void TestSimpleString ()
 		{
 			string result = RunContextAction (
-				new SplitStringAction (),
+				new SplitStringCodeRefactoringProvider (),
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		public void TestVerbatimString ()
 		{
 			string result = RunContextAction (
-				new SplitStringAction (),
+				new SplitStringCodeRefactoringProvider (),
 				"class TestClass" + Environment.NewLine +
 				"{" + Environment.NewLine +
 				"	void Test ()" + Environment.NewLine +

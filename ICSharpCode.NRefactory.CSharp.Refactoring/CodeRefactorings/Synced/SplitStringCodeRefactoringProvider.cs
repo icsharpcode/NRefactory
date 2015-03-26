@@ -42,42 +42,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Splits string literal into two")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split string literal")]
-	public class SplitStringAction : SpecializedCodeRefactoringProvider<LiteralExpressionSyntax>
+	public class SplitStringCodeRefactoringProvider : SpecializedCodeRefactoringProvider<LiteralExpressionSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, LiteralExpressionSyntax node, CancellationToken cancellationToken)
 		{
 			if (!node.IsKind(SyntaxKind.StringLiteralExpression))
 				yield break;
-//			yield return new CodeActionFactory.Create(
-//				node.Span,
-//				DiagnosticSeverity.Info,
-//				"Split string literal",
-//				t2 => {
-//					var parent = block.Parent.ReplaceNode((SyntaxNode)block, block.Statements.First())
-//						.WithAdditionalAnnotations(Formatter.Annotation);
-//
-//					var newRoot = root.ReplaceNode((SyntaxNode)node, parent);
-//					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-//				}
-//			);
 
-			//			if (pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal)) {
-			//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 2) &&
-			//					new TextLocation(context.Location.Line, context.Location.Column + 2) < pexpr.EndLocation)) {
-			//					yield break;
-			//				}
-			//			} else {
-			//				if (!(pexpr.StartLocation < new TextLocation(context.Location.Line, context.Location.Column - 1) && new TextLocation(context.Location.Line, context.Location.Column + 1) < pexpr.EndLocation)) {
-			//					yield break;
-			//				}
-			//			}
-			//
-			//			yield return new CodeAction(context.TranslateString(""), script => {
-			//				int offset = context.GetOffset (context.Location);
-			//				script.InsertText (offset, pexpr.LiteralValue.StartsWith("@", StringComparison.Ordinal) ? "\" + @\"" : "\" + \"");
-			//			}, pexpr);
-			//		}
+			yield return CodeActionFactory.Create(
+				span,
+				DiagnosticSeverity.Info, 
+				"Split string literal", 
+				t2 => {
+					var text = node.ToString ();
+					var left = SyntaxFactory.LiteralExpression (SyntaxKind.StringLiteralExpression, SyntaxFactory.ParseToken (text.Substring (0, span.Start - node.Span.Start) + '"' ));
+					var right = SyntaxFactory.LiteralExpression (SyntaxKind.StringLiteralExpression, SyntaxFactory.ParseToken ((text.StartsWith("@", StringComparison.Ordinal) ? "@\"" : "\"") + text.Substring (span.Start - node.Span.Start)));
 
+					var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.BinaryExpression(SyntaxKind.AddExpression, left, right).WithAdditionalAnnotations (Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}
+			);
 		}
 	}
 }

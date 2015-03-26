@@ -228,7 +228,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\PutInsideUsingAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ReverseDirectionForForLoopAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\SortUsingsAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\SplitStringAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\UseStringFormatAction.cs" />
     <Compile Include="Diagnostics\CodeActionFactory.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeRefactorings\Synced\CheckDictionaryKeyValueCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\CreateChangedEventCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\AddOptionalParameterToInvocationCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\SplitStringCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
