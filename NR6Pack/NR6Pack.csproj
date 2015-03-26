@@ -265,6 +265,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\SplitStringCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\SplitStringCodeRefactoringProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.cs</Link>
     </Compile>
@@ -351,9 +354,6 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SortUsingsAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\SortUsingsAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SplitStringAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\SplitStringAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs</Link>
