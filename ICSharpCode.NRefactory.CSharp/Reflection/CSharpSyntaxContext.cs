@@ -315,6 +315,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return (BaseTypeDeclarationSyntax)containingTypeOrEnumDeclarationField.GetValue (instance);
 			}
 		}
+		static readonly PropertyInfo isAttributeNameContextProperty;
+
+		public bool IsAttributeNameContext {
+			get {
+				return (bool)isAttributeNameContextProperty.GetValue (instance);
+			}
+		}
+
+		static readonly PropertyInfo isInQueryProperty;
+		public bool IsInQuery {
+			get {
+				return (bool)isInQueryProperty.GetValue (instance);
+			}
+		}
 
 
 		static CSharpSyntaxContext ()
@@ -357,6 +371,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 			precedingModifiersField = typeInfo.GetField ("PrecedingModifiers");
 			isTypeOfExpressionContextField = typeInfo.GetField ("IsTypeOfExpressionContext");
 			containingTypeOrEnumDeclarationField = typeInfo.GetField ("ContainingTypeOrEnumDeclaration");
+
+			isAttributeNameContextProperty = typeInfo.GetProperty ("IsAttributeNameContext");
+			isInQueryProperty = typeInfo.GetProperty ("IsInQuery");
 		}
 
 		public SemanticModel SemanticModel {

@@ -95,9 +95,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 			}
 		}
 
-		protected void VerifyNoItemsExist(string input)
+		protected void VerifyNoItemsExist(string input, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false)
 		{
-			var provider = CodeCompletionBugTests.CreateProvider(input.Replace("$$", "$"));
+			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input, sourceCodeKind) : CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"), sourceCodeKind);
 			if (provider != null && provider.Count > 0) {
 				foreach (var data in provider)
 					Console.WriteLine(data.DisplayText);
@@ -106,6 +106,29 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 		}
 
 
+
+		protected string AddUsingDirectives(string usingDirectives, string text)
+		{
+			return
+				usingDirectives +
+				@"
+
+
+" +
+			text;
+		}
+
+		protected string AddInsideMethod(string text)
+        {
+            return
+@"class C
+{
+  void F()
+  {
+    " + text +
+@"  }
+}";
+        }
 
 	}
 

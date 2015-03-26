@@ -539,7 +539,7 @@
     <Compile Include="CSharp\CodeRefactorings\ImportStaticClassWithUsingTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\EnumMemberContextHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\KeywordCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionProviderTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests_NoInteractive.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

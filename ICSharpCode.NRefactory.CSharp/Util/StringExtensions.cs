@@ -502,19 +502,22 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		public static string EscapeIdentifier(
-			this string identifier,
-			bool isQueryContext = false)
-		{
-			var nullIndex = identifier.IndexOf('\0');
-			if (nullIndex >= 0)
-			{
-				identifier = identifier.Substring(0, nullIndex);
-			}
+            this string identifier,
+            bool isQueryContext = false)
+        {
+            var nullIndex = identifier.IndexOf('\0');
+            if (nullIndex >= 0)
+            {
+                identifier = identifier.Substring(0, nullIndex);
+            }
 
-			var needsEscaping = SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None;
+            var needsEscaping = SyntaxFacts.GetKeywordKind(identifier) != SyntaxKind.None;
 
-			return needsEscaping ? "@" + identifier : identifier;
-		}
+            // Check if we need to escape this contextual keyword
+			needsEscaping = needsEscaping || (isQueryContext && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(identifier)));
+
+            return needsEscaping ? "@" + identifier : identifier;
+        }
 
 		public static SyntaxToken ToIdentifierToken (
 			this string identifier,

@@ -64,6 +64,25 @@ class FooBar
 		}
 
 
+
+		[Test]
+		public void TestSpaceTooEagerCase1()
+		{
+			VerifyNoItemsExist (@"
+using System;
+class FooBar
+{
+	public static void Test ()
+	{
+		Console.WriteLine (34 $);
+	}
+}
+", usePreviousCharAsTrigger: true);
+		}
+
+
+
+
 	}
 }
 

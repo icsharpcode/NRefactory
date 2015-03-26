@@ -209,7 +209,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			if (ctx.TargetToken.IsKind (SyntaxKind.OverrideKeyword))
 				return Enumerable.Empty<ICompletionData> ();
-			
+
+			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && info.TriggerCharacter == ' ') {
+				if (ctx.CSharpSyntaxContext.IsIsOrAsContext)
+					return Enumerable.Empty<ICompletionData> ();
+			}
 
 			var result = new List<ICompletionData> ();
 			if (ctx.IsPreProcessorExpressionContext) {
@@ -239,5 +243,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 //			}
 			return result;
 		} 
+
 	}
 }

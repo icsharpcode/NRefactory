@@ -48,12 +48,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 	class RoslynRecommendationsCompletionContextHandler : CompletionContextHandler
 	{
-		static bool IsAttribute (ITypeSymbol type)
-		{
-			// todo: better attribute recognition test.
-			return type.Name.EndsWith ("Attribute", StringComparison.Ordinal);
-		}
-
 		public override bool IsTriggerCharacter (SourceText text, int position)
 		{
 			var ch = text [position];
@@ -86,14 +80,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 
 			var parent = ctx.TargetToken.Parent;
-			bool isInAttribute = parent != null && (parent.IsKind (SyntaxKind.AttributeList) ||
-			                                        parent.Parent != null && parent.IsKind (SyntaxKind.QualifiedName) && parent.Parent.IsKind (SyntaxKind.Attribute));
+			bool isInAttribute = ctx.CSharpSyntaxContext.IsAttributeNameContext;
 			bool isInBaseList = parent != null && parent.IsKind (SyntaxKind.BaseList);
-			bool isInUsingDirective = parent != null && parent.Parent != null && parent.Parent.IsKind (SyntaxKind.UsingDirective);
+			bool isInUsingDirective = parent != null && parent.Parent != null && parent.Parent.IsKind (SyntaxKind.UsingDirective) && !parent.IsKind (SyntaxKind.QualifiedName);
+			var isInQuery = ctx.CSharpSyntaxContext.IsInQuery;
 			var completionDataLookup = new Dictionary<Tuple<string, SymbolKind>, ISymbolCompletionData> ();
 			bool isInCatchTypeExpression = parent.IsKind (SyntaxKind.CatchDeclaration) ||
 			                                     parent.IsKind (SyntaxKind.QualifiedName) && parent != null && parent.Parent.IsKind (SyntaxKind.CatchDeclaration);
-
 			Action<ISymbolCompletionData> addData = d => {
 				var key = Tuple.Create (d.DisplayText, d.Symbol.Kind);
 				ISymbolCompletionData data;
@@ -110,8 +103,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (symbol.Kind == SymbolKind.NamedType) {
 					if (isInAttribute) {
 						var type = (ITypeSymbol)symbol;
-						if (IsAttribute (type)) {
-							addData (engine.Factory.CreateSymbolCompletionData (this, symbol, type.Name.Substring (0, type.Name.Length - "Attribute".Length)));
+						if (type.IsAttribute ()) {
+							var v = type.Name.Substring (0, type.Name.Length - "Attribute".Length);
+							var needsEscaping = SyntaxFacts.GetKeywordKind(v) != SyntaxKind.None;
+							needsEscaping = needsEscaping || (isInQuery && SyntaxFacts.IsQueryContextualKeyword(SyntaxFacts.GetContextualKeywordKind(v)));
+							if (!needsEscaping) {
+								addData (engine.Factory.CreateSymbolCompletionData (this, symbol, v));
+								continue;
+							}
 						}
 					}
 					if (isInBaseList) {
@@ -128,7 +127,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 				if (isInUsingDirective && symbol.Kind != SymbolKind.Namespace)
 					continue;
-				var newData = engine.Factory.CreateSymbolCompletionData (this, symbol);
+
+				var newData = engine.Factory.CreateSymbolCompletionData (this, symbol, symbol.Name.EscapeIdentifier (isInQuery));
 				var categorySymbol = (ISymbol)symbol.ContainingType ?? symbol.ContainingNamespace;
 				if (categorySymbol != null) {
 					ICompletionCategory category;
@@ -172,6 +172,5 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 
 			return token.Kind() != SyntaxKind.NumericLiteralToken;
 		}
-
 	}
 }
