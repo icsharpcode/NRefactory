@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// When negating an expression this is required, otherwise you would end up with
 		/// a or b -> !a or b
 		/// </summary>
-		internal static ExpressionSyntax AddParensForUnaryExpressionIfRequired(ExpressionSyntax expression)
+		public static ExpressionSyntax AddParensForUnaryExpressionIfRequired(ExpressionSyntax expression)
 		{
 			if ((expression is BinaryExpressionSyntax) ||
 			    (expression is AssignmentExpressionSyntax) ||

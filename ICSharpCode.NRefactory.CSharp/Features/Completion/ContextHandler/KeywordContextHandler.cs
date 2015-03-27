@@ -213,6 +213,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && info.TriggerCharacter == ' ') {
 				if (ctx.CSharpSyntaxContext.IsIsOrAsContext)
 					return Enumerable.Empty<ICompletionData> ();
+				completionResult.AutoCompleteEmptyMatch = false;
 			}
 
 			var result = new List<ICompletionData> ();

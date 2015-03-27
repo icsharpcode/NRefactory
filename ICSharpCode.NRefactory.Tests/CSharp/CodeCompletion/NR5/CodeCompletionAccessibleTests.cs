@@ -1260,7 +1260,6 @@ class TestClass
 		$if (A(1,2,""foo"") == $
 	}
 }");
-			Assert.IsFalse(provider.AutoCompleteEmptyMatch);
 			Assert.IsNotNull (provider.Find ("TestEnum"), "enum 'TestEnum' not found.");
 			Assert.IsNotNull (provider.Find ("TestEnum.A"), "enum 'TestEnum.A' not found.");
 			Assert.IsNotNull (provider.Find ("TestEnum.B"), "enum 'TestEnum.B' not found.");
@@ -1284,7 +1283,6 @@ class TestClass
 		$if (A(1,2,""foo"") != $
 	}
 }");
-			Assert.IsFalse(provider.AutoCompleteEmptyMatch);
 			Assert.IsNotNull (provider.Find ("TestEnum"), "enum 'TestEnum' not found.");
 			Assert.IsNotNull (provider.Find ("TestEnum.A"), "enum 'TestEnum.A' not found.");
 			Assert.IsNotNull (provider.Find ("TestEnum.B"), "enum 'TestEnum.B' not found.");

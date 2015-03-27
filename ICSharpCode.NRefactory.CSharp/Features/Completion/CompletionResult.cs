@@ -40,9 +40,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			internal set;
 		}
 
+		bool autoCompleteEmptyMatch = true;
+
 		public bool AutoCompleteEmptyMatch {
-			get;
-			set;
+			get { return autoCompleteEmptyMatch; }
+			set { autoCompleteEmptyMatch = value; }
 		}
 
 		public bool AutoCompleteEmptyMatchOnCurlyBracket {

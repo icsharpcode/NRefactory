@@ -226,7 +226,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\MergeNestedIfAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\MoveToOuterScopeAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\PutInsideUsingAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\ReverseDirectionForForLoopAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\SortUsingsAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\UseStringFormatAction.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeRefactorings\Custom\CreateChangedEventCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\AddOptionalParameterToInvocationCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\SplitStringCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ReverseDirectionForForLoopCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
