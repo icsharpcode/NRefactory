@@ -359,7 +359,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantBaseQualifierAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantBoolCompareAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCaseLabelAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCastAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCatchClauseAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCommaInArrayInitializerAnalyzer.cs" />
@@ -376,7 +375,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantLambdaParameterTypeAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantNameQualifierAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantObjectCreationArgumentListAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantStringToCharArrayCallAnalyzer.cs" />
@@ -385,7 +383,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUsingDirectiveAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\UseMethodIsInstanceOfTypeAnalyzer.cs" />

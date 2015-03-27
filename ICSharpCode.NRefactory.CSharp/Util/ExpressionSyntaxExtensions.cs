@@ -22,14 +22,17 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
+	
 	public static partial class ExpressionSyntaxExtensions
 	{
 		static MethodInfo castIfPossibleMethod;
+
 
 		static ExpressionSyntaxExtensions ()
 		{
 			var typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Extensions.ExpressionSyntaxExtensions" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			castIfPossibleMethod = typeInfo.GetMethod ("CastIfPossible", BindingFlags.Static | BindingFlags.Public);
+			tryReduceOrSimplifyExplicitNameMethod = typeInfo.GetMethod ("TryReduceOrSimplifyExplicitName", BindingFlags.Static | BindingFlags.Public);
 		}
 
 		/// <summary>
@@ -579,24 +582,23 @@ namespace ICSharpCode.NRefactory6.CSharp
 //			return false;
 //		}
 
-//		public static bool TryReduceOrSimplifyExplicitName(
-//			this ExpressionSyntax expression,
-//			SemanticModel semanticModel,
-//			out ExpressionSyntax replacementNode,
-//			out TextSpan issueSpan,
-//			OptionSet optionSet,
-//			CancellationToken cancellationToken)
-//		{
-//			TypeSyntax replacementTypeNode;
-//			if (expression.TryReduceExplicitName(semanticModel, out replacementTypeNode, out issueSpan, optionSet, cancellationToken))
-//			{
-//				replacementNode = replacementTypeNode;
-//				return true;
-//			}
-//
-//			return expression.TrySimplify(semanticModel, optionSet, out replacementNode, out issueSpan);
-//		}
-//
+		readonly static MethodInfo tryReduceOrSimplifyExplicitNameMethod;
+
+		public static bool TryReduceOrSimplifyExplicitName(
+			this ExpressionSyntax expression,
+			SemanticModel semanticModel,
+			out ExpressionSyntax replacementNode,
+			out TextSpan issueSpan,
+			OptionSet optionSet,
+			CancellationToken cancellationToken)
+		{
+			var args = new object[] { expression, semanticModel, default(ExpressionSyntax), default(TextSpan), optionSet, cancellationToken };
+			var result = (bool)tryReduceOrSimplifyExplicitNameMethod.Invoke (null, args);
+			replacementNode = (ExpressionSyntax)args [2];
+			issueSpan = (TextSpan)args [3];
+			return result;
+		}
+
 //		public static bool TryReduceExplicitName(
 //			this ExpressionSyntax expression,
 //			SemanticModel semanticModel,

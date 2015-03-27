@@ -534,6 +534,7 @@
     <Compile Include="Util\UsingsAndExternAliasesOrganizer.cs" />
     <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.cs" />
     <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.Rewriter.cs" />
+    <Compile Include="Util\CrefSyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
