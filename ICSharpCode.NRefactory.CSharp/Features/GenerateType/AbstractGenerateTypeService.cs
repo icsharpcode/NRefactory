@@ -126,9 +126,9 @@ namespace ICSharpCode.NRefactory6.CSharp.GenerateType
 				yield return new GenerateTypeCodeAction ((TService)this, document.Document, state, intoNamespace: false, inNewFile: false);
 			}
 
-			if (generateNewTypeInDialog) {
-				yield return new GenerateTypeCodeActionWithOption ((TService)this, document.Document, state);
-			}
+			//if (generateNewTypeInDialog) {
+			//	yield return new GenerateTypeCodeActionWithOption ((TService)this, document.Document, state);
+			//}
 		}
 
 		private bool CanGenerateIntoContainingNamespace (SemanticDocument document, SyntaxNode node, State state, CancellationToken cancellationToken)
