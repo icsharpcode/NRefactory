@@ -349,9 +349,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\PutInsideUsingAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\PutInsideUsingAction.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ReverseDirectionForForLoopAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\ReverseDirectionForForLoopAction.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SortUsingsAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\SortUsingsAction.cs</Link>
     </Compile>
@@ -769,9 +766,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantCaseLabelAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantCaseLabelAnalyzer.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantCastAnalyzer.cs">
-      <Link>Diagnostics\RedundanciesInCode\RedundantCastAnalyzer.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantCatchClauseAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantCatchClauseAnalyzer.cs</Link>
     </Compile>
@@ -820,9 +814,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandAnalyzer.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantNameQualifierAnalyzer.cs">
-      <Link>Diagnostics\RedundanciesInCode\RedundantNameQualifierAnalyzer.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantObjectCreationArgumentListAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantObjectCreationArgumentListAnalyzer.cs</Link>
     </Compile>
@@ -846,9 +837,6 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantUnsafeContextAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantUsingDirectiveAnalyzer.cs">
-      <Link>Diagnostics\RedundanciesInCode\RedundantUsingDirectiveAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs</Link>
@@ -1148,6 +1136,7 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Util\ValueTuple`2.cs">
       <Link>Common\ValueTuple`2.cs</Link>
     </Compile>
+    <Compile Include="Common\ReflectionCompatibilityExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

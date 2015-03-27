@@ -191,76 +191,6 @@
       <HintPath>..\packages\System.Reflection.Metadata.1.0.18-beta\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition="'$(Configuration)' != 'Debug_NR6Pack' AND '$(Configuration)' != 'Release_NR6Pack'">
-    <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
-    <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
-    <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
-    <Compile Include="IndentationTests\StringTests.cs" />
-    <Compile Include="IndentationTests\Helper.cs" />
-    <Compile Include="IndentationTests\PreProcessorTests.cs" />
-    <Compile Include="IndentationTests\GeneralTests.cs" />
-    <Compile Include="IndentationTests\CommentTests.cs" />
-    <Compile Include="IndentationTests\BlockTest.cs" />
-    <Compile Include="IndentationTests\AlignmentTests.cs" />
-    <Compile Include="IndentationTests\AllInOneTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionAccessibleTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionBugTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionCSharp3Tests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionCSharpTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionOperatorTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\CompletionDataList.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\DelegateContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\DocumentationContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\EnumContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\FormatItemTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\KeywordTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\NameContextTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\ObjectInitializerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\PreProcessorTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\TestBase.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR5\VariableDeclarationStatementTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\AttributeNamedParameterCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\CompletionTestBase.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\CrefCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\EnumAndCompletionListTagCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ExplicitInterfaceCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ExternAliasCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\KeywordCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\NamedParameterCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ObjectCreationCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ObjectInitializerCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\OverrideCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\PartialCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SpeculativeTCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\XmlDocCompletionHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\DelegateCreationContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\ObjectCreationCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\OverrideCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\CastCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\SenderCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\SpeculativeNameContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\EnumMemberContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeCompletion\NR6\KeywordCompletionContextHandlerTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\AutoLinqSumTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\ChangeAccessModifierTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0126ReturnMustBeFollowedByAnyExpressionTestes.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0127ReturnMustNotBeFollowedByAnyExpressionTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0029InvalidConversionTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0152DuplicateCaseLabelValueTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0169FieldIsNeverUsedTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0618UsageOfObsoleteMemberTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0108UseNewKeywordIfHidingIntendedTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0759RedundantPartialMethodTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS1729TypeHasNoConstructorWithNArgumentsTests.cs" />
-    <Compile Include="CSharp\Diagnostics\ExpressionIsNeverOfProvidedTypeTests.cs" />
-    <Compile Include="CSharp\Diagnostics\MissingInterfaceMemberImplementationTests.cs" />
-    <Compile Include="CSharp\Diagnostics\StaticConstructorParameterTests.cs" />
-    <Compile Include="CSharp\Diagnostics\ProhibitedModifiersTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromBaseTests.cs" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Properties\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
@@ -539,6 +469,74 @@
     <Compile Include="CSharp\CodeRefactorings\CheckDictionaryKeyValueTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ImportStaticClassWithUsingTests.cs" />
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests_NoInteractive.cs" />
+	<Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
+    <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
+    <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
+    <Compile Include="IndentationTests\StringTests.cs" />
+    <Compile Include="IndentationTests\Helper.cs" />
+    <Compile Include="IndentationTests\PreProcessorTests.cs" />
+    <Compile Include="IndentationTests\GeneralTests.cs" />
+    <Compile Include="IndentationTests\CommentTests.cs" />
+    <Compile Include="IndentationTests\BlockTest.cs" />
+    <Compile Include="IndentationTests\AlignmentTests.cs" />
+    <Compile Include="IndentationTests\AllInOneTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionAccessibleTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionBugTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionCSharp3Tests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionCSharpTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CodeCompletionOperatorTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\CompletionDataList.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\DelegateContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\DocumentationContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\EnumContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\FormatItemTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\KeywordTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\NameContextTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\ObjectInitializerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\PreProcessorTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\TestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR5\VariableDeclarationStatementTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\AttributeNamedParameterCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\CompletionTestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\CrefCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\EnumAndCompletionListTagCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ExplicitInterfaceCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ExternAliasCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\KeywordCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\NamedParameterCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ObjectCreationCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\ObjectInitializerCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\OverrideCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\PartialCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SpeculativeTCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\XmlDocCompletionHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\DelegateCreationContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\ObjectCreationCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\OverrideCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\PartialCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\CastCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\SenderCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\SpeculativeNameContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\EnumMemberContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\KeywordCompletionContextHandlerTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\AutoLinqSumTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ChangeAccessModifierTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0126ReturnMustBeFollowedByAnyExpressionTestes.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0127ReturnMustNotBeFollowedByAnyExpressionTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0029InvalidConversionTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0152DuplicateCaseLabelValueTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0169FieldIsNeverUsedTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0618UsageOfObsoleteMemberTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0108UseNewKeywordIfHidingIntendedTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS0759RedundantPartialMethodTests.cs" />
+    <Compile Include="CSharp\Diagnostics\CS1729TypeHasNoConstructorWithNArgumentsTests.cs" />
+    <Compile Include="CSharp\Diagnostics\ExpressionIsNeverOfProvidedTypeTests.cs" />
+    <Compile Include="CSharp\Diagnostics\MissingInterfaceMemberImplementationTests.cs" />
+    <Compile Include="CSharp\Diagnostics\StaticConstructorParameterTests.cs" />
+    <Compile Include="CSharp\Diagnostics\ProhibitedModifiersTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromBaseTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -553,11 +551,11 @@
     </MonoDevelop>
   </ProjectExtensions>
   <ItemGroup>
-    <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\ICSharpCode.NRefactory6.CSharp.Refactoring.csproj" Condition="'$(Configuration)' != 'Debug_NR6Pack' AND '$(Configuration)' != 'Release_NR6Pack'">
+    <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\ICSharpCode.NRefactory6.CSharp.Refactoring.csproj">
       <Project>{C465A5DC-AD28-49A2-89C0-F81838814A7E}</Project>
       <Name>ICSharpCode.NRefactory6.CSharp.Refactoring</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj" Condition="'$(Configuration)' != 'Debug_NR6Pack' AND '$(Configuration)' != 'Release_NR6Pack'">
+    <ProjectReference Include="..\ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj">
       <Project>{7E891659-45F3-42B5-B940-A728780CCAE9}</Project>
       <Name>ICSharpCode.NRefactory6.CSharp</Name>
     </ProjectReference>
