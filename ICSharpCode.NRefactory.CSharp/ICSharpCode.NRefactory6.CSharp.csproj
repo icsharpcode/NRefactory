@@ -535,6 +535,7 @@
     <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.cs" />
     <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.Rewriter.cs" />
     <Compile Include="Util\CrefSyntaxExtensions.cs" />
+    <Compile Include="Util\CastExpressionSyntaxExtensions.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
