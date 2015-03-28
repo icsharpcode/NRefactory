@@ -101,44 +101,6 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <AssemblyName>ICSharpCode.NRefactory.Tests</AssemblyName>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_NR6Pack|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>..\bin\Debug_NR6Pack\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <DebugType>Full</DebugType>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Optimize>false</Optimize>
-    <AssemblyName>ICSharpCode.NRefactory6.Tests</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_NR6Pack|x86'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug_NR6Pack\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <CheckForOverflowUnderflow>true</CheckForOverflowUnderflow>
-    <DebugType>Full</DebugType>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <Optimize>false</Optimize>
-    <AssemblyName>ICSharpCode.NRefactory6.Tests</AssemblyName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_NR6Pack|AnyCPU'">
-    <OutputPath>..\bin\Release_NR6Pack\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AssemblyName>ICSharpCode.NRefactory6.Tests</AssemblyName>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_NR6Pack|x86'">
-    <OutputPath>bin\x86\Release_NR6Pack\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-    <AssemblyName>ICSharpCode.NRefactory6.Tests</AssemblyName>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System" />
