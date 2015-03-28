@@ -110,6 +110,8 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Optimize>false</Optimize>
     <AssemblyName>ICSharpCode.NRefactory6.Tests</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_NR6Pack|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -127,6 +129,8 @@
     <Optimize>true</Optimize>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <AssemblyName>ICSharpCode.NRefactory6.Tests</AssemblyName>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_NR6Pack|x86'">
     <OutputPath>bin\x86\Release_NR6Pack\</OutputPath>
@@ -469,7 +473,7 @@
     <Compile Include="CSharp\CodeRefactorings\CheckDictionaryKeyValueTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ImportStaticClassWithUsingTests.cs" />
     <Compile Include="CSharp\CodeCompletion\PortedRoslynTests\SymbolCompletionHandlerTests_NoInteractive.cs" />
-	<Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
+    <Compile Include="CSharp\Analysis\SemanticHighlightingTests.cs" />
     <Compile Include="CSharp\ParameterHinting\ParameterHintingTests.cs" />
     <Compile Include="IndentationTests\TextPasteIndentEngineTests.cs" />
     <Compile Include="IndentationTests\StringTests.cs" />
