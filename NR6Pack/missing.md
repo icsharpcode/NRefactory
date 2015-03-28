@@ -61,111 +61,113 @@ Issues not implemented
 
 *Code Quality*
 
-* CanBeReplacedWithTryCastAndCheckForNullIssue
-* EqualExpressionComparisonIssue
-* **ForControlVariableIsNeverModifiedIssue**
-* FormatStringProblemIssue
-* LocalVariableHidesMemberIssue
-* MemberHidesStaticFromOuterClassIssue
-* MethodOverloadWithOptionalParameterIssue
-* **NotResolvedInTextIssue**
-* **OptionalParameterHierarchyMismatchIssue**
-* ParameterHidesMemberIssue
-* PartialMethodParameterNameMismatchIssue
-* PolymorphicFieldLikeEventInvocationIssue
-* PossibleAssignmentToReadonlyFieldIssue
-* **PossibleMultipleEnumerationIssue**
-* StaticFieldInGenericTypeIssue
-* ThreadStaticAtInstanceFieldIssue
-* **ValueParameterNotUsedIssue**
+* CanBeReplacedWithTryCastAndCheckForNullAnalyzer
+* EqualExpressionComparisonAnalyzer
+* **ForControlVariableIsNeverModifiedAnalyzer**
+* FormatStringProblemAnalyzer
+* FunctionNeverReturnsAnalyzer
+* LocalVariableHidesMemberAnalyzer
+* MemberHidesStaticFromOuterClassAnalyzer
+* MethodOverloadWithOptionalParameterAnalyzer
+* **NotResolvedInTextAnalyzer**
+* **OptionalParameterHierarchyMismatchAnalyzer**
+* ParameterHidesMemberAnalyzer
+* PartialMethodParameterNameMismatchAnalyzer
+* PolymorphicFieldLikeEventInvocationAnalyzer
+* PossibleAssignmentToReadonlyFieldAnalyzer
+* **PossibleMultipleEnumerationAnalyzer**
+* StaticFieldInGenericTypeAnalyzer
+* ThreadStaticAtInstanceFieldAnalyzer
 
 *Compiler Errors*
 
-* ProhibitedModifiersIssue
+* ProhibitedModifiersAnalyzer
 
 *Compiler Warnings*
 
-* CS0183ExpressionIsAlwaysOfProvidedTypeIssue
-* CS1573ParameterHasNoMatchingParamTagIssue
-* CS1717AssignmentMadeToSameVariableIssue
-* UnassignedReadonlyFieldIssue
+* CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer
+* CS1573ParameterHasNoMatchingParamTagAnalyzer
+* CS1717AssignmentMadeToSameVariableAnalyzer
+* UnassignedReadonlyFieldAnalyzer
 
 *Opportunities*
 
-* ConvertIfStatementToNullCoalescingExpressionIssue
-* ConvertIfStatementToSwitchStatementIssue
-* ConvertToAutoPropertyIssue
-* ConvertToLambdaExpressionIssue
-* ForCanBeConvertedToForeachIssue
-* RewriteIfReturnToReturnIssue
-* SuggestUseVarKeywordEvidentIssue
+* ConvertClosureToMethodGroupAnalyzer
+* ConvertIfStatementToNullCoalescingExpressionAnalyzer
+* ConvertToAutoPropertyAnalyzer
+* ConvertToLambdaExpressionAnalyzer
+* ForCanBeConvertedToForeachAnalyzer
+* RewriteIfReturnToReturnAnalyzer
+* SuggestUseVarKeywordEvidentAnalyzer
 
 *Practices and Improvements*
 
-* ConvertToConstantIssue
-* FieldCanBeMadeReadOnlyIssue
-* MemberCanBeMadeStaticIssue
-* ParameterCanBeDeclaredWithBaseTypeIssue
-* PublicConstructorInAbstractClassIssue
-* ReferenceEqualsWithValueTypeIssue
-* ReplaceWithOfTypeAnyIssue
-* ReplaceWithOfTypeIssue
-* ReplaceWithSingleCallToAnyIssue
-* ReplaceWithStringIsNullOrEmptyIssue
-* SimplifyConditionalTernaryExpressionIssue
-* SimplifyLinqExpressionIssue
-* **StringCompareIsCultureSpecificIssue**
-* **StringCompareToIsCultureSpecificIssue**
-* **StringIndexOfIsCultureSpecificIssue**
-* **UseArrayCreationExpressionIssue**
-* UseIsOperatorIssue
-* **UseMethodAnyIssue**
-* UseMethodIsInstanceOfTypeIssue
+* ConvertToConstantAnalyzer
+* FieldCanBeMadeReadOnlyAnalyzer
+* MemberCanBeMadeStaticAnalyzer
+* ParameterCanBeDeclaredWithBaseTypeAnalyzer
+* PublicConstructorInAbstractClassAnalyzer
+* ReferenceEqualsWithValueTypeAnalyzer
+* ReplaceWithOfTypeAnyAnalyzer
+* ReplaceWithOfTypeAnalyzer
+* ReplaceWithStringIsNullOrEmptyAnalyzer
+* SimplifyLinqExpressionAnalyzer
+* **StringCompareIsCultureSpecificAnalyzer**
+* **StringCompareToIsCultureSpecificAnalyzer**
+* **StringIndexOfIsCultureSpecificAnalyzer**
+* **UseArrayCreationExpressionAnalyzer**
+* UseIsOperatorAnalyzer
+* **UseMethodAnyAnalyzer**
+* UseMethodIsInstanceOfTypeAnalyzer
 
 *Redundancies in Code*
 
-* **ConstantNullCoalescingConditionIssue**
-* RedundantArgumentDefaultValueIssue
-* RedundantBoolCompareIssue
-* **RedundantCatchClauseIssue**
-* RedundantCheckBeforeAssignmentIssue
-* RedundantCommaInArrayInitializerIssue
-* RedundantComparisonWithNullIssue
-* RedundantDelegateCreationIssue
-* **RedundantEmptyFinallyBlockIssue**
-* RedundantEnumerableCastCallIssue
-* RedundantExplicitArrayCreationIssue
-* RedundantExplicitArraySizeIssue
-* RedundantExplicitNullableCreationIssue
-* RedundantExtendsListEntryIssue
-* **RedundantIfElseBlockIssue**
-* RedundantLambdaParameterTypeIssue
-* RedundantLambdaSignatureParenthesesIssue
-* RedundantLogicalConditionalExpressionOperandIssue
-* RedundantObjectCreationArgumentListIssue
-* RedundantObjectOrCollectionInitializerIssue
-* RedundantStringToCharArrayCallIssue
-* RedundantToStringCallForValueTypesIssue
-* RedundantToStringCallIssue
-* RedundantUnsafeContextIssue
-* RedundantUsingDirectiveIssue
-* **UnusedAnonymousMethodSignatureIssue**
+* **ConstantNullCoalescingConditionAnalyzer**
+* RedundantArgumentDefaultValueAnalyzer
+* RedundantBoolCompareAnalyzer
+* **RedundantCatchClauseAnalyzer**
+* RedundantCheckBeforeAssignmentAnalyzer
+* RedundantCommaInArrayInitializerAnalyzer
+* RedundantComparisonWithNullAnalyzer
+* RedundantDelegateCreationAnalyzer
+* **RedundantEmptyFinallyBlockAnalyzer**
+* RedundantEnumerableCastCallAnalyzer
+* RedundantExplicitArrayCreationAnalyzer
+* RedundantExplicitArraySizeAnalyzer
+* RedundantExplicitNullableCreationAnalyzer
+* RedundantExtendsListEntryAnalyzer
+* **RedundantIfElseBlockAnalyzer**
+* RedundantLambdaParameterTypeAnalyzer
+* RedundantLambdaSignatureParenthesesAnalyzer
+* RedundantLogicalConditionalExpressionOperandAnalyzer
+* RedundantObjectCreationArgumentListAnalyzer
+* RedundantObjectOrCollectionInitializerAnalyzer
+* RedundantStringToCharArrayCallAnalyzer
+* RedundantToStringCallForValueTypesAnalyzer
+* RedundantToStringCallAnalyzer
+* RedundantUnsafeContextAnalyzer
+* **UnusedAnonymousMethodSignatureAnalyzer**
 
 *Redundancies in Declaration*
 
-* PartialTypeWithSinglePartIssue
-* RedundantBaseConstructorCallIssue
-* RedundantDefaultFieldInitializerIssue
-* RedundantOverridenMemberIssue
-* RedundantParamsIssue
-* UnusedLabelIssue
-* UnusedParameterIssue
-* **UnusedTypeParameterIssue**
+* PartialTypeWithSinglePartAnalyzer
+* RedundantBaseConstructorCallAnalyzer
+* RedundantDefaultFieldInitializerAnalyzer
+* RedundantOverridenMemberAnalyzer
+* RedundantParamsAnalyzer
+* UnusedLabelAnalyzer
+* UnusedParameterAnalyzer
+* **UnusedTypeParameterAnalyzer**
 
-Duplication
------------
+*Custom*
 
-* FunctionNeverReturnsIssue
-* ProhibitedModifiersIssue
-* RedundantThisQualifierIssue
-* LocalVariableNotUsedIssue
+* AdditionalOfTypeAnalyzer
+* CastExpressionOfIncompatibleTypeAnalyzer
+* CheckNamespaceAnalyzer
+* LockThisAnalyzer
+* NegativeRelationalExpressionAnalyzer
+* ParameterOnlyAssignedAnalyzer
+* RedundantAssignmentAnalyzer
+* StaticEventSubscriptionAnalyzer
+* UnreachableCodeAnalyzer
+* XmlDocAnalyzer
