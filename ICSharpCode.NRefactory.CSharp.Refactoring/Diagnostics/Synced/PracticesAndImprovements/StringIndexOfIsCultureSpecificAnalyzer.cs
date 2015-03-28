@@ -64,18 +64,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new GatherVisitor<StringIndexOfIsCultureSpecificAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "IndexOf");
+			return new GatherVisitor<StringIndexOfIsCultureSpecificAnalyzer>(Rule, semanticModel, addDiagnostic, cancellationToken, "IndexOf");
 		}
 
 		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : GatherVisitorDiagnosticAnalyzer
 		{
 			readonly string memberName;
+			readonly DiagnosticDescriptor rule;
 
-			const string Description = "'IndexOf' is culture-aware and missing a StringComparison argument";
-
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string memberName)
+			public GatherVisitor(DiagnosticDescriptor rule, SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string memberName)
 				: base (semanticModel, addDiagnostic, cancellationToken)
 			{
+				this.rule = rule;
 				this.memberName = memberName;
 			}
 
@@ -102,7 +102,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				var lastParameter = parameters.Last();
 				if (lastParameter.Type.Name == "StringComparison")
 					return;	// already specifying a string comparison
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
+				AddDiagnosticAnalyzer(Diagnostic.Create(rule, node.GetLocation()));
 			}
 		}
 	}
@@ -127,7 +127,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
 				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
 				RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);

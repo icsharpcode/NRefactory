@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
-			return new StringIndexOfIsCultureSpecificAnalyzer.GatherVisitor<StringLastIndexOfIsCultureSpecificAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "LastIndexOf");
+			return new StringIndexOfIsCultureSpecificAnalyzer.GatherVisitor<StringLastIndexOfIsCultureSpecificAnalyzer>(Rule, semanticModel, addDiagnostic, cancellationToken, "LastIndexOf");
 		}
 	}
 
@@ -85,9 +85,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
+				var node = root.FindNode(diagnostic.Location.SourceSpan).SkipArgument () as InvocationExpressionSyntax;
 				StringIndexOfIsCultureSpecificFixProvider.RegisterFix(context, root, diagnostic, node, "Ordinal");
 				StringIndexOfIsCultureSpecificFixProvider.RegisterFix(context, root, diagnostic, node, "CurrentCulture");
 			}

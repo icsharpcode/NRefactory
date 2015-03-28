@@ -163,6 +163,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			CodeFixProvider provider;
 			if (providers.TryGetValue(diagnostic.Id, out provider)) {
+				Assert.IsNotNull (provider, "null provider for : " + diagnostic.Id);
 				var document = workspace.CurrentSolution.GetProject(projectId).GetDocument(documentId);
 				var actions = new List<CodeAction>();
 				var context = new CodeFixContext(document, diagnostic, (fix, diags) => actions.Add(fix), default(CancellationToken));
@@ -267,7 +268,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = new List<Diagnostic>();
 
 			var compilationWithAnalyzers = compilation.WithAnalyzers (System.Collections.Immutable.ImmutableArray<DiagnosticAnalyzer>.Empty.Add(new T()));
-			diagnostics.AddRange(compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync ().Result); 
+			var result = compilationWithAnalyzers.GetAnalyzerDiagnosticsAsync ().Result;
+			diagnostics.AddRange(result); 
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
 				foreach (var diag in diagnostics) {

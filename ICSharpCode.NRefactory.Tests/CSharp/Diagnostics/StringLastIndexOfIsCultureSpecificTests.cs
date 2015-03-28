@@ -56,6 +56,32 @@ public class Test
 		}
 
 		[Test]
+		public void TestBug()
+		{
+			Analyze<StringLastIndexOfIsCultureSpecificAnalyzer>(@"
+class Program
+{
+	public int FooBar { get; }
+
+	static void Main(string [] args, string fooBar)
+	{
+		System.Console.WriteLine($fooBar.LastIndexOf(""aeia"")$);
+	}
+}
+", @"
+class Program
+{
+	public int FooBar { get; }
+
+	static void Main(string [] args, string fooBar)
+	{
+		System.Console.WriteLine(fooBar.LastIndexOf(""aeia"", System.StringComparison.Ordinal));
+	}
+}
+");
+		}
+
+		[Test]
 		public void TestDisable()
 		{
 			Analyze<StringLastIndexOfIsCultureSpecificAnalyzer>(@"
