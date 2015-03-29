@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span,
 					DiagnosticSeverity.Info,
-					isLeftShift ? "To '*'" : "To '/'",
+					isLeftShift ? GettextCatalog.GetString ("To '*'") : GettextCatalog.GetString ("To '/'"),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.BinaryExpression(isLeftShift ? SyntaxKind.MultiplyExpression : SyntaxKind.DivideExpression, node.Left,
 							SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1 << (int)rightSide.Token.Value))).WithAdditionalAnnotations(Formatter.Annotation));

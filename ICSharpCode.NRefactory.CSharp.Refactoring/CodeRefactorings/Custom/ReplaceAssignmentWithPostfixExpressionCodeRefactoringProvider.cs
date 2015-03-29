@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? "To '{0}++'" : "To '{0}--'",
+					updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? GettextCatalog.GetString ("To '{0}++'") : GettextCatalog.GetString ("To '{0}--'"),
 					t2 => {
 						var newNode = SyntaxFactory.PostfixUnaryExpression(updatedNode.IsKind(SyntaxKind.AddAssignmentExpression) ? SyntaxKind.PostIncrementExpression : SyntaxKind.PostDecrementExpression, updatedNode.Left);
 						var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia()));

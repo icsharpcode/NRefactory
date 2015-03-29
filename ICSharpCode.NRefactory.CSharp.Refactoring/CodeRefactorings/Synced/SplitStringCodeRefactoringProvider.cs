@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			yield return CodeActionFactory.Create(
 				span,
 				DiagnosticSeverity.Info, 
-				"Split string literal", 
+				GettextCatalog.GetString ("Split string literal"), 
 				t2 => {
 					var text = node.ToString ();
 					var left = SyntaxFactory.LiteralExpression (SyntaxKind.StringLiteralExpression, SyntaxFactory.ParseToken (text.Substring (0, span.Start - node.Span.Start) + '"' ));

@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					property.Identifier.Span, 
 					DiagnosticSeverity.Info, 
-					"To computed property",
+					GettextCatalog.GetString ("To computed property"),
 					t2 => {
 						string name = GetNameProposal(property.Identifier.ValueText, model, root);
 

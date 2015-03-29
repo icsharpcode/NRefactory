@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"Replace with '='",
+					GettextCatalog.GetString ("Replace with '='"),
 					t2 => {
 						var newNode = SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression, node.Left,
 							SyntaxFactory.BinaryExpression(assignment, node.Left.WithoutLeadingTrivia(), node.Right));

@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
-					"Create changed event",
+					GettextCatalog.GetString ("Create changed event"),
 					t2 => {
 						var eventDeclaration = CreateChangedEventDeclaration(property);
 						var methodDeclaration = CreateEventInvocatorCodeRefactoringProvider.CreateEventInvocator (

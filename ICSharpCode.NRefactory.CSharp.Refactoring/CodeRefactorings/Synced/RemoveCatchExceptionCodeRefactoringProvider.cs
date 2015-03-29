@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create (
 					span,
 					DiagnosticSeverity.Info,
-					"To 'catch'",
+					GettextCatalog.GetString ("To 'catch'"),
 					t2 => {
 						var newRoot = root.ReplaceNode ((SyntaxNode)catchClause, catchClause.WithDeclaration (null));
 						return Task.FromResult (document.WithSyntaxRoot (newRoot));

@@ -73,7 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			yield return CodeActionFactory.Create(
 				node.Span,
 				DiagnosticSeverity.Info,
-				"Reverse 'for' loop'",
+				GettextCatalog.GetString ("Reverse 'for' loop'"),
 				t2 => {
 					var newRoot = root.ReplaceNode(
 						node, 

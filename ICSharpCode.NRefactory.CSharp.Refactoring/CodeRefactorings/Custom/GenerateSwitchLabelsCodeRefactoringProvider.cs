@@ -88,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 							SyntaxFactory.IdentifierName("ArgumentOutOfRangeException")).WithArgumentList(SyntaxFactory.ArgumentList())))));
 				var newRoot = root.ReplaceNode((SyntaxNode)switchStatement, switchStatement.WithSections(sections).WithAdditionalAnnotations(Formatter.Annotation));
 				context.RegisterRefactoring(
-					CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Generate switch labels", document.WithSyntaxRoot(newRoot))
+					CodeActionFactory.Create(span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Generate switch labels"), document.WithSyntaxRoot(newRoot))
 				);
 			} else {
 				List<IFieldSymbol> fields = new List<IFieldSymbol>();

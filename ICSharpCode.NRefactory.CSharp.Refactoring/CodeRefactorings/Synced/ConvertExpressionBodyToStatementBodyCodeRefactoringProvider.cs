@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
-					"To statement body", 
+					GettextCatalog.GetString ("To statement body"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							method, 
@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
-					"To statement body", 
+					GettextCatalog.GetString ("To statement body"), 
 					t2 => {
 						var accessor = 
 							SyntaxFactory

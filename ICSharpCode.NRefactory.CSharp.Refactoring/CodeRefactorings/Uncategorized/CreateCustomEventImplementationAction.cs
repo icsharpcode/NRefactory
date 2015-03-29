@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
-					"Create custom event implementation",
+					GettextCatalog.GetString ("Create custom event implementation"),
 					t2 => {
 //					var accessor = new Accessor
 //					{

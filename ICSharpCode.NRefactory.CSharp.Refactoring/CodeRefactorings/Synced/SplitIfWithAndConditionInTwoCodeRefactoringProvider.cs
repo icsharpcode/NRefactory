@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
-						"Split into two 'if' statements", t2 => {
+						GettextCatalog.GetString ("Split into two 'if' statements"), t2 => {
 							var nestedIf = ifNode.WithCondition(GetRightSide(binOp));
 							var outerIf = ifNode.WithCondition(GetLeftSide(binOp)).WithStatement(SyntaxFactory.Block(nestedIf));
 							var newRoot = root.ReplaceNode((SyntaxNode)ifNode, outerIf.WithAdditionalAnnotations(Formatter.Annotation));

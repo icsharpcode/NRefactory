@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
-					"To 'ReferenceEquals' call", 
+					GettextCatalog.GetString ("To 'ReferenceEquals' call"), 
 					t2 => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, CreateEquals(model, node))))
 				)
 			);

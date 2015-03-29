@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"To lambda statement",
+					GettextCatalog.GetString ("To lambda statement"),
 					t2 => {
 						SyntaxNode lambdaExpression;
 						if (node.IsKind(SyntaxKind.ParenthesizedLambdaExpression)) {

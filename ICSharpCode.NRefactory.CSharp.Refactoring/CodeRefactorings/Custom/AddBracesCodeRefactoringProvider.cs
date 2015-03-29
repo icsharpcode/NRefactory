@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					string.Format("Add braces to '{0}'", keyword),
+					string.Format(GettextCatalog.GetString ("Add braces to '{0}'"), keyword),
 					t2 => {
 						var blockSyntax = SyntaxFactory.Block(embeddedStatement).WithAdditionalAnnotations(Formatter.Annotation);
 						var newRoot = root.ReplaceNode((SyntaxNode)embeddedStatement, blockSyntax);

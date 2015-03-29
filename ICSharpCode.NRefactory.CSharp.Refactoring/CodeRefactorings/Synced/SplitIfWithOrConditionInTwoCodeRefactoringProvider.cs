@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create(
 						span,
 						DiagnosticSeverity.Info,
-						"Split into two 'if' statements",
+						GettextCatalog.GetString ("Split into two 'if' statements"),
 						t2 => {
 							var newElse = ifNode.WithCondition(SplitIfWithAndConditionInTwoCodeRefactoringProvider.GetRightSide(binOp));
 							var newIf = ifNode.WithCondition(SplitIfWithAndConditionInTwoCodeRefactoringProvider.GetLeftSide(binOp)).WithElse(SyntaxFactory.ElseClause(newElse));

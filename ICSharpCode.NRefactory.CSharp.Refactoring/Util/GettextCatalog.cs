@@ -1,5 +1,5 @@
 ﻿//
-// Localizeable.cs
+// GettextCatalog.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -28,12 +28,8 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	static class Localizeable
+	public static class GettextCatalog
 	{
-		internal static string LocalizeString (string str)
-		{
-			// TODO: Implement me.
-			return str;
-		}
+		public static Func<string, string> GetString = s => s;
 	}
 }

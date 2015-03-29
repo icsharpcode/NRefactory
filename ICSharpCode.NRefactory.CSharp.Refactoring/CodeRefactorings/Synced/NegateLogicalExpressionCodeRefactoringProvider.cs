@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					string.Format ("Negate '{0}'", expr),
+					string.Format (GettextCatalog.GetString ("Negate '{0}'"), expr),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							expr,

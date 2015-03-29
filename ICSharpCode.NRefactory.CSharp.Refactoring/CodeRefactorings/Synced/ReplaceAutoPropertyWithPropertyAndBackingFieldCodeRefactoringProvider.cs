@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					property.Identifier.Span,
 					DiagnosticSeverity.Info, 
-					"To property with backing field",
+					GettextCatalog.GetString ("To property with backing field"),
 					t2 => {
 						string name = GetNameProposal(property.Identifier.ValueText, model, root);
 

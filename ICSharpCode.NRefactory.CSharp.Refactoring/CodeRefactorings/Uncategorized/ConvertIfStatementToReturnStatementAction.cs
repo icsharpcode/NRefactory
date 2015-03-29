@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span,
 					DiagnosticSeverity.Info, 
-					"Replace with 'return'", 
+					GettextCatalog.GetString ("Replace with 'return'"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.ReturnStatement(CreateCondition(condition, return1, return2)).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(node.GetLeadingTrivia()));
 						if (rs != null) {

@@ -85,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			//if it has a getter, then we need a setter (we've checked for 2 accessors)
 			bool needsSetter = accessors.Any(m => m.IsKind(SyntaxKind.GetAccessorDeclaration));
 
-			context.RegisterRefactoring(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Add another accessor", t2 => {
+			context.RegisterRefactoring(CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Add another accessor"), t2 => {
 				return Task.FromResult(PerformAction(document, model, root, propertyDeclaration, needsSetter));
 			})
 			);

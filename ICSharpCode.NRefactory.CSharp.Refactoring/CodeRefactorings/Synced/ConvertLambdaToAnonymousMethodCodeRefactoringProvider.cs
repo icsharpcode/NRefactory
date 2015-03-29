@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"To anonymous method",
+					GettextCatalog.GetString ("To anonymous method"),
 					t2 => {
 						var parameters = new List<ParameterSyntax> ();
 

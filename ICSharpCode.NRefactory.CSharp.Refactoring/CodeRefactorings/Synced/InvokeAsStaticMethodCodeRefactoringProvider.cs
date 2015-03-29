@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"To static invocation", 
+					GettextCatalog.GetString ("To static invocation"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)invocation, ToStaticMethodInvocation(model, invocation, memberAccess, invocationRR).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(invocation.GetLeadingTrivia()));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

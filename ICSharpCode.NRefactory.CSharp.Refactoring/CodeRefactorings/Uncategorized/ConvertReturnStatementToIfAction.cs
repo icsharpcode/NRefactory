@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Replace with 'if' statement", 
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Replace with 'if' statement"), 
 					t2 => {
 
 						StatementSyntax statement;

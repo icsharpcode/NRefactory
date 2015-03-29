@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create (
 						binop.OperatorToken.Span,
 						DiagnosticSeverity.Info,
-						string.Format ("Flip '{0}' operator to '{1}'", binop.OperatorToken, operatorText),
+						string.Format (GettextCatalog.GetString ("Flip '{0}' operator to '{1}'"), binop.OperatorToken, operatorText),
 						t2 => {
 							var newBinop = SyntaxFactory.BinaryExpression (flippedKind, binop.Right, binop.Left)
 								.WithAdditionalAnnotations (Formatter.Annotation);

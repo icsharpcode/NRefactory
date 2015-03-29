@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Error, "Extension methods must be declared static", document.WithSyntaxRoot(
+				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Error, GettextCatalog.GetString ("Extension methods must be declared static"), document.WithSyntaxRoot(
 				root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword)
 				.WithTrailingTrivia(SyntaxFactory.SyntaxTrivia(SyntaxKind.WhitespaceTrivia, " ")))))))
 			);

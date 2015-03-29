@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					node.Span,
 					DiagnosticSeverity.Info,
-					"To lambda expression",
+					GettextCatalog.GetString ("To lambda expression"),
 					t2 => {
 						var expr = SyntaxFactory.InvocationExpression(
 							(ExpressionSyntax)node,

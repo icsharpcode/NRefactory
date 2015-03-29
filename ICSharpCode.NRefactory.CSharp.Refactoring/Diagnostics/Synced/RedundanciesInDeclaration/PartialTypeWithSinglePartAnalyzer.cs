@@ -38,8 +38,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID, 
-			Localizeable.LocalizeString("Class is declared partial but has only one part"), 
-			Localizeable.LocalizeString("Partial class with single part"), 
+			GettextCatalog.GetString("Class is declared partial but has only one part"), 
+			GettextCatalog.GetString("Partial class with single part"), 
 			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
 			DiagnosticSeverity.Warning, 
 			isEnabledByDefault: true,

@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create (
 					span,
 					DiagnosticSeverity.Info,
-					baseMember.ContainingType != null && baseMember.ContainingType.TypeKind == TypeKind.Interface ? "Copy comments from interface" : "Copy comments from base",
+					baseMember.ContainingType != null && baseMember.ContainingType.TypeKind == TypeKind.Interface ? GettextCatalog.GetString ("Copy comments from interface") : GettextCatalog.GetString ("Copy comments from base"),
 					t2 => {
 						var triva = node.GetLeadingTrivia ();
 

@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"To explicit implementation", 
+					GettextCatalog.GetString ("To explicit implementation"), 
 					t2 => {
 						var newNode = memberDeclaration;
 						var nameSpecifier = SyntaxFactory.ExplicitInterfaceSpecifier(SyntaxFactory.ParseName(implementingInterface.ToDisplayString(SymbolDisplayFormat.CSharpErrorMessageFormat)))

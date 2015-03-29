@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			context.RegisterRefactoring(CodeActionFactory.Create(
 				span, 
 				DiagnosticSeverity.Info, 
-				"To 'for'", 
+				GettextCatalog.GetString ("To 'for'"), 
 				t2 => {
 					var expressionTypeInfo = model.GetTypeInfo (foreachStatement.Expression);
 					var countProperty = GetCountProperty(expressionTypeInfo.Type);
@@ -205,7 +205,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				context.RegisterRefactoring(CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Convert 'foreach' loop to optimized 'for'", 
+					GettextCatalog.GetString ("Convert 'foreach' loop to optimized 'for'"), 
 					t2 => {
 						var expressionTypeInfo = model.GetTypeInfo (foreachStatement.Expression);
 						var countProperty = GetCountProperty(expressionTypeInfo.Type);

@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
-					"To 'if'",
+					GettextCatalog.GetString ("To 'if'"),
 					t2 => {
 						var ifNodes = new List<IfStatementSyntax>();
 						ElseClauseSyntax defaultElse = null;

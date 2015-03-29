@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					CodeActionFactory.Create(
 						node.Span, 
 						diagnostic.Severity, 
-						Localizeable.LocalizeString("Remove 'partial'"),
+						GettextCatalog.GetString("Remove 'partial'"),
 						delegate (CancellationToken token) {
 							var oldClass = node.Parent;
 							var newClass = oldClass

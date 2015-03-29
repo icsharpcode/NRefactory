@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			return new [] { CodeActionFactory.Create(
 				node.Identifier.Span,
 				DiagnosticSeverity.Info,
-				"Add null check for parameter",
+				GettextCatalog.GetString ("Add null check for parameter"),
 				t2 => {
 					var paramName = node.Identifier.ToString();
 					var ifStatement = SyntaxFactory.IfStatement(

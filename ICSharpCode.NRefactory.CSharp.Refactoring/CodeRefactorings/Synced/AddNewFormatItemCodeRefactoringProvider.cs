@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Insert format argument", 
+					GettextCatalog.GetString ("Insert format argument"), 
 					t2 => {
 						var parent = token.Parent;
 						var tokenText = token.ToString();

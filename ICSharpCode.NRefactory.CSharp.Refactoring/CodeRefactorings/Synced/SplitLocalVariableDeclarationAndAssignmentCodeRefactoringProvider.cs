@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Split declaration and assignment", 
+					GettextCatalog.GetString ("Split declaration and assignment"), 
 					t2 => {
 						SyntaxNode newRoot;
 						if (forStmt != null) {

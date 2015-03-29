@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"To 'catch (Exception)'", 
+					GettextCatalog.GetString ("To 'catch (Exception)'"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)catchClause, catchClause.WithDeclaration(SyntaxFactory.CatchDeclaration(newIdent, SyntaxFactory.Identifier("e"))
 							.WithAdditionalAnnotations(Formatter.Annotation, Simplifier.Annotation)));

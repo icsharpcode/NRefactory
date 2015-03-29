@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "To '?:' expression", 
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, GettextCatalog.GetString ("To '?:' expression"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)node, 
 							SyntaxFactory.ExpressionStatement(

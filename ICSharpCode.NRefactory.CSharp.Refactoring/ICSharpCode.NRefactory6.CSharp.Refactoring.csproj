@@ -442,8 +442,8 @@
     <Compile Include="Diagnostics\NRefactoryDiagnosticIDs.cs" />
     <Compile Include="Diagnostics\DiagnosticCustomTags.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartFixProvider.cs" />
-    <Compile Include="Util\Localizeable.cs" />
     <Compile Include="Util\HelpLink.cs" />
+    <Compile Include="Util\GettextCatalog.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

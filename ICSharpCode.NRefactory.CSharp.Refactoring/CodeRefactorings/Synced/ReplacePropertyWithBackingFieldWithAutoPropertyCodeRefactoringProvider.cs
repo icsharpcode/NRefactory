@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create(
 						token.Span, 
 						DiagnosticSeverity.Info, 
-						"Convert to auto-property", 
+						GettextCatalog.GetString ("Convert to auto-property"), 
 						t2 => {
 							var newRoot = root.ReplaceNode(property, CreateNewProperty (property).WithAdditionalAnnotations(Formatter.Annotation).WithLeadingTrivia(property.GetLeadingTrivia()));
 							return Task.FromResult (document.WithSyntaxRoot(newRoot));
@@ -94,7 +94,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			root = root.ReplaceNode((SyntaxNode)root.FindNode(backingFieldNode.Span), backingFieldNode.WithAdditionalAnnotations(fieldAnnotation));
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert to auto-property", 
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Convert to auto-property"), 
 					PerformAction(document, model, root, field.Name, CreateNewProperty (property), propertyAnnotation, fieldAnnotation))
 			);
 		}

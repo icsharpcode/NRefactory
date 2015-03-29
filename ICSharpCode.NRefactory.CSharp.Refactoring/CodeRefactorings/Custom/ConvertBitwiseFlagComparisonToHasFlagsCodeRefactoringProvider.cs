@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "To 'Enum.HasFlag'", t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)))
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("To 'Enum.HasFlag'"), t2 => Task.FromResult(PerformAction (document, root, boP, flagsExpression, targetExpression, testFlagset)))
 			);
 		}
 

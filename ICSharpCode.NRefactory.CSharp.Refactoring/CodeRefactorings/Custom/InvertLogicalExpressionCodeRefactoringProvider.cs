@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
-						string.Format ("Invert '{0}'", expr),
+						string.Format (GettextCatalog.GetString ("Invert '{0}'"), expr),
 						t2 => {
 							var uOp = expr as PrefixUnaryExpressionSyntax;
 							var newRoot = root.ReplaceNode((SyntaxNode)
@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 						CodeActionFactory.Create(
 							span, 
 							DiagnosticSeverity.Info, 
-							string.Format ("Invert '{0}'", unaryOperatorExpression),
+							string.Format (GettextCatalog.GetString ("Invert '{0}'"), unaryOperatorExpression),
 							t2 => {
 								var uOp = expr as PrefixUnaryExpressionSyntax;
 								var newRoot = root.ReplaceNode((SyntaxNode)
@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					string.Format ("Invert '{0}'", expr),
+					string.Format (GettextCatalog.GetString ("Invert '{0}'"), expr),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							expr,

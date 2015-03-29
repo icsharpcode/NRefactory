@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Extract condition to internal 'if' statement", 
+					GettextCatalog.GetString ("Extract condition to internal 'if' statement"), 
 					t2 => {
 						var ifStmt = SyntaxFactory.IfStatement(
 							CSharpUtil.InvertCondition(node.Condition),

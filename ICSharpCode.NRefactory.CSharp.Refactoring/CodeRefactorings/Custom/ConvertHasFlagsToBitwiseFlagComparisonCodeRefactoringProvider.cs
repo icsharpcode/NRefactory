@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "To bitwise flag comparison", t2 => Task.FromResult(PerformAction(document, root, invocationNode)))
+				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("To bitwise flag comparison"), t2 => Task.FromResult(PerformAction(document, root, invocationNode)))
 			);
 		}
 

@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					node.DelegateKeyword.Span,
 					DiagnosticSeverity.Info,
-					"To lambda expression",
+					GettextCatalog.GetString ("To lambda expression"),
 					t2 => {
 						var parent = node.Parent.Parent.Parent;
 						bool explicitLambda = parent is VariableDeclarationSyntax && ((VariableDeclarationSyntax)parent).Type.IsVar;

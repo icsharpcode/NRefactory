@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				context.RegisterRefactoring(CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					string.Format("Add optional parameter \"{0}\"", parameterToAdd.Name), 
+					string.Format(GettextCatalog.GetString ("Add optional parameter \"{0}\""), parameterToAdd.Name), 
 					t2 => {
 						var newInvocation = AddArgument(invocationExpression, parameterToAdd, parameterToAdd == missingParameters.First()).
 							WithAdditionalAnnotations(Formatter.Annotation);
@@ -121,7 +121,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				context.RegisterRefactoring(CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Add all optional parameters",
+					GettextCatalog.GetString ("Add all optional parameters"),
 					t2 => {
 						var newInvocation = invocationExpression;
 						foreach (var parameterToAdd in missingParameters) {

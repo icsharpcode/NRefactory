@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"Invert '?:'",
+					GettextCatalog.GetString ("Invert '?:'"),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							condExpr, 

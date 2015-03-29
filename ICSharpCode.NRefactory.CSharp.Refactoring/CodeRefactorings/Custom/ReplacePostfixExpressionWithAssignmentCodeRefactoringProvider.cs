@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					string.Format(postfix.IsKind(SyntaxKind.PostIncrementExpression)  ? "Replace '{0}++' with '{0} += 1'" : "Replace '{0}--' with '{0} -= 1'", postfix.Operand.ToString()),
+					string.Format(postfix.IsKind(SyntaxKind.PostIncrementExpression)  ? GettextCatalog.GetString ("Replace '{0}++' with '{0} += 1'") : GettextCatalog.GetString ("Replace '{0}--' with '{0} -= 1'"), postfix.Operand.ToString()),
 					t2 => {
 						var op = postfix.OperatorToken.IsKind(SyntaxKind.PlusPlusToken) ? SyntaxKind.AddAssignmentExpression : SyntaxKind.SubtractAssignmentExpression;
 						var binexp = SyntaxFactory.AssignmentExpression(op, postfix.Operand, SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(1)));

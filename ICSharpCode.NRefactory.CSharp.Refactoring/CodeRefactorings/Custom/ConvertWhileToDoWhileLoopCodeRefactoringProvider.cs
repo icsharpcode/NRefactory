@@ -69,7 +69,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"To 'do...while'", 
+					GettextCatalog.GetString ("To 'do...while'"), 
 					t2 => Task.FromResult(
 						document.WithSyntaxRoot(
 							root.ReplaceNode(

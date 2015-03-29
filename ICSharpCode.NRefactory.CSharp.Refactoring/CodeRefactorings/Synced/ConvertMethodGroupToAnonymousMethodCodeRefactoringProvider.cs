@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					node.Span,
 					DiagnosticSeverity.Info,
-					"To anonymous method",
+					GettextCatalog.GetString ("To anonymous method"),
 					t2 => {
 						var expr = SyntaxFactory.InvocationExpression(
 							(ExpressionSyntax)node,

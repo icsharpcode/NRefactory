@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Sort usings", cancellation => {
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Sort usings"), cancellation => {
 					var newRoot = root;
 					var blocks = EnumerateUsingBlocks(root);
 

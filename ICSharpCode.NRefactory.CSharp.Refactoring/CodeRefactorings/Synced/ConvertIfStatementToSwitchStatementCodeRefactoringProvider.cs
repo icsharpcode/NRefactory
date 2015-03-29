@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span,
 					DiagnosticSeverity.Info,
-					"To 'switch'",
+					GettextCatalog.GetString ("To 'switch'"),
 					ct => {
 						var switchStatement = SyntaxFactory.SwitchStatement(switchExpr, new SyntaxList<SwitchSectionSyntax>().AddRange(switchSections));
 						return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode(

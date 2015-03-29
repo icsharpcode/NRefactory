@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Join declaration and assignment", 
+					GettextCatalog.GetString ("Join declaration and assignment"), 
 					t2 => {
 						root = root.TrackNodes(new SyntaxNode[] { node, nextStatement } );
 						var newRoot = root.ReplaceNode((SyntaxNode)

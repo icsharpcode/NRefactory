@@ -70,7 +70,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			if (!literalValue.StartsWith("0X", StringComparison.OrdinalIgnoreCase))
 				return;
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "To dec", t2 => Task.FromResult(PerformAction (document, root, token)))
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("To dec"), t2 => Task.FromResult(PerformAction (document, root, token)))
 			);
 		}
 

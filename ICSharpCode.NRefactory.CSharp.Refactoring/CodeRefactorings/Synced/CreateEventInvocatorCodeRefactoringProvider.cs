@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.CreateInsertion(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Create event invocator", 
+					GettextCatalog.GetString ("Create event invocator"), 
 					t2 => {
 						SyntaxNode eventInvocator = CreateEventInvocator(document, declaredSymbol);
 						return Task.FromResult (new InsertionResult (context, eventInvocator, declaredSymbol.ContainingType, declaredSymbol.Locations.First ()));

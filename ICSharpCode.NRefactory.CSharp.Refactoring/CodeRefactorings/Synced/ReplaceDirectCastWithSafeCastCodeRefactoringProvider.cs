@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
-					"Convert cast to 'as'", 
+					GettextCatalog.GetString ("Convert cast to 'as'"), 
 					t2 => Task.FromResult(PerformAction (document, root, castExpression))
 				)
 			);

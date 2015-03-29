@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invert if")]
 	public class InvertIfCodeRefactoringProvider : CodeRefactoringProvider
 	{
-		const string invertIfFixMessage = "Invert 'if'";
+		static readonly string invertIfFixMessage = GettextCatalog.GetString ("Invert 'if'");
 
 		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

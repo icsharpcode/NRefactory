@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,
-						"To non-abstract",
+						GettextCatalog.GetString ("To non-abstract"),
 						t2 => {
 							var newRoot = root.ReplaceNode((SyntaxNode)declaration, ImplementAbstractDeclaration (declaration).WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 						context.RegisterRefactoring(CodeActionFactory.Create(
 							token.Span,
 							DiagnosticSeverity.Info,
-							"To abstract",
+							GettextCatalog.GetString ("To abstract"),
 							t2 => {
 								var newRoot = root.ReplaceNode((SyntaxNode)declaration, MakeAbstractDeclaration(declaration).WithAdditionalAnnotations(Formatter.Annotation));
 								return Task.FromResult(document.WithSyntaxRoot(newRoot));
@@ -125,7 +125,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				context.RegisterRefactoring(CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"To non-virtual",
+					GettextCatalog.GetString ("To non-virtual"),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)declaration, RemoveVirtualModifier(declaration));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));
@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,
-						"To virtual",
+						GettextCatalog.GetString ("To virtual"),
 						t2 => {
 							var newRoot = root.ReplaceNode((SyntaxNode)declaration, ImplementAbstractDeclaration(declaration, true).WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
@@ -148,7 +148,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,
-						"To virtual",
+						GettextCatalog.GetString ("To virtual"),
 						t2 => {
 							var newRoot = root.ReplaceNode((SyntaxNode)declaration, AddModifier(declaration, SyntaxKind.VirtualKeyword).WithAdditionalAnnotations(Formatter.Annotation));
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));

@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Replace '??' operator with '?:' expression", t2 => {
+					GettextCatalog.GetString ("Replace '??' operator with '?:' expression"), t2 => {
 						var left = node.Left;
 						var info = model.GetTypeInfo(left, t2);
 						if (info.ConvertedType.IsNullableType())

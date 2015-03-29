@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					isExpression.Span, 
 					DiagnosticSeverity.Info, 
-					"Use 'as' and check for null",
+					GettextCatalog.GetString ("Use 'as' and check for null"),
 					t2 => {
 						var varName = ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider.GetNameProposal(RefactoringHelpers.GuessNameFromType(rr.Type), ctx, isExpression);
 
@@ -203,7 +203,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					isExpression.Span, 
 					DiagnosticSeverity.Info, 
-					"Use 'as' and check for null",
+					GettextCatalog.GetString ("Use 'as' and check for null"),
 					t2 => {
 						var varName = ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider.GetNameProposal(RefactoringHelpers.GuessNameFromType(rr.Type), ctx, condition);
 

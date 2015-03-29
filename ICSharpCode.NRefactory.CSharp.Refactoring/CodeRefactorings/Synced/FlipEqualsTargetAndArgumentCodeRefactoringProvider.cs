@@ -81,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"Flip 'Equals' target and argument", 
+					GettextCatalog.GetString ("Flip 'Equals' target and argument"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)invocation, 
 							invocation

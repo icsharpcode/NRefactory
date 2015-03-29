@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					string.Format("Remove braces from '{0}'", keyword),
+					string.Format(GettextCatalog.GetString ("Remove braces from '{0}'"), keyword),
 					t2 => {
 						var parent = block.Parent.ReplaceNode((SyntaxNode)block, block.Statements.First())
 							.WithAdditionalAnnotations(Formatter.Annotation);

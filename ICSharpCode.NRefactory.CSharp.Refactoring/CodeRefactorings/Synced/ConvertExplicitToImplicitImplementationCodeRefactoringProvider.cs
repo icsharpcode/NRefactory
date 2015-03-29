@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					"To implicit implementation", 
+					GettextCatalog.GetString ("To implicit implementation"), 
 					t2 => {
 						var newNode = memberDeclaration;
 						switch (newNode.Kind()) {

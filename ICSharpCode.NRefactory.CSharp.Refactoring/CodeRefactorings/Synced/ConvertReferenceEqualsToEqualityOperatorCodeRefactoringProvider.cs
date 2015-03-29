@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					useEquality ? "To '=='" : "To '!='", 
+					useEquality ? GettextCatalog.GetString ("To '=='") : GettextCatalog.GetString ("To '!='"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							expr, 

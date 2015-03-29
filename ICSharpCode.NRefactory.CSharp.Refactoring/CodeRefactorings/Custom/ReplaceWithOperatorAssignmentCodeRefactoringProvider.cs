@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 			assignment = assignment.WithAdditionalAnnotations(Formatter.Annotation);
             context.RegisterRefactoring(
-				CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format("To '{0}='", node.Left.ToString()), document.WithSyntaxRoot(
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, String.Format(GettextCatalog.GetString ("To '{0}='"), node.Left.ToString()), document.WithSyntaxRoot(
                 root.ReplaceNode((SyntaxNode)node, assignment)))
 			);
 		}

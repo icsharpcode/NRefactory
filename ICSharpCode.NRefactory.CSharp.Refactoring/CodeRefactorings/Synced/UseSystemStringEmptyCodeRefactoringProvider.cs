@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"Use 'string.Empty'",
+					GettextCatalog.GetString ("Use 'string.Empty'"),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)token.Parent, SyntaxFactory.ParseExpression("string.Empty"));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

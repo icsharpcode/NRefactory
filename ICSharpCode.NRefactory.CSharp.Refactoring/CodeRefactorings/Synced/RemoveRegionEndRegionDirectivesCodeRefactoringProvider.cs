@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					directive.Span,
 					DiagnosticSeverity.Info,
-					"Remove region/endregion directives",
+					GettextCatalog.GetString ("Remove region/endregion directives"),
 					t2 => {
 						var structure = directive.GetStructure();
 						var prev = directive.GetPreviousTrivia (model.SyntaxTree, cancellationToken, true);

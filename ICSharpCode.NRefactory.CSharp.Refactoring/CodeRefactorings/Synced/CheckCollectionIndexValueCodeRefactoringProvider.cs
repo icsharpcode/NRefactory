@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info, 
-					string.Format ("Check 'if ({0}.Count > {1})'", elementAccess.Expression, elementAccess.ArgumentList.Arguments.First ()), 
+					string.Format (GettextCatalog.GetString ("Check 'if ({0}.Count > {1})'"), elementAccess.Expression, elementAccess.ArgumentList.Arguments.First ()), 
 					t2 => {
 						var parentStatement = elementAccess.Parent.AncestorsAndSelf ().OfType<StatementSyntax> ().FirstOrDefault ();
 

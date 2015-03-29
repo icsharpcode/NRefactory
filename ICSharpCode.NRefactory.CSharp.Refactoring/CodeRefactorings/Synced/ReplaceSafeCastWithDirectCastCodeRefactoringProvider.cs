@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var node = token.Parent as BinaryExpressionSyntax;
 
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, "Convert 'as' to cast", t2 => Task.FromResult(PerformAction (document, root, node)))
+				CodeActionFactory.Create(token.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Convert 'as' to cast"), t2 => Task.FromResult(PerformAction (document, root, node)))
 			);
 		}
 

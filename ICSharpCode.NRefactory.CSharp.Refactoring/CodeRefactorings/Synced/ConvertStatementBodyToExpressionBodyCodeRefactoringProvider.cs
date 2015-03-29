@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
-					"To expression body", 
+					GettextCatalog.GetString ("To expression body"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							method, 
@@ -124,7 +124,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span, 
 					DiagnosticSeverity.Info, 
-					"To expression body", 
+					GettextCatalog.GetString ("To expression body"), 
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)
 							property, 

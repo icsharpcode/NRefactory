@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			return new [] { CodeActionFactory.Create(
 				node.Span,
 				DiagnosticSeverity.Info,
-				"To 'while'",
+				GettextCatalog.GetString ("To 'while'"),
 				t2 => {
 					var statements = new List<StatementSyntax>();
 					var blockSyntax = node.Statement as BlockSyntax;

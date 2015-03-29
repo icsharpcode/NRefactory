@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
-					"To 'Equals' call", 
+					GettextCatalog.GetString ("To 'Equals' call"), 
 					t2 => Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, CreateEquals(model, node))))
 				)
 			);

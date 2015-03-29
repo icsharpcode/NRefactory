@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
-						"Replace with 'if' statement", 
+						GettextCatalog.GetString ("Replace with 'if' statement"), 
 						t2 => {
 							var ifStatement = CreateForConditionalExpression(node, (ConditionalExpressionSyntax)node.Right);
 							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					CodeActionFactory.Create(
 						span, 
 						DiagnosticSeverity.Info, 
-						"Replace with 'if' statement", 
+						GettextCatalog.GetString ("Replace with 'if' statement"), 
 						t2 => {
 							var ifStatement = CreateForNullCoalescingExpression(node, (BinaryExpressionSyntax)node.Right);
 							return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node.Parent, ifStatement.WithAdditionalAnnotations(Formatter.Annotation))));

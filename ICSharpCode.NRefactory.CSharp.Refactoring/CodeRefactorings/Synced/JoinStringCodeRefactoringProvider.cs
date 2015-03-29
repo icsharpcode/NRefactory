@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			else
 				exprNode = leftBinaryExpr.WithRight(stringLit);
 			context.RegisterRefactoring(
-				CodeActionFactory.Create(span, DiagnosticSeverity.Info, "Join strings", document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, exprNode as ExpressionSyntax)))
+				CodeActionFactory.Create(span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Join strings"), document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, exprNode as ExpressionSyntax)))
 			);
 		}
 	}

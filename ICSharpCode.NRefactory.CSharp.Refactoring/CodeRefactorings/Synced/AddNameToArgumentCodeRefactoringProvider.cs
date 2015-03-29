@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			return CodeActionFactory.Create(
 				node.Span,
 				DiagnosticSeverity.Info,
-				string.Format("Add argument name '{0}'", name),
+				string.Format(GettextCatalog.GetString ("Add argument name '{0}'"), name),
 				t2 => {
 					var newArguments = SyntaxFactory.SeparatedList<AttributeArgumentSyntax>(
 						attribute.ArgumentList.Arguments.Take(idx).Concat(

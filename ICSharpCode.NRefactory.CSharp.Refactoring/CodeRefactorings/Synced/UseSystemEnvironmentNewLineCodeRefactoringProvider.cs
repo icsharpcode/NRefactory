@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"Use 'System.Environment.NewLine'",
+					GettextCatalog.GetString ("Use 'System.Environment.NewLine'"),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)token.Parent, SyntaxFactory.ParseExpression("System.Environment.NewLine").WithAdditionalAnnotations (Simplifier.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

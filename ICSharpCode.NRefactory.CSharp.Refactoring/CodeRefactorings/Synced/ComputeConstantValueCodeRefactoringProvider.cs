@@ -119,7 +119,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					node.Span,
 					DiagnosticSeverity.Info,
-					"Compute constant value",
+					GettextCatalog.GetString ("Compute constant value"),
 					t2 => {
 						var newRoot = root.ReplaceNode((SyntaxNode)expr, syntaxNode.WithAdditionalAnnotations(Formatter.Annotation));
 						return Task.FromResult(document.WithSyntaxRoot(newRoot));

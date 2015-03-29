@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					anonymousMethodExpression.Span,
 					DiagnosticSeverity.Info,
-					"Insert signature",
+					GettextCatalog.GetString ("Insert signature"),
 					t2 => {
 						var typeInfo = model.GetTypeInfo(anonymousMethodExpression);
 						var type = typeInfo.ConvertedType ?? typeInfo.Type;

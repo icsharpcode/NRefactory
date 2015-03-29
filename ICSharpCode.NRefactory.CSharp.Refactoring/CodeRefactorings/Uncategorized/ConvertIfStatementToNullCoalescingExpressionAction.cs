@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					span, 
 					DiagnosticSeverity.Info,
-					"Replace with '??'", 
+					GettextCatalog.GetString ("Replace with '??'"), 
 					t2 =>{
 						//get the node prior to this
 						var previousNode = node.Parent.ChildThatContainsPosition(node.GetLeadingTrivia().Min(t => t.SpanStart) - 1).AsNode();

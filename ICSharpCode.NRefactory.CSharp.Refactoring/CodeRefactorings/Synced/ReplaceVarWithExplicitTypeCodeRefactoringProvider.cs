@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				CodeActionFactory.Create(
 					token.Span,
 					DiagnosticSeverity.Info,
-					"To explicit type", 
+					GettextCatalog.GetString ("To explicit type"), 
 					t2 => Task.FromResult(PerformAction (document, model, root, type, typeSyntax))
 				)
 			);

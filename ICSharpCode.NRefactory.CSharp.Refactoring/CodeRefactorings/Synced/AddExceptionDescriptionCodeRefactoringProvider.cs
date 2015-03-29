@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			}
 			if (!hadDescription)
 				yield break;
-			yield return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, "Add exception description", 
+			yield return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Info, GettextCatalog.GetString ("Add exception description"), 
 				t2 => {
 					var newComment = SyntaxFactory.ParseLeadingTrivia (string.Format ("/// <exception cref=\"{0}\"></exception>\r\n", expr.Type.GetDocumentationCommentId ()));
 					var list = entity.GetLeadingTrivia ();
