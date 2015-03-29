@@ -35,8 +35,7 @@ using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Extension methods must be declared static")]
-	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Extension methods must be declared static")]
+	[ExportCodeFixProvider(LanguageNames.CSharp, Name = "Extension methods must be declared static"), System.Composition.Shared]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider : CodeFixProvider
 	{
 		const string CS1105 = "CS1105"; // Error CS1105: Extension methods must be static.
