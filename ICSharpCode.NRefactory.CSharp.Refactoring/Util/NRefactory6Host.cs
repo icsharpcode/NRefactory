@@ -1,5 +1,5 @@
 ﻿//
-// GettextCatalog.cs
+// NRefactoryHost.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,16 +23,17 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using System;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	static class GettextCatalog
+	/// <summary>
+	/// Needs to be implemented from IDE/host side.
+	/// </summary>
+	public static class NRefactory6Host
 	{
-		internal static string GetString (string str)
-		{
-			return NRefactory6Host.GetLocalizedString (str);
-		}
+		public static Func<string, string> GetLocalizedString = s => s;
+		public static Func<string, string> GetHelpLinkForDiagnostic = id => null;
 	}
 }
+

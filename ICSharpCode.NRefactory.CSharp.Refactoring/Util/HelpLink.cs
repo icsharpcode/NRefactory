@@ -32,8 +32,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 	{
 		internal static string CreateFor (string diagnosticId)
 		{
-			// TODO
-			return null;
+			return NRefactory6Host.GetHelpLinkForDiagnostic (diagnosticId);
 		}
 	}
 }

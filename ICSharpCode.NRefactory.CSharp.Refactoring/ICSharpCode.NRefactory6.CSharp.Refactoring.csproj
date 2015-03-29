@@ -444,6 +444,7 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartFixProvider.cs" />
     <Compile Include="Util\HelpLink.cs" />
     <Compile Include="Util\GettextCatalog.cs" />
+    <Compile Include="Util\NRefactory6Host.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
