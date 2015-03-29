@@ -223,7 +223,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			}
 
 
-			class TestCategory : ICompletionCategory, IComparable<ICompletionCategory>
+			class TestCategory : ICompletionCategory, IComparable, IComparable<ICompletionCategory>
 			{
 				string text;
 
@@ -261,6 +261,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 				{
 					return string.Format ("[TestCategory: text={0}]", text);
 				}
+
+				int IComparable.CompareTo (object obj)
+				{
+					return CompareTo ((ICompletionCategory)obj);
+                }
 			}
 
 			ICompletionCategory ICompletionDataFactory.CreateCompletionDataCategory (ISymbol forSymbol)
@@ -4676,7 +4681,6 @@ class Test
 			var list = new List<ICompletionCategory> ();
 			
 			for (int i = 0; i < provider.Count; i++) {
-				Console.WriteLine (provider [i].DisplayText + "/"+ provider [i].CompletionCategory);
 				if (list.Contains (provider [i].CompletionCategory))
 					continue;
 				list.Add (provider [i].CompletionCategory);
