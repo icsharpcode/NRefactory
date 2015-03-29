@@ -49,7 +49,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public override ImmutableArray<string> FixableDiagnosticIds {
 			get {
-				return ImmutableArray<string>.Empty.AddRange(InternalGetFixableDiagnosticIds());
+				var enumerable = InternalGetFixableDiagnosticIds ();
+				if (enumerable is ImmutableArray<string>)
+					return (ImmutableArray<string>)enumerable;
+				return ImmutableArray<string>.Empty.AddRange(enumerable);
 			}
 		}
 

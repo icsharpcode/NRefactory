@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	{
 		internal const string DiagnosticId  = "StringEndsWithIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'EndsWith' call is used by default.";
-		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
+		const string MessageFormat          = "'EndsWith' is culture-aware and missing a StringComparison argument";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.EndsWith' is culture-aware");
@@ -65,17 +65,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(StringEndsWithIsCultureSpecificAnalyzer.DiagnosticId, LanguageNames.CSharp)]
-	public class StringEndsWithIsCultureSpecificFixProvider : NRefactoryCodeFixProvider
+	[ExportCodeFixProvider(LanguageNames.CSharp)]
+	public class StringMethodIsCultureSpecificFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
 		{
-			yield return StringEndsWithIsCultureSpecificAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
+			return ImmutableArray.Create(
+				StringEndsWithIsCultureSpecificAnalyzer.DiagnosticId,
+				StringIndexOfIsCultureSpecificAnalyzer.DiagnosticId,
+				StringLastIndexOfIsCultureSpecificAnalyzer.DiagnosticId,
+				StringStartsWithIsCultureSpecificAnalyzer.DiagnosticId);
 		}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
@@ -86,10 +85,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
-				StringIndexOfIsCultureSpecificFixProvider.RegisterFix(context, root, diagnostic, node, "Ordinal");
-				StringIndexOfIsCultureSpecificFixProvider.RegisterFix(context, root, diagnostic, node, "CurrentCulture");
+				var node = root.FindNode(diagnostic.Location.SourceSpan).SkipArgument () as InvocationExpressionSyntax;
+				RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
+				RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
 			}
+		}
+
+		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, CancellationToken cancellationToken = default(CancellationToken))
+		{
+			var stringComparisonType = SyntaxFactory.ParseTypeName("System.StringComparison").WithAdditionalAnnotations(Microsoft.CodeAnalysis.Simplification.Simplifier.Annotation);
+			var stringComparisonArgument = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, stringComparisonType, (SimpleNameSyntax)SyntaxFactory.ParseName(stringComparison));
+			var newArguments = invocationExpression.ArgumentList.AddArguments(SyntaxFactory.Argument(stringComparisonArgument));
+			var newInvocation = SyntaxFactory.InvocationExpression(invocationExpression.Expression, newArguments);
+			var newRoot = root.ReplaceNode(invocationExpression, newInvocation.WithAdditionalAnnotations(Formatter.Annotation));
+
+			context.RegisterCodeFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, string.Format ("Add 'StringComparison.{0}'", stringComparison), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

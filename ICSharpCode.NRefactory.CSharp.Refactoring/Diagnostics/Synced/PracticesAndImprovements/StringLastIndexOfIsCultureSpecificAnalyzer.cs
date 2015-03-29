@@ -48,7 +48,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	{
 		internal const string DiagnosticId  = "StringLastIndexOfIsCultureSpecificAnalyzer";
 		const string Description            = "Warns when a culture-aware 'LastIndexOf' call is used by default.";
-		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
+		const string MessageFormat          = "'LastIndexOf' is culture-aware and missing a StringComparison argument";
 		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
 
 		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.LastIndexOf' is culture-aware");
@@ -62,34 +62,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
 			return new StringIndexOfIsCultureSpecificAnalyzer.GatherVisitor<StringLastIndexOfIsCultureSpecificAnalyzer>(Rule, semanticModel, addDiagnostic, cancellationToken, "LastIndexOf");
-		}
-	}
-
-	[ExportCodeFixProvider(StringLastIndexOfIsCultureSpecificAnalyzer.DiagnosticId, LanguageNames.CSharp)]
-	public class StringLastIndexOfIsCultureSpecificFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return StringLastIndexOfIsCultureSpecificAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan).SkipArgument () as InvocationExpressionSyntax;
-				StringIndexOfIsCultureSpecificFixProvider.RegisterFix(context, root, diagnostic, node, "Ordinal");
-				StringIndexOfIsCultureSpecificFixProvider.RegisterFix(context, root, diagnostic, node, "CurrentCulture");
-			}
 		}
 	}
 }

@@ -30,7 +30,6 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("StringIndexOfIsCultureSpecificIssue is not implemented!")]
 	public class StringStartsWithIsCultureSpecificTests : InspectionActionTestBase
 	{
 		[Test]
@@ -49,7 +48,7 @@ public class Test
 {
     public void Foo (string bar)
     {
-        bar.StartsWith ("".com"", System.StringComparison.Ordinal);
+        bar.StartsWith("".com"", System.StringComparison.Ordinal);
     }
 }
 ");

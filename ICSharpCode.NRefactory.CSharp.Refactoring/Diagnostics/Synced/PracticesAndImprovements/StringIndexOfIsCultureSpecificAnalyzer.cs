@@ -106,43 +106,4 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 	}
-
-	[ExportCodeFixProvider(StringIndexOfIsCultureSpecificAnalyzer.DiagnosticId, LanguageNames.CSharp)]
-	public class StringIndexOfIsCultureSpecificFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return StringIndexOfIsCultureSpecificAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
-				RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
-				RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
-			}
-		}
-
-		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var stringComparisonType = SyntaxFactory.ParseTypeName("System.StringComparison").WithAdditionalAnnotations(Simplifier.Annotation);
-			var stringComparisonArgument = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, stringComparisonType, (SimpleNameSyntax)SyntaxFactory.ParseName(stringComparison));
-			var newArguments = invocationExpression.ArgumentList.AddArguments(SyntaxFactory.Argument(stringComparisonArgument));
-			var newInvocation = SyntaxFactory.InvocationExpression(invocationExpression.Expression, newArguments);
-			var newRoot = root.ReplaceNode(invocationExpression, newInvocation.WithAdditionalAnnotations(Formatter.Annotation));
-
-			context.RegisterCodeFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, diagnostic.GetMessage(), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
-		}
-	}
 }
