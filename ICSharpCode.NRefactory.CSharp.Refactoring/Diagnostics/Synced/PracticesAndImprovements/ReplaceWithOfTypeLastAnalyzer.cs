@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(ReplaceWithOfTypeLastAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class ReplaceWithOfTypeLastFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

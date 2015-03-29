@@ -178,7 +178,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(UseMethodAnyAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class UseMethodAnyFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

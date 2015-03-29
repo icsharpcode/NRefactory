@@ -106,7 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(CS0759RedundantPartialMethodAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class CS0759RedundantPartialMethodIssueFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

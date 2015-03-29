@@ -108,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(RedundantBaseConstructorCallAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class RedundantBaseConstructorCallFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

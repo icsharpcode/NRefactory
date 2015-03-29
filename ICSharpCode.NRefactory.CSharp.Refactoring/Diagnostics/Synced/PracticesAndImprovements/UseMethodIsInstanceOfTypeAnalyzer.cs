@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(UseMethodIsInstanceOfTypeAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class UseMethodIsInstanceOfTypeFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

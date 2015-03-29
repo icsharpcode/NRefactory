@@ -336,7 +336,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //	
 	}
 
-	[ExportCodeFixProvider(ConvertToConstantAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class ConvertToConstantFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

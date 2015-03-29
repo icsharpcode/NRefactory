@@ -576,7 +576,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //		}
 //	}
 
-	[ExportCodeFixProvider(ParameterCanBeDeclaredWithBaseTypeAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class ParameterCanBeDeclaredWithBaseTypeFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

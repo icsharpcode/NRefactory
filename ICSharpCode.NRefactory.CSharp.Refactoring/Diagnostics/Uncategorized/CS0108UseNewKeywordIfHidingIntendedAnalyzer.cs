@@ -245,7 +245,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 	}
-	[ExportCodeFixProvider(CS0108UseNewKeywordIfHidingIntendedAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class CS0108UseNewKeywordIfHidingIntendedIssueFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

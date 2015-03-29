@@ -137,7 +137,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(RedundantArgumentNameAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class RedundantArgumentNameFixProvider : NRefactoryCodeFixProvider
 	{
 		const string CodeActionMessage = "Remove argument name specification";

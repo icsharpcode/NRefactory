@@ -240,7 +240,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //		}
 	}
 
-	[ExportCodeFixProvider(LocalVariableHidesMemberAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class LocalVariableHidesMemberFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

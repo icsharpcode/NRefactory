@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 	}
 
-	[ExportCodeFixProvider(RedundantComparisonWithNullAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class RedundantComparisonWithNullFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

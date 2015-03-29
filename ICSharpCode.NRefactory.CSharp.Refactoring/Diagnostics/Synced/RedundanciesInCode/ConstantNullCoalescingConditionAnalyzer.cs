@@ -158,7 +158,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //		}
 	}
 
-	[ExportCodeFixProvider(ConstantNullCoalescingConditionAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class ConstantNullCoalescingConditionFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

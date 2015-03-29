@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //		}
 	}
 
-	[ExportCodeFixProvider(RedundantLambdaParameterTypeAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	public class RedundantLambdaParameterTypeFixProvider : NRefactoryCodeFixProvider
 	{
 		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()

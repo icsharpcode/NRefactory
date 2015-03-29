@@ -209,7 +209,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	//	[ExportCodeFixProvider(DoNotCallOverridableMethodsInConstructorAnalyzer.DiagnosticId, LanguageNames.CSharp)]
+	//	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
 	//	public class DoNotCallOverridableMethodsInConstructorFixProvider : NRefactoryCodeFixProvider
 	//	{
 	//		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
