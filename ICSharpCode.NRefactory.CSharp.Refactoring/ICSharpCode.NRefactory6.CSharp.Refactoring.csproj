@@ -379,7 +379,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantStringToCharArrayCallAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantThisQualifierAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextAnalyzer.cs" />
