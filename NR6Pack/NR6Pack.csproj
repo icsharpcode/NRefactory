@@ -310,9 +310,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateOverloadWithoutParameterAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\CreateOverloadWithoutParameterAction.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs</Link>
     </Compile>
@@ -573,9 +570,6 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantTernaryExpressionAnalyzer.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantThisQualifierAnalyzer.cs">
-      <Link>Diagnostics\RedundanciesInCode\RedundantThisQualifierAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs</Link>
@@ -845,6 +839,7 @@
       <Link>Common\ValueTuple`2.cs</Link>
     </Compile>
     <Compile Include="Common\ReflectionCompatibilityExtensions.cs" />
+    <Compile Include="Diagnostics\RedundanciesInDeclaration\PartialTypeWithSinglePartFixProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
