@@ -12,7 +12,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 	{
 		internal override CompletionContextHandler CreateContextHandler ()
 		{
-			return new RoslynRecommendationsCompletionContextHandler ();
+			return (CompletionContextHandler)Activator.CreateInstance(typeof(CompletionEngine).Assembly.GetType ("ICSharpCode.NRefactory6.CSharp.Completion.RoslynRecommendationsCompletionContextHandler"));
 		}
 
 		[Test]

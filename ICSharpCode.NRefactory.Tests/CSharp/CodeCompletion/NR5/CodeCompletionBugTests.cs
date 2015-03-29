@@ -429,7 +429,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			if (engineCallback != null)
 				engineCallback(engine);
 			char triggerChar = cursorPosition > 0 ? document.GetTextAsync().Result [cursorPosition - 1] : '\0';
-			return engine.GetCompletionDataAsync (new CompletionContext (document, cursorPosition, semanticModel), new CompletionTriggerInfo (isCtrlSpace ? CompletionTriggerReason.CompletionCommand : CompletionTriggerReason.CharTyped, triggerChar)).Result;
+			return engine.GetCompletionDataAsync (
+				new CompletionContext (document, cursorPosition, semanticModel), 
+				new CompletionTriggerInfo (isCtrlSpace ? CompletionTriggerReason.CompletionCommand : CompletionTriggerReason.CharTyped, triggerChar)).Result;
 
 		}
 

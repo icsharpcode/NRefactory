@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
 	public partial class CompletionEngine 
 	{
-		internal static CompletionContextHandler[] handlers = {
+		static CompletionContextHandler[] handlers = {
 			new RoslynRecommendationsCompletionContextHandler (),
 			new KeywordContextHandler(),
 			new OverrideContextHandler(),
@@ -118,7 +118,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			if (position > 0) {
 				var nonExclusiveHandlers = new List<CompletionContextHandler> ();
 				var exclusiveHandlers = new List<CompletionContextHandler> ();
-				foreach (var handler in handlers.Concat (completionContext.AdditionalContextHandlers)) {
+				IEnumerable<CompletionContextHandler> handlerList;
+				if (completionContext.UseDefaultContextHandlers) {
+					handlerList = handlers.Concat (completionContext.AdditionalContextHandlers);
+				} else {
+					handlerList = completionContext.AdditionalContextHandlers;
+				}
+				foreach (var handler in handlerList) {
 					if (info.CompletionTriggerReason == CompletionTriggerReason.CompletionCommand || handler.IsTriggerCharacter (text, position - 1)) {
 						if (await handler.IsExclusiveAsync (document, position, info, cancellationToken)) {
 							exclusiveHandlers.Add (handler);

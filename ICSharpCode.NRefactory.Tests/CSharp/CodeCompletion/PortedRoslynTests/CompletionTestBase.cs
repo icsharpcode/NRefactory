@@ -42,21 +42,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 			return null;
 		}
 
-		[SetUp]
-		public void SetUpTests ()
-		{
-			originalHandler = CompletionEngine.handlers;
-			var handler = CreateContextHandler ();
-			if (handler != null)
-				CompletionEngine.handlers = new CompletionContextHandler [] { handler };
-		}
-
-		[TearDown]
-		public void TearDown ()
-		{
-			CompletionEngine.handlers = originalHandler;
-		}
-
 		protected void VerifyItemsExist(string input, params string[] items)
 		{
 			foreach (var item in items) {
@@ -64,9 +49,33 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 			}
 		}
 
+		public CompletionResult CreateProvider(string input, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false)
+		{
+			int cursorPosition;
+			SemanticModel semanticModel;
+			Document document;
+			var idx = input.IndexOf("$$", StringComparison.Ordinal);
+			if (idx >= 0) {
+				input = input.Substring(0, idx) + input.Substring(idx + 1);
+			}
+			var engine = CodeCompletionBugTests.CreateEngine(input, out cursorPosition, out semanticModel, out document, null, sourceCodeKind);
+			char triggerChar = cursorPosition > 0 ? document.GetTextAsync().Result [cursorPosition - 1] : '\0';
+			var completionContext = new CompletionContext (document, cursorPosition, semanticModel);
+			var exclusiveHandler = CreateContextHandler ();
+			if (exclusiveHandler != null) {
+				completionContext.AdditionalContextHandlers = new [] { exclusiveHandler };
+				completionContext.UseDefaultContextHandlers = false;
+			}
+
+			return engine.GetCompletionDataAsync (
+				completionContext,
+				new CompletionTriggerInfo (usePreviousCharAsTrigger ? CompletionTriggerReason.CharTyped : CompletionTriggerReason.CompletionCommand, triggerChar)).Result;
+		}
+
+
 		protected void VerifyItemExists(string input, string expectedItem, string expectedDescriptionOrNull = null, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false, int? glyph = null)
 		{
-			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input) : CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"));
+			var provider = CreateProvider (input, sourceCodeKind, usePreviousCharAsTrigger);
 
 			if (provider.Find (expectedItem) == null) {
 				foreach (var item in provider)
@@ -78,8 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 
 		protected void VerifyItemIsAbsent(string input, string expectedItem, string expectedDescriptionOrNull = null, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false)
 		{
-			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input, sourceCodeKind) : 
-			                                                                CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"), sourceCodeKind);
+			var provider = CreateProvider (input, sourceCodeKind, usePreviousCharAsTrigger);
 
 			if (provider.Find (expectedItem) != null) {
 				foreach (var item in provider)
@@ -97,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 
 		protected void VerifyNoItemsExist(string input, SourceCodeKind? sourceCodeKind = null, bool usePreviousCharAsTrigger = false, bool experimental = false)
 		{
-			var provider = usePreviousCharAsTrigger ? CodeCompletionBugTests.CreateProvider(input, sourceCodeKind) : CodeCompletionBugTests.CreateCtrlSpaceProvider(input.Replace("$$", "$"), sourceCodeKind);
+			var provider = CreateProvider (input, sourceCodeKind, usePreviousCharAsTrigger);
 			if (provider != null && provider.Count > 0) {
 				foreach (var data in provider)
 					Console.WriteLine(data.DisplayText);
