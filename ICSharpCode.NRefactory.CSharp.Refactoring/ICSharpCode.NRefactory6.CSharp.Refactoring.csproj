@@ -213,7 +213,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\CreateDelegateAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateIndexerAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateOverloadWithoutParameterAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\CS1105ExtensionMethodMustBeDeclaredStaticAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ExtractAnonymousMethodAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ExtractFieldAction.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="Util\HelpLink.cs" />
     <Compile Include="Util\GettextCatalog.cs" />
     <Compile Include="Util\NRefactory6Host.cs" />
+    <Compile Include="CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -496,5 +496,7 @@
     <Folder Include="CodeRefactorings\Uncategorized\" />
     <Folder Include="CodeRefactorings\Custom\" />
     <Folder Include="Util\" />
+    <Folder Include="CodeFixes\" />
+    <Folder Include="CodeFixes\Custom\" />
   </ItemGroup>
 </Project>

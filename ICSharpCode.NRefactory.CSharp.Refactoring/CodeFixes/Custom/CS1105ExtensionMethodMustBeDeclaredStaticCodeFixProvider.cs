@@ -1,5 +1,5 @@
 ﻿//
-// CS1105ExtensionMethodMustBeDeclaredStaticAction.cs
+// CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,47 +23,66 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+
 using System.Linq;
-using System.Threading;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Simplification;
-using Microsoft.CodeAnalysis.Formatting;
+using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CodeFixes;
 
-namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[NRefactoryCodeRefactoringProvider(Description = "Extension methods must be declared static")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Extension methods must be declared static")]
-	public class CS1105ExtensionMethodMustBeDeclaredStaticAction : CodeRefactoringProvider
+	public class CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider : CodeFixProvider
 	{
-		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
+		const string CS1105 = "CS1105"; // Error CS1105: Extension methods must be static.
+
+		public sealed override ImmutableArray<string> FixableDiagnosticIds
+		{
+			get { return ImmutableArray.Create(CS1105); }
+		}
+
+		public sealed override async Task RegisterCodeFixesAsync (CodeFixContext context)
 		{
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
-			var node = root.FindNode(span) as MethodDeclarationSyntax;
-			if (node == null || !node.Identifier.Span.Contains(span))
+			var diagnostic = context.Diagnostics.First ();
+			var model = await document.GetSemanticModelAsync (cancellationToken);
+			var root = await model.SyntaxTree.GetRootAsync (cancellationToken);
+			var node = root.FindNode (span) as MethodDeclarationSyntax;
+			if (node == null || !node.Identifier.Span.Contains (span))
 				return;
-			IMethodSymbol methodSymbol = model.GetDeclaredSymbol(node);
+			var methodSymbol = model.GetDeclaredSymbol (node);
 			if (methodSymbol == null || methodSymbol.IsStatic || !methodSymbol.IsExtensionMethod)
 				return;
 
-			context.RegisterRefactoring(
-				CodeActionFactory.Create(node.Span, DiagnosticSeverity.Error, GettextCatalog.GetString ("Extension methods must be declared static"), document.WithSyntaxRoot(
-				root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword)
-				.WithTrailingTrivia(SyntaxFactory.SyntaxTrivia(SyntaxKind.WhitespaceTrivia, " ")))))))
+			context.RegisterCodeFix (
+				CodeActionFactory.Create (
+					node.Span,
+					DiagnosticSeverity.Error,
+					GettextCatalog.GetString ("Extension methods must be declared static"),
+					t => Task.FromResult (
+						document.WithSyntaxRoot (
+							root.ReplaceNode (
+								(SyntaxNode)node,
+								node.WithModifiers (
+									node.Modifiers.Add (
+										SyntaxFactory
+										.Token (SyntaxKind.StaticKeyword)
+										.WithTrailingTrivia (SyntaxFactory.SyntaxTrivia (SyntaxKind.WhitespaceTrivia, " "))
+									)
+								)
+							)
+						)
+					)
+				),
+				diagnostic
 			);
 		}
 	}
 }
-

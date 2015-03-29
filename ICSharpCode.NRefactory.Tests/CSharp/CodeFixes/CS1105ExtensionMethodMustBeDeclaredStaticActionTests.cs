@@ -28,18 +28,18 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[TestFixture]
-	public class CS1105ExtensionMethodMustBeDeclaredStaticActionTests : ContextActionTestBase
+	public class CS1105ExtensionMethodMustBeDeclaredStaticActionTests : CodeFixTestBase
 	{
 		[Test]
 		public void TestMethod()
 		{
-			Test<CS1105ExtensionMethodMustBeDeclaredStaticAction> (@"
+			Test<CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider> (@"
 static class Foo
 {
-	public void $FooBar(this string foo)
+	public void $FooBar$(this string foo)
 	{
 
 	}
@@ -47,32 +47,6 @@ static class Foo
 static class Foo
 {
 	public static void FooBar(this string foo)
-	{
-
-	}
-}");
-		}
-
-		[Test]
-		public void TestWrongContext1()
-		{
-			TestWrongContext<CS1105ExtensionMethodMustBeDeclaredStaticAction> (@"
-static class Foo
-{
-	public static void $FooBar(this string foo)
-	{
-
-	}
-}");
-		}
-
-		[Test]
-		public void TestWrongContext2()
-		{
-			TestWrongContext<CS1105ExtensionMethodMustBeDeclaredStaticAction> (@"
-class Foo
-{
-	public void $FooBar(string foo)
 	{
 
 	}

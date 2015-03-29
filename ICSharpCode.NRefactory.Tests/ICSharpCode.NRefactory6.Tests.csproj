@@ -226,7 +226,6 @@
     <Compile Include="CSharp\CodeRefactorings\CreateEventInvocatorTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateIndexerTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateOverloadWithoutParameterTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ExtractAnonymousMethodTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ExtractFieldTests.cs" />
@@ -540,6 +539,8 @@
     <Compile Include="CSharp\Diagnostics\StaticConstructorParameterTests.cs" />
     <Compile Include="CSharp\Diagnostics\ProhibitedModifiersTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromBaseTests.cs" />
+    <Compile Include="CSharp\CodeFixes\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
+    <Compile Include="CSharp\CodeFixes\CodeFixTestBase.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -607,4 +608,7 @@
     <Exec Condition="$(SolutionDir) != $([System.IO.Path]::GetFullPath('..'))" Command="$(NuGet) restore -SolutionDirectory .." />
   </Target>
   <ItemGroup />
+  <ItemGroup>
+    <Folder Include="CSharp\CodeFixes\" />
+  </ItemGroup>
 </Project>
