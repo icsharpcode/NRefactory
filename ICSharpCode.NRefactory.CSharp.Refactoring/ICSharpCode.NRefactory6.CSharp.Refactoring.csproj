@@ -335,9 +335,7 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\EmptyNamespaceAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\LocalVariableNotUsedAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartAnalyzer.cs">
-      <DependentUpon>RedundantBaseConstructorCallAnalyzer.cs</DependentUpon>
-    </Compile>
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantDefaultFieldInitializerAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantOverriddenMemberAnalyzer.cs" />
@@ -441,6 +439,11 @@
     <Compile Include="CodeRefactorings\Custom\AddOptionalParameterToInvocationCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\SplitStringCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\ReverseDirectionForForLoopCodeRefactoringProvider.cs" />
+    <Compile Include="Diagnostics\NRefactoryDiagnosticIDs.cs" />
+    <Compile Include="Diagnostics\DiagnosticCustomTags.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartFixProvider.cs" />
+    <Compile Include="Util\Localizeable.cs" />
+    <Compile Include="Util\HelpLink.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

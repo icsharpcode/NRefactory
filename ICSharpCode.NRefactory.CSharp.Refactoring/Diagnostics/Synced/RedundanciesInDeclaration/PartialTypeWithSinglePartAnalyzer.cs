@@ -1,4 +1,4 @@
-// RedundantPartialTypeAnalyzer.cs
+// PartialTypeWithSinglePartAnalyzer.cs
 // 
 // Author:
 //      Luís Reis <luiscubal@gmail.com>
@@ -22,125 +22,66 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PartialTypeWithSinglePart")]
-	public class PartialTypeWithSinglePartAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class PartialTypeWithSinglePartAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PartialTypeWithSinglePartAnalyzer";
-		const string Description            = "Class is declared partial but has only one part";
-		const string MessageFormat          = "Partial class with single part";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID, 
+			Localizeable.LocalizeString("Class is declared partial but has only one part"), 
+			Localizeable.LocalizeString("Partial class with single part"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Redundant 'partial' modifier in type declaration");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryRemovePartialModifier (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.ClassDeclaration }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		bool TryRemovePartialModifier (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			var classDeclaration = nodeContext.Node as ClassDeclarationSyntax;
+			diagnostic = default(Diagnostic);
+			if (classDeclaration == null)
+				return false;
+			var modifier = 
+				classDeclaration
+					.Modifiers
+					.Cast<SyntaxToken?> ()
+					.FirstOrDefault (m => m.Value.IsKind (SyntaxKind.PartialKeyword));
+			if (!modifier.HasValue)
+				return false;
+			var symbol = nodeContext.SemanticModel.GetDeclaredSymbol (classDeclaration, nodeContext.CancellationToken);
+			if (symbol == null || symbol.Locations.Length != 1)
+				return false;
 
-		class GatherVisitor : GatherVisitorBase<PartialTypeWithSinglePartAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				if (!typeDeclaration.HasModifier(Modifiers.Partial)) {
-//					//We still need to visit the children in search of partial nested types.
-//					base.VisitTypeDeclaration(typeDeclaration);
-//					return;
-//				}
-//
-//				var resolveResult = ctx.Resolve(typeDeclaration) as TypeResolveResult;
-//				if (resolveResult == null)
-//					return;
-//
-//				var typeDefinition = resolveResult.Type.GetDefinition();
-//				if (typeDefinition == null)
-//					return;
-//
-//				if (typeDefinition.Parts.Count == 1) {
-//					var partialModifierToken = typeDeclaration.ModifierTokens.Single(modifier => modifier.Modifier == Modifiers.Partial);
-//					// there may be a disable comment before the partial token somewhere
-//					foreach (var child in typeDeclaration.Children.TakeWhile (child => child != partialModifierToken)) {
-//						child.AcceptVisitor(this);
-//					}
-//					AddDiagnosticAnalyzer(new CodeIssue(partialModifierToken,
-//					         ctx.TranslateString(""),
-//						GetFixAction(typeDeclaration, partialModifierToken)) { IssueMarker = IssueMarker.GrayOut });
-//				}
-//				base.VisitTypeDeclaration(typeDeclaration);
-//			}
-
-			public override void VisitBlock(BlockSyntax node)
-			{
-				//We never need to visit the children of block statements
-			}
-
-//			CodeAction GetFixAction(TypeDeclaration typeDeclaration, CSharpModifierToken partialModifierToken)
-//			{
-//				return new CodeAction(ctx.TranslateString(""), script => {
-//					script.ChangeModifier (typeDeclaration, typeDeclaration.Modifiers & ~Modifiers.Partial);
-//				}, partialModifierToken);
-//			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class PartialTypeWithSinglePartFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return PartialTypeWithSinglePartAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				// if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'partial'", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			diagnostic = Diagnostic.Create (descriptor, modifier.Value.GetLocation ());
+			return true;
 		}
 	}
 }

@@ -30,61 +30,54 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class PartialTypeWithSinglePartTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestRedundantModifier()
+		public void TestRedundantModifier ()
 		{
-			var input = @"
-partial class TestClass
+			Analyze<PartialTypeWithSinglePartAnalyzer> (
+@"$partial$ class TestClass
 {
-}";
-			var output = @"
-class TestClass
+}", @"class TestClass
 {
-}";
-			Test<PartialTypeWithSinglePartAnalyzer>(input, 1, output);
+}");
 		}
 
 		[Test]
-		public void TestNecessaryModifier()
+		public void TestNecessaryModifier ()
 		{
-			var input = @"
+			Analyze<PartialTypeWithSinglePartAnalyzer> ((string)@"
 partial class TestClass
 {
 }
 partial class TestClass
 {
-}";
-			Test<PartialTypeWithSinglePartAnalyzer>(input, 0);
+}");
 		}
 
 		[Test]
-		public void TestDisable()
+		public void TestDisable ()
 		{
-			var input = @"
-// ReSharper disable once PartialTypeWithSinglePart
+			Analyze<PartialTypeWithSinglePartAnalyzer> (@"
+#pragma warning disable " + NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID + @"
 partial class TestClass
 {
-}";
-			Analyze<PartialTypeWithSinglePartAnalyzer>(input);
+}");
 		}
 
 		[Test]
-		public void TestRedundantNestedPartial()
+		public void TestRedundantNestedPartial ()
 		{
-			var input = @"
+			Analyze<PartialTypeWithSinglePartAnalyzer> (@"
 partial class TestClass
 {
-	partial class Nested
+	$partial$ class Nested
 	{
 	}
 }
 partial class TestClass
 {
-}";
-			var output = @"
+}", @"
 partial class TestClass
 {
 	class Nested
@@ -93,61 +86,56 @@ partial class TestClass
 }
 partial class TestClass
 {
-}";
-			Test<PartialTypeWithSinglePartAnalyzer>(input, output);
+}");
 		}
 
 		[Test]
-		public void TestRedundantNestedPartialInNonPartialOuterClass()
+		public void TestRedundantNestedPartialInNonPartialOuterClass ()
 		{
-			var input = @"
+			Analyze<PartialTypeWithSinglePartAnalyzer> (@"
 class TestClass
 {
-	partial class Nested
+	$partial$ class Nested
 	{
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	class Nested
 	{
 	}
-}";
-			Test<PartialTypeWithSinglePartAnalyzer>(input, output);
+}");
 		}
 
 		[Test]
-		public void TestRedundantNestedPartialDisable()
+		public void TestRedundantNestedPartialDisable ()
 		{
-			var input = @"
-// ReSharper disable PartialTypeWithSinglePart
+			Analyze<PartialTypeWithSinglePartAnalyzer> (@"
+#pragma warning disable " + NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID + @"
 partial class TestClass
-// ReSharper restore PartialTypeWithSinglePart
 {
-	partial class Nested
+	#pragma warning restore " + NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID + @"
+	$partial$ class Nested
 	{
 	}
 }
-";
-			var output = @"
-// ReSharper disable PartialTypeWithSinglePart
+", @"
+#pragma warning disable " + NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID + @"
 partial class TestClass
-// ReSharper restore PartialTypeWithSinglePart
 {
+	#pragma warning restore " + NRefactoryDiagnosticIDs.PartialTypeWithSinglePartDiagnosticID + @"
 	class Nested
 	{
 	}
 }
-";
-			Test<PartialTypeWithSinglePartAnalyzer>(input, output);
+");
 		}
 
 
 		[Test]
-		public void TestNeededNestedPartial()
+		public void TestNeededNestedPartial ()
 		{
-			var input = @"
+			Analyze<PartialTypeWithSinglePartAnalyzer>(@"
 partial class TestClass
 {
 	partial class Nested
@@ -159,8 +147,7 @@ partial class TestClass
 	partial class Nested
 	{
 	}
-}";
-			Test<PartialTypeWithSinglePartAnalyzer>(input, 0);
+}");
 		}
 
 
