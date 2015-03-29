@@ -397,6 +397,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\NRefactoryCodeFixProvider.cs">
       <Link>Common\NRefactoryCodeFixProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\NRefactoryDiagnosticIDs.cs">
+      <Link>Common\NRefactoryDiagnosticIDs.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\BaseMethodCallWithDefaultParameterAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\BaseMethodCallWithDefaultParameterAnalyzer.cs</Link>
     </Compile>
@@ -588,6 +591,12 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\SealedMemberInSealedClassAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\GettextCatalog.cs">
+      <Link>Common\GettextCatalog.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\NRefactory6Host.cs">
+      <Link>Common\NRefactory6Host.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\NRefactoryCodeDiagnosticAnalyzerAttribute.cs">
       <Link>Common\NRefactoryCodeDiagnosticAnalyzerAttribute.cs</Link>
