@@ -280,12 +280,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\AutoLinqSumAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\AutoLinqSumAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ChangeAccessModifierAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\ChangeAccessModifierAction.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertAssignmentToIfAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\ConvertAssignmentToIfAction.cs</Link>
     </Compile>
@@ -301,59 +295,8 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateCustomEventImplementationAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\CreateCustomEventImplementationAction.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateDelegateAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\CreateDelegateAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateIndexerAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\CreateIndexerAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateOverloadWithoutParameterAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\CreateOverloadWithoutParameterAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ExtractAnonymousMethodAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\ExtractAnonymousMethodAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ExtractFieldAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\ExtractFieldAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\GenerateGetterAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\GenerateGetterAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\GeneratePropertyAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\GeneratePropertyAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\IntroduceConstantAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\IntroduceConstantAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\IterateViaForeachAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\IterateViaForeachAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\LinqFluentToQueryAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\LinqFluentToQueryAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\LinqQueryToFluentAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\LinqQueryToFluentAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\MergeNestedIfAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\MergeNestedIfAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\MoveToOuterScopeAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\MoveToOuterScopeAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\PutInsideUsingAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\PutInsideUsingAction.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SortUsingsAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\SortUsingsAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\UseStringFormatAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\UseStringFormatAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\CodeActionFactory.cs">
       <Link>Common\CodeActionFactory.cs</Link>

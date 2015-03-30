@@ -1,33 +1,19 @@
-﻿CodeActions
-===========
+﻿Refactorings
+============
 
-Actions not implemented (and added)
------------------------------------
+Refactorings not implemented (and added)
+-----------------------------------------
 
-* AddExceptionDescriptionAction
 * AutoLinqSumAction
 * ChangeAccessModifierAction
-* ConvertIfStatementToSwitchStatementAction
-* CopyCommentsFromBase
-* CopyCommentsFromInterface
-* CreateClassDeclarationAction
-* CreateConstructorDeclarationAction
 * CreateDelegateAction
-* CreateEnumValue
-* CreateEventInvocatorAction
-* CreateFieldAction
 * CreateIndexerAction
-* CreateMethodDeclarationAction
 * CreateOverloadWithoutParameterAction
-* CreatePropertyAction
 * CS1520MethodMustHaveAReturnTypeAction
 * ExtractAnonymousMethodAction
 * ExtractFieldAction
 * GenerateGetterAction
 * GeneratePropertyAction
-* ImplementAbstractMembersAction
-* ImplementInterfaceAction
-* ImplementInterfaceExplicitAction
 * IntroduceConstantAction
 * IterateViaForeachAction
 * LinqFluentToQueryAction
@@ -35,29 +21,15 @@ Actions not implemented (and added)
 * MergeNestedIfAction
 * MoveToOuterScopeAction
 * PutInsideUsingAction
-* RemoveRedundantCatchTypeAction
-* ReverseDirectionForForLoopAction
-* SplitDeclarationListAction
-* SplitStringAction
+* SplitVariableIntoSeveralOnesCodeRefactoringProvider
 * UseStringFormatAction
 
-Broken Actions (buggy)
-----------------------
 
-* InlineLocalVariableAction
-* IntroduceFormatItemAction
-* InsertAnonymousMethodSignatureAction
+Analyzers
+=========
 
-Duplication
------------
-
-* ImplementNotImplementedProperty vs. CreateBackingStore
-
-CodeIssues
-==========
-
-Issues not implemented
-----------------------
+Analyzers not implemented
+--------------------------
 
 *Code Quality*
 
