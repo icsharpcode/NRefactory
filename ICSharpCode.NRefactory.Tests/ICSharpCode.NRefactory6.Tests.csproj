@@ -190,7 +190,6 @@
     <Compile Include="CSharp\CodeRefactorings\CreateOverloadWithoutParameterTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ExtractAnonymousMethodTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\ExtractFieldTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\GenerateGetterTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\GeneratePropertyTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\GenerateSwitchLabelsTests.cs" />
@@ -503,6 +502,8 @@
     <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromBaseTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
     <Compile Include="CSharp\CodeFixes\CodeFixTestBase.cs" />
+    <Compile Include="CSharp\CodeRefactorings\InitializeFieldFromConstructorParameterTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\InitializeAutoPropertyFromConstructorParameterTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -55,8 +55,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var token = root.FindToken(span.Start);
-			if ((!token.IsKind(SyntaxKind.StringLiteralToken) || !token.IsKind(SyntaxKind.CharacterLiteralToken))   && token.Value.ToString() != "\r" && token.Value.ToString() != "\n" && token.Value.ToString() != "\r\n")
-				return;
+			if ((!token.IsKind (SyntaxKind.StringLiteralToken) || !token.IsKind (SyntaxKind.CharacterLiteralToken))) {
+				var tokenValue = (token.Value ?? "").ToString ();
+				if (tokenValue != "\r" && tokenValue != "\n" && tokenValue != "\r\n")
+					return;
+			}
 
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(

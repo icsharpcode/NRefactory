@@ -78,8 +78,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 								property.Type,
 								SyntaxFactory.SingletonSeparatedList<VariableDeclaratorSyntax>(SyntaxFactory.VariableDeclarator(name)))
 						).WithModifiers(!property.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword)) ?
-							SyntaxFactory.TokenList() :
-							SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
+						                SyntaxFactory.TokenList() :
+						                SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.StaticKeyword)))
 						.WithAdditionalAnnotations(Formatter.Annotation);
 
 						//create our new property

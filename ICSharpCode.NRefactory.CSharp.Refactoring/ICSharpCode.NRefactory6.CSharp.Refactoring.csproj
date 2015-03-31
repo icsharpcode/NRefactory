@@ -215,7 +215,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\CreateOverloadWithoutParameterAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ExtractAnonymousMethodAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\ExtractFieldAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\GenerateGetterAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\GeneratePropertyAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\IntroduceConstantAction.cs" />
@@ -445,6 +444,8 @@
     <Compile Include="Util\GettextCatalog.cs" />
     <Compile Include="Util\NRefactory6Host.cs" />
     <Compile Include="CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\InitializeFieldFromConstructorParameterCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
