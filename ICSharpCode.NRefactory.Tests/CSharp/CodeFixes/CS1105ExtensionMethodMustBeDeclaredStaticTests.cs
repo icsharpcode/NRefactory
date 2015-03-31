@@ -31,7 +31,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[TestFixture]
-	public class CS1105ExtensionMethodMustBeDeclaredStaticActionTests : CodeFixTestBase
+	public class CS1105ExtensionMethodMustBeDeclaredStaticTests : CodeFixTestBase
 	{
 		[Test]
 		public void TestMethod()

@@ -110,7 +110,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 				result.Append(ch);
 			}
 
-			selectedSpan = TextSpan.FromBounds(start, end);
+			if (start < 0) {
+				selectedSpan = TextSpan.FromBounds (0, 0);
+            } else {
+				selectedSpan = TextSpan.FromBounds (start, end);
+			}
 			return result.ToString();
 		}
 
@@ -174,9 +178,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 
 					if (selectedSpan.Start > 0)
 						Assert.AreEqual (selectedSpan, d.Location.SourceSpan, "Activation span does not match.");
-
-
-					var context = new CodeFixContext (doc, d.Location.SourceSpan, diagnostics, (arg1, arg2) => actions.Add (Tuple.Create (arg1, arg2)), default(CancellationToken));
+					
+					var context = new CodeFixContext (doc, d.Location.SourceSpan, diagnostics.Where (d2 => d2.Location.SourceSpan == d.Location.SourceSpan).ToImmutableArray (), (arg1, arg2) => actions.Add (Tuple.Create (arg1, arg2)), default(CancellationToken));
 					action.RegisterCodeFixesAsync (context);
 				}
 			}

@@ -173,13 +173,11 @@
     <Compile Include="CSharp\CodeRefactorings\ComputeConstantValueTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertDoWhileToWhileLoopTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertExplicitToImplicitImplementationTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\ConvertAssignmentToIfActionTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertForeachToForTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertIfStatementToNullCoalescingExpressionActionTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertIfStatementToReturnStatementActionTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertImplicitToExplicittImplementationTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertLambdaBodyExpressionToStatementTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\ConvertReturnStatementToIfActionTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertSwitchToIfTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ConvertWhileToDoWhileLoopTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateChangedEventTests.cs" />
@@ -188,7 +186,6 @@
     <Compile Include="CSharp\CodeRefactorings\CreateEventInvocatorTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateIndexerTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CreateOverloadWithoutParameterTests.cs" />
-    <Compile Include="CSharp\CodeRefactorings\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ExtractAnonymousMethodTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\GenerateGetterTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\GeneratePropertyTests.cs" />
@@ -500,10 +497,12 @@
     <Compile Include="CSharp\Diagnostics\StaticConstructorParameterTests.cs" />
     <Compile Include="CSharp\Diagnostics\ProhibitedModifiersTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\CopyCommentsFromBaseTests.cs" />
-    <Compile Include="CSharp\CodeFixes\CS1105ExtensionMethodMustBeDeclaredStaticActionTests.cs" />
     <Compile Include="CSharp\CodeFixes\CodeFixTestBase.cs" />
     <Compile Include="CSharp\CodeRefactorings\InitializeFieldFromConstructorParameterTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\InitializeAutoPropertyFromConstructorParameterTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ConvertTernaryExpressionToIfStatementCodeRefactoringProviderTests.cs" />
+    <Compile Include="CSharp\CodeFixes\CS1520MethodMustHaveAReturnTypeTests.cs" />
+    <Compile Include="CSharp\CodeFixes\CS1105ExtensionMethodMustBeDeclaredStaticTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

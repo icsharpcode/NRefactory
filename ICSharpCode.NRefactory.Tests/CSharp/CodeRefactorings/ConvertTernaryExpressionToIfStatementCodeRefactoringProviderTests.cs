@@ -1,5 +1,5 @@
 //
-// ConvertAssignmentToIfActionTests.cs
+// ConvertTernaryExpressionToIfStatementCodeRefactoringProviderTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -30,12 +30,12 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture]
-	public class ConvertAssignmentToIfActionTests : ContextActionTestBase
+	public class ConvertTernaryExpressionToIfStatementCodeRefactoringProviderTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestConditionalOperator()
 		{
-			Test<ConvertAssignmentToIfAction>(@"
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     int TestMethod (int o, int p)
@@ -62,7 +62,7 @@ class TestClass
 		[Test]
 		public void TestNullCoalescingOperator()
 		{
-			Test<ConvertAssignmentToIfAction>(@"
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
 class Test
 {
     object TestMethod(object o, object p)
@@ -89,7 +89,7 @@ class Test
 		[Test]
 		public void TestEmbeddedStatement()
 		{
-			Test<ConvertAssignmentToIfAction>(@"
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod(int i)
@@ -117,7 +117,7 @@ class TestClass
 		[Test]
 		public void TestAssignment()
 		{
-			Test<ConvertAssignmentToIfAction>(@"
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod (int i)
@@ -137,7 +137,7 @@ class TestClass
             a = 1;
     }
 }");
-			Test<ConvertAssignmentToIfAction>(@"
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
 class TestClass
 {
     void TestMethod (int i)
@@ -155,6 +155,74 @@ class TestClass
             a += 0;
         else
             a += 1;
+    }
+}");
+		}
+
+		[Test]
+		public void TestReturnConditionalOperator()
+		{
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        $return i > 0 ? 1 : 0;
+    }
+}", @"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        if (i > 0)
+            return 1;
+        return 0;
+    }
+}");
+		}
+
+		[Test]
+		public void TestReturnConditionalOperatorWithComment()
+		{
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        // Some comment
+        $return i > 0 ? 1 : 0;
+    }
+}", @"
+class TestClass
+{
+    int TestMethod(int i)
+    {
+        // Some comment
+        if (i > 0)
+            return 1;
+        return 0;
+    }
+}");
+		}
+
+		[Test]
+		public void TestReturnNullCoalescingOperator()
+		{
+			Test<ConvertTernaryExpressionToIfStatementCodeRefactoringProvider>(@"
+class Test
+{
+    object Foo(object o, object p)
+    {
+        $return o ?? p;
+    }
+}", @"
+class Test
+{
+    object Foo(object o, object p)
+    {
+        if (o != null)
+            return o;
+        return p;
     }
 }");
 		}

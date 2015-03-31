@@ -24,66 +24,64 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
-	[TestFixture, Ignore("Not implemented!")]
-	public class CS1520MethodMustHaveAReturnTypeTests : ContextActionTestBase
+	[TestFixture]
+	public class CS1520MethodMustHaveAReturnTypeTests : CodeFixTestBase
 	{
 		[Test]
-		public void TestMethod()
+		public void TestMethod ()
 		{
-			Test<CS1520MethodMustHaveAReturnTypeAction> (
+			Test<CS1520MethodMustHaveAReturnTypeCodeFixProvider> (
 				@"class Foo
 {
-	static $Fa (string str)
-	{
-	}
+    static $Fa$(string str)
+    {
+    }
 }",
 				@"class Foo
 {
-	static void Fa (string str)
-	{
-	}
+    static void Fa(string str)
+    {
+    }
 }", 1, true);
 		}
 
 		[Test]
-		public void TestConstructor()
+		public void TestConstructor ()
 		{
-			Test<CS1520MethodMustHaveAReturnTypeAction> (
+			Test<CS1520MethodMustHaveAReturnTypeCodeFixProvider> (
 				@"class Foo
 {
-	static $Fa (string str)
-	{
-	}
+    static $Fa$(string str)
+    {
+    }
 }",
 				@"class Foo
 {
-	static Foo (string str)
-	{
-	}
+    static Foo(string str)
+    {
+    }
 }", 0, true);
 		}
 
 		[Test]
-		public void TestConstructorWithBase()
+		public void TestConstructorWithBase ()
 		{
-			Test<CS1520MethodMustHaveAReturnTypeAction> (
+			Test<CS1520MethodMustHaveAReturnTypeCodeFixProvider> (
 				@"class Foo
 {
-	static $Fa (string str) : base (str)
-	{
-	}
+    static Fa(string str) : base (str)
+    {
+    }
 }",
 				@"class Foo
 {
-	static Foo (string str) : base (str)
-	{
-	}
+    static Foo(string str) : base (str)
+    {
+    }
 }", 0, true);
 		}
 	}

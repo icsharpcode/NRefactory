@@ -48,8 +48,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 		public sealed override async Task RegisterCodeFixesAsync (CodeFixContext context)
 		{
 			var document = context.Document;
+			if (document.Project.Solution.Workspace.Kind == WorkspaceKind.MiscellaneousFiles)
+				return;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
+			if (cancellationToken.IsCancellationRequested)
+				return;
 			var diagnostic = context.Diagnostics.First ();
 			var model = await document.GetSemanticModelAsync (cancellationToken);
 			var root = await model.SyntaxTree.GetRootAsync (cancellationToken);

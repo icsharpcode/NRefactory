@@ -205,15 +205,12 @@
     <Compile Include="CodeRefactorings\Synced\ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\AutoLinqSumAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ChangeAccessModifierAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\ConvertAssignmentToIfAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ConvertIfStatementToNullCoalescingExpressionAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ConvertIfStatementToReturnStatementAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\ConvertReturnStatementToIfAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateCustomEventImplementationAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateDelegateAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateIndexerAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\CreateOverloadWithoutParameterAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\CS1520MethodMustHaveAReturnTypeAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\ExtractAnonymousMethodAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\GenerateGetterAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\GeneratePropertyAction.cs" />
@@ -446,6 +443,8 @@
     <Compile Include="CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\InitializeFieldFromConstructorParameterCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs" />
+    <Compile Include="CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
