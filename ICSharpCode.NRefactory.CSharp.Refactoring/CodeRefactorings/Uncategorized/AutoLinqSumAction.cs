@@ -46,25 +46,26 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	{
 		// Disabled for nullables, since int? x = 3; x += null; has result x = null,
 		// but LINQ Sum behaves differently : nulls are treated as zero
-		static readonly IEnumerable<string> LinqSummableTypes = new string[] {
-			"System.UInt16",
-			"System.Int16",
-			"System.UInt32",
-			"System.Int32",
-			"System.UInt64",
-			"System.Int64",
-			"System.Single",
-			"System.Double",
-			"System.Decimal"
-		};
+		//static readonly IEnumerable<string> LinqSummableTypes = new string[] {
+		//	"System.UInt16",
+		//	"System.Int16",
+		//	"System.UInt32",
+		//	"System.Int32",
+		//	"System.UInt64",
+		//	"System.Int64",
+		//	"System.Single",
+		//	"System.Double",
+		//	"System.Decimal"
+		//};
 
-		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
+		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
-			var document = context.Document;
-			var span = context.Span;
-			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			//var document = context.Document;
+			//var span = context.Span;
+			//var cancellationToken = context.CancellationToken;
+			//var model = await document.GetSemanticModelAsync(cancellationToken);
+			//var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return Task.FromResult (0);
 		}
 
 //		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)

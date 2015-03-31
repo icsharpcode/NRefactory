@@ -45,13 +45,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split declaration list")]
 	public class SplitVariableIntoSeveralOnesCodeRefactoringProvider : CodeRefactoringProvider
 	{
-		public override async Task ComputeRefactoringsAsync(CodeRefactoringContext context)
+		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{
-			var document = context.Document;
-			var span = context.Span;
-			var cancellationToken = context.CancellationToken;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			//var document = context.Document;
+			//var span = context.Span;
+			//var cancellationToken = context.CancellationToken;
+			//var model = await document.GetSemanticModelAsync(cancellationToken);
+			//var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			return Task.FromResult (0);
 		}
 //		public override IEnumerable<CodeAction> GetActions (SemanticModel context)
 //		{

@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					GettextCatalog.GetString ("Remove region/endregion directives"),
 					t2 => {
 						var structure = directive.GetStructure();
-						var prev = directive.GetPreviousTrivia (model.SyntaxTree, cancellationToken, true);
+						// var prev = directive.GetPreviousTrivia (model.SyntaxTree, cancellationToken, true);
 						var end = structure as DirectiveTriviaSyntax;
 						SourceText text = document.GetTextAsync (cancellationToken).Result;
 						foreach (var e in end.GetRelatedDirectives().OrderByDescending (e => e.SpanStart)){

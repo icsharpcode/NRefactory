@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //
 		class GatherVisitor : GatherVisitorBase<UnusedTypeParameterAnalyzer>
 		{
-			SyntaxTree unit;
+			//SyntaxTree unit;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)

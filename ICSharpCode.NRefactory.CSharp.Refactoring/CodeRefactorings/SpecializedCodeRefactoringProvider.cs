@@ -20,10 +20,17 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		/// <returns>
 		/// The code action. May return <c>null</c>, if no action can be provided.
 		/// </returns>
+		/// <param name='document'>
+		/// The document.
+		/// </param>
 		/// <param name='semanticModel'>
 		/// The semantic model.
 		/// </param>
+		/// <param name='span'>
+		/// The span.
+		/// </param>
 		/// <param name = "root">The root node.</param>
+		/// <param name = "cancellationToken"></param>
 		/// <param name='node'>
 		/// The AstNode it's ensured that the node is always != null, if called.
 		/// </param>

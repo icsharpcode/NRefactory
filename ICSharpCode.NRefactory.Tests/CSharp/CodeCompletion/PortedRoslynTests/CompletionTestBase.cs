@@ -35,7 +35,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 {
 	public class CompletionTestBase
 	{
-		CompletionContextHandler [] originalHandler;
 
 		internal virtual CompletionContextHandler CreateContextHandler()
 		{

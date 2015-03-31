@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		class GatherVisitor : GatherVisitorBase<CheckNamespaceAnalyzer>
 		{
-			readonly string defaultNamespace;
+			//readonly string defaultNamespace;
 
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base(semanticModel, addDiagnostic, cancellationToken)
@@ -128,7 +128,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span);
 			//if (!node.IsKind(SyntaxKind.BaseList))

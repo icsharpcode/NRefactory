@@ -70,12 +70,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					DiagnosticSeverity.Info, 
 					GettextCatalog.GetString ("To computed property"),
 					t2 => {
-						string name = GetNameProposal(property.Identifier.ValueText, model, root);
+						//string name = GetNameProposal(property.Identifier.ValueText, model, root);
 
 						//create our new property
-						var fieldExpression = name == "value" ? 
-							(ExpressionSyntax)SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("value")) : 
-							SyntaxFactory.IdentifierName(name);
+						//var fieldExpression = name == "value" ? 
+						//	(ExpressionSyntax)SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, SyntaxFactory.ThisExpression(), SyntaxFactory.IdentifierName("value")) : 
+						//	SyntaxFactory.IdentifierName(name);
 
 						var getBody = SyntaxFactory.Block(
 							SyntaxFactory.ThrowStatement(
@@ -91,7 +91,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 						var getter = SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration, getBody);
 						var setter = SyntaxFactory.AccessorDeclaration(SyntaxKind.SetAccessorDeclaration, getBody);
 
-						var newPropAnno = new SyntaxAnnotation();
+						//var newPropAnno = new SyntaxAnnotation();
 						var newProperty = property.WithAccessorList(SyntaxFactory.AccessorList(new SyntaxList<AccessorDeclarationSyntax>().Add(getter).Add(setter)));
 						newProperty = newProperty.WithAdditionalAnnotations (Formatter.Annotation);
 						var newRoot = root.ReplaceNode((SyntaxNode)property, newProperty);

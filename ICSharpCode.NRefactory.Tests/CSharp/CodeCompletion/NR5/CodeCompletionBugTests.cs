@@ -302,15 +302,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 //
 		public static CompletionEngine CreateEngine(string text, out int cursorPosition, out SemanticModel semanticModel, out Document document, MetadataReference[] references, SourceCodeKind? sourceCodeKind = null)
 		{
-			string parsedText;
 			string editorText;
 			var selectionStart = text.IndexOf('$');
 			cursorPosition = selectionStart;
 			int endPos = text.IndexOf('$', cursorPosition + 1);
 			if (endPos == -1) {
-				parsedText = editorText = cursorPosition < 0 ? text : text.Substring(0, cursorPosition) + text.Substring(cursorPosition + 1);
+				editorText = cursorPosition < 0 ? text : text.Substring(0, cursorPosition) + text.Substring(cursorPosition + 1);
 			} else {
-				parsedText = text.Substring(0, cursorPosition) + new string(' ', endPos - cursorPosition) + text.Substring(endPos + 1);
 				editorText = text.Substring(0, cursorPosition) + text.Substring(cursorPosition + 1, endPos - cursorPosition - 1) + text.Substring(endPos + 1);
 				cursorPosition = endPos - 1; 
 			}
@@ -345,7 +343,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 			var workspace = new InspectionActionTestBase.TestWorkspace ();
 
 			var projectId  = ProjectId.CreateNewId();
-			var solutionId = SolutionId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
 
 			workspace.Open(ProjectInfo.Create(
@@ -398,7 +395,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion
 					var method = member as IMethodSymbol;
 					if (method == null)
 						continue;
-					var node = service.CreateMethodDeclaration(method, CodeGenerationDestination.Unspecified);
+					service.CreateMethodDeclaration(method, CodeGenerationDestination.Unspecified);
 				}
 
 

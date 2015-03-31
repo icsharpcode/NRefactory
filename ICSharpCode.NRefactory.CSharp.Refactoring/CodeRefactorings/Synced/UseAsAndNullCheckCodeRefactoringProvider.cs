@@ -217,7 +217,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 										))
 									})
 							));
-						var outerIs = isExpression.AncestorsAndSelf().FirstOrDefault(e => !(e.Parent is ParenthesizedExpressionSyntax));
+						//var outerIs = isExpression.AncestorsAndSelf().FirstOrDefault(e => !(e.Parent is ParenthesizedExpressionSyntax));
 						var binaryOperatorExpression = SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, SyntaxFactory.IdentifierName(varName), SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression));
 						SyntaxNode newRoot;
 						if (IsEmbeddedStatement(ifElseStatement)) {

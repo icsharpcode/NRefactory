@@ -118,7 +118,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
 			//replace a conditional Any(x) ? First(x) : null/default with FirstOrDefault(x)

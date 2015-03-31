@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			};
 
 			foreach (var provider in typeof(DiagnosticAnalyzerCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
-				var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
+				//var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
 				var codeFixProvider = (CodeFixProvider)Activator.CreateInstance(provider);
 				foreach (var id in codeFixProvider.FixableDiagnosticIds) {
 					providers.Add(id, codeFixProvider);

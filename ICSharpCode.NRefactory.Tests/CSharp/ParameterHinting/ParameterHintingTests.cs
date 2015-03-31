@@ -103,7 +103,7 @@ namespace ICSharpCode.NRefactory6.CSharp.ParameterHinting
 			var workspace = new InspectionActionTestBase.TestWorkspace ();
 
 			var projectId  = ProjectId.CreateNewId();
-			var solutionId = SolutionId.CreateNewId();
+			//var solutionId = SolutionId.CreateNewId();
 			var documentId = DocumentId.CreateNewId(projectId);
 
 			workspace.Open(ProjectInfo.Create(

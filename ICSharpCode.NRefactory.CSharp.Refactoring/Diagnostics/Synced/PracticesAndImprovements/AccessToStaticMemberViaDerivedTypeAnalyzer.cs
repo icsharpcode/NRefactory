@@ -140,7 +140,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
-			var result = new List<CodeAction>();
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span);
 			if (node == null)

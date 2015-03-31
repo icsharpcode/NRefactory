@@ -123,7 +123,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var text = await document.GetTextAsync(cancellationToken);
-			var result = new List<CodeAction>();
 			var diagnostic = diagnostics.First ();
 			var sourceSpan = context.Span;
 			context.RegisterCodeFix(CodeActionFactory.Create(sourceSpan, diagnostic.Severity, "Use array initializer", document.WithText(text.Replace(sourceSpan, ""))), diagnostic);

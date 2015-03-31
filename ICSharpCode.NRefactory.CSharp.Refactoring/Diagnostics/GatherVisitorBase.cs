@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		bool isDisabled;
 		bool isDisabledOnce;
 		bool isGloballySuppressed;
-		bool isPragmaDisabled;
+		//bool isPragmaDisabled;
 		bool isAttributeSuppressed;
 		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
 		static string disableString;
@@ -74,8 +74,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 		static string suppressMessageCategory;
 		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
 		static string suppressMessageCheckId;
-		[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
-		static int pragmaWarning;
+		//[SuppressMessage("Microsoft.Design", "CA1000:DoNotDeclareStaticMembersOnGenericTypes")]
+		//static int pragmaWarning;
 
 		static void SetDisableKeyword(string disableKeyword)
 		{
@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				SetDisableKeyword(attr.AnalysisDisableKeyword);
 			suppressMessageCheckId = attr.SuppressMessageCheckId;
 			suppressMessageCategory = attr.SuppressMessageCategory;
-			pragmaWarning = attr.PragmaWarning;
+			//pragmaWarning = attr.PragmaWarning;
 		}
 
 		protected void VisitLeadingTrivia (SyntaxNode node)
@@ -302,7 +302,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				isDisabledOnce = false;
 				return true;
 			}
-			return isDisabled || isGloballySuppressed || isPragmaDisabled || isAttributeSuppressed;
+			return isDisabled || isGloballySuppressed || isAttributeSuppressed;
 		}
 
 		protected void AddDiagnosticAnalyzer(Diagnostic issue)

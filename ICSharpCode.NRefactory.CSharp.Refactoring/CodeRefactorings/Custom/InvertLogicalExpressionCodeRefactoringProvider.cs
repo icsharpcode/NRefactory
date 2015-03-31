@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 							DiagnosticSeverity.Info, 
 							string.Format (GettextCatalog.GetString ("Invert '{0}'"), unaryOperatorExpression),
 							t2 => {
-								var uOp = expr as PrefixUnaryExpressionSyntax;
+								//var uOp = expr as PrefixUnaryExpressionSyntax;
 								var newRoot = root.ReplaceNode((SyntaxNode)
 									unaryOperatorExpression,
 									CSharpUtil.InvertCondition(expr).WithAdditionalAnnotations(Formatter.Annotation)

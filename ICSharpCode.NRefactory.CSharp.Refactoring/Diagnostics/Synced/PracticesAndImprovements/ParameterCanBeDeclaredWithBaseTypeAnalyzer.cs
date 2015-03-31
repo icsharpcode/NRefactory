@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory="Microsoft.Design", SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters")]
 	public class ParameterCanBeDeclaredWithBaseTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		bool tryResolve;
+		//bool tryResolve;
 
 		public ParameterCanBeDeclaredWithBaseTypeAnalyzer() : this (true)
 		{
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public ParameterCanBeDeclaredWithBaseTypeAnalyzer(bool tryResolve)
 		{
-			this.tryResolve = tryResolve;
+			//this.tryResolve = tryResolve;
 		}
 
 		internal const string DiagnosticId  = "ParameterCanBeDeclaredWithBaseTypeAnalyzer";
@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		class GatherVisitor : GatherVisitorBase<ParameterCanBeDeclaredWithBaseTypeAnalyzer>
 		{
-			bool tryResolve;
+			//bool tryResolve;
 			
 			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 				: base (semanticModel, addDiagnostic, cancellationToken)
@@ -596,7 +596,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var result = new List<CodeAction>();
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span);
 			//if (!node.IsKind(SyntaxKind.BaseList))
