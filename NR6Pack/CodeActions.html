@@ -15,7 +15,7 @@
 
     -->
     <h2>Supported Refactorings</h2>
-    <p>86 code actions available!</p>
+    <p>87 code actions available!</p>
     <ul>
       <li>Removes redundant braces around a statement. (AddBracesCodeRefactoringProvider)</li>
       <li>Add one or more optional parameters to an invocation (AddOptionalParameterToInvocationCodeRefactoringProvider)</li>
@@ -70,10 +70,13 @@
       <li>Converts 'ReferenceEquals' call to '==' or '!=' (ConvertReferenceEqualsToEqualityOperatorCodeRefactoringProvider)</li>
       <li>Convert statement body member to expression body (ConvertStatementBodyToExpressionBodyCodeRefactoringProvider)</li>
       <li>Convert 'switch' statement to 'if' statement (ConvertSwitchToIfCodeRefactoringProvider)</li>
+      <li>Convert 'return' to 'if' (ConvertTernaryExpressionToIfStatementCodeRefactoringProvider)</li>
       <li>Creates a standard OnXXX event method. (CreateEventInvocatorCodeRefactoringProvider)</li>
       <li>Swap 'Equals' target and argument (FlipEqualsTargetAndArgumentCodeRefactoringProvider)</li>
       <li>Flip an operator operands. (FlipOperatorArgumentsCodeRefactoringProvider)</li>
       <li>Flip an relational operator operands. (FlipRelationalOperatorArgumentsCodeRefactoringProvider)</li>
+      <li>Creates and initializes a new auto property from constructor parameter (InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider)</li>
+      <li>Creates and initializes a new field from constructor parameter (InitializeFieldFromConstructorParameterCodeRefactoringProvider)</li>
       <li>Inserts a signature to parameterless anonymous methods (InsertAnonymousMethodSignatureCodeRefactoringProvider)</li>
       <li>Inverts an '?:' expression. (InvertConditionalOperatorCodeRefactoringProvider)</li>
       <li>Inverts an 'if ... else' expression (InvertIfCodeRefactoringProvider)</li>
@@ -100,10 +103,8 @@
 " or "
 " literal (UseSystemEnvironmentNewLineCodeRefactoringProvider)</li>
       <li>Replaces "" with 'string.Empty'. (UseSystemStringEmptyCodeRefactoringProvider)</li>
-      <li>Convert assignment to 'if' (ConvertAssignmentToIfAction)</li>
       <li>Convert 'if' statement to '??' expression (ConvertIfStatementToNullCoalescingExpressionAction)</li>
       <li>Convert 'if' to 'return' (ConvertIfStatementToReturnStatementAction)</li>
-      <li>Convert 'return' to 'if' (ConvertReturnStatementToIfAction)</li>
       <li>Create custom event implementation (CreateCustomEventImplementationAction)</li>
       <li>Sorts usings by their origin and then alphabetically (SortUsingsAction)</li>
     </ul>

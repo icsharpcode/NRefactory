@@ -9,7 +9,6 @@ Refactorings not implemented (and added)
 * CreateDelegateAction
 * CreateIndexerAction
 * CreateOverloadWithoutParameterAction
-* CS1520MethodMustHaveAReturnTypeAction
 * ExtractAnonymousMethodAction
 * ExtractFieldAction
 * GenerateGetterAction

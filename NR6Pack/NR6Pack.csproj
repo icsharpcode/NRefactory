@@ -37,6 +37,15 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\AddBracesCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Custom\AddBracesCodeRefactoringProvider.cs</Link>
     </Compile>
@@ -199,6 +208,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ConvertSwitchToIfCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\ConvertSwitchToIfCodeRefactoringProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs">
+      <Link>CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CreateEventInvocatorCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\CreateEventInvocatorCodeRefactoringProvider.cs</Link>
     </Compile>
@@ -210,6 +222,12 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\FlipRelationalOperatorArgumentsCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\FlipRelationalOperatorArgumentsCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\InitializeFieldFromConstructorParameterCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\InitializeFieldFromConstructorParameterCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\InsertAnonymousMethodSignatureCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\InsertAnonymousMethodSignatureCodeRefactoringProvider.cs</Link>
@@ -280,17 +298,11 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\UseSystemStringEmptyCodeRefactoringProvider.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertAssignmentToIfAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\ConvertAssignmentToIfAction.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertIfStatementToNullCoalescingExpressionAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\ConvertIfStatementToNullCoalescingExpressionAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertIfStatementToReturnStatementAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\ConvertIfStatementToReturnStatementAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\ConvertReturnStatementToIfAction.cs">
-      <Link>CodeRefactoringProviders\Uncategorized\ConvertReturnStatementToIfAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Uncategorized\CreateCustomEventImplementationAction.cs">
       <Link>CodeRefactoringProviders\Uncategorized\CreateCustomEventImplementationAction.cs</Link>
