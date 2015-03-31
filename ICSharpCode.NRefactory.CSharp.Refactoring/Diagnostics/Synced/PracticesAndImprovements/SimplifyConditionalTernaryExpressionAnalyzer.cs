@@ -117,59 +117,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan, getInnermostNodeForTie:true) as ConditionalExpressionSyntax;
-				var newRoot = root;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span, getInnermostNodeForTie:true) as ConditionalExpressionSyntax;
+			var newRoot = root;
 
-				bool? trueBranch = GetBool(node.WhenTrue.SkipParens());
-				bool? falseBranch = GetBool(node.WhenFalse.SkipParens());
+			bool? trueBranch = GetBool(node.WhenTrue.SkipParens());
+			bool? falseBranch = GetBool(node.WhenFalse.SkipParens());
 
-				if (trueBranch == false && falseBranch == true) {
-					newRoot = newRoot.ReplaceNode(node, CSharpUtil.InvertCondition(node.Condition).WithAdditionalAnnotations(Formatter.Annotation));
-				} else if (trueBranch == true) {
-					newRoot = newRoot.ReplaceNode(
-						(SyntaxNode)node,
-						SyntaxFactory.BinaryExpression(
-							SyntaxKind.LogicalOrExpression,
-							node.Condition,
-							SyntaxFactory.ParseToken(" || "),
-							node.WhenFalse
-						).WithAdditionalAnnotations(Formatter.Annotation)
-					);
-				} else if (trueBranch == false) {
-					newRoot = newRoot.ReplaceNode(
-						(SyntaxNode)node,
-						SyntaxFactory.BinaryExpression(
-							SyntaxKind.LogicalAndExpression,
-							CSharpUtil.InvertCondition(node.Condition),
-							SyntaxFactory.ParseToken(" && "),
-							node.WhenFalse
-						).WithAdditionalAnnotations(Formatter.Annotation)
-					);
-				} else if (falseBranch == true) {
-					newRoot = newRoot.ReplaceNode(
-						(SyntaxNode)node,
-						SyntaxFactory.BinaryExpression(
-							SyntaxKind.LogicalOrExpression,
-							CSharpUtil.InvertCondition(node.Condition),
-							SyntaxFactory.ParseToken(" || "),
-							node.WhenTrue
-						).WithAdditionalAnnotations(Formatter.Annotation)
-					);
-				} else if (falseBranch == false) {
-					newRoot = newRoot.ReplaceNode(
-						(SyntaxNode)node,
-						SyntaxFactory.BinaryExpression(
-							SyntaxKind.LogicalAndExpression,
-							node.Condition,
-							SyntaxFactory.ParseToken(" && "),
-							node.WhenTrue
-						).WithAdditionalAnnotations(Formatter.Annotation)
-					);
-				}
-
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Simplify conditional expression", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (trueBranch == false && falseBranch == true) {
+				newRoot = newRoot.ReplaceNode(node, CSharpUtil.InvertCondition(node.Condition).WithAdditionalAnnotations(Formatter.Annotation));
+			} else if (trueBranch == true) {
+				newRoot = newRoot.ReplaceNode(
+					(SyntaxNode)node,
+					SyntaxFactory.BinaryExpression(
+						SyntaxKind.LogicalOrExpression,
+						node.Condition,
+						SyntaxFactory.ParseToken(" || "),
+						node.WhenFalse
+					).WithAdditionalAnnotations(Formatter.Annotation)
+				);
+			} else if (trueBranch == false) {
+				newRoot = newRoot.ReplaceNode(
+					(SyntaxNode)node,
+					SyntaxFactory.BinaryExpression(
+						SyntaxKind.LogicalAndExpression,
+						CSharpUtil.InvertCondition(node.Condition),
+						SyntaxFactory.ParseToken(" && "),
+						node.WhenFalse
+					).WithAdditionalAnnotations(Formatter.Annotation)
+				);
+			} else if (falseBranch == true) {
+				newRoot = newRoot.ReplaceNode(
+					(SyntaxNode)node,
+					SyntaxFactory.BinaryExpression(
+						SyntaxKind.LogicalOrExpression,
+						CSharpUtil.InvertCondition(node.Condition),
+						SyntaxFactory.ParseToken(" || "),
+						node.WhenTrue
+					).WithAdditionalAnnotations(Formatter.Annotation)
+				);
+			} else if (falseBranch == false) {
+				newRoot = newRoot.ReplaceNode(
+					(SyntaxNode)node,
+					SyntaxFactory.BinaryExpression(
+						SyntaxKind.LogicalAndExpression,
+						node.Condition,
+						SyntaxFactory.ParseToken(" && "),
+						node.WhenTrue
+					).WithAdditionalAnnotations(Formatter.Annotation)
+				);
 			}
+
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Simplify conditional expression", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

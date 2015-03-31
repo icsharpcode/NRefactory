@@ -125,25 +125,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as BinaryExpressionSyntax;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as BinaryExpressionSyntax;
 
-				ExpressionSyntax a;
-				TypeSyntax b;
-				InvocationExpressionSyntax left = node.Left as InvocationExpressionSyntax;
+			ExpressionSyntax a;
+			TypeSyntax b;
+			InvocationExpressionSyntax left = node.Left as InvocationExpressionSyntax;
 
-				//we know it's one or the other
-				if (left != null) {
-					a = left.Expression;
-					b = ((TypeOfExpressionSyntax)node.Right).Type;
-				} else {
-					a = ((InvocationExpressionSyntax)node.Right).Expression;
-					b = ((TypeOfExpressionSyntax)node.Left).Type;
-				}
-				var isExpr = SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, ((MemberAccessExpressionSyntax)a).Expression, b);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, isExpr.WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)), diagnostic);
+			//we know it's one or the other
+			if (left != null) {
+				a = left.Expression;
+				b = ((TypeOfExpressionSyntax)node.Right).Type;
+			} else {
+				a = ((InvocationExpressionSyntax)node.Right).Expression;
+				b = ((TypeOfExpressionSyntax)node.Left).Type;
 			}
+			var isExpr = SyntaxFactory.BinaryExpression(SyntaxKind.IsExpression, ((MemberAccessExpressionSyntax)a).Expression, b);
+			var newRoot = root.ReplaceNode((SyntaxNode)node, isExpr.WithAdditionalAnnotations(Formatter.Annotation));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'is' operator", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

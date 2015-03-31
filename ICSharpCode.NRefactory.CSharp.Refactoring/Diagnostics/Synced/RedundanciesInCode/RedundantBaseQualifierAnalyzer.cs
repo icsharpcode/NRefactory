@@ -36,6 +36,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using ICSharpCode.NRefactory6.CSharp;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -106,16 +107,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				var parentMa = node.Parent as MemberAccessExpressionSyntax;
-				if (parentMa != null) {
-					var newRoot = root.ReplaceNode((SyntaxNode)parentMa,
-						parentMa.Name
-						.WithLeadingTrivia(parentMa.GetLeadingTrivia())
-						.WithTrailingTrivia(parentMa.GetTrailingTrivia()));
-					context.RegisterCodeFix(CodeActionFactory.Create(parentMa.Span, diagnostic.Severity, "Remove 'base.'", document.WithSyntaxRoot(newRoot)), diagnostic);
-				}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			var parentMa = node.Parent as MemberAccessExpressionSyntax;
+			if (parentMa != null) {
+				var newRoot = root.ReplaceNode((SyntaxNode)parentMa,
+					parentMa.Name
+					.WithLeadingTrivia(parentMa.GetLeadingTrivia())
+					.WithTrailingTrivia(parentMa.GetTrailingTrivia()));
+				context.RegisterCodeFix(CodeActionFactory.Create(parentMa.Span, diagnostic.Severity, "Remove 'base.'", document.WithSyntaxRoot(newRoot)), diagnostic);
 			}
 		}
 	}

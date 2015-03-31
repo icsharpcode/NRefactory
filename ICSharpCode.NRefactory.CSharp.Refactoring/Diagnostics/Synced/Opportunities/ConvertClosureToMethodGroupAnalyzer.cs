@@ -223,25 +223,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				if (!node.IsKind(SyntaxKind.BaseList))
-					continue;
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with method group", token => {
-					var c1 = node as AnonymousMethodExpressionSyntax;
-					var c2 = node as ParenthesizedLambdaExpressionSyntax;
-					var c3 = node as SimpleLambdaExpressionSyntax;
-					InvocationExpressionSyntax invoke = null;
-					if (c1 != null)
-						invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c1.Block);
-					if (c2 != null)
-						invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c2.Body);
-					if (c3 != null)
-						invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c3.Body);
-					var newRoot = root.ReplaceNode((SyntaxNode)node, invoke.Expression);
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			if (!node.IsKind(SyntaxKind.BaseList))
+				return;
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with method group", token => {
+				var c1 = node as AnonymousMethodExpressionSyntax;
+				var c2 = node as ParenthesizedLambdaExpressionSyntax;
+				var c3 = node as SimpleLambdaExpressionSyntax;
+				InvocationExpressionSyntax invoke = null;
+				if (c1 != null)
+					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c1.Block);
+				if (c2 != null)
+					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c2.Body);
+				if (c3 != null)
+					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c3.Body);
+				var newRoot = root.ReplaceNode((SyntaxNode)node, invoke.Expression);
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			}), diagnostic);
 		}
 	}
 }

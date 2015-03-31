@@ -38,6 +38,7 @@ using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -101,15 +102,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
-				if (node == null)
-					continue;
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:' with branch", token => {
-					var newRoot = root.ReplaceNode((SyntaxNode)node, node.WhenTrue.WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
+			if (node == null)
+				return;
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:' with branch", token => {
+				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WhenTrue.WithAdditionalAnnotations(Formatter.Annotation));
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			}), diagnostic);
 		}
 	}
 }

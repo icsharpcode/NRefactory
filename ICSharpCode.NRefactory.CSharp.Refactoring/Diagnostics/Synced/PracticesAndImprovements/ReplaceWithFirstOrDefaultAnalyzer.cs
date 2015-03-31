@@ -119,16 +119,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
-				//replace a conditional Any(x) ? First(x) : null/default with FirstOrDefault(x)
-				var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
-				var baseExpression = ((MemberAccessExpressionSyntax)((InvocationExpressionSyntax)node.Condition).Expression).Expression;
-				var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
-					SyntaxFactory.IdentifierName("FirstOrDefault")), parameterExpr);
-				var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'FirstOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
+			//replace a conditional Any(x) ? First(x) : null/default with FirstOrDefault(x)
+			var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
+			var baseExpression = ((MemberAccessExpressionSyntax)((InvocationExpressionSyntax)node.Condition).Expression).Expression;
+			var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
+				SyntaxFactory.IdentifierName("FirstOrDefault")), parameterExpr);
+			var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'FirstOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

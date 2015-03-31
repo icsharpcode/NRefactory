@@ -36,6 +36,7 @@ using Microsoft.CodeAnalysis.CodeActions;
 using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -97,13 +98,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as AttributeSyntax;
-				if (node == null)
-					continue;
-				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithArgumentList(null));
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as AttributeSyntax;
+			if (node == null)
+				return;
+			var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithArgumentList(null));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove '()'", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

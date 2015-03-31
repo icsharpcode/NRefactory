@@ -250,48 +250,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as BinaryExpressionSyntax;
-				if (node == null)
-					continue;
-				CodeAction action;
-				var floatType = diagnostic.Descriptor.CustomTags.ElementAt(1);
-				switch (diagnostic.Descriptor.CustomTags.ElementAt(0))
-				{
-					case "1":
-						action = AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "2":
-						action = AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					case "3":
-						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "4":
-						action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					case "5":
-						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "6":
-						action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					case "7":
-						action = AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType);
-						break;
-					case "8":
-						action = AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType);
-						break;
-					default:
-						action = AddCompareIssue(document, semanticModel, root, node, floatType);
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as BinaryExpressionSyntax;
+			if (node == null)
+				return;
+			CodeAction action;
+			var floatType = diagnostic.Descriptor.CustomTags.ElementAt(1);
+			switch (diagnostic.Descriptor.CustomTags.ElementAt(0))
+			{
+				case "1":
+					action = AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType);
+					break;
+				case "2":
+					action = AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType);
+					break;
+				case "3":
+					action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
+					break;
+				case "4":
+					action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
+					break;
+				case "5":
+					action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
+					break;
+				case "6":
+					action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
+					break;
+				case "7":
+					action = AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType);
+					break;
+				case "8":
+					action = AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType);
+					break;
+				default:
+					action = AddCompareIssue(document, semanticModel, root, node, floatType);
 
-						break;
-				}
+					break;
+			}
 
-				if (action != null)
-				{
-					context.RegisterCodeFix(action, diagnostic);
-				}
+			if (action != null)
+			{
+				context.RegisterCodeFix(action, diagnostic);
 			}
 		}
 

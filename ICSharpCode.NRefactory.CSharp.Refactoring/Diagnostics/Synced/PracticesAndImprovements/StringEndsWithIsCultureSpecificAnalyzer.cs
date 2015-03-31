@@ -84,11 +84,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan).SkipArgument () as InvocationExpressionSyntax;
-				RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
-				RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span).SkipArgument () as InvocationExpressionSyntax;
+			RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
+			RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
 		}
 
 		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, CancellationToken cancellationToken = default(CancellationToken))

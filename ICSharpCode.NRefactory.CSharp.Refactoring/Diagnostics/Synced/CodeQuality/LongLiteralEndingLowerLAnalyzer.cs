@@ -115,22 +115,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				String newLiteral = ((LiteralExpressionSyntax)node).Token.Text.ToUpperInvariant();
-				char prevChar = newLiteral[newLiteral.Length - 2];
-				char lastChar = newLiteral[newLiteral.Length - 1];
-				double newLong = 0;
-				if (prevChar == 'U' || prevChar == 'L') //match ul, lu, or l. no need to match just u.
-					newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 2));
-				else if (lastChar == 'L')
-					newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 1));
-				else
-					newLong = long.Parse(newLiteral); //just in case
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			String newLiteral = ((LiteralExpressionSyntax)node).Token.Text.ToUpperInvariant();
+			char prevChar = newLiteral[newLiteral.Length - 2];
+			char lastChar = newLiteral[newLiteral.Length - 1];
+			double newLong = 0;
+			if (prevChar == 'U' || prevChar == 'L') //match ul, lu, or l. no need to match just u.
+				newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 2));
+			else if (lastChar == 'L')
+				newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 1));
+			else
+				newLong = long.Parse(newLiteral); //just in case
 
-				var newRoot = root.ReplaceNode((SyntaxNode)node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			var newRoot = root.ReplaceNode((SyntaxNode)node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

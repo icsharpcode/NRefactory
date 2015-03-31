@@ -118,20 +118,19 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
-				if (node == null)
-					continue;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as IfStatementSyntax;
+			if (node == null)
+				return;
 
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'while'", token => {
-					var newNode = SyntaxFactory.WhileStatement(
-						node.Condition,
-						ConvertIfDoToWhileAnalyzer.GetEmbeddedDoStatement(node.Statement).Statement
-					);
-					var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'while'", token => {
+				var newNode = SyntaxFactory.WhileStatement(
+					node.Condition,
+					ConvertIfDoToWhileAnalyzer.GetEmbeddedDoStatement(node.Statement).Statement
+				);
+				var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			}), diagnostic);
 		}
 	}
 }

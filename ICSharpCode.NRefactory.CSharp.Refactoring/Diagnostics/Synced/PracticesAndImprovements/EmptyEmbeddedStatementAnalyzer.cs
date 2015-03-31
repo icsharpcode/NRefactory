@@ -127,15 +127,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				if (!node.IsKind(SyntaxKind.EmptyStatement))
-					continue;
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{}'", token => {
-					var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.Block().WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			if (!node.IsKind(SyntaxKind.EmptyStatement))
+				return;
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{}'", token => {
+				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.Block().WithAdditionalAnnotations(Formatter.Annotation));
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			}), diagnostic);
 		}
 	}
 }

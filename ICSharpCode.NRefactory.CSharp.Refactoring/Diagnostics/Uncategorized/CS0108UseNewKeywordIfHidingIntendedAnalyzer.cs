@@ -270,28 +270,27 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
 
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				context.RegisterCodeFix(CodeActionFactory.Create(
-					node.Span,
-					diagnostic.Severity,
-					"Add new modifier to method",
-					token =>
-					{
-						SyntaxNode newRoot;
-						if (node.Kind() != SyntaxKind.VariableDeclarator)
-							newRoot = root.ReplaceNode(node, AddNewModifier(node));
-						else //this one wants to be awkward - you can't add modifiers to a variable declarator
-                        {
-							SyntaxNode declaringNode = node.Parent.Parent;
-							if (declaringNode is FieldDeclarationSyntax)
-								newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
-							else //it's an event declaration
-								newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
-						}
-						return Task.FromResult(document.WithSyntaxRoot(newRoot.WithAdditionalAnnotations(Formatter.Annotation)));
-					}), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			context.RegisterCodeFix(CodeActionFactory.Create(
+				node.Span,
+				diagnostic.Severity,
+				"Add new modifier to method",
+				token =>
+				{
+					SyntaxNode newRoot;
+					if (node.Kind() != SyntaxKind.VariableDeclarator)
+						newRoot = root.ReplaceNode(node, AddNewModifier(node));
+					else //this one wants to be awkward - you can't add modifiers to a variable declarator
+                    {
+						SyntaxNode declaringNode = node.Parent.Parent;
+						if (declaringNode is FieldDeclarationSyntax)
+							newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as FieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+						else //it's an event declaration
+							newRoot = root.ReplaceNode(node.Parent.Parent, (node.Parent.Parent as EventFieldDeclarationSyntax).AddModifiers(SyntaxFactory.Token(SyntaxKind.NewKeyword)));
+					}
+					return Task.FromResult(document.WithSyntaxRoot(newRoot.WithAdditionalAnnotations(Formatter.Annotation)));
+				}), diagnostic);
 		}
 
 		private SyntaxNode AddNewModifier(SyntaxNode node)

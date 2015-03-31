@@ -57,25 +57,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken).ConfigureAwait (false);
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindToken(diagnostic.Location.SourceSpan.Start);
-				if (!node.IsKind(SyntaxKind.PartialKeyword))
-					continue;
-				context.RegisterCodeFix(
-					CodeActionFactory.Create(
-						node.Span, 
-						diagnostic.Severity, 
-						GettextCatalog.GetString("Remove 'partial'"),
-						delegate (CancellationToken token) {
-							var oldClass = node.Parent;
-							var newClass = oldClass
-								.WithModifiers (SyntaxFactory.TokenList (node.Parent.GetModifiers ().Where (t => !t.IsKind (SyntaxKind.PartialKeyword))))
-								.WithLeadingTrivia (oldClass.GetLeadingTrivia ());
-							return Task.FromResult(document.WithSyntaxRoot (root.ReplaceNode(oldClass, newClass)));
-						}), 
-					diagnostic
-				);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindToken(context.Span.Start);
+			if (!node.IsKind(SyntaxKind.PartialKeyword))
+				return;
+			context.RegisterCodeFix(
+				CodeActionFactory.Create(
+					node.Span, 
+					diagnostic.Severity, 
+					GettextCatalog.GetString("Remove 'partial'"),
+					delegate (CancellationToken token) {
+						var oldClass = node.Parent;
+						var newClass = oldClass
+							.WithModifiers (SyntaxFactory.TokenList (node.Parent.GetModifiers ().Where (t => !t.IsKind (SyntaxKind.PartialKeyword))))
+							.WithLeadingTrivia (oldClass.GetLeadingTrivia ());
+						return Task.FromResult(document.WithSyntaxRoot (root.ReplaceNode(oldClass, newClass)));
+					}), 
+				diagnostic
+			);
 		}
 	}
 }

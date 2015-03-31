@@ -117,16 +117,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as ClassDeclarationSyntax;
-				if (node == null)
-					continue;
-				var sealedMod = node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.SealedKeyword));
-				var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
-					.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" "))))
-					.WithLeadingTrivia(node.GetLeadingTrivia()));
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as ClassDeclarationSyntax;
+			if (node == null)
+				return;
+			var sealedMod = node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.SealedKeyword));
+			var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
+				.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" "))))
+				.WithLeadingTrivia(node.GetLeadingTrivia()));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

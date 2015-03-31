@@ -37,6 +37,7 @@ using Microsoft.CodeAnalysis.Text;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -160,44 +161,43 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				var argListSyntax = node.Parent.Parent as BaseArgumentListSyntax;
-				if (node.IsKind(SyntaxKind.NameColon) && argListSyntax != null) {
-					bool replace = true;
-					var newRoot = root;
-					var args = new List<ArgumentSyntax> ();
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			var argListSyntax = node.Parent.Parent as BaseArgumentListSyntax;
+			if (node.IsKind(SyntaxKind.NameColon) && argListSyntax != null) {
+				bool replace = true;
+				var newRoot = root;
+				var args = new List<ArgumentSyntax> ();
 
-					foreach (var arg in argListSyntax.Arguments) {
-						if (replace) {
-							args.Add(arg);
-						}
-						replace &= arg != node.Parent;
-
+				foreach (var arg in argListSyntax.Arguments) {
+					if (replace) {
+						args.Add(arg);
 					}
-					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
+					replace &= arg != node.Parent;
 
-					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
-					continue;
 				}
-				var attrListSyntax = node.Parent.Parent as AttributeArgumentListSyntax;
-				if (node.IsKind(SyntaxKind.NameColon) && attrListSyntax != null) {
-					bool replace = true;
-					var newRoot = root;
-					var args = new List<AttributeArgumentSyntax> ();
+				newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.Argument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
 
-					foreach (var arg in attrListSyntax.Arguments) {
-						if (replace) {
-							args.Add(arg);
-						}
-						replace &= arg != node.Parent;
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
+				return;
+			}
+			var attrListSyntax = node.Parent.Parent as AttributeArgumentListSyntax;
+			if (node.IsKind(SyntaxKind.NameColon) && attrListSyntax != null) {
+				bool replace = true;
+				var newRoot = root;
+				var args = new List<AttributeArgumentSyntax> ();
 
+				foreach (var arg in attrListSyntax.Arguments) {
+					if (replace) {
+						args.Add(arg);
 					}
-					newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
+					replace &= arg != node.Parent;
 
-					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
-					continue;
 				}
+				newRoot = newRoot.ReplaceNodes(args, (arg, arg2) => SyntaxFactory.AttributeArgument(arg.Expression).WithAdditionalAnnotations(Formatter.Annotation));
+
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, CodeActionMessage, document.WithSyntaxRoot(newRoot)), diagnostic);
+				return;
 			}
 		}
 	}

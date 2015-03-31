@@ -161,69 +161,68 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan);
-				//if (!node.IsKind(SyntaxKind.BaseList))
-				//	continue;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			//if (!node.IsKind(SyntaxKind.BaseList))
+			//	continue;
 
-				var value = bool.Parse(diagnostic.Descriptor.CustomTags.First());
+			var value = bool.Parse(diagnostic.Descriptor.CustomTags.First());
 
-				var conditionalExpr = node.Parent as ConditionalExpressionSyntax;
-				var ifElseStatement = node.Parent as IfStatementSyntax;
-				var valueStr = value.ToString().ToLowerInvariant();
+			var conditionalExpr = node.Parent as ConditionalExpressionSyntax;
+			var ifElseStatement = node.Parent as IfStatementSyntax;
+			var valueStr = value.ToString().ToLowerInvariant();
 
-				if (conditionalExpr != null)
+			if (conditionalExpr != null)
+			{
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token =>
 				{
-					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token =>
-					{
-						var replaceWith = value ? conditionalExpr.WhenTrue : conditionalExpr.WhenFalse;
-						var newRoot = root.ReplaceNode((SyntaxNode)conditionalExpr, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
-						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}), diagnostic);
-				}
-				else if (ifElseStatement != null)
+					var replaceWith = value ? conditionalExpr.WhenTrue : conditionalExpr.WhenFalse;
+					var newRoot = root.ReplaceNode((SyntaxNode)conditionalExpr, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}), diagnostic);
+			}
+			else if (ifElseStatement != null)
+			{
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token =>
 				{
-					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token =>
+					var list = new List<SyntaxNode>();
+					StatementSyntax branch;
+					if (value)
 					{
-						var list = new List<SyntaxNode>();
-						StatementSyntax branch;
-						if (value)
-						{
-							branch = ifElseStatement.Statement;
-						}
-						else
-						{
-							if (ifElseStatement.Else == null)
-								return Task.FromResult(document.WithSyntaxRoot(root.RemoveNode(ifElseStatement, SyntaxRemoveOptions.KeepNoTrivia)));
-							branch = ifElseStatement.Else.Statement;
-						}
+						branch = ifElseStatement.Statement;
+					}
+					else
+					{
+						if (ifElseStatement.Else == null)
+							return Task.FromResult(document.WithSyntaxRoot(root.RemoveNode(ifElseStatement, SyntaxRemoveOptions.KeepNoTrivia)));
+						branch = ifElseStatement.Else.Statement;
+					}
 
-						var block = branch as BlockSyntax;
-						if (block != null)
-						{
-							foreach (var stmt in block.Statements)
-								list.Add(stmt.WithAdditionalAnnotations(Formatter.Annotation));
-						}
-						else
-						{
-							if (branch != null)
-								list.Add(branch.WithAdditionalAnnotations(Formatter.Annotation));
-						}
-						if (list.Count == 0)
-							return Task.FromResult(document);
-						var newRoot = root.ReplaceNode((SyntaxNode)ifElseStatement, list);
-						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}), diagnostic);
-				}
-				else
-				{
-					context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace expression with '{0}'", valueStr), token =>
+					var block = branch as BlockSyntax;
+					if (block != null)
 					{
-						var replaceWith = SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-						var newRoot = root.ReplaceNode((SyntaxNode)node, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
-						return Task.FromResult(document.WithSyntaxRoot(newRoot));
-					}), diagnostic);
-				}
+						foreach (var stmt in block.Statements)
+							list.Add(stmt.WithAdditionalAnnotations(Formatter.Annotation));
+					}
+					else
+					{
+						if (branch != null)
+							list.Add(branch.WithAdditionalAnnotations(Formatter.Annotation));
+					}
+					if (list.Count == 0)
+						return Task.FromResult(document);
+					var newRoot = root.ReplaceNode((SyntaxNode)ifElseStatement, list);
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}), diagnostic);
+			}
+			else
+			{
+				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace expression with '{0}'", valueStr), token =>
+				{
+					var replaceWith = SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
+					var newRoot = root.ReplaceNode((SyntaxNode)node, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
+					return Task.FromResult(document.WithSyntaxRoot(newRoot));
+				}), diagnostic);
 			}
 		}
 	}

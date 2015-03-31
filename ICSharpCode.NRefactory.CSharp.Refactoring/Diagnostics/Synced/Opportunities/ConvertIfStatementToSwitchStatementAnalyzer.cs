@@ -113,22 +113,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as IfStatementSyntax;
 
-				var switchExpr = ConvertIfStatementToSwitchStatementCodeRefactoringProvider.GetSwitchExpression(semanticModel, node.Condition);
-				if (switchExpr == null)
-					return;
-				var switchSections = new List<SwitchSectionSyntax>();
-				if (!ConvertIfStatementToSwitchStatementCodeRefactoringProvider.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
-					return;
-				if (switchSections.Count(s => !s.Labels.OfType<DefaultSwitchLabelSyntax>().Any()) <= 2)
-					return;
+			var switchExpr = ConvertIfStatementToSwitchStatementCodeRefactoringProvider.GetSwitchExpression(semanticModel, node.Condition);
+			if (switchExpr == null)
+				return;
+			var switchSections = new List<SwitchSectionSyntax>();
+			if (!ConvertIfStatementToSwitchStatementCodeRefactoringProvider.CollectSwitchSections(switchSections, semanticModel, node, switchExpr))
+				return;
+			if (switchSections.Count(s => !s.Labels.OfType<DefaultSwitchLabelSyntax>().Any()) <= 2)
+				return;
 
-				var switchStatement = SyntaxFactory.SwitchStatement(switchExpr, new SyntaxList<SwitchSectionSyntax>().AddRange(switchSections));
-				var newRoot = root.ReplaceNode((SyntaxNode)node, switchStatement.WithAdditionalAnnotations(Formatter.Annotation));
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to 'switch' statement", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			var switchStatement = SyntaxFactory.SwitchStatement(switchExpr, new SyntaxList<SwitchSectionSyntax>().AddRange(switchSections));
+			var newRoot = root.ReplaceNode((SyntaxNode)node, switchStatement.WithAdditionalAnnotations(Formatter.Annotation));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to 'switch' statement", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

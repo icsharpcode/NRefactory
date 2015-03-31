@@ -37,6 +37,7 @@ using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -109,33 +110,32 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as InvocationExpressionSyntax;
-				if (node == null)
-					continue;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as InvocationExpressionSyntax;
+			if (node == null)
+				return;
 
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Change invocation to call 'object.ReferenceEquals'", arg => {
-					var arguments = new SeparatedSyntaxList<ArgumentSyntax>();
-					arguments = arguments.Add(SyntaxFactory.Argument(SyntaxFactory.ThisExpression())); 
-					arguments = arguments.Add(node.ArgumentList.Arguments[0]); 
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Change invocation to call 'object.ReferenceEquals'", arg => {
+				var arguments = new SeparatedSyntaxList<ArgumentSyntax>();
+				arguments = arguments.Add(SyntaxFactory.Argument(SyntaxFactory.ThisExpression())); 
+				arguments = arguments.Add(node.ArgumentList.Arguments[0]); 
 
-					return Task.FromResult(document.WithSyntaxRoot(
-						root.ReplaceNode((SyntaxNode)
-							node, 
-							SyntaxFactory.InvocationExpression(
-								SyntaxFactory.ParseExpression("object.ReferenceEquals"),
-								SyntaxFactory.ArgumentList(arguments)
-							)
-								.WithLeadingTrivia(node.GetLeadingTrivia())
-								.WithAdditionalAnnotations(Formatter.Annotation))
+				return Task.FromResult(document.WithSyntaxRoot(
+					root.ReplaceNode((SyntaxNode)
+						node, 
+						SyntaxFactory.InvocationExpression(
+							SyntaxFactory.ParseExpression("object.ReferenceEquals"),
+							SyntaxFactory.ArgumentList(arguments)
 						)
-					);
-				}), diagnostic);
+							.WithLeadingTrivia(node.GetLeadingTrivia())
+							.WithAdditionalAnnotations(Formatter.Annotation))
+					)
+				);
+			}), diagnostic);
 
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'base.'", arg => {
-					return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, node.WithExpression(SyntaxFactory.IdentifierName("Equals")))));
-				}), diagnostic);
-			}
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'base.'", arg => {
+				return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, node.WithExpression(SyntaxFactory.IdentifierName("Equals")))));
+			}), diagnostic);
 		}
 	}
 }

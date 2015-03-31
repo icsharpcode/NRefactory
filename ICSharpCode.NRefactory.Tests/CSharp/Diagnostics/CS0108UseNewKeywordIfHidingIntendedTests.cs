@@ -28,6 +28,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory6.CSharp.Diagnostics;
 using NUnit.Framework;
 
+
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]

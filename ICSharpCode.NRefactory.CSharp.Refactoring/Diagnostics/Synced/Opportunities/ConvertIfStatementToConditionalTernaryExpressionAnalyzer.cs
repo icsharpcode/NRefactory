@@ -145,24 +145,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as IfStatementSyntax;
 
-				ExpressionSyntax condition, target;
-				AssignmentExpressionSyntax trueAssignment, falseAssignment;
-				if (!ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
-					return;
-				var newRoot = root.ReplaceNode((SyntaxNode)node,
-					SyntaxFactory.ExpressionStatement(
-						SyntaxFactory.AssignmentExpression(
-							trueAssignment.Kind(),
-							trueAssignment.Left,
-							SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
-						)
-					).WithAdditionalAnnotations(Formatter.Annotation)
-				);
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to '?:' expression", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			ExpressionSyntax condition, target;
+			AssignmentExpressionSyntax trueAssignment, falseAssignment;
+			if (!ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
+				return;
+			var newRoot = root.ReplaceNode((SyntaxNode)node,
+				SyntaxFactory.ExpressionStatement(
+					SyntaxFactory.AssignmentExpression(
+						trueAssignment.Kind(),
+						trueAssignment.Left,
+						SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
+					)
+				).WithAdditionalAnnotations(Formatter.Annotation)
+			);
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to '?:' expression", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

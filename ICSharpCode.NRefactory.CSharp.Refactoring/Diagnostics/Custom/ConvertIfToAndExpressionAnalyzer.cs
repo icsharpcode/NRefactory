@@ -128,7 +128,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var result = new List<CodeAction>();
 			foreach (var diagnostic in diagnostics)
 			{
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as IfStatementSyntax;
+				var node = root.FindNode(context.Span) as IfStatementSyntax;
 				ExpressionSyntax target;
 				SyntaxTriviaList assignmentTrailingTriviaList;
 				ConvertIfToOrExpressionAnalyzer.MatchIfElseStatement(node, SyntaxKind.FalseLiteralExpression, out target, out assignmentTrailingTriviaList);

@@ -37,6 +37,7 @@ using System.Threading;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Formatting;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -149,36 +150,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var result = new List<CodeAction>();
-			foreach (var diagnostic in diagnostics) {
-				var node = root.FindNode(diagnostic.Location.SourceSpan) as ConditionalExpressionSyntax;
-				if (node == null)
-					continue;
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:'  operator with '??", token => {
-					ExpressionSyntax a, other;
-					if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
-						a = node.WhenFalse;
-						other = node.WhenTrue;
-					} else {
-						other = node.WhenFalse;
-						a = node.WhenTrue;
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
+			if (node == null)
+				return;
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:'  operator with '??", token => {
+				ExpressionSyntax a, other;
+				if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
+					a = node.WhenFalse;
+					other = node.WhenTrue;
+				} else {
+					other = node.WhenFalse;
+					a = node.WhenTrue;
+				}
+
+				if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
+					var castExpression = other as CastExpressionSyntax;
+					if (castExpression != null) {
+						a = SyntaxFactory.CastExpression(castExpression.Type, a);
+						other = castExpression.Expression;
 					}
+				}
 
-					if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
-						var castExpression = other as CastExpressionSyntax;
-						if (castExpression != null) {
-							a = SyntaxFactory.CastExpression(castExpression.Type, a);
-							other = castExpression.Expression;
-						}
-					}
+				a = UnpackNullableValueAccess(model, a, token);
 
-					a = UnpackNullableValueAccess(model, a, token);
+				ExpressionSyntax newNode = SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, a, other);
 
-					ExpressionSyntax newNode = SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, a, other);
-
-					var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
- 				}), diagnostic);
-			}
+				var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
+				return Task.FromResult(document.WithSyntaxRoot(newRoot));
+			}), diagnostic);
 		}
 
 		internal static ExpressionSyntax UnpackNullableValueAccess(SemanticModel semanticModel, ExpressionSyntax expression, CancellationToken cancellationToken)
