@@ -264,7 +264,6 @@
     <Compile Include="Diagnostics\Custom\UnreachableCodeAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\VariableOnlyAssignedAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\XmlDocAnalyzer.cs" />
-    <Compile Include="Diagnostics\Uncategorized\CS0108UseNewKeywordIfHidingIntendedAnalyzer.cs" />
     <Compile Include="Diagnostics\GatherVisitorDiagnosticAnalyzer.cs" />
     <Compile Include="Diagnostics\GatherVisitorBase.cs" />
     <Compile Include="Diagnostics\Synced\CodeQuality\BaseMethodCallWithDefaultParameterAnalyzer.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeRefactorings\Synced\InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs" />
+    <Compile Include="CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
@@ -498,5 +498,6 @@
     <Folder Include="Util\" />
     <Folder Include="CodeFixes\" />
     <Folder Include="CodeFixes\Custom\" />
+    <Folder Include="Diagnostics\Uncategorized\" />
   </ItemGroup>
 </Project>

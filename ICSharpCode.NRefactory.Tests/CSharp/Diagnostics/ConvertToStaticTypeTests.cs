@@ -27,6 +27,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
+using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
