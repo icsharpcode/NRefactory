@@ -235,6 +235,7 @@ namespace MyApplication
 		[Test]
 		public void TestBug13365 ()
 		{
+
 			CodeCompletionBugTests.CombinedProviderTest (@"using System;
 using System.Threading.Tasks;
 
@@ -254,6 +255,27 @@ namespace MyApplication
 			});
 		}
 
+		[Test]
+		public void TestBug13365_pt2 ()
+		{
+			CodeCompletionBugTests.CombinedProviderTest (@"using System;
+using System.Threading.Tasks;
+
+namespace MyApplication
+{
+   class MyClass
+   {
+        void MyMethod (int a)
+        {
+            $MyMethod (a$
+        }
+    }
+}
+", provider => {
+
+				Assert.IsTrue (provider.AutoSelect);
+			});
+		}
 		[Ignore("there may be keywords there as/is")]
 		[Test]
 		public void TestLambda ()

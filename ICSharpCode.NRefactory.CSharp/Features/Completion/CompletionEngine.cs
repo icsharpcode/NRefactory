@@ -165,8 +165,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				ctx.LeftToken.Parent.Parent.IsKind(SyntaxKind.AnonymousObjectMemberDeclarator))
 				result.AutoSelect = false;
 
-			if (ctx.TargetToken.IsKind(SyntaxKind.OpenParenToken))
-				result.AutoSelect = false;
+			if (ctx.TargetToken.IsKind (SyntaxKind.OpenParenToken) && ctx.TargetToken.GetPreviousToken ().IsKind (SyntaxKind.OpenParenToken)) {
+				var validTypes = TypeGuessing.GetValidTypes (semanticModel, ctx.TargetToken.Parent, cancellationToken);
+				result.AutoSelect = !validTypes.Any (t => t.IsDelegateType ());
+			}
 
 			foreach (var type in ctx.InferredTypes) {
 				if (type.TypeKind == TypeKind.Delegate) {
