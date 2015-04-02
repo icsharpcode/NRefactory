@@ -241,7 +241,6 @@
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0152DuplicateCaseLabelValueAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0169FieldIsNeverUsedAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0618UsageOfObsoleteMemberAnalyzer.cs" />
-    <Compile Include="Diagnostics\Custom\CompilerErrors\CS0759RedundantPartialMethodAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\ExpressionIsNeverOfProvidedTypeAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\MissingInterfaceMemberImplementationAnalyzer.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs" />
+    <Compile Include="CodeFixes\Custom\CS0759RedundantPartialMethodCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

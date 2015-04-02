@@ -78,7 +78,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			MethodDeclarationSyntax methodNode = node as MethodDeclarationSyntax;
 			if (methodNode != null)
 				return methodNode.WithModifiers(SyntaxFactory.TokenList(methodNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(methodNode.GetLeadingTrivia());
+					             .WithLeadingTrivia(methodNode.GetLeadingTrivia());
 
 			FieldDeclarationSyntax fieldNode = node as FieldDeclarationSyntax;
 			if (fieldNode != null)

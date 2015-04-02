@@ -489,7 +489,6 @@
     <Compile Include="CSharp\Diagnostics\CS0152DuplicateCaseLabelValueTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS0169FieldIsNeverUsedTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS0618UsageOfObsoleteMemberTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0759RedundantPartialMethodTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS1729TypeHasNoConstructorWithNArgumentsTests.cs" />
     <Compile Include="CSharp\Diagnostics\ExpressionIsNeverOfProvidedTypeTests.cs" />
     <Compile Include="CSharp\Diagnostics\MissingInterfaceMemberImplementationTests.cs" />
@@ -503,6 +502,7 @@
     <Compile Include="CSharp\CodeFixes\CS1520MethodMustHaveAReturnTypeTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS1105ExtensionMethodMustBeDeclaredStaticTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS0108UseNewKeywordIfHidingIntendedTests.cs" />
+    <Compile Include="CSharp\CodeFixes\CS0759RedundantPartialMethodTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

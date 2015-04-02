@@ -24,14 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
-	public class CS0759RedundantPartialMethodTests : InspectionActionTestBase
+	public class CS0759RedundantPartialMethodTests : CodeFixTestBase
 	{
 		[Test]
 		public void TestRedundantModifier()
@@ -52,36 +50,7 @@ partial class TestClass
 		int i = 1;
 	}
 }";
-			Test<CS0759RedundantPartialMethodAnalyzer>(input, 1, output);
-		}
-
-		[Test]
-		public void TestMethodWithNoBody()
-		{
-			var input = @"
-partial class TestClass
-{
-	partial void TestMethod ();
-}";
-			Test<CS0759RedundantPartialMethodAnalyzer>(input, 0);
-		}
-
-		[Test]
-		public void TestNecessaryModifier()
-		{
-			var input = @"
-partial class TestClass
-{
-	partial void TestMethod ();
-}
-partial class TestClass
-{
-	partial void TestMethod ()
-	{
-		int i = 1;
-	}
-}";
-			Test<CS0759RedundantPartialMethodAnalyzer>(input, 0);
+			Test<CS0759RedundantPartialMethodCodeFixProvider>(input, output);
 		}
 	}
 }
