@@ -228,7 +228,6 @@
     <Compile Include="Diagnostics\DiagnosticFactory.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
-    <Compile Include="Diagnostics\Custom\CompilerErrors\CS0127ReturnMustNotBeFollowedByAnyExpression.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
     <Compile Include="Diagnostics\NRefactoryCodeFixProvider.cs" />
     <Compile Include="Util\NRefactoryCodeDiagnosticAnalyzerAttribute.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0759RedundantPartialMethodCodeFixProvider.cs" />
+    <Compile Include="CodeFixes\Custom\ReturnMustNotBeFollowedByAnyExpressionCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -483,7 +483,6 @@
     <Compile Include="CSharp\CodeRefactorings\AutoLinqSumTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\ChangeAccessModifierTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS0126ReturnMustBeFollowedByAnyExpressionTestes.cs" />
-    <Compile Include="CSharp\Diagnostics\CS0127ReturnMustNotBeFollowedByAnyExpressionTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS0659OverrideEqualsWithoutGetHashCodeTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS0029InvalidConversionTests.cs" />
     <Compile Include="CSharp\Diagnostics\CS0152DuplicateCaseLabelValueTests.cs" />
@@ -503,6 +502,7 @@
     <Compile Include="CSharp\CodeFixes\CS1105ExtensionMethodMustBeDeclaredStaticTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS0108UseNewKeywordIfHidingIntendedTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS0759RedundantPartialMethodTests.cs" />
+    <Compile Include="CSharp\CodeFixes\ReturnMustNotBeFollowedByAnyExpressionCodeFixProviderTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

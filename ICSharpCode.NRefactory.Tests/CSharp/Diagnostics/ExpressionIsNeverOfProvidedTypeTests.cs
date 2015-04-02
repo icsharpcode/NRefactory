@@ -26,6 +26,14 @@
 
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
+class TestClass2 { }
+class TestClass
+{
+	void TestMethod<T> (T x) where T : TestClass2
+	{
+		if (x is TestClass) ;
+	}
+}
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {

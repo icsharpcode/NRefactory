@@ -58,8 +58,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 			if (cancellationToken.IsCancellationRequested)
 				return;
 			var diagnostic = context.Diagnostics.First ();
-			var model = await document.GetSemanticModelAsync (cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync (cancellationToken);
+			var model = await document.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
+			var root = await model.SyntaxTree.GetRootAsync (cancellationToken).ConfigureAwait (false);
 			var node = root.FindNode (span) as MethodDeclarationSyntax;
 			if (node == null || !node.Identifier.Span.Contains (span))
 				return;
