@@ -222,7 +222,6 @@
     <Compile Include="CodeRefactorings\Uncategorized\MoveToOuterScopeAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\PutInsideUsingAction.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\SortUsingsAction.cs" />
-    <Compile Include="CodeRefactorings\Uncategorized\SplitVariableIntoSeveralOnesCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Uncategorized\UseStringFormatAction.cs" />
     <Compile Include="Diagnostics\CodeActionFactory.cs" />
     <Compile Include="Diagnostics\DiagnosticFactory.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeFixes\Custom\CS0759RedundantPartialMethodCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\ReturnMustNotBeFollowedByAnyExpressionCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0152DuplicateCaseLabelValueCodeFixProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\SplitDeclarationListCodeRefactoringProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

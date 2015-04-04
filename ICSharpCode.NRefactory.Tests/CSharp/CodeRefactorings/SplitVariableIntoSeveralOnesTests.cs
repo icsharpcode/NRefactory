@@ -29,13 +29,13 @@ using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[TestFixture, Ignore("Not implemented!")]
-	public class SplitVariableIntoSeveralOnesTests : ContextActionTestBase
+	[TestFixture]
+	public class SplitDeclarationListTests : ContextActionTestBase
 	{
 		[Test]
 		public void TestLocalVariable ()
 		{
-			Test<SplitVariableIntoSeveralOnesCodeRefactoringProvider> (@"
+			Test<SplitDeclarationListCodeRefactoringProvider> (@"
 class TestClass
 {
 	void TestMethod()
@@ -57,7 +57,7 @@ class TestClass
 		[Test]
 		public void TestField ()
 		{
-			Test<SplitVariableIntoSeveralOnesCodeRefactoringProvider> (@"
+			Test<SplitDeclarationListCodeRefactoringProvider> (@"
 class TestClass
 {
 	public int $a, b, c;
@@ -73,7 +73,7 @@ class TestClass
 		[Test]
 		public void TestEvent ()
 		{
-			Test<SplitVariableIntoSeveralOnesCodeRefactoringProvider> (@"
+			Test<SplitDeclarationListCodeRefactoringProvider> (@"
 class TestClass
 {
 	event System.EventHandler $a, b, c;
@@ -89,7 +89,7 @@ class TestClass
 		[Test]
 		public void TestFixedField ()
 		{
-			Test<SplitVariableIntoSeveralOnesCodeRefactoringProvider> (@"
+			Test<SplitDeclarationListCodeRefactoringProvider> (@"
 struct TestStruct
 {
 	unsafe fixed int $a[10], b[10], c[10];
@@ -105,7 +105,7 @@ struct TestStruct
 		[Test]
 		public void TestVariableInFor ()
 		{
-			TestWrongContext<SplitVariableIntoSeveralOnesCodeRefactoringProvider> (@"
+			TestWrongContext<SplitDeclarationListCodeRefactoringProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -119,7 +119,7 @@ class TestClass
 		[Test]
 		public void TestSingleVariable ()
 		{
-			TestWrongContext<SplitVariableIntoSeveralOnesCodeRefactoringProvider> (@"
+			TestWrongContext<SplitDeclarationListCodeRefactoringProvider> (@"
 class TestClass
 {
 	void TestMethod ()
