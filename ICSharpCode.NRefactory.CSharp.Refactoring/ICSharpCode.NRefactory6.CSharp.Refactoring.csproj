@@ -237,7 +237,6 @@
     <Compile Include="Diagnostics\DiagnosticAnalyzerMarker.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0029InvalidConversionAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
-    <Compile Include="Diagnostics\Custom\CompilerErrors\CS0152DuplicateCaseLabelValueAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0169FieldIsNeverUsedAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0618UsageOfObsoleteMemberAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS1729TypeHasNoConstructorWithNArgumentsAnalyzer.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0759RedundantPartialMethodCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\ReturnMustNotBeFollowedByAnyExpressionCodeFixProvider.cs" />
+    <Compile Include="CodeFixes\Custom\CS0152DuplicateCaseLabelValueCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

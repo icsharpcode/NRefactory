@@ -28,45 +28,15 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-
-
-namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
-	public class CS0152DuplicateCaseLabelValueTests : InspectionActionTestBase
+	public class CS0152DuplicateCaseLabelValueTests : CodeFixTestBase
 	{
 		[Test]
-		public void TestConstants()
+		public void TestDuplicateSections()
 		{
-			TestIssue<CS0152DuplicateCaseLabelValueAnalyzer>(@"
-class Test
-{
-	const int foo = 1;
-	void TestMethod (int i = 0)
-	{
-		switch (i) {
-			case 1:
-				System.Console.WriteLine();
-				break;
-			case foo:
-				System.Console.WriteLine();
-				break;
-			case 4:
-				default:
-			case 3:
-				break;
-		}
-	}
-}", 2);
-		}
-
-
-
-		[Test]
-		public void TestInts()
-		{
-			TestIssue<CS0152DuplicateCaseLabelValueAnalyzer>(@"
+			Test<CS0152DuplicateCaseLabelValueCodeFixProvider>(@"
 class Test
 {
 	void TestMethod (int i = 0)
@@ -83,55 +53,82 @@ class Test
 			break;
 		}
 	}
-}", 3);
-		}
-
-		[Test]
-		public void TestStrings()
-		{
-			TestIssue<CS0152DuplicateCaseLabelValueAnalyzer>(@"
-class Test
-{
-	void TestMethod (string i = 0)
-	{
-		switch (i) {
-		case ""	"":
-			System.Console.WriteLine();
-			break;
-		case ""\t"":
-			System.Console.WriteLine();
-			break;
-		default:
-		case @""	"":
-			break;
-		}
-	}
-}", 3);
-		}
-
-		[Test]
-		public void TestNoIssue()
-		{
-			Analyze<CS0152DuplicateCaseLabelValueAnalyzer>(@"
+}",@"
 class Test
 {
 	void TestMethod (int i = 0)
 	{
 		switch (i) {
-		case 1:
+		case 0:
 			System.Console.WriteLine();
 			break;
-		case 2:
-			System.Console.WriteLine();
-			break;
-		case 4:
 		default:
-		case 3:
+		case 0:
 			break;
 		}
 	}
 }");
 		}
+
+		[Test]
+		public void TestNoDuplicate()
+		{
+			TestWrongContext<CS0152DuplicateCaseLabelValueCodeFixProvider>(@"
+class Test
+{
+	void TestMethod (int i = 0)
+	{
+		switch (i) {
+		case 0:
+			System.Console.WriteLine();
+			break;
+		case 0:
+			System.Console.WriteLine(213);
+			break;
+		default:
+		case 0:
+			break;
+		}
+	}
+}");
+		}
+
+
+		[Test]
+		public void TestDuplicateLabels()
+		{
+			Test<CS0152DuplicateCaseLabelValueCodeFixProvider>(@"
+class Test
+{
+	void TestMethod (int i = 0)
+	{
+		switch (i) {
+		case 0:
+		case 0:
+			System.Console.WriteLine();
+			break;
+		default:
+		case 0:
+			break;
+		}
+	}
+}",@"
+class Test
+{
+	void TestMethod (int i = 0)
+	{
+		switch (i) {
+		case 0:
+			System.Console.WriteLine();
+			break;
+		default:
+		case 0:
+			break;
+		}
+	}
+}");
+		}
+
 	}
 }
 
