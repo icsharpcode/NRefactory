@@ -234,7 +234,6 @@
     <Compile Include="Util\RefactoringHelpers.cs" />
     <Compile Include="Diagnostics\DiagnosticAnalyzerCategories.cs" />
     <Compile Include="Diagnostics\DiagnosticAnalyzerMarker.cs" />
-    <Compile Include="Diagnostics\Custom\CompilerErrors\CS0029InvalidConversionAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0169FieldIsNeverUsedAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0618UsageOfObsoleteMemberAnalyzer.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeFixes\Custom\ReturnMustNotBeFollowedByAnyExpressionCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0152DuplicateCaseLabelValueCodeFixProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\SplitDeclarationListCodeRefactoringProvider.cs" />
+    <Compile Include="CodeFixes\Custom\InvalidConversionCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

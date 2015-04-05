@@ -102,8 +102,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 							return Task.FromResult(document.WithSyntaxRoot(newRoot));
 						}
 					), diagnostic);
-
-
 				}
             }
 			//context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
