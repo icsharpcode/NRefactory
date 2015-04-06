@@ -290,7 +290,6 @@
     <Compile Include="CSharp\Diagnostics\BaseMethodParameterNameMismatchTests.cs" />
     <Compile Include="CSharp\Diagnostics\BitwiseOperatorOnEnumWithoutFlagsTests.cs" />
     <Compile Include="CSharp\Diagnostics\CanBeReplacedWithTryCastAndCheckForNullTests.cs" />
-    <Compile Include="CSharp\Diagnostics\CastExpressionOfIncompatibleTypeTests.cs" />
     <Compile Include="CSharp\Diagnostics\CheckNamespaceTests.cs" />
     <Compile Include="CSharp\Diagnostics\CompareNonConstrainedGenericWithNullTests.cs" />
     <Compile Include="CSharp\Diagnostics\CompareOfFloatsByEqualityOperatorTests.cs" />
