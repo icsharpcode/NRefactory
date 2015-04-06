@@ -444,6 +444,7 @@
     <Compile Include="CodeRefactorings\Synced\SplitDeclarationListCodeRefactoringProvider.cs" />
     <Compile Include="CodeFixes\Custom\InvalidConversionCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0164LabelHasNotBeenReferencedCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertClosureToMethodGroupFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

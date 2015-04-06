@@ -30,7 +30,6 @@ using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
-	[Ignore("TODO - roslyn port")]
 	[TestFixture]
 	public class ConvertClosureToMethodGroupTests : InspectionActionTestBase
 	{
@@ -300,6 +299,7 @@ class C
 }");
 		}
 
+		[Ignore("Fixme")]
 		[Test]
 		public void TestTargetCollision ()
 		{
@@ -321,6 +321,7 @@ class Program
 		/// <summary>
 		/// Bug 15868 - Wrong context for Anonymous method can be simplified to method group
 		/// </summary>
+		[Ignore("Fixme")]
 		[Test]
 		public void TestBug15868 ()
 		{
@@ -340,10 +341,12 @@ public class MyClass
 }
 ");
 		}
+
+		[Ignore("Fixme")]
 		[Test]
 		public void TestBug15868Case2 ()
 		{
-			Test<ConvertClosureToMethodGroupAnalyzer>(@"
+			Analyze<ConvertClosureToMethodGroupAnalyzer>(@"
 using System;
 
 delegate bool FooBar ();
