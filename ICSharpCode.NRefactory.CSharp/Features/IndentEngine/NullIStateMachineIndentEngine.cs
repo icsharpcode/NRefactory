@@ -34,20 +34,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 	/// </summary>
 	public sealed class NullIStateMachineIndentEngine : IStateMachineIndentEngine
 	{
-		readonly SourceText document;
 		int offset;
 
-		public NullIStateMachineIndentEngine(SourceText document)
+		public NullIStateMachineIndentEngine()
 		{
-			if (document == null)
-				throw new ArgumentNullException("document");
-			this.document = document;
 		}
 
 		#region IStateMachineIndentEngine implementation
 		public IStateMachineIndentEngine Clone()
 		{
-			return new NullIStateMachineIndentEngine(document) { offset = this.offset };
+			return new NullIStateMachineIndentEngine() { offset = this.offset };
 		}
 
 		bool IStateMachineIndentEngine.IsInsidePreprocessorDirective {
@@ -146,7 +142,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			this.offset = 0;
 		}
 
-		void IDocumentIndentEngine.Update(int offset)
+		void IDocumentIndentEngine.Update(SourceText sourceText, int offset)
 		{
 			this.offset = offset;
 		}
@@ -154,12 +150,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		IDocumentIndentEngine IDocumentIndentEngine.Clone()
 		{
 			return Clone();
-		}
-
-		SourceText IDocumentIndentEngine.Document {
-			get {
-				return document;
-			}
 		}
 
 		string IDocumentIndentEngine.ThisLineIndent {

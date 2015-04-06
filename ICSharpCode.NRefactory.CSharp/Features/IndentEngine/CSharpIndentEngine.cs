@@ -53,12 +53,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		internal readonly OptionSet options;
 
 		/// <summary>
-		///     A readonly reference to the document that's parsed
-		///     by the engine.
-		/// </summary>
-		internal readonly SourceText document;
-
-		/// <summary>
 		///     Represents the new line character.
 		/// </summary>
 		internal readonly char newLineChar;
@@ -104,12 +98,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#endregion
 
 		#region IDocumentIndentEngine
-
-		/// <inheritdoc />
-		public SourceText Document
-		{
-			get { return document; }
-		}
 
 		/// <inheritdoc />
 		public string ThisLineIndent
@@ -275,10 +263,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <param name="formattingOptions">
 		///     C# formatting options.
 		/// </param>
-		public CSharpIndentEngine(SourceText document, OptionSet formattingOptions)
+		public CSharpIndentEngine(OptionSet formattingOptions)
 		{
 			this.options = formattingOptions;
-			this.document = document;
 
 			this.currentState = new GlobalBodyState(this);
 
@@ -298,7 +285,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public CSharpIndentEngine(CSharpIndentEngine prototype)
 		{
 			this.options = prototype.options;
-			this.document = prototype.document;
 
 			this.newLineChar = prototype.newLineChar;
 			this.currentState = prototype.currentState.Clone(this);
@@ -440,7 +426,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		/// <inheritdoc />
-		public void Update(int offset)
+		public void Update(SourceText sourceText, int offset)
 		{
 			if (Offset > offset)
 			{
@@ -449,7 +435,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 			while (Offset < offset)
 			{
-				Push(Document[Offset]);
+				Push(sourceText[Offset]);
 			}
 		}
 

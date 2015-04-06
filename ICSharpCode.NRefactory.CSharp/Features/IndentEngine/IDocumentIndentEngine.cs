@@ -35,11 +35,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 	public interface IDocumentIndentEngine : ICloneable
 	{
 		/// <summary>
-		///     A reference to the document that's parsed by the engine.
-		/// </summary>
-		SourceText Document { get; }
-
-		/// <summary>
 		///     The indentation string of the current line.
 		/// </summary>
 		string ThisLineIndent { get; }
@@ -90,7 +85,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <param name="offset">
 		///     Valid offset in <see cref="Document"/>.
 		/// </param>
-		void Update(int offset);
+		void Update(SourceText sourceText, int offset);
 
 		/// <summary>
 		///     Clones the engine and preserves the current state.

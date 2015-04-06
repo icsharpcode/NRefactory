@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 
 			var document = SourceText.From(sb.ToString());
 
-			var csi = new CSharpIndentEngine(document, policy) {
+			var csi = new CSharpIndentEngine(policy) {
 				EnableCustomIndentLevels = true
 			};
 			if (symbols != null) {
@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 				}
 			}
 			var result = new CacheIndentEngine(csi);
-			result.Update(offset);
+			result.Update(document, offset);
 			return result;
 		}
 
@@ -88,12 +88,12 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 				var document = SourceText.From(code);
 				options = options ?? FormattingOptionsFactory.CreateMono();
 
-				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options) { EnableCustomIndentLevels = true });
+				var engine = new CacheIndentEngine(new CSharpIndentEngine(options) { EnableCustomIndentLevels = true });
 				Random rnd = new Random();
 
 				for (int i = 0; i < count; i++) {
 					int offset = rnd.Next(document.Length);
-					engine.Update(offset);
+					engine.Update(document, offset);
 					if (engine.CurrentIndent.Length == 0)
 						continue;
 				}
@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory6.IndentationTests
 					//policy.AlignToFirstIndexerArgument = policy.AlignToFirstMethodCallArgument = true;
 				}
 
-				var engine = new CacheIndentEngine(new CSharpIndentEngine(document, options) { EnableCustomIndentLevels = true });
+				var engine = new CacheIndentEngine(new CSharpIndentEngine(options) { EnableCustomIndentLevels = true });
 				int errors = 0;
 
 				var newLine = options.GetOption(FormattingOptions.NewLine, LanguageNames.CSharp);

@@ -78,14 +78,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region ITextPasteHandler
 
 		/// <inheritdoc />
-		string ITextPasteHandler.FormatPlainText(int offset, string text, byte[] copyData)
+		string ITextPasteHandler.FormatPlainText(SourceText sourceText, int offset, string text, byte[] copyData)
 		{
 			if (copyData != null && copyData.Length == 1) {
 				var strategy = TextPasteUtils.Strategies [(PasteStrategy)copyData [0]];
 				text = strategy.Decode(text);
 			}
-			engine.Update(offset);
-			var sourceText = engine.Document;
+			engine.Update(sourceText, offset);
 
 			if (engine.IsInsideStringLiteral) {
 				int idx = text.IndexOf('"');
@@ -184,9 +183,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		/// <inheritdoc />
-		byte[] ITextPasteHandler.GetCopyData(TextSpan segment)
+		byte[] ITextPasteHandler.GetCopyData(SourceText sourceText, TextSpan segment)
 		{
-			engine.Update(segment.Start);
+			engine.Update(sourceText, segment.Start);
 			
 			if (engine.IsInsideStringLiteral) {
 				return new[] { (byte)PasteStrategy.StringLiteral };
@@ -200,11 +199,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#endregion
 
 		#region IDocumentIndentEngine
-
-		/// <inheritdoc />
-		public SourceText Document {
-			get { return engine.Document; }
-		}
 
 		/// <inheritdoc />
 		public string ThisLineIndent {
@@ -255,9 +249,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		/// <inheritdoc />
-		public void Update(int offset)
+		public void Update(SourceText sourceText, int offset)
 		{
-			engine.Update(offset);
+			engine.Update(sourceText, offset);
 		}
 
 		#endregion

@@ -82,11 +82,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 		#region IDocumentIndentEngine
 
 		/// <inheritdoc />
-		public SourceText Document {
-			get { return currentEngine.Document; }
-		}
-
-		/// <inheritdoc />
 		public string ThisLineIndent {
 			get { return currentEngine.ThisLineIndent; }
 		}
@@ -139,7 +134,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// <summary>
 		/// Resets the engine to offset. Clears all cached engines after the given offset.
 		/// </summary>
-		public void ResetEngineToPosition(int offset)
+		public void ResetEngineToPosition(SourceText sourceText, int offset)
 		{
 			// We are already there
 			if (currentEngine.Offset <= offset)
@@ -166,7 +161,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		///     update to: document.TextLength + (offset % document.TextLength+1)
 		///     Otherwise it will update to: offset % document.TextLength+1
 		/// </remarks>
-		public void Update(int position)
+		public void Update(SourceText sourceText, int position)
 		{
 			const int BUFFER_SIZE = 2000;
 			
@@ -175,13 +170,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 				return;
 			} else if (currentEngine.Offset > position) {
 				//moving backwards, so reset from previous saved location
-				ResetEngineToPosition(position);
+				ResetEngineToPosition(sourceText, position);
 			}
 
 			// get the engine caught up
 			int nextSave = (cachedEngines.Count == 0) ? BUFFER_SIZE : cachedEngines.Peek().Offset + BUFFER_SIZE;
 			if (currentEngine.Offset + 1 == position) {
-				char ch = currentEngine.Document[currentEngine.Offset];
+				char ch = sourceText[currentEngine.Offset];
 				currentEngine.Push(ch);
 				if (currentEngine.Offset == nextSave)
 					cachedEngines.Push(currentEngine.Clone());
@@ -192,7 +187,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 					int endCut = currentEngine.Offset + BUFFER_SIZE;
 					if (endCut > position)
 						endCut = position;
-					var sourceText = currentEngine.Document;
 					string buffer = sourceText.GetSubText(TextSpan.FromBounds(currentEngine.Offset, endCut)).ToString();
 					foreach (char ch in buffer) {
 						currentEngine.Push(ch);
@@ -206,11 +200,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
-		public IStateMachineIndentEngine GetEngine(int offset)
-		{
-			ResetEngineToPosition(offset);
-			return currentEngine;
-		}
+		//public IStateMachineIndentEngine GetEngine(int offset)
+		//{
+		//	ResetEngineToPosition(offset);
+		//	return currentEngine;
+		//}
 
 		#endregion
 
