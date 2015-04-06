@@ -410,7 +410,6 @@
     <Compile Include="CSharp\Diagnostics\UnassignedReadonlyFieldTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnreachableCodeTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnusedAnonymousMethodSignatureTests.cs" />
-    <Compile Include="CSharp\Diagnostics\UnusedLabelTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnusedParameterTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnusedTypeParameterTests.cs" />
     <Compile Include="CSharp\Diagnostics\UseArrayCreationExpressionTests.cs" />
@@ -502,6 +501,7 @@
     <Compile Include="CSharp\CodeFixes\ReturnMustNotBeFollowedByAnyExpressionCodeFixProviderTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS0152DuplicateCaseLabelValueTests.cs" />
     <Compile Include="CSharp\CodeFixes\InvalidConversionTests.cs" />
+    <Compile Include="CSharp\CodeFixes\CS0164LabelHasNotBeenReferencedTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

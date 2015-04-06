@@ -26,16 +26,15 @@
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
-	public class UnusedLabelTests : InspectionActionTestBase
+	public class CS0164LabelHasNotBeenReferencedTests : CodeFixTestBase
 	{
 		[Test]
 		public void TestUnusedLabelInMethod ()
 		{
-			Test<UnusedLabelAnalyzer>(@"
+			Test<CS0164LabelHasNotBeenReferencedCodeFixProvider>(@"
 class Foo
 {
 	void Test()
@@ -49,52 +48,6 @@ class Foo
 	void Test()
 	{
 		;
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestInvalidCase ()
-		{
-			Analyze<UnusedLabelAnalyzer>(@"
-class Foo
-{
-	void Test()
-	{
-		bar:
-		goto bar;
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestDisable ()
-		{
-			Analyze<UnusedLabelAnalyzer>(@"
-class Foo
-{
-	void Test()
-	{
-		// ReSharper disable once UnusedLabel
-		bar: ;
-	}
-}
-");
-		}
-
-		[Test]
-		public void TestPragmaDisable ()
-		{
-			Analyze<UnusedLabelAnalyzer>(@"
-class Foo
-{
-	void Test()
-	{
-#pragma warning disable 164
-		bar: ;
-#pragma warning restore 164
 	}
 }
 ");

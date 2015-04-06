@@ -329,7 +329,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantOverriddenMemberAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantParamsAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\UnusedLabelAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\UnusedParameterAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\UnusedTypeParameterAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer.cs" />
@@ -444,6 +443,7 @@
     <Compile Include="CodeFixes\Custom\CS0152DuplicateCaseLabelValueCodeFixProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\SplitDeclarationListCodeRefactoringProvider.cs" />
     <Compile Include="CodeFixes\Custom\InvalidConversionCodeFixProvider.cs" />
+    <Compile Include="CodeFixes\Custom\CS0164LabelHasNotBeenReferencedCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
