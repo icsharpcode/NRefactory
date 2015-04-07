@@ -23,134 +23,109 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMethodCallWithDefaultParameter")]
-	public class BaseMethodCallWithDefaultParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class BaseMethodCallWithDefaultParameterAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BaseMethodCallWithDefaultParameterAnalyzer";
-		const string Description            = "Call to base member with implicit default parameters";
-		const string MessageFormat          = "Call to base member with implicit default parameters";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.BaseMethodCallWithDefaultParameterDiagnosticID, 
+			GettextCatalog.GetString("Call to base member with implicit default parameters"),
+			GettextCatalog.GetString("Call to base member with implicit default parameters"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Call to base member with implicit default parameters");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryAnalyze(nodeContext, out diagnostic)) 
+						nodeContext.ReportDiagnostic (diagnostic);
+				}, 
+				new SyntaxKind[] { SyntaxKind.InvocationExpression, SyntaxKind.ElementAccessExpression }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		bool TryAnalyze (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<BaseMethodCallWithDefaultParameterAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			var invocationExpr = nodeContext.Node as InvocationExpressionSyntax;
+			if (invocationExpr != null) {
+				var mr = invocationExpr.Expression as MemberAccessExpressionSyntax;
+				if (mr == null || !mr.Expression.IsKind (SyntaxKind.BaseExpression))
+					return false;
 
-			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitEventDeclaration(EventDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
-			{
-				// skip
-			}
-
-			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
-			{
-				base.VisitInvocationExpression(node);
-				var mr = node.Expression as MemberAccessExpressionSyntax;
-				if (mr == null || !mr.Expression.IsKind(SyntaxKind.BaseExpression))
-					return;
-
-				var invocationRR = semanticModel.GetSymbolInfo(node);
+				var invocationRR = nodeContext.SemanticModel.GetSymbolInfo (invocationExpr);
 				if (invocationRR.Symbol == null)
-					return;
+					return false;
 
-				var parentEntity = node.FirstAncestorOrSelf<MethodDeclarationSyntax>();
+				var parentEntity = invocationExpr.FirstAncestorOrSelf<MethodDeclarationSyntax> ();
 				if (parentEntity == null)
-					return;
-				var rr = semanticModel.GetDeclaredSymbol(parentEntity);
+					return false;
+				var rr = nodeContext.SemanticModel.GetDeclaredSymbol (parentEntity);
 				if (rr == null || rr.OverriddenMethod != invocationRR.Symbol)
-					return;
+					return false;
 
-				var parameters = invocationRR.Symbol.GetParameters();
-				if (node.ArgumentList.Arguments.Count >= parameters.Length ||
-					parameters.Length == 0 || 
-					!parameters.Last().IsOptional)
-					return;
-				AddDiagnosticAnalyzer (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.Span)));
+				var parameters = invocationRR.Symbol.GetParameters ();
+				if (invocationExpr.ArgumentList.Arguments.Count >= parameters.Length ||
+						parameters.Length == 0 ||
+						!parameters.Last ().IsOptional)
+					return false;
+
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					invocationExpr.GetLocation ()
+				);
+				return true;
 			}
 
-			public override void VisitElementAccessExpression(ElementAccessExpressionSyntax node)
-			{
-				base.VisitElementAccessExpression(node);
+			var elementAccessExpr = nodeContext.Node as ElementAccessExpressionSyntax;
 
-				var mr = node.Expression;
-				if (mr == null || !mr.IsKind(SyntaxKind.BaseExpression))
-					return;
+			if (elementAccessExpr != null) {
+				var mr = elementAccessExpr.Expression;
+				if (mr == null || !mr.IsKind (SyntaxKind.BaseExpression))
+					return false;
 
-				var invocationRR = semanticModel.GetSymbolInfo(node);
+				var invocationRR = nodeContext.SemanticModel.GetSymbolInfo (elementAccessExpr);
 				if (invocationRR.Symbol == null)
-					return;
+					return false;
 
-				var parentEntity = node.FirstAncestorOrSelf<IndexerDeclarationSyntax>();
+				var parentEntity = elementAccessExpr.FirstAncestorOrSelf<IndexerDeclarationSyntax> ();
 				if (parentEntity == null)
-					return;
-				var rr = semanticModel.GetDeclaredSymbol(parentEntity);
+					return false;
+				
+				var rr = nodeContext.SemanticModel.GetDeclaredSymbol (parentEntity);
 				if (rr == null || rr.OverriddenProperty != invocationRR.Symbol)
-					return;
+					return false;
 
-				var parameters = invocationRR.Symbol.GetParameters();
-				if (node.ArgumentList.Arguments.Count >= parameters.Length ||
-					parameters.Length == 0 || 
-					!parameters.Last().IsOptional)
-					return;
-				AddDiagnosticAnalyzer (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.Span)));
+				var parameters = invocationRR.Symbol.GetParameters ();
+				if (elementAccessExpr.ArgumentList.Arguments.Count >= parameters.Length ||
+						parameters.Length == 0 ||
+						!parameters.Last ().IsOptional)
+					return false;
+				
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					elementAccessExpr.GetLocation ()
+				);
+				return true;
 			}
+			return false;
 		}
 	}
 }

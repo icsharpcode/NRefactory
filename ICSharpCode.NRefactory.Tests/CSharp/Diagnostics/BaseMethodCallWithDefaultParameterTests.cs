@@ -140,7 +140,7 @@ public class MyClass : MyBase
 {
 	public override void FooBar(int x = 12)
 	{
-		// ReSharper disable once BaseMethodCallWithDefaultParameter
+#pragma warning disable " + NRefactoryDiagnosticIDs.BaseMethodCallWithDefaultParameterDiagnosticID  + @"
 		base.FooBar();
 	}
 }

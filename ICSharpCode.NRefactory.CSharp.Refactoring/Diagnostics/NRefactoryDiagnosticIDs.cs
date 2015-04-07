@@ -30,7 +30,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	public static class NRefactoryDiagnosticIDs
 	{
 		public const string PartialTypeWithSinglePartDiagnosticID = "NR0001";
-		public const string ConvertClosureToMethodDiagnosticID    = "NR0002";
+		public const string ConvertClosureToMethodDiagnosticID = "NR0002";
+		public const string BaseMethodCallWithDefaultParameterDiagnosticID = "NR0003";
 
 	}
 }
