@@ -37,5 +37,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string EmptyNamespaceAnalyzerID = "NR0006";
 		public const string EnumUnderlyingTypeIsIntAnalyzerID = "NR0007";
 		public const string SealedMemberInSealedClassAnalyzerID = "NR0008";
+		public const string NonPublicMethodWithTestAttributeAnalyzerID = "NR0009";
 	}
 }

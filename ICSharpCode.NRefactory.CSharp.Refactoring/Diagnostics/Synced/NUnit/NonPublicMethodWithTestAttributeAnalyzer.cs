@@ -23,122 +23,61 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NUnit.NonPublicMethodWithTestAttribute")]
-	public class NonPublicMethodWithTestAttributeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class NonPublicMethodWithTestAttributeAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NonPublicMethodWithTestAttributeAnalyzer";
-		const string Description            = "Non public methods are not found by NUnit";
-		const string MessageFormat          = "NUnit test methods should be public";
-		const string Category               = DiagnosticAnalyzerCategories.NUnit;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.NonPublicMethodWithTestAttributeAnalyzerID, 
+			GettextCatalog.GetString("Non public methods are not found by NUnit"),
+			GettextCatalog.GetString("NUnit test methods should be public"), 
+			DiagnosticAnalyzerCategories.NUnit, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.NonPublicMethodWithTestAttributeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "NUnit Test methods should have public visibility");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryAnalyzeMethod (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.MethodDeclaration }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryAnalyzeMethod (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			var methodDeclaration = nodeContext.Node as MethodDeclarationSyntax;
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<NonPublicMethodWithTestAttributeAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			var methodSymbol = nodeContext.SemanticModel.GetDeclaredSymbol (methodDeclaration);
+			if (methodSymbol == null || methodSymbol.IsOverride || methodSymbol.IsStatic || methodDeclaration.Modifiers.Any (m => m.IsKind (SyntaxKind.PublicKeyword)))
+				return false;
 
-			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
-			{
-				//missing this, we don't visit trivia - so the resharper disable is ignored
-				base.VisitMethodDeclaration(node);
-				IMethodSymbol methodSymbol = semanticModel.GetDeclaredSymbol(node);
-				if (methodSymbol == null || methodSymbol.IsOverride || methodSymbol.IsStatic || node.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
-					return;
+			if (!methodSymbol.GetAttributes ().Any (a => a.AttributeClass.Name == "TestAttribute" && a.AttributeClass.ContainingNamespace.ToDisplayString () == "NUnit.Framework"))
+				return false;
 
-				if (!methodSymbol.GetAttributes().Any(a => a.AttributeClass.Name == "TestAttribute" && a.AttributeClass.ContainingNamespace.ToDisplayString() == "NUnit.Framework"))
-					return;
-
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
-			}
-
-			public override void VisitBlock(BlockSyntax node)
-			{
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class NonPublicMethodWithTestAttributeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return NonPublicMethodWithTestAttributeAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as MethodDeclarationSyntax;
-			if (node == null)
-				return;
-
-			Func<SyntaxToken, bool> isModifierToRemove =
-				m => (m.IsKind(SyntaxKind.PrivateKeyword) || m.IsKind(SyntaxKind.ProtectedKeyword) || m.IsKind(SyntaxKind.InternalKeyword));
-
-			// Get trivia for new modifier
-			var leadingTrivia = SyntaxTriviaList.Empty;
-			var trailingTrivia = SyntaxTriviaList.Create(SyntaxFactory.Space);
-			var removedModifiers = node.Modifiers.Where(isModifierToRemove);
-			if (removedModifiers.Any())
-			{
-				leadingTrivia = removedModifiers.First().LeadingTrivia;
-			}
-			else
-			{
-				// Method begins directly with return type, use its leading trivia
-				leadingTrivia = node.ReturnType.GetLeadingTrivia();
-			}
-
-			var newMethod = node.WithModifiers(SyntaxFactory.TokenList(new SyntaxTokenList()
-				.Add(SyntaxFactory.Token(leadingTrivia, SyntaxKind.PublicKeyword, trailingTrivia))
-				.AddRange(node.Modifiers.ToArray().Where(m => !isModifierToRemove(m)))))
-				.WithReturnType(node.ReturnType.WithoutLeadingTrivia());
-            var newRoot = root.ReplaceNode((SyntaxNode)node, newMethod);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make method public", document.WithSyntaxRoot(newRoot)), diagnostic);
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				methodDeclaration.Identifier.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

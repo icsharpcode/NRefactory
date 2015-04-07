@@ -456,6 +456,7 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantParamsCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\UnusedParameterCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\NUnit\NonPublicMethodWithTestAttributeCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

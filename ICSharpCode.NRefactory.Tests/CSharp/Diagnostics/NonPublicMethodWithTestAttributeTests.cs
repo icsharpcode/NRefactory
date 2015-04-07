@@ -143,33 +143,13 @@ class Tests
 [TestFixture]
 class Tests 
 {
-	//ReSharper disable once NUnit.NonPublicMethodWithTestAttribute
+#pragma warning disable " + NRefactoryDiagnosticIDs.NonPublicMethodWithTestAttributeAnalyzerID + @"
 	[Test]
 	void NonPublicMethod()
 	{
 	}
 }
 ");
-		}
-
-
-		[Test]
-		public void TestDisableAll()
-		{
-			var input = NUnitClasses + 
-				@"
-[TestFixture]
-class Tests 
-{
-	// ReSharper disable All
-	[Test]
-	void NonPublicMethod()
-	{
-	}
-	// ReSharper restore All
-}
-";
-			Analyze<NonPublicMethodWithTestAttributeAnalyzer>(input);
 		}
 	}
 }
