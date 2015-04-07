@@ -28,16 +28,15 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
-namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
+namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
-	public class UnreachableCodeTests : InspectionActionTestBase
+	public class CS0162UnreachableCodeDetectedTests : CodeFixTestBase
 	{
 		[Test]
 		public void TestReturn ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -45,14 +44,20 @@ class TestClass
 		return;
 		int a = 1;
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		return;
+	}
+}");
 		}
 
 		[Test]
 		public void TestBreak ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -62,14 +67,23 @@ class TestClass
 			int a = 1;
 		}
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		while (true) {
+			break;
+		}
+	}
+}");
 		}
 
+		[Ignore("Not supported")]
 		[Test]
 		public void TestRedundantGoto ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -77,14 +91,21 @@ class TestClass
 		goto Foo; Foo:
 		int a = 1;
 	}
-}";
-			Analyze<UnreachableCodeAnalyzer> (input);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		goto Foo; Foo:
+	}
+}");
 		}
 
+		[Ignore("Not supported")]
 		[Test]
 		public void TestGotoUnreachableBlock ()
 		{
-			Test<UnreachableCodeAnalyzer> (@"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -97,13 +118,25 @@ class TestClass
 			x = 3;
 		}
 	}
-}", 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int x = 1;
+		goto Foo;
+		{
+			Foo:
+			x = 3;
+		}
+	}
+}");
 		}
 
 		[Test]
 		public void TestContinue ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -113,14 +146,23 @@ class TestClass
 			break;
 		}
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		while (true) {
+			continue;
 		}
+	}
+}");
+		}
+
 
 		[Test]
 		public void TestFor ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -129,14 +171,22 @@ class TestClass
 			break;
 		}
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		for (int i = 0; i < 10; ) {
+			break;
+		}
+	}
+}");
 		}
 
 		[Test]
 		public void TestConstantCondition ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -146,21 +196,22 @@ class TestClass
 		}
 		int a = 1;
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
-		}
-
-		[Test]
-		public void TestConditionalExpression ()
-		{
-			var input = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
 	{
-		int a = true ? 1 : 0;
+		if (true) {
+			return;
+		}
 	}
-}";
+}");
+		}
+
+		[Ignore("Not supported.")]
+		[Test]
+		public void TestConditionalExpression ()
+		{
 			var output = @"
 class TestClass
 {
@@ -169,13 +220,20 @@ class TestClass
 		int a = 1;
 	}
 }";
-			Test<UnreachableCodeAnalyzer> (input, 1, output);
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
+class TestClass
+{
+	void TestMethod ()
+	{
+		int a = true ? 1 : 0;
+	}
+}", output);
 		}
 
 		[Test]
 		public void TestInsideLambda ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -185,14 +243,22 @@ class TestClass
 			int a = 1;
 		};
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Action action = () => {
+			return;
+		};
+	}
+}");
 		}
 
 		[Test]
 		public void TestInsideAnonymousMethod ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -202,14 +268,22 @@ class TestClass
 			int a = 1;
 		};
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		System.Action action = delegate () {
+			return;
+		};
+	}
+}");
 		}
 
 		[Test]
 		public void TestIgnoreLambdaBody ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -220,14 +294,23 @@ class TestClass
 			int a = 1;
 		};
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		return;
+		System.Action action = () => {
+			return;
+		};
+	}
+}");
 		}
 
 		[Test]
 		public void TestIgnoreAnonymousMethodBody ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -238,14 +321,23 @@ class TestClass
 			int a = 1;
 		};
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		return;
+		System.Action action = delegate() {
+			return;
+		};
+	}
+}");
 		}
 
 		[Test]
 		public void TestGroupMultipleStatements ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -254,35 +346,39 @@ class TestClass
 		int a = 1;
 		a++;
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 1);
+}", @"
+class TestClass
+{
+	void TestMethod ()
+	{
+		return;
+		a++;
+	}
+}");
 		}
 
 		[Test]
 		public void TestRemoveCode ()
 		{
-			var input = @"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
 	{
 		return;
 		int a = 1;
-		a++;
 	}
-}";
-			var output = @"
+}", @"
 class TestClass
 {
 	void TestMethod ()
 	{
 		return;
 	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, output, 0);
+}", 0);
 		}
 
-	//	[Ignore("Got broken due ast new line nodes")]
+		[Ignore("Got broken due ast new line nodes")]
 		[Test]
 		public void TestCommentCode ()
 		{
@@ -308,32 +404,14 @@ class TestClass
 */
 	}
 }";
-			Test<UnreachableCodeAnalyzer> (input, output, 1);
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (input, output, 1);
 		}
 
-		[Test]
-		public void TestDefaultParameter ()
-		{
-			var input = @"
-using System;
-
-namespace TestProjectForBug
-{
-	class MainClass
-	{
-		public static void CondMethod (bool cond = false)
-		{
-			Console.WriteLine (cond ? ""true"" : ""false"");
-		}
-	}
-}";
-			Test<UnreachableCodeAnalyzer> (input, 0);
-		}
-
+		[Ignore("Broken.")]
 		[Test]
 		public void TestIfTrueBranch ()
 		{
-			Test<UnreachableCodeAnalyzer> (@"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()
@@ -356,10 +434,11 @@ class TestClass
 }");
 		}
 
+		[Ignore("Broken.")]
 		[Test]
 		public void TestIfFalseBranch ()
 		{
-			Test<UnreachableCodeAnalyzer> (@"
+			Test<CS0162UnreachableCodeDetectedCodeFixProvider> (@"
 class TestClass
 {
 	void TestMethod ()

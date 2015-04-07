@@ -408,7 +408,6 @@
     <Compile Include="CSharp\Diagnostics\StringLastIndexOfIsCultureSpecificTests.cs" />
     <Compile Include="CSharp\Diagnostics\StringStartsWithIsCultureSpecificTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnassignedReadonlyFieldTests.cs" />
-    <Compile Include="CSharp\Diagnostics\UnreachableCodeTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnusedAnonymousMethodSignatureTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnusedParameterTests.cs" />
     <Compile Include="CSharp\Diagnostics\UnusedTypeParameterTests.cs" />
@@ -502,6 +501,7 @@
     <Compile Include="CSharp\CodeFixes\CS0152DuplicateCaseLabelValueTests.cs" />
     <Compile Include="CSharp\CodeFixes\InvalidConversionTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS0164LabelHasNotBeenReferencedTests.cs" />
+    <Compile Include="CSharp\CodeFixes\UnreachableCodeTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

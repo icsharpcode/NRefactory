@@ -255,7 +255,6 @@
     <Compile Include="Diagnostics\Custom\RedundantInternalAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\RedundantPrivateAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\StaticEventSubscriptionAnalyzer.cs" />
-    <Compile Include="Diagnostics\Custom\UnreachableCodeAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\VariableOnlyAssignedAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\XmlDocAnalyzer.cs" />
     <Compile Include="Diagnostics\GatherVisitorDiagnosticAnalyzer.cs" />
@@ -445,6 +444,7 @@
     <Compile Include="CodeFixes\Custom\InvalidConversionCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0164LabelHasNotBeenReferencedCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\Opportunities\ConvertClosureToMethodGroupFixProvider.cs" />
+    <Compile Include="CodeFixes\Custom\CS0162UnreachableCodeDetectedCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
