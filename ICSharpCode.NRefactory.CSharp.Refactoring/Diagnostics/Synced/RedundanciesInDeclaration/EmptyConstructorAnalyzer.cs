@@ -23,117 +23,69 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyConstructor")]
-	public class EmptyConstructorAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EmptyConstructorAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyConstructorAnalyzer";
-		const string Description            = "An empty public constructor without paramaters is redundant.";
-		const string MessageFormat          = "Empty constructor is redundant.";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EmptyConstructorAnalyzerID, 
+			GettextCatalog.GetString("An empty public constructor without paramaters is redundant."),
+			GettextCatalog.GetString("Empty constructor is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EmptyConstructorAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Empty constructor");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<EmptyConstructorAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-			bool hasEmptyConstructor;
-			bool hasUnemptyConstructor;
-			ConstructorDeclarationSyntax emptyContructorNode;
-
-			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
-			{
-				hasEmptyConstructor = false;
-				hasUnemptyConstructor = false;
-				emptyContructorNode = null;
-
-				foreach (var child in node.Members.OfType<ConstructorDeclarationSyntax>()) {
-					if (child.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) 
-						continue;
-					if (child.ParameterList.Parameters.Count > 0 || !EmptyDestructorAnalyzer.IsEmpty(child.Body)) {
-						hasUnemptyConstructor = true;
-					} else if (child.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword))) {
-						if (child.Initializer != null && child.Initializer.ArgumentList.Arguments.Count > 0)
-							continue;
-						hasEmptyConstructor = true;
-						emptyContructorNode = child;
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryAnalyzeConstructor (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
 					}
-				}
-				if (!hasUnemptyConstructor && hasEmptyConstructor)
-					base.VisitClassDeclaration(node);
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
-			{
-				if (!hasUnemptyConstructor && hasEmptyConstructor && emptyContructorNode == node) {
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-				}
-			}
-
-			public override void VisitBlock(BlockSyntax node)
-			{
-				// skip
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EmptyConstructorFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EmptyConstructorAnalyzer.DiagnosticId;
+				}, 
+				new SyntaxKind[] {  SyntaxKind.ConstructorDeclaration }
+			);
 		}
 
-		public override FixAllProvider GetFixAllProvider()
+		static bool TryAnalyzeConstructor (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return WellKnownFixAllProviders.BatchFixer;
+			var constructorDeclaration = nodeContext.Node as ConstructorDeclarationSyntax;
+			diagnostic = default(Diagnostic);
+
+			if (!IsEmpty(constructorDeclaration) || !constructorDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
+				return false;
+
+			if ((constructorDeclaration.Parent).GetMembers().OfType<ConstructorDeclarationSyntax>().Count(child => !child.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) > 1)
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				constructorDeclaration.GetLocation ()
+			);
+			return true;
 		}
 
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
+		static bool IsEmpty (ConstructorDeclarationSyntax constructorDeclaration)
 		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (!node.IsKind(SyntaxKind.ConstructorDeclaration))
-				return;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant constructor", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (constructorDeclaration.Initializer != null && constructorDeclaration.Initializer.ArgumentList.Arguments.Count > 0)
+				return false;
+			
+			return constructorDeclaration.ParameterList.Parameters.Count == 0 && 
+				EmptyDestructorAnalyzer.IsEmpty (constructorDeclaration.Body);
 		}
 	}
 }

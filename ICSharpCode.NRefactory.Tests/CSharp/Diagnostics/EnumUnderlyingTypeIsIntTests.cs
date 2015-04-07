@@ -51,7 +51,7 @@ public enum Foo
 		public void TestDisable()
 		{
 			Analyze<EnumUnderlyingTypeIsIntAnalyzer>(@"
-// ReSharper disable once EnumUnderlyingTypeIsInt
+#pragma warning disable " + NRefactoryDiagnosticIDs.EnumUnderlyingTypeIsIntAnalyzerID + @"
 public enum Foo : int
 {
     Bar

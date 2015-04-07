@@ -95,7 +95,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 
 			var elementAccessExpr = nodeContext.Node as ElementAccessExpressionSyntax;
-
 			if (elementAccessExpr != null) {
 				var mr = elementAccessExpr.Expression;
 				if (mr == null || !mr.IsKind (SyntaxKind.BaseExpression))

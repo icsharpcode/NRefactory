@@ -427,7 +427,6 @@
     <Compile Include="CodeRefactorings\Custom\ReverseDirectionForForLoopCodeRefactoringProvider.cs" />
     <Compile Include="Diagnostics\NRefactoryDiagnosticIDs.cs" />
     <Compile Include="Diagnostics\DiagnosticCustomTags.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartFixProvider.cs" />
     <Compile Include="Util\HelpLink.cs" />
     <Compile Include="Util\GettextCatalog.cs" />
     <Compile Include="Util\NRefactory6Host.cs" />
@@ -443,8 +442,20 @@
     <Compile Include="CodeRefactorings\Synced\SplitDeclarationListCodeRefactoringProvider.cs" />
     <Compile Include="CodeFixes\Custom\InvalidConversionCodeFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0164LabelHasNotBeenReferencedCodeFixProvider.cs" />
-    <Compile Include="Diagnostics\Synced\Opportunities\ConvertClosureToMethodGroupFixProvider.cs" />
     <Compile Include="CodeFixes\Custom\CS0162UnreachableCodeDetectedCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\EmptyConstructorCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\EmptyDestructorCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertClosureToMethodGroupCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\EmptyNamespaceCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\LocalVariableNotUsedCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantBaseConstructorCallCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantDefaultFieldInitializerCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantOverriddenMemberCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\RedundantParamsCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\UnusedParameterCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

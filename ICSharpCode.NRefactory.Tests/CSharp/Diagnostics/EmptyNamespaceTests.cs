@@ -106,7 +106,8 @@ namespace Foo
 		[Test]
 		public void TestDisable()
 		{
-			Analyze<EmptyNamespaceAnalyzer>(@"// ReSharper disable once EmptyNamespace
+			Analyze<EmptyNamespaceAnalyzer>(@"
+#pragma warning disable " + NRefactoryDiagnosticIDs.EmptyNamespaceAnalyzerID + @"
 namespace Foo
 {
 }");

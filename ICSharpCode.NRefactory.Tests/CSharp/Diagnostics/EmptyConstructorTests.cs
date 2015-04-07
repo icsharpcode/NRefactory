@@ -47,11 +47,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public void TestResharperDisable()
 		{
 			Analyze<EmptyConstructorAnalyzer>(@"using System;
-	//Resharper disable EmptyConstructor
+#pragma warning disable " + NRefactoryDiagnosticIDs.EmptyConstructorAnalyzerID + @"
 class Test {
 	public Test(){
 	}
-	//Resharper restore EmptyConstructor	
 	}");
 		}
 

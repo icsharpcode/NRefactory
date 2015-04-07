@@ -44,8 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			DiagnosticAnalyzerCategories.Opportunities, 
 			DiagnosticSeverity.Warning, 
 			isEnabledByDefault: true,//"Anonymous method or lambda expression can be simplified to method group"
-			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID),
-			customTags: DiagnosticCustomTags.Unnecessary
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID)
 		);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);

@@ -51,7 +51,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override void Initialize(AnalysisContext context)
 		{
-			
 			context.RegisterSyntaxNodeAction(
 				(nodeContext) => {
 					Diagnostic diagnostic;

@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			Analyze<SealedMemberInSealedClassAnalyzer>(@"
 sealed class Foo
 {
-	public sealed override string $ToString$()
+	public $sealed$ override string ToString()
 	{
 		return ""''"";
 	}
@@ -87,7 +87,7 @@ class Foo
 			Analyze<SealedMemberInSealedClassAnalyzer>(@"
 sealed class Foo
 {
-	// ReSharper disable once SealedMemberInSealedClass
+#pragma warning disable " + NRefactoryDiagnosticIDs.SealedMemberInSealedClassAnalyzerID + @"
 	public sealed override string ToString()
 	{
 		return ""''"";

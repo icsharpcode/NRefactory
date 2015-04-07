@@ -23,105 +23,61 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EnumUnderlyingTypeIsInt")]
-	public class EnumUnderlyingTypeIsIntAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EnumUnderlyingTypeIsIntAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EnumUnderlyingTypeIsIntAnalyzer";
-		const string Description            = "The default underlying type of enums is int, so defining it explicitly is redundant.";
-		const string MessageFormat          = "Default underlying type of enums is already int";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EnumUnderlyingTypeIsIntAnalyzerID, 
+			GettextCatalog.GetString("The default underlying type of enums is int, so defining it explicitly is redundant."),
+			GettextCatalog.GetString("Default underlying type of enums is already int"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EnumUnderlyingTypeIsIntAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Underlying type of enum is int");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<EnumUnderlyingTypeIsIntAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
-			{
-				if (node.BaseList == null)
-					return;
-				var underlyingType = node.BaseList.Types.FirstOrDefault();
-				if (underlyingType == null)
-					return;
-				var info = semanticModel.GetSymbolInfo(underlyingType.Type);
-				var type = info.Symbol as ITypeSymbol;
-				if (type != null && type.SpecialType == SpecialType.System_Int32) {
-					VisitLeadingTrivia(node);
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.BaseList.GetLocation()));
-				}
-			}
-
-			public override void VisitBlock(BlockSyntax node)
-			{
-				//No need to visit statements
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EnumUnderlyingTypeIsIntFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EnumUnderlyingTypeIsIntAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (!node.IsKind(SyntaxKind.BaseList))
-				return;
-			var newRoot = root.ReplaceNode((SyntaxNode)
-				node.Parent,
-				node.Parent.RemoveNode(node, SyntaxRemoveOptions.KeepExteriorTrivia)
-				.WithAdditionalAnnotations(Formatter.Annotation)
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryAnalyzeEnumDeclaration (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.EnumDeclaration }
 			);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant ': int'", document.WithSyntaxRoot(newRoot)), diagnostic);
+		}
+
+		static bool TryAnalyzeEnumDeclaration (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			var enumDeclaration = nodeContext.Node as EnumDeclarationSyntax;
+			diagnostic = default(Diagnostic);
+			if (enumDeclaration.BaseList == null || enumDeclaration.BaseList.Types.Count == 0)
+				return false;
+			var underlyingType = enumDeclaration.BaseList.Types.First ();
+            var info = nodeContext.SemanticModel.GetSymbolInfo(underlyingType.Type);
+			var type = info.Symbol as ITypeSymbol;
+			if (type == null || type.SpecialType != SpecialType.System_Int32)
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				enumDeclaration.BaseList.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

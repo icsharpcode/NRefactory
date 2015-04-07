@@ -22,108 +22,62 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyNamespace")]
-	public class EmptyNamespaceAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EmptyNamespaceAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyNamespaceAnalyzer";
-		const string Description            = "Empty namespace declaration is redundant";
-		const string MessageFormat          = "Empty namespace declaration is redundant";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EmptyNamespaceAnalyzerID, 
+			GettextCatalog.GetString("Empty namespace declaration is redundant"),
+			GettextCatalog.GetString("Empty namespace declaration is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EmptyNamespaceAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Empty namespace declaration");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<EmptyNamespaceAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitNamespaceDeclaration(NamespaceDeclarationSyntax node)
-			{
-				bool hasContents = false;
-				foreach (var member in node.Members) {
-					if (!member.IsKind(SyntaxKind.NamespaceDeclaration)) {
-						hasContents = true;
-					} else {
-						hasContents = true;
-						base.VisitNamespaceDeclaration(node);
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryAnalyzeNamespace (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
 					}
-				}
-
-				if (!hasContents) {
-					base.VisitLeadingTrivia(node);
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-				}
-			}
-
-			public override void VisitBlock(BlockSyntax node)
-			{
-				// skip
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EmptyNamespaceFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EmptyNamespaceAnalyzer.DiagnosticId;
+				}, 
+				new SyntaxKind[] {  SyntaxKind.NamespaceDeclaration }
+			);
 		}
 
-		public override FixAllProvider GetFixAllProvider()
+		static bool TryAnalyzeNamespace (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return WellKnownFixAllProviders.BatchFixer;
+			var namespaceDeclaration = nodeContext.Node as NamespaceDeclarationSyntax;
+			diagnostic = default(Diagnostic);
+
+			if (!IsEmpty(namespaceDeclaration))
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				namespaceDeclaration.GetLocation ()
+			);
+			return true;
 		}
 
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
+		static bool IsEmpty(NamespaceDeclarationSyntax node)
 		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (node.IsKind(SyntaxKind.CompilationUnit)) {
-				var cu = (CompilationUnitSyntax)node;
-				node = cu.Members.FirstOrDefault();
-			}
-
-			if (!node.IsKind(SyntaxKind.NamespaceDeclaration))
-				return;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant namespace", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return !node.Members.Any ();
 		}
 	}
 }

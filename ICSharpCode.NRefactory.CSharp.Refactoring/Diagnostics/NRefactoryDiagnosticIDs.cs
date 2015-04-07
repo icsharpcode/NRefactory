@@ -32,6 +32,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string PartialTypeWithSinglePartDiagnosticID = "NR0001";
 		public const string ConvertClosureToMethodDiagnosticID = "NR0002";
 		public const string BaseMethodCallWithDefaultParameterDiagnosticID = "NR0003";
-
+		public const string EmptyConstructorAnalyzerID = "NR0004";
+		public const string EmptyDestructorAnalyzerID = "NR0005";
+		public const string EmptyNamespaceAnalyzerID = "NR0006";
+		public const string EnumUnderlyingTypeIsIntAnalyzerID = "NR0007";
+		public const string SealedMemberInSealedClassAnalyzerID = "NR0008";
 	}
 }

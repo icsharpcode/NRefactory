@@ -82,7 +82,7 @@ class Foo
 			Analyze<EmptyDestructorAnalyzer>(@"
 class Foo
 {
-	// ReSharper disable once EmptyDestructor
+#pragma warning disable " + NRefactoryDiagnosticIDs.EmptyDestructorAnalyzerID + @"
 	~Foo()
 	{
 	}
