@@ -239,7 +239,7 @@ class Foo
 {
 	void Bar (string str)
 	{
-		Func<int, object> action = $foo => MyMethod(foo)$;
+		Func<int, object> action = foo => MyMethod(foo);
 	}
 	bool MyMethod(int foo) {}
 }");
@@ -299,7 +299,6 @@ class C
 }");
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestTargetCollision ()
 		{
@@ -321,7 +320,6 @@ class Program
 		/// <summary>
 		/// Bug 15868 - Wrong context for Anonymous method can be simplified to method group
 		/// </summary>
-		[Ignore("Fixme")]
 		[Test]
 		public void TestBug15868 ()
 		{
@@ -342,7 +340,6 @@ public class MyClass
 ");
 		}
 
-		[Ignore("Fixme")]
 		[Test]
 		public void TestBug15868Case2 ()
 		{
@@ -356,7 +353,7 @@ public class MyClass
 	public static void Main ()
 	{
 		FooBar bar = () => true;
-		FooBar b = () => bar ();
+		FooBar b = $() => bar ()$;
 		Console.WriteLine (b());
 	}
 }

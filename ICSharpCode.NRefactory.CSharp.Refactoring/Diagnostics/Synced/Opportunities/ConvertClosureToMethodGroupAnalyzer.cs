@@ -29,16 +29,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -56,7 +48,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID),
 			customTags: DiagnosticCustomTags.Unnecessary
 		);
-
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
@@ -89,7 +80,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			if (!IsSimpleTarget (invocation.Expression))
 				return false;
 
-			var method = nodeContext.SemanticModel.GetSymbolInfo (invocation).Symbol as IMethodSymbol;
+			var symbolInfo = nodeContext.SemanticModel.GetSymbolInfo (invocation);
+			var method = symbolInfo.Symbol as IMethodSymbol;
 			if (method == null)
 				return false;
 
@@ -112,28 +104,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					return false;
 			}
 
-//				var returnConv = ctx.GetConversion(invocation);
-//				if (returnConv.IsExplicit || !(returnConv.IsIdentityConversion || returnConv.IsReferenceConversion))
-//					return;
-				var validTypes = TypeGuessing.GetValidTypes (nodeContext.SemanticModel, nodeContext.Node, nodeContext.CancellationToken).ToList ();
-//
-//				// search for method group collisions
-//				var targetResult = ctx.Resolve(invocation.Target) as MethodGroupResolveResult;
-//				if (targetResult != null) {
-//					foreach (var t in validTypes) {
-//						if (t.Kind != TypeKind.Delegate)
-//							continue;
-//						var invokeMethod = t.GetDelegateInvokeMethod();
-//
-//						foreach (var otherMethod in targetResult.Methods) {
-//							if (otherMethod == rr.Member)
-//								continue;
-//							if (ParameterListComparer.Instance.Equals(otherMethod.Parameters, invokeMethod.Parameters))
-//								return;
-//						}
-//					}
-//				}
-//
+			var returnConv = nodeContext.SemanticModel.GetConversion (invocation, nodeContext.CancellationToken);
+			if (returnConv.IsExplicit || !(returnConv.IsIdentity || returnConv.IsReference))
+				return false;
+			
+			var validTypes = TypeGuessing.GetValidTypes (nodeContext.SemanticModel, nodeContext.Node, nodeContext.CancellationToken).ToList ();
+
+			// search for method group collisions
+			foreach (var t in validTypes) {
+				if (t.TypeKind != TypeKind.Delegate)
+					continue;
+				var invokeMethod = t.GetDelegateInvokeMethod();
+
+				foreach (var otherMethod in GetMethodGroup(method)) {
+					if (otherMethod == method)
+						continue;
+					if (SignatureComparer.HaveSameSignature(otherMethod.GetParameters (), invokeMethod.Parameters))
+						return false;
+				}
+			}
+
 			bool isValidReturnType = false;
 			foreach (var t in validTypes) {
 				if (t.TypeKind != TypeKind.Delegate)
@@ -145,11 +135,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 			if (!isValidReturnType)
 				return false;
-//
-//				if (rr.IsDelegateInvocation) {
-//					if (!validTypes.Contains(rr.Member.DeclaringType))
-//						return;
-//				}
+
+			if (method.ContainingType.TypeKind == TypeKind.Delegate) {
+				if (!validTypes.Contains(method.ContainingType))
+					return false;
+			}
 
 			diagnostic = Diagnostic.Create (
 				descriptor,
@@ -157,6 +147,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				anoMethod != null ? GettextCatalog.GetString("Anonymous method can be simplified to method group") : GettextCatalog.GetString("Lambda expression can be simplified to method group")
 			);
 			return true;
+		}
+
+		internal static IEnumerable<ISymbol> GetMethodGroup(IMethodSymbol symbol)
+		{
+			var containingType = symbol.ContainingType;
+			if (containingType.Kind == SymbolKind.NamedType) {
+				foreach (var member in containingType.GetMembers()) {
+					if (string.Equals(member.MetadataName, symbol.MetadataName, StringComparison.Ordinal) && member is IMethodSymbol)
+						yield return member;
+				}
+			}
 		}
 
 //			static ResolveResult UnpackImplicitIdentityOrReferenceConversion(ResolveResult rr)
