@@ -273,7 +273,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 			if (expectedDiagnosics.Count != diagnostics.Count) {
 				foreach (var diag in diagnostics) {
-					Console.WriteLine(diag.Id + "/" + diag.GetMessage());
+					Console.WriteLine(diag.Id + "/" + diag.GetMessage() + "/" + diag.Location.SourceSpan);
 				}
 				Assert.Fail("Diagnostic count mismatch expected: " + expectedDiagnosics.Count + " was " + diagnostics.Count);
 			}

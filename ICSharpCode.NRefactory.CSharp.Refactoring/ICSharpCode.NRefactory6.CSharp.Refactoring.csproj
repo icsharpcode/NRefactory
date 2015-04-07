@@ -469,6 +469,9 @@
     <Compile Include="Diagnostics\Synced\Opportunities\InvokeAsExtensionMethodCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\Opportunities\RewriteIfReturnToReturnCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\Opportunities\SuggestUseVarKeywordEvidentCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\CanBeReplacedWithTryCastAndCheckForNullCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\CompareNonConstrainedGenericWithNullCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

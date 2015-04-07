@@ -23,128 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
 using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CompareNonConstrainedGenericWithNull")]
-	public class CompareNonConstrainedGenericWithNullAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class CompareNonConstrainedGenericWithNullAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CompareNonConstrainedGenericWithNullAnalyzer";
-		const string Description            = "Possible compare of value type with 'null'";
-		const string MessageFormat          = "Possible compare of value type with 'null'";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.CompareNonConstrainedGenericWithNullAnalyzerID, 
+			GettextCatalog.GetString("Possible compare of value type with 'null'"),
+			GettextCatalog.GetString("Possible compare of value type with 'null'"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.CompareNonConstrainedGenericWithNullAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Possible compare of value type with 'null'");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<CompareNonConstrainedGenericWithNullAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			void CheckCase(ITypeSymbol type, ExpressionSyntax expr)
-			{
-				if (type.TypeKind != TypeKind.TypeParameter || type.IsReferenceType)
-					return;
-				AddDiagnosticAnalyzer (Diagnostic.Create(Rule, expr.GetLocation()));
-			}
-
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
-			{
-				base.VisitBinaryExpression(node);
-				var left = node.Left.SkipParens();
-				var right = node.Right.SkipParens();
-				ExpressionSyntax expr = null, highlightExpr = null;
-				if (left.IsKind(SyntaxKind.NullLiteralExpression)) {
-					expr = right;
-					highlightExpr = node.Left;
-				}
-				if (right.IsKind(SyntaxKind.NullLiteralExpression)) {
-					expr = left;
-					highlightExpr = node.Right;
-				}
-				if (expr == null)
-					return;
-				var rr = semanticModel.GetTypeInfo(expr);
-				CheckCase (rr.Type, highlightExpr);
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CompareNonConstrainedGenericWithNullFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CompareNonConstrainedGenericWithNullAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (!node.IsKind(SyntaxKind.NullLiteralExpression))
-				return;
-			context.RegisterCodeFix(CodeActionFactory.Create(
-				node.Span,
-				diagnostic.Severity,
-				"Replace with 'default'",
-				token => {
-					var bOp = (BinaryExpressionSyntax)node.Parent;
-					var n = node == bOp.Left.SkipParens() ? bOp.Right : bOp.Left;
-					var info = semanticModel.GetTypeInfo(n);
-
-					var newRoot = root.ReplaceNode(
-						node,
-						SyntaxFactory.DefaultExpression(
-							SyntaxFactory.ParseTypeName(info.Type.ToMinimalDisplayString(semanticModel, node.SpanStart)))
-							.WithLeadingTrivia(node.GetLeadingTrivia()
-						)
-					);
-
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (GetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.EqualsExpression,
+				SyntaxKind.NotEqualsExpression
 			);
+		}
+
+		bool GetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+
+			var node = nodeContext.Node as BinaryExpressionSyntax;
+			var left = node.Left.SkipParens();
+			var right = node.Right.SkipParens();
+			ExpressionSyntax expr = null, highlightExpr = null;
+			if (left.IsKind(SyntaxKind.NullLiteralExpression)) {
+				expr = right;
+				highlightExpr = node.Left;
+			}
+			if (right.IsKind(SyntaxKind.NullLiteralExpression)) {
+				expr = left;
+				highlightExpr = node.Right;
+			}
+			if (expr == null)
+				return false;
+			var type = nodeContext.SemanticModel.GetTypeInfo(expr).Type;
+			if (type.TypeKind != TypeKind.TypeParameter || type.IsReferenceType)
+				return false;
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				highlightExpr.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

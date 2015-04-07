@@ -93,7 +93,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	public void Foo<T> (T t)
 	{
-		// ReSharper disable once CompareNonConstrainedGenericWithNull
+#pragma warning disable " + NRefactoryDiagnosticIDs.CompareNonConstrainedGenericWithNullAnalyzerID + @"
 		if (t == null) {
 		}
 	}

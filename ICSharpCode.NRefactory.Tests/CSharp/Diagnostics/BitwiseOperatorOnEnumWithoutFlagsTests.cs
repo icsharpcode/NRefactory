@@ -134,7 +134,7 @@ class TestClass
     void TestMethod()
     {
 	    var x = TestEnum.Item1;
-        // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+#pragma warning disable " + NRefactoryDiagnosticIDs.BitwiseOperatorOnEnumWithoutFlagsAnalyzerID + @"
         x = x ^ TestEnum.Item2;
     }
 }

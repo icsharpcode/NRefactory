@@ -24,45 +24,117 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CompareOfFloatsByEqualityOperator")]
-	public class CompareOfFloatsByEqualityOperatorAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class CompareOfFloatsByEqualityOperatorAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CompareOfFloatsByEqualityOperatorAnalyzer";
-		const string Description            = "Comparison of floating point numbers with equality operator";
-		const string MessageFormat          = "{0}";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.CompareOfFloatsByEqualityOperatorAnalyzerID,
+			GettextCatalog.GetString ("Comparison of floating point numbers with equality operator"),
+			GettextCatalog.GetString ("{0}"),
+			DiagnosticAnalyzerCategories.CodeQualityIssues,
+			DiagnosticSeverity.Warning,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.CompareOfFloatsByEqualityOperatorAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Compare floating point numbers with equality operator");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize (AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (GetDiagnostic (nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic (diagnostic);
+				},
+				SyntaxKind.EqualsExpression,
+				SyntaxKind.NotEqualsExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		bool GetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(Diagnostic);
+
+			var node = nodeContext.Node as BinaryExpressionSyntax;
+			var semanticModel = nodeContext.SemanticModel;
+
+			string message = null, tag = null;
+
+			if (IsNaN (semanticModel, node.Left)) {
+				message = node.IsKind (SyntaxKind.EqualsExpression) ?
+								  "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead." :
+								  "NaN doesn't equal to any floating point number including to itself. Use '!IsNaN' instead.";
+				tag = "1";
+			} else if (IsNaN (semanticModel, node.Right)) {
+				message = node.IsKind (SyntaxKind.EqualsExpression) ?
+								  "NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead." :
+								  "NaN doesn't equal to any floating point number including to itself. Use '!IsNaN' instead.";
+				tag = "2";
+			} else if (IsPositiveInfinity (semanticModel, node.Left)) {
+				message = node.IsKind (SyntaxKind.EqualsExpression) ?
+								  "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
+								  "Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
+				tag = "3";
+			} else if (IsPositiveInfinity (semanticModel, node.Right)) {
+				message = node.IsKind (SyntaxKind.EqualsExpression) ?
+								  "Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
+								  "Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
+				tag = "4";
+			} else if (IsNegativeInfinity (semanticModel, node.Left)) {
+				message = node.IsKind (SyntaxKind.EqualsExpression) ?
+								  "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
+								  "Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
+				tag = "5";
+			} else if (IsNegativeInfinity (semanticModel, node.Right)) {
+				message = node.IsKind (SyntaxKind.EqualsExpression) ?
+								  "Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
+								  "Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
+				tag = "6";
+			} else if (IsFloatingPoint (semanticModel, node.Left) || IsFloatingPoint (semanticModel, node.Right)) {
+				if (IsConstantInfinity (semanticModel, node.Left) || IsConstantInfinity (semanticModel, node.Right))
+					return false;
+				if (IsZero (node.Left)) {
+					message = "Fix floating point number comparing. Compare a difference with epsilon.";
+					tag = "7";
+				} else if (IsZero (node.Right)) {
+					message = "Fix floating point number comparing. Compare a difference with epsilon.";
+					tag = "8";
+				} else {
+					message = "Comparison of floating point numbers can be unequal due to the differing precision of the two values.";
+					tag = "9";
+				}
+			}
+
+			if (message == null)
+				return false;
+
+			string floatType = GetFloatType (semanticModel, node.Left, node.Right);
+
+			diagnostic = Diagnostic.Create (
+				descriptor.Id,
+				descriptor.Category,
+				message,
+				descriptor.DefaultSeverity,
+				descriptor.DefaultSeverity,
+				descriptor.IsEnabledByDefault,
+				4,
+				descriptor.Title,
+				descriptor.Description,
+				descriptor.HelpLinkUri,
+				node.GetLocation (),
+				null,
+				new [] { tag, floatType }
+			);
+            return true;
 		}
 
 		internal static bool IsFloatingPointType (ITypeSymbol type)
@@ -72,25 +144,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			return type.SpecialType == SpecialType.System_Single || type.SpecialType == SpecialType.System_Double;
 		}
 
-		internal static bool IsFloatingPoint(SemanticModel semanticModel, SyntaxNode node)
+		internal static bool IsFloatingPoint (SemanticModel semanticModel, SyntaxNode node)
 		{
 			return IsFloatingPointType (semanticModel.GetTypeInfo (node).Type);
 		}
 
-		internal static bool IsConstantInfinity(SemanticModel semanticModel, SyntaxNode node)
+		internal static bool IsConstantInfinity (SemanticModel semanticModel, SyntaxNode node)
 		{
 			var rr = semanticModel.GetConstantValue (node);
 			if (!rr.HasValue)
 				return false;
 
-			return rr.Value is double && double.IsInfinity((double)rr.Value) || rr.Value is float && float.IsInfinity((float)rr.Value);
+			return rr.Value is double && double.IsInfinity ((double)rr.Value) || rr.Value is float && float.IsInfinity ((float)rr.Value);
 		}
 
-		internal static string GetFloatType(SemanticModel semanticModel, ExpressionSyntax left, ExpressionSyntax right)
+		internal static string GetFloatType (SemanticModel semanticModel, ExpressionSyntax left, ExpressionSyntax right)
 		{
-			var rr2 = semanticModel.GetTypeInfo(left);
-			var	rr1 = semanticModel.GetTypeInfo(right);
-			if (rr1.Type != null && rr1.Type.SpecialType == SpecialType.System_Single && 
+			var rr2 = semanticModel.GetTypeInfo (left);
+			var rr1 = semanticModel.GetTypeInfo (right);
+			if (rr1.Type != null && rr1.Type.SpecialType == SpecialType.System_Single &&
 				rr2.Type != null && rr2.Type.SpecialType == SpecialType.System_Single)
 				return "float";
 			return "double";
@@ -102,7 +174,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			if (!rr.HasValue)
 				return false;
 
-			return rr.Value is double && double.IsNaN((double)rr.Value) || rr.Value is float && float.IsNaN((float)rr.Value);
+			return rr.Value is double && double.IsNaN ((double)rr.Value) || rr.Value is float && float.IsNaN ((float)rr.Value);
 		}
 
 		internal static bool IsZero (SyntaxNode node)
@@ -114,8 +186,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			if (token.Value is char || token.Value is string || token.Value is bool)
 				return false;
 
-			if (token.Value is double && (double)token.Value == 0d || 
-				token.Value is float && (float)token.Value == 0f || 
+			if (token.Value is double && (double)token.Value == 0d ||
+				token.Value is float && (float)token.Value == 0f ||
 				token.Value is decimal && (decimal)token.Value == 0m)
 				return true;
 
@@ -133,7 +205,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			if (!rr.HasValue)
 				return false;
 
-			return rr.Value is double && double.IsNegativeInfinity((double)rr.Value) || rr.Value is float && float.IsNegativeInfinity((float)rr.Value);
+			return rr.Value is double && double.IsNegativeInfinity ((double)rr.Value) || rr.Value is float && float.IsNegativeInfinity ((float)rr.Value);
 		}
 
 		internal static bool IsPositiveInfinity (SemanticModel semanticModel, SyntaxNode node)
@@ -142,285 +214,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			if (!rr.HasValue)
 				return false;
 
-			return rr.Value is double && double.IsPositiveInfinity ((double)rr.Value) || rr.Value is float && float.IsPositiveInfinity((float)rr.Value);
-		}
-
-		class GatherVisitor : GatherVisitorBase<CompareOfFloatsByEqualityOperatorAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
-			{
-				base.VisitBinaryExpression(node);
-				if (!node.IsKind(SyntaxKind.EqualsExpression) && !node.IsKind(SyntaxKind.NotEqualsExpression))
-					return;
-
-				string message = null, tag = null;
-
-				if (IsNaN(semanticModel, node.Left)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ? 
-						"NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead." :
-						"NaN doesn't equal to any floating point number including to itself. Use '!IsNaN' instead.";
-					tag = "1";
-				} else if (IsNaN (semanticModel, node.Right)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ? 
-						"NaN doesn't equal to any floating point number including to itself. Use 'IsNaN' instead." :
-						"NaN doesn't equal to any floating point number including to itself. Use '!IsNaN' instead.";
-					tag = "2";
-				} else if (IsPositiveInfinity(semanticModel, node.Left)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ?
-						"Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
-					tag = "3";
-				} else if (IsPositiveInfinity (semanticModel, node.Right)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ?
-						"Comparison of floating point numbers with equality operator. Use 'IsPositiveInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsPositiveInfinity' method.";
-					tag = "4";
-				} else if (IsNegativeInfinity (semanticModel, node.Left)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ?
-						"Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
-					tag = "5";
-				} else if (IsNegativeInfinity (semanticModel, node.Right)) {
-					message = node.IsKind(SyntaxKind.EqualsExpression) ?
-						"Comparison of floating point numbers with equality operator. Use 'IsNegativeInfinity' method." :
-						"Comparison of floating point numbers with equality operator. Use '!IsNegativeInfinity' method.";
-					tag = "6";
-				} else if (IsFloatingPoint(semanticModel, node.Left) || IsFloatingPoint(semanticModel, node.Right)) {
-					if (IsConstantInfinity(semanticModel, node.Left) || IsConstantInfinity(semanticModel, node.Right))
-						return;
-					if (CompareOfFloatsByEqualityOperatorAnalyzer.IsZero(node.Left)) {
-						message = "Fix floating point number comparing. Compare a difference with epsilon.";
-						tag = "7";
-					} else if (CompareOfFloatsByEqualityOperatorAnalyzer.IsZero(node.Right)) {
-						message = "Fix floating point number comparing. Compare a difference with epsilon.";
-						tag = "8";
-					} else {
-						message = "Comparison of floating point numbers can be unequal due to the differing precision of the two values.";
-						tag = "9";
-					}
-				}
-
-				if (message == null)
-					return;
-
-				string floatType = CompareOfFloatsByEqualityOperatorAnalyzer.GetFloatType(semanticModel, node.Left, node.Right);
-				AddDiagnosticAnalyzer(Diagnostic.Create(
-					Rule.Id,
-					Rule.Category,
-					message,
-					Rule.DefaultSeverity,
-					Rule.DefaultSeverity,
-					Rule.IsEnabledByDefault,
-					4,
-					Rule.Title,
-					Rule.Description,
-					Rule.HelpLinkUri,
-					node.GetLocation(),
-					null,
-					new[] { tag , floatType}
-				));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CompareOfFloatsByEqualityOperatorFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CompareOfFloatsByEqualityOperatorAnalyzer.DiagnosticId;
-		}
-
-		// Does not make sense here, because the fixes produce code that is not compilable
-		//public override FixAllProvider GetFixAllProvider()
-		//{
-		//	return WellKnownFixAllProviders.BatchFixer;
-		//}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as BinaryExpressionSyntax;
-			if (node == null)
-				return;
-			CodeAction action;
-			var floatType = diagnostic.Descriptor.CustomTags.ElementAt(1);
-			switch (diagnostic.Descriptor.CustomTags.ElementAt(0))
-			{
-				case "1":
-					action = AddIsNaNIssue(document, semanticModel, root, node, node.Right, floatType);
-					break;
-				case "2":
-					action = AddIsNaNIssue(document, semanticModel, root, node, node.Left, floatType);
-					break;
-				case "3":
-					action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
-					break;
-				case "4":
-					action = AddIsPositiveInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
-					break;
-				case "5":
-					action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Right, floatType);
-					break;
-				case "6":
-					action = AddIsNegativeInfinityIssue(document, semanticModel, root, node, node.Left, floatType);
-					break;
-				case "7":
-					action = AddIsZeroIssue(document, semanticModel, root, node, node.Right, floatType);
-					break;
-				case "8":
-					action = AddIsZeroIssue(document, semanticModel, root, node, node.Left, floatType);
-					break;
-				default:
-					action = AddCompareIssue(document, semanticModel, root, node, floatType);
-
-					break;
-			}
-
-			if (action != null)
-			{
-				context.RegisterCodeFix(action, diagnostic);
-			}
-		}
-
-		static CodeAction AddIsNaNIssue(Document document, SemanticModel semanticModel, SyntaxNode root, BinaryExpressionSyntax node, ExpressionSyntax argExpr, string floatType)
-		{
-			return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Warning, string.Format(node.IsKind(SyntaxKind.EqualsExpression) ? "Replace with '{0}.IsNaN(...)' call" : "Replace with '!{0}.IsNaN(...)' call" , floatType), token => {
-				SyntaxNode newRoot;
-				ExpressionSyntax expr;
-				var arguments = new SeparatedSyntaxList<ArgumentSyntax> ();
-				arguments = arguments.Add(SyntaxFactory.Argument(argExpr));
-				expr = SyntaxFactory.InvocationExpression(
-					SyntaxFactory.MemberAccessExpression(
-						SyntaxKind.SimpleMemberAccessExpression,
-						SyntaxFactory.ParseExpression(floatType),
-						SyntaxFactory.IdentifierName("IsNaN")
-					),
-					SyntaxFactory.ArgumentList(
-						arguments
-					)
-				);
-				if (node.IsKind(SyntaxKind.NotEqualsExpression))
-					expr = SyntaxFactory.PrefixUnaryExpression (SyntaxKind.LogicalNotExpression, expr);
-				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			});
-		}
-
-		static CodeAction AddIsPositiveInfinityIssue(Document document, SemanticModel semanticModel, SyntaxNode root, BinaryExpressionSyntax node, ExpressionSyntax argExpr, string floatType)
-		{
-			return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Warning, string.Format(node.IsKind(SyntaxKind.EqualsExpression) ? "Replace with '{0}.IsPositiveInfinity(...)' call" : "Replace with '!{0}.IsPositiveInfinity(...)' call" , floatType), token => {
-				SyntaxNode newRoot;
-				ExpressionSyntax expr;
-				var arguments = new SeparatedSyntaxList<ArgumentSyntax> ();
-				arguments = arguments.Add(SyntaxFactory.Argument(argExpr));
-				expr = SyntaxFactory.InvocationExpression(
-					SyntaxFactory.MemberAccessExpression(
-						SyntaxKind.SimpleMemberAccessExpression,
-						SyntaxFactory.ParseExpression(floatType),
-						SyntaxFactory.IdentifierName("IsPositiveInfinity")
-					),
-					SyntaxFactory.ArgumentList(
-						arguments
-					)
-				);
-				if (node.IsKind(SyntaxKind.NotEqualsExpression))
-					expr = SyntaxFactory.PrefixUnaryExpression (SyntaxKind.LogicalNotExpression, expr);
-				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			});
-		}
-
-		static CodeAction AddIsNegativeInfinityIssue(Document document, SemanticModel semanticModel, SyntaxNode root, BinaryExpressionSyntax node, ExpressionSyntax argExpr, string floatType)
-		{
-			return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Warning, string.Format(node.IsKind(SyntaxKind.EqualsExpression) ? "Replace with '{0}.IsNegativeInfinity(...)' call" : "Replace with '!{0}.IsNegativeInfinity(...)' call" , floatType), token => {
-				SyntaxNode newRoot;
-				ExpressionSyntax expr;
-				var arguments = new SeparatedSyntaxList<ArgumentSyntax> ();
-				arguments = arguments.Add(SyntaxFactory.Argument(argExpr));
-				expr = SyntaxFactory.InvocationExpression(
-					SyntaxFactory.MemberAccessExpression(
-						SyntaxKind.SimpleMemberAccessExpression,
-						SyntaxFactory.ParseExpression(floatType),
-						SyntaxFactory.IdentifierName("IsNegativeInfinity")
-					),
-					SyntaxFactory.ArgumentList(
-						arguments
-					)
-				);
-				if (node.IsKind(SyntaxKind.NotEqualsExpression))
-					expr = SyntaxFactory.PrefixUnaryExpression (SyntaxKind.LogicalNotExpression, expr);
-				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			});
-		}
-
-		static CodeAction AddIsZeroIssue(Document document, SemanticModel semanticModel, SyntaxNode root, BinaryExpressionSyntax node, ExpressionSyntax argExpr, string floatType)
-		{
-			return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Warning, "Fix floating point number comparison", token => {
-				SyntaxNode newRoot;
-				ExpressionSyntax expr;
-				var arguments = new SeparatedSyntaxList<ArgumentSyntax> ();
-				arguments = arguments.Add(SyntaxFactory.Argument(argExpr));
-				expr = SyntaxFactory.BinaryExpression(
-					node.IsKind(SyntaxKind.EqualsExpression) ? SyntaxKind.LessThanExpression : SyntaxKind.GreaterThanExpression,
-					SyntaxFactory.InvocationExpression(
-						SyntaxFactory.MemberAccessExpression(
-							SyntaxKind.SimpleMemberAccessExpression,
-							SyntaxFactory.ParseExpression("System.Math"),
-							SyntaxFactory.IdentifierName("Abs")
-						),
-						SyntaxFactory.ArgumentList(
-							arguments
-						)
-					),
-					SyntaxFactory.IdentifierName("EPSILON")
-				);
-				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			});
-		}
-
-		static CodeAction AddCompareIssue(Document document, SemanticModel semanticModel, SyntaxNode root, BinaryExpressionSyntax node, string floatType)
-		{
-			return CodeActionFactory.Create(node.Span, DiagnosticSeverity.Warning, "Fix floating point number comparison", token => {
-				SyntaxNode newRoot;
-				ExpressionSyntax expr;
-				var arguments = new SeparatedSyntaxList<ArgumentSyntax> ();
-				arguments = arguments.Add(SyntaxFactory.Argument(SyntaxFactory.BinaryExpression(SyntaxKind.SubtractExpression, node.Left, node.Right)));
-				expr = SyntaxFactory.BinaryExpression(
-						node.IsKind(SyntaxKind.EqualsExpression) ? SyntaxKind.LessThanExpression : SyntaxKind.GreaterThanExpression,
-					SyntaxFactory.InvocationExpression(
-						SyntaxFactory.MemberAccessExpression(
-							SyntaxKind.SimpleMemberAccessExpression,
-							SyntaxFactory.ParseExpression("System.Math"),
-							SyntaxFactory.IdentifierName("Abs")
-						),
-						SyntaxFactory.ArgumentList(
-							arguments
-						)
-					),
-					SyntaxFactory.IdentifierName("EPSILON")
-				);
-				expr = expr.WithAdditionalAnnotations(Formatter.Annotation);
-				newRoot = root.ReplaceNode((SyntaxNode)node, expr);
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			});
+			return rr.Value is double && double.IsPositiveInfinity ((double)rr.Value) || rr.Value is float && float.IsPositiveInfinity ((float)rr.Value);
 		}
 	}
 }

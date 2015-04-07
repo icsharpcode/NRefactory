@@ -24,94 +24,97 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BitwiseOperatorOnEnumWithoutFlags")]
-	public class BitwiseOperatorOnEnumWithoutFlagsAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class BitwiseOperatorOnEnumWithoutFlagsAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BitwiseOperatorOnEnumWithoutFlagsAnalyzer";
-		const string Description            = "Bitwise operation on enum which has no [Flags] attribute";
-		const string MessageFormat          = "Bitwise operation on enum not marked with [Flags] attribute";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.BitwiseOperatorOnEnumWithoutFlagsAnalyzerID, 
+			GettextCatalog.GetString("Bitwise operation on enum which has no [Flags] attribute"),
+			GettextCatalog.GetString("Bitwise operation on enum not marked with [Flags] attribute"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.BitwiseOperatorOnEnumWithoutFlagsAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Bitwise operation on enum which has no [Flags] attribute");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (GetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.BitwiseNotExpression,
+
+				SyntaxKind.OrAssignmentExpression,
+				SyntaxKind.AndAssignmentExpression,
+				SyntaxKind.ExclusiveOrAssignmentExpression,
+
+				SyntaxKind.BitwiseAndExpression,
+				SyntaxKind.BitwiseOrExpression,
+				SyntaxKind.ExclusiveOrExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		bool GetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<BitwiseOperatorOnEnumWithoutFlagsAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			bool IsNonFlagsEnum (ExpressionSyntax expr)
-			{
-				var type = semanticModel.GetTypeInfo(expr).Type;
-				if (type == null || type.TypeKind != TypeKind.Enum)
-					return false;
-
-				// check [Flags]
-				return !type.GetAttributes().Any (attr => 
-					attr.AttributeClass.Name == "FlagsAttribute" &&
-					attr.AttributeClass.ContainingNamespace.ToDisplayString() == "System"
-				);
-			}
-
-			public override void VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
-			{
-				base.VisitPrefixUnaryExpression(node);
-				if (!node.IsKind(SyntaxKind.BitwiseNotExpression))
-					return;
-				if (IsNonFlagsEnum (node.Operand))
-					AddDiagnosticAnalyzer (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.OperatorToken.Span)));
-			}
-
-			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
-			{
-				base.VisitAssignmentExpression(node);
-				switch (node.Kind())  {
-					case SyntaxKind.OrAssignmentExpression:
-					case SyntaxKind.AndAssignmentExpression:
-					case SyntaxKind.ExclusiveOrAssignmentExpression:
-						if (IsNonFlagsEnum(node.Left) || IsNonFlagsEnum(node.Right))
-							AddDiagnosticAnalyzer(Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.OperatorToken.Span)));
-						break;
+			var prefixUnaryExpression = nodeContext.Node as PrefixUnaryExpressionSyntax;
+			if (prefixUnaryExpression != null) {
+				if (IsNonFlagsEnum (nodeContext.SemanticModel, prefixUnaryExpression.Operand)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						prefixUnaryExpression.OperatorToken.GetLocation ()
+					);
+					return true;
 				}
 			}
 
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
-			{
-				base.VisitBinaryExpression(node);
-				switch (node.Kind())  {
-					case SyntaxKind.BitwiseAndExpression:
-					case SyntaxKind.BitwiseOrExpression:
-					case SyntaxKind.ExclusiveOrExpression:
-						if (IsNonFlagsEnum(node.Left) || IsNonFlagsEnum(node.Right))
-							AddDiagnosticAnalyzer(Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.OperatorToken.Span)));
-						break;
+			var assignmentExpression = nodeContext.Node as AssignmentExpressionSyntax;
+			if (assignmentExpression != null) {
+				if (IsNonFlagsEnum (nodeContext.SemanticModel, assignmentExpression.Left) || IsNonFlagsEnum (nodeContext.SemanticModel, assignmentExpression.Right)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						assignmentExpression.OperatorToken.GetLocation ()
+					);
+					return true;
 				}
 			}
+
+			var binaryExpression = nodeContext.Node as BinaryExpressionSyntax;
+			if (binaryExpression != null) {
+				if (IsNonFlagsEnum (nodeContext.SemanticModel, binaryExpression.Left) || IsNonFlagsEnum (nodeContext.SemanticModel, binaryExpression.Right)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						binaryExpression.OperatorToken.GetLocation ()
+					);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		static bool IsNonFlagsEnum (SemanticModel semanticModel, ExpressionSyntax expr)
+		{
+			var type = semanticModel.GetTypeInfo(expr).Type;
+			if (type == null || type.TypeKind != TypeKind.Enum)
+				return false;
+
+			// check [Flags]
+			return !type.GetAttributes().Any (attr => attr.AttributeClass.Name == "FlagsAttribute" && attr.AttributeClass.ContainingNamespace.ToDisplayString() == "System");
 		}
 	}
 }

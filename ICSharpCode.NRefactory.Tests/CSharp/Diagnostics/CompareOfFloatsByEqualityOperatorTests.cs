@@ -180,7 +180,7 @@ class TestClass
 {
 	void TestMethod (double x, float y)
 	{
-		// ReSharper disable once CompareOfFloatsByEqualityOperator
+#pragma warning disable " + NRefactoryDiagnosticIDs.CompareOfFloatsByEqualityOperatorAnalyzerID + @"
 		if (x == y)
 			System.Console.WriteLine (x);
 	}

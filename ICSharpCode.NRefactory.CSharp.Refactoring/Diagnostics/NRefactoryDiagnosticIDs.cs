@@ -44,5 +44,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string ConvertNullableToShortFormAnalyzerID = "NR0013";
 		public const string ConvertToStaticTypeAnalyzerID = "NR0014";
 		public const string InvokeAsExtensionMethodAnalyzerID = "NR0015";
+		public const string BitwiseOperatorOnEnumWithoutFlagsAnalyzerID = "NR0016";
+		public const string CompareNonConstrainedGenericWithNullAnalyzerID = "NR0017";
+		public const string CompareOfFloatsByEqualityOperatorAnalyzerID = "NR0018";
 	}
 }
