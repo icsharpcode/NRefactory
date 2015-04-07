@@ -24,20 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
 using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using Microsoft.CodeAnalysis.Formatting;
-using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -46,149 +38,97 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// Converts to: "a ?? other"<expr>
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertConditionalTernaryToNullCoalescing")]
-	public class ConvertConditionalTernaryToNullCoalescingAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertConditionalTernaryToNullCoalescingAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertConditionalTernaryToNullCoalescingAnalyzer";
-		const string Description            = "'?:' expression can be converted to '??' expression.";
-		const string MessageFormat          = "'?:' expression can be re-written as '??' expression";
-		const string Category               = DiagnosticAnalyzerCategories.Opportunities;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConvertConditionalTernaryToNullCoalescingAnalyzerID, 
+			GettextCatalog.GetString("'?:' expression can be converted to '??' expression"),
+			GettextCatalog.GetString("'?:' expression can be converted to '??' expression"), 
+			DiagnosticAnalyzerCategories.Opportunities, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertConditionalTernaryToNullCoalescingAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "'?:' expression can be converted to '??' expression");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.ConditionalExpression }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			var node = nodeContext.Node as ConditionalExpressionSyntax;
+			var semanticModel = nodeContext.SemanticModel;
+			var cancellationToken = nodeContext.CancellationToken;
 
-		class GatherVisitor : GatherVisitorBase<ConvertConditionalTernaryToNullCoalescingAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			static ExpressionSyntax AnalyzeBinaryExpression (ExpressionSyntax node)
-			{
-				var bOp = node.SkipParens() as BinaryExpressionSyntax;
-				if (bOp == null)
-					return null;
-				if (bOp.IsKind(SyntaxKind.NotEqualsExpression) || bOp.IsKind(SyntaxKind.EqualsExpression)) {
-					if (bOp.Left != null && bOp.Left.SkipParens().IsKind(SyntaxKind.NullLiteralExpression))
-						return bOp.Right;
-					if (bOp.Right != null && bOp.Right.SkipParens().IsKind(SyntaxKind.NullLiteralExpression))
-						return bOp.Left;
-				}
-				return null;
-			}
-
-			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
-			{
-				base.VisitConditionalExpression(node);
-				var obj = AnalyzeBinaryExpression(node.Condition);
-				if (obj == null)
-					return;
-				if (node.Condition.SkipParens().IsKind(SyntaxKind.NotEqualsExpression)) {
-					var whenTrue = ConvertConditionalTernaryToNullCoalescingFixProvider.UnpackNullableValueAccess(semanticModel, node.WhenTrue, cancellationToken);
-					if (!CanBeNull(whenTrue))
-						return;
-					if (obj.SkipParens().IsEquivalentTo(whenTrue.SkipParens(), true)) {
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-						return;
-					}
-					var cast = whenTrue as CastExpressionSyntax;
-					if (cast != null && cast.Expression != null && obj.SkipParens().IsEquivalentTo(cast.Expression.SkipParens(), true)) {
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-						return;
-					}
-				} else {
-					var whenFalse = ConvertConditionalTernaryToNullCoalescingFixProvider.UnpackNullableValueAccess(semanticModel, node.WhenFalse, cancellationToken);
-					if (!CanBeNull(whenFalse))
-						return;
-					if (obj.SkipParens().IsEquivalentTo(whenFalse.SkipParens(), true)) {
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-						return;
-					}
-				}
-			}
-
-			bool CanBeNull(ExpressionSyntax expression)
-			{
-				var info = semanticModel.GetTypeInfo(expression, cancellationToken);
-				if (info.ConvertedType.IsReferenceType || info.ConvertedType.IsNullableType())
-					return true;
+			diagnostic = default(Diagnostic);
+			var obj = AnalyzeBinaryExpression(node.Condition);
+			if (obj == null)
 				return false;
+			if (node.Condition.SkipParens().IsKind(SyntaxKind.NotEqualsExpression)) {
+				var whenTrue = ConvertConditionalTernaryToNullCoalescingCodeFixProvider.UnpackNullableValueAccess(semanticModel, node.WhenTrue, cancellationToken);
+				if (!CanBeNull(semanticModel, whenTrue, cancellationToken))
+					return false;
+				if (obj.SkipParens().IsEquivalentTo(whenTrue.SkipParens(), true)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						node.GetLocation ()
+					);
+					return true;
+				}
+				var cast = whenTrue as CastExpressionSyntax;
+				if (cast != null && cast.Expression != null && obj.SkipParens().IsEquivalentTo(cast.Expression.SkipParens(), true)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						node.GetLocation ()
+					);
+					return true;
+				}
+			} else {
+				var whenFalse = ConvertConditionalTernaryToNullCoalescingCodeFixProvider.UnpackNullableValueAccess(semanticModel, node.WhenFalse, cancellationToken);
+				if (!CanBeNull(semanticModel, whenFalse, cancellationToken))
+					return false;
+				if (obj.SkipParens().IsEquivalentTo(whenFalse.SkipParens(), true)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						node.GetLocation ()
+					);
+					return true;
+				}
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertConditionalTernaryToNullCoalescingFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ConvertConditionalTernaryToNullCoalescingAnalyzer.DiagnosticId;
+			return false;
 		}
 
-		public override FixAllProvider GetFixAllProvider()
+		static ExpressionSyntax AnalyzeBinaryExpression (ExpressionSyntax node)
 		{
-			return WellKnownFixAllProviders.BatchFixer;
+			var bOp = node.SkipParens() as BinaryExpressionSyntax;
+			if (bOp == null)
+				return null;
+			if (bOp.IsKind(SyntaxKind.NotEqualsExpression) || bOp.IsKind(SyntaxKind.EqualsExpression)) {
+				if (bOp.Left != null && bOp.Left.SkipParens().IsKind(SyntaxKind.NullLiteralExpression))
+					return bOp.Right;
+				if (bOp.Right != null && bOp.Right.SkipParens().IsKind(SyntaxKind.NullLiteralExpression))
+					return bOp.Left;
+			}
+			return null;
 		}
 
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
+		static bool CanBeNull(SemanticModel semanticModel, ExpressionSyntax expression, CancellationToken cancellationToken)
 		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
-			if (node == null)
-				return;
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace '?:'  operator with '??", token => {
-				ExpressionSyntax a, other;
-				if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
-					a = node.WhenFalse;
-					other = node.WhenTrue;
-				} else {
-					other = node.WhenFalse;
-					a = node.WhenTrue;
-				}
-
-				if (node.Condition.SkipParens().IsKind(SyntaxKind.EqualsExpression)) {
-					var castExpression = other as CastExpressionSyntax;
-					if (castExpression != null) {
-						a = SyntaxFactory.CastExpression(castExpression.Type, a);
-						other = castExpression.Expression;
-					}
-				}
-
-				a = UnpackNullableValueAccess(model, a, token);
-
-				ExpressionSyntax newNode = SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, a, other);
-
-				var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}), diagnostic);
-		}
-
-		internal static ExpressionSyntax UnpackNullableValueAccess(SemanticModel semanticModel, ExpressionSyntax expression, CancellationToken cancellationToken)
-		{
-			var expr = expression.SkipParens();
-			if (!expr.IsKind(SyntaxKind.SimpleMemberAccessExpression))
-				return expression;
-			var info = semanticModel.GetTypeInfo(((MemberAccessExpressionSyntax)expr).Expression, cancellationToken);
-			if (!info.ConvertedType.IsNullableType())
-				return expression;
-			return ((MemberAccessExpressionSyntax)expr).Expression;
+			var info = semanticModel.GetTypeInfo(expression, cancellationToken);
+			if (info.ConvertedType.IsReferenceType || info.ConvertedType.IsNullableType())
+				return true;
+			return false;
 		}
 	}
 }

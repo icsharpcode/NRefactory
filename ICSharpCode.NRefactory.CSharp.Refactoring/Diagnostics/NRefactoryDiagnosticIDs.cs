@@ -38,5 +38,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string EnumUnderlyingTypeIsIntAnalyzerID = "NR0007";
 		public const string SealedMemberInSealedClassAnalyzerID = "NR0008";
 		public const string NonPublicMethodWithTestAttributeAnalyzerID = "NR0009";
+		public const string ConvertConditionalTernaryToNullCoalescingAnalyzerID = "NR0010";
+		public const string ConvertIfStatementToConditionalTernaryExpressionAnalyzerID = "NR0011";
+		public const string ConvertIfStatementToSwitchStatementAnalyzerID = "NR0012";
+		public const string ConvertNullableToShortFormAnalyzerID = "NR0013";
+		public const string ConvertToStaticTypeAnalyzerID = "NR0014";
+		public const string InvokeAsExtensionMethodAnalyzerID = "NR0015";
 	}
 }

@@ -1,5 +1,5 @@
 //
-// ConvertClosureToMethodGroupFixProvider.cs
+// ConvertIfStatementToConditionalTernaryExpressionCodeFixProvider.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,21 +24,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
+using Microsoft.CodeAnalysis.Formatting;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertClosureToMethodGroupCodeFixProvider : CodeFixProvider
+	public class ConvertIfStatementToConditionalTernaryExpressionCodeFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {
 			get {
-				return ImmutableArray.Create (NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID);
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.ConvertIfStatementToConditionalTernaryExpressionAnalyzerID);
 			}
 		}
 
@@ -54,25 +58,23 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-
 			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			var c1 = node as AnonymousMethodExpressionSyntax;
-			var c2 = node as ParenthesizedLambdaExpressionSyntax;
-			var c3 = node as SimpleLambdaExpressionSyntax;
-			if (c1 == null && c2 == null && c3 == null)
+			var node = root.FindNode(context.Span) as IfStatementSyntax;
+
+			ExpressionSyntax condition, target;
+			AssignmentExpressionSyntax trueAssignment, falseAssignment;
+			if (!ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))
 				return;
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, GettextCatalog.GetString ("Replace with method group"), token => {
-				InvocationExpressionSyntax invoke = null;
-				if (c1 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c1.Block);
-				if (c2 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c2.Body);
-				if (c3 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c3.Body);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, invoke.Expression.WithLeadingTrivia (node.GetLeadingTrivia ()).WithTrailingTrivia (node.GetTrailingTrivia ()));
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}), diagnostic);
+			var newRoot = root.ReplaceNode((SyntaxNode)node,
+				SyntaxFactory.ExpressionStatement(
+					SyntaxFactory.AssignmentExpression(
+						trueAssignment.Kind(),
+						trueAssignment.Left,
+						SyntaxFactory.ConditionalExpression(condition, trueAssignment.Right, falseAssignment.Right)
+					)
+				).WithAdditionalAnnotations(Formatter.Annotation)
+			);
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to '?:' expression", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

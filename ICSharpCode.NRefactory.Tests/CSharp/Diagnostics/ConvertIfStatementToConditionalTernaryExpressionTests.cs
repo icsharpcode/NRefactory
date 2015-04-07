@@ -132,7 +132,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	static int Bar (int x)
 	{
 		int result;
-		// ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConvertIfStatementToConditionalTernaryExpressionAnalyzerID + @"
 		if (x > 10)
 			result = 10;
 		else

@@ -42,7 +42,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			GettextCatalog.GetString("Convert anonymous method to method group"),
 			GettextCatalog.GetString("{0}"), 
 			DiagnosticAnalyzerCategories.Opportunities, 
-			DiagnosticSeverity.Warning, 
+			DiagnosticSeverity.Info, 
 			isEnabledByDefault: true,//"Anonymous method or lambda expression can be simplified to method group"
 			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID)
 		);
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction(
 				(nodeContext) => {
 					Diagnostic diagnostic;
-					if (TryConvertClosureToMethodGroup (nodeContext, out diagnostic)) {
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
 						nodeContext.ReportDiagnostic(diagnostic);
 					}
 				}, 
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		bool TryConvertClosureToMethodGroup (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var simpleLambda = nodeContext.Node as SimpleLambdaExpressionSyntax;
 			var parenLambda = nodeContext.Node as ParenthesizedLambdaExpressionSyntax;

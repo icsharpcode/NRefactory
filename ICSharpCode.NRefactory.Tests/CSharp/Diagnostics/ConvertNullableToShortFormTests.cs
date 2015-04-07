@@ -155,7 +155,7 @@ class Foo
 {
     void Bar()
     {
-        // ReSharper disable once ConvertNullableToShortForm
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConvertNullableToShortFormAnalyzerID + @"
         System.Nullable<int> a;
     }
 }");

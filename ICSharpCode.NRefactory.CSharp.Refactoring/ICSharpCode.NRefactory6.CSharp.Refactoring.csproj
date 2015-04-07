@@ -457,6 +457,18 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInDeclaration\UnusedParameterCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\NUnit\NonPublicMethodWithTestAttributeCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertIfStatementToNullCoalescingExpressionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertIfStatementToSwitchStatementCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertNullableToShortFormCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertToAutoPropertyCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertToLambdaExpressionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ConvertToStaticTypeCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\ForCanBeConvertedToForeachCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\InvokeAsExtensionMethodCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\RewriteIfReturnToReturnCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\Opportunities\SuggestUseVarKeywordEvidentCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

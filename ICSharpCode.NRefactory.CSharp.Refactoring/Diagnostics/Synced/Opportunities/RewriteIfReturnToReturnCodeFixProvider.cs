@@ -1,5 +1,5 @@
 //
-// ConvertClosureToMethodGroupFixProvider.cs
+// RewriteIfReturnToReturnCodeFixProvider.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,22 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Diagnostics;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CodeFixes;
+using System.Threading.Tasks;
+using Microsoft.CodeAnalysis.CodeActions;
+using Microsoft.CodeAnalysis.Text;
+using System.Threading;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
+using Microsoft.CodeAnalysis.Formatting;
+using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
+
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertClosureToMethodGroupCodeFixProvider : CodeFixProvider
+	public class RewriteIfReturnToReturnCodeFixProvider : NRefactoryCodeFixProvider
 	{
-		public override ImmutableArray<string> FixableDiagnosticIds {
-			get {
-				return ImmutableArray.Create (NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID);
-			}
+		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
+		{
+			yield return RewriteIfReturnToReturnAnalyzer.DiagnosticId;
 		}
 
 		public override FixAllProvider GetFixAllProvider()
@@ -54,25 +64,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span);
-			var c1 = node as AnonymousMethodExpressionSyntax;
-			var c2 = node as ParenthesizedLambdaExpressionSyntax;
-			var c3 = node as SimpleLambdaExpressionSyntax;
-			if (c1 == null && c2 == null && c3 == null)
-				return;
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, GettextCatalog.GetString ("Replace with method group"), token => {
-				InvocationExpressionSyntax invoke = null;
-				if (c1 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c1.Block);
-				if (c2 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c2.Body);
-				if (c3 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c3.Body);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, invoke.Expression.WithLeadingTrivia (node.GetLeadingTrivia ()).WithTrailingTrivia (node.GetTrailingTrivia ()));
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}), diagnostic);
+			//if (!node.IsKind(SyntaxKind.BaseList))
+			//	continue;
+			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Convert to 'return' statement", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

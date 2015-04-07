@@ -1,5 +1,5 @@
 //
-// ConvertClosureToMethodGroupFixProvider.cs
+// ConvertNullableToShortFormCodeFixProvider.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -28,17 +28,18 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertClosureToMethodGroupCodeFixProvider : CodeFixProvider
+	public class ConvertNullableToShortFormCodeFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {
 			get {
-				return ImmutableArray.Create (NRefactoryDiagnosticIDs.ConvertClosureToMethodDiagnosticID);
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.ConvertNullableToShortFormAnalyzerID);
 			}
 		}
 
@@ -54,25 +55,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span);
-			var c1 = node as AnonymousMethodExpressionSyntax;
-			var c2 = node as ParenthesizedLambdaExpressionSyntax;
-			var c3 = node as SimpleLambdaExpressionSyntax;
-			if (c1 == null && c2 == null && c3 == null)
-				return;
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, GettextCatalog.GetString ("Replace with method group"), token => {
-				InvocationExpressionSyntax invoke = null;
-				if (c1 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c1.Block);
-				if (c2 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c2.Body);
-				if (c3 != null)
-					invoke = ConvertClosureToMethodGroupAnalyzer.AnalyzeBody(c3.Body);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, invoke.Expression.WithLeadingTrivia (node.GetLeadingTrivia ()).WithTrailingTrivia (node.GetTrailingTrivia ()));
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}), diagnostic);
+
+			//if (!node.IsKind(SyntaxKind.GenericName))
+			//	continue;
+
+			var arg = ConvertNullableToShortFormAnalyzer.GetTypeArgument(node);
+
+			var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.NullableType(arg)
+				.WithAdditionalAnnotations(Formatter.Annotation)
+				.WithLeadingTrivia(node.GetLeadingTrivia()));
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

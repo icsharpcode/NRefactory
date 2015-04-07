@@ -225,7 +225,7 @@ class C
 	void F()
 	{
 		A a = new A();
-		// ReSharper disable once InvokeAsExtensionMethod
+#pragma warning disable " + NRefactoryDiagnosticIDs.InvokeAsExtensionMethodAnalyzerID + @"
 		B.Ext (a, 1);
 	}
 }");

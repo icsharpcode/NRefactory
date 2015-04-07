@@ -24,107 +24,69 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertToStaticType")]
-	public class ConvertToStaticTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertToStaticTypeAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ConvertToStaticTypeAnalyzer";
-		const string Description = "If all fields, properties and methods members are static, the class can be made static.";
-		const string MessageFormat = "This class is recommended to be defined as static";
-		const string Category = DiagnosticAnalyzerCategories.Opportunities;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConvertToStaticTypeAnalyzerID,
+			GettextCatalog.GetString ("If all fields, properties and methods members are static, the class can be made static."),
+			GettextCatalog.GetString ("This class is recommended to be defined as static"),
+			DiagnosticAnalyzerCategories.Opportunities,
+			DiagnosticSeverity.Info,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.ConvertToStaticTypeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Class can be converted to static");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		public override void Initialize (AnalysisContext context)
 		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
-			}
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic (diagnostic);
+					}
+				},
+				new SyntaxKind [] { SyntaxKind.ClassDeclaration }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			var node = nodeContext.Node as ClassDeclarationSyntax;
+			var semanticModel = nodeContext.SemanticModel;
+			var cancellationToken = nodeContext.CancellationToken;
+
+			diagnostic = default(Diagnostic);
+			ITypeSymbol classType = semanticModel.GetDeclaredSymbol (node);
+			if (!node.Modifiers.Any () || node.Modifiers.Any (m => m.IsKind (SyntaxKind.PartialKeyword)) || classType.IsAbstract || classType.IsStatic)
+				return false;
+			//ignore implicitly declared (e.g. default ctor)
+			IEnumerable<ISymbol> enumerable = classType.GetMembers ().Where (m => !(m is ITypeSymbol));
+			if (Enumerable.Any(enumerable, f => (!f.IsStatic && !f.IsImplicitlyDeclared) || (f is IMethodSymbol && IsMainMethod ((IMethodSymbol)f))))
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.Identifier.GetLocation ()
+			);
+			return true;
 		}
 
-
-		class GatherVisitor : GatherVisitorBase<ConvertToStaticTypeAnalyzer>
+		internal static bool IsMainMethod(IMethodSymbol m)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			internal static bool IsMainMethod(IMethodSymbol m)
-			{
-				return (m.ReturnType.SpecialType == SpecialType.System_Int32 || m.ReturnType.SpecialType == SpecialType.System_Void) && m.IsStatic && m.Name.Equals("Main");
-			}
-
-			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
-			{
-				base.VisitClassDeclaration(node);
-
-				ITypeSymbol classType = semanticModel.GetDeclaredSymbol(node);
-				if (!node.Modifiers.Any() || node.Modifiers.Any(m => m.IsKind(SyntaxKind.PartialKeyword)) || classType.IsAbstract || classType.IsStatic)
-					return;
-				//ignore implicitly declared (e.g. default ctor)
-				if (classType.GetMembers().Where(m => !(m is ITypeSymbol)).Any(f => (!f.IsStatic && !f.IsImplicitlyDeclared) || (f is IMethodSymbol && IsMainMethod((IMethodSymbol)f))))
-					return;
-
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.Identifier.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertToStaticTypeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ConvertToStaticTypeAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as ClassDeclarationSyntax;
-			if (node == null)
-				return;
-			var sealedMod = node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.SealedKeyword));
-			var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithModifiers(node.Modifiers.Remove(sealedMod)
-				.Add(SyntaxFactory.Token(SyntaxKind.StaticKeyword).WithTrailingTrivia(SyntaxFactory.Whitespace(" "))))
-				.WithLeadingTrivia(node.GetLeadingTrivia()));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class static", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return (m.ReturnType.SpecialType == SpecialType.System_Int32 || m.ReturnType.SpecialType == SpecialType.System_Void) && m.IsStatic && m.Name.Equals("Main");
 		}
 	}
 }

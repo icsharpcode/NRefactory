@@ -114,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	void Bar (string str)
 	{
-// ReSharper disable once ConvertConditionalTernaryToNullCoalescing
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConvertConditionalTernaryToNullCoalescingAnalyzerID + @"
 		string c = str != null ? str : ""default"";
 	}
 }");
