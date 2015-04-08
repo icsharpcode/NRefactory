@@ -63,7 +63,6 @@ Analyzers not implemented
 
 *Opportunities*
 
-* ConvertClosureToMethodGroupAnalyzer
 * ConvertIfStatementToNullCoalescingExpressionAnalyzer
 * ConvertToAutoPropertyAnalyzer
 * ConvertToLambdaExpressionAnalyzer
@@ -126,19 +125,16 @@ Analyzers not implemented
 * RedundantDefaultFieldInitializerAnalyzer
 * RedundantOverridenMemberAnalyzer
 * RedundantParamsAnalyzer
-* UnusedLabelAnalyzer
 * UnusedParameterAnalyzer
 * **UnusedTypeParameterAnalyzer**
 
 *Custom*
 
 * AdditionalOfTypeAnalyzer
-* CastExpressionOfIncompatibleTypeAnalyzer
 * CheckNamespaceAnalyzer
 * LockThisAnalyzer
 * NegativeRelationalExpressionAnalyzer
 * ParameterOnlyAssignedAnalyzer
 * RedundantAssignmentAnalyzer
 * StaticEventSubscriptionAnalyzer
-* UnreachableCodeAnalyzer
 * XmlDocAnalyzer

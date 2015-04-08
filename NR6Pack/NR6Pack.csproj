@@ -40,11 +40,29 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs">
       <Link>CodeFixes\Custom\CS0108UseNewKeywordIfHidingIntendedCodeFixProvider.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS0152DuplicateCaseLabelValueCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS0152DuplicateCaseLabelValueCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS0162UnreachableCodeDetectedCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS0162UnreachableCodeDetectedCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS0164LabelHasNotBeenReferencedCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS0164LabelHasNotBeenReferencedCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS0759RedundantPartialMethodCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\CS0759RedundantPartialMethodCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs">
       <Link>CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs">
       <Link>CodeFixes\Custom\CS1520MethodMustHaveAReturnTypeCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\InvalidConversionCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\InvalidConversionCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeFixes\Custom\ReturnMustNotBeFollowedByAnyExpressionCodeFixProvider.cs">
+      <Link>CodeFixes\Custom\ReturnMustNotBeFollowedByAnyExpressionCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Custom\AddBracesCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Custom\AddBracesCodeRefactoringProvider.cs</Link>
@@ -209,7 +227,7 @@
       <Link>CodeRefactoringProviders\Synced\ConvertSwitchToIfCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs">
-      <Link>CodeRefactorings\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs</Link>
+      <Link>CodeRefactoringProviders\Synced\ConvertTernaryExpressionToIfStatementCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\CreateEventInvocatorCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\CreateEventInvocatorCodeRefactoringProvider.cs</Link>
@@ -273,6 +291,9 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\ReplaceVarWithExplicitTypeCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\ReplaceVarWithExplicitTypeCodeRefactoringProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\SplitDeclarationListCodeRefactoringProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\SplitDeclarationListCodeRefactoringProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\CodeRefactorings\Synced\SplitIfWithAndConditionInTwoCodeRefactoringProvider.cs">
       <Link>CodeRefactoringProviders\Synced\SplitIfWithAndConditionInTwoCodeRefactoringProvider.cs</Link>
@@ -339,6 +360,9 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\DiagnosticAnalyzerMarker.cs">
       <Link>Common\DiagnosticAnalyzerMarker.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\DiagnosticCustomTags.cs">
+      <Link>Common\DiagnosticCustomTags.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\DiagnosticFactory.cs">
       <Link>Common\DiagnosticFactory.cs</Link>
@@ -408,6 +432,9 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertConditionalTernaryToNullCoalescingAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\ConvertConditionalTernaryToNullCoalescingCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertIfStatementToConditionalTernaryExpressionAnalyzer.cs</Link>
@@ -549,6 +576,9 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\GettextCatalog.cs">
       <Link>Common\GettextCatalog.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\HelpLink.cs">
+      <Link>Common\HelpLink.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\NRefactory6Host.cs">
       <Link>Common\NRefactory6Host.cs</Link>
