@@ -24,10 +24,10 @@
       <li>Shows NotImplementedException throws in the quick task bar (NotImplementedExceptionAnalyzer)</li>
       <li>Removes 'internal' modifiers that are not required (RedundantInternalAnalyzer)</li>
       <li>Removes 'private' modifiers that are not required (RedundantPrivateAnalyzer)</li>
-      <li>Call to base member with implicit default parameters (BaseMethodCallWithDefaultParameterAnalyzer)</li>
-      <li>Bitwise operation on enum which has no [Flags] attribute (BitwiseOperatorOnEnumWithoutFlagsAnalyzer)</li>
-      <li>Possible compare of value type with 'null' (CompareNonConstrainedGenericWithNullAnalyzer)</li>
-      <li>Comparison of floating point numbers with equality operator (CompareOfFloatsByEqualityOperatorAnalyzer)</li>
+      <li> (BaseMethodCallWithDefaultParameterAnalyzer)</li>
+      <li> (BitwiseOperatorOnEnumWithoutFlagsAnalyzer)</li>
+      <li> (CompareNonConstrainedGenericWithNullAnalyzer)</li>
+      <li> (CompareOfFloatsByEqualityOperatorAnalyzer)</li>
       <li>'?:' expression has identical true and false branches (ConditionalTernaryEqualBranchAnalyzer)</li>
       <li>Delegate subtraction has unpredictable result (DelegateSubtractionAnalyzer)</li>
       <li>Warns about calls to virtual member functions occuring in the constructor. (DoNotCallOverridableMethodsInConstructorAnalyzer)</li>
@@ -39,14 +39,14 @@
       <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedAnalyzer)</li>
       <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutAnalyzer)</li>
       <li>Warns about property or indexer setters and event adders or removers that do not use the value parameter. (ValueParameterNotUsedAnalyzer)</li>
-      <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeAnalyzer)</li>
-      <li>Anonymous method or lambda expression can be simplified to method group (ConvertClosureToMethodGroupAnalyzer)</li>
-      <li>'?:' expression can be converted to '??' expression. (ConvertConditionalTernaryToNullCoalescingAnalyzer)</li>
-      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionAnalyzer)</li>
-      <li>'if' statement can be re-written as 'switch' statement (ConvertIfStatementToSwitchStatementAnalyzer)</li>
-      <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormAnalyzer)</li>
-      <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeAnalyzer)</li>
-      <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodAnalyzer)</li>
+      <li> (NonPublicMethodWithTestAttributeAnalyzer)</li>
+      <li> (ConvertClosureToMethodGroupAnalyzer)</li>
+      <li> (ConvertConditionalTernaryToNullCoalescingAnalyzer)</li>
+      <li> (ConvertIfStatementToConditionalTernaryExpressionAnalyzer)</li>
+      <li> (ConvertIfStatementToSwitchStatementAnalyzer)</li>
+      <li> (ConvertNullableToShortFormAnalyzer)</li>
+      <li> (ConvertToStaticTypeAnalyzer)</li>
+      <li> (InvokeAsExtensionMethodAnalyzer)</li>
       <li>Suggests using the class declaring a static function when calling it. (AccessToStaticMemberViaDerivedTypeAnalyzer)</li>
       <li>Base parameter has 'params' modifier, but missing in overrider (BaseMemberHasParamsAnalyzer)</li>
       <li>Convert 'if-do-while' to 'while' statement (ConvertIfDoToWhileAnalyzer)</li>
@@ -83,11 +83,11 @@
       <li>Redundant empty 'default' switch branch (RedundantEmptyDefaultSwitchBranchAnalyzer)</li>
       <li>Redundant conditional expression (RedundantTernaryExpressionAnalyzer)</li>
       <li>Remove redundant statement (RemoveRedundantOrStatementAnalyzer)</li>
-      <li>An empty public constructor without paramaters is redundant. (EmptyConstructorAnalyzer)</li>
-      <li>Empty destructor is redundant (EmptyDestructorAnalyzer)</li>
-      <li>Empty namespace declaration is redundant (EmptyNamespaceAnalyzer)</li>
-      <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntAnalyzer)</li>
-      <li>'sealed' modifier is redundant in sealed classes (SealedMemberInSealedClassAnalyzer)</li>
+      <li> (EmptyConstructorAnalyzer)</li>
+      <li> (EmptyDestructorAnalyzer)</li>
+      <li> (EmptyNamespaceAnalyzer)</li>
+      <li> (EnumUnderlyingTypeIsIntAnalyzer)</li>
+      <li> (SealedMemberInSealedClassAnalyzer)</li>
     </ul>
   </body>
 </html>
