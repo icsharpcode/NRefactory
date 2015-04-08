@@ -24,113 +24,105 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ValueParameterNotUsed")]
-	public class ValueParameterNotUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ValueParameterNotUsedAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ValueParameterNotUsedAnalyzer";
-		const string Description = "Warns about property or indexer setters and event adders or removers that do not use the value parameter.";
-		const string MessageFormat = "Setter doesn't use the 'value' parameter.";
-		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ValueParameterNotUsedAnalyzerID, 
+			GettextCatalog.GetString("Warns about property or indexer setters and event adders or removers that do not use the value parameter"),
+			GettextCatalog.GetString("The {0} does not use the 'value' parameter"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ValueParameterNotUsedAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'value' parameter not used");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		public override void Initialize(AnalysisContext context)
 		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
-			}
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.SetAccessorDeclaration,
+				SyntaxKind.AddAccessorDeclaration,
+				SyntaxKind.RemoveAccessorDeclaration
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as AccessorDeclarationSyntax;
+			var evt = node.Parent.Parent as EventDeclarationSyntax;
+			if (evt != null) {
+				if (evt.AccessorList.Accessors.Any (a => a.IsKind (SyntaxKind.AddAccessorDeclaration) && a.Body.Statements.Count == 0) &&
+					(evt.AccessorList.Accessors.Any (a => a.IsKind (SyntaxKind.RemoveAccessorDeclaration) && a.Body.Statements.Count == 0)))
+					return false;
+			}
+			if (!FindIssuesInAccessor (nodeContext.SemanticModel, node))
+				return false;
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.Keyword.GetLocation (),
+				GetMessageArgument (node)
+			);
+			return true;
 		}
 
-		class GatherVisitor : GatherVisitorBase<ValueParameterNotUsedAnalyzer>
+		static string GetMessageArgument (AccessorDeclarationSyntax node)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
+			switch (node.Kind ()) {
+			case SyntaxKind.SetAccessorDeclaration:
+				return GettextCatalog.GetString ("setter");
+			case SyntaxKind.AddAccessorDeclaration:
+				return GettextCatalog.GetString ("add accessor");
+			case SyntaxKind.RemoveAccessorDeclaration:
+				return GettextCatalog.GetString ("remove accessor");
 			}
+			return null;
+		}
 
-			public override void VisitAccessorDeclaration(AccessorDeclarationSyntax node)
-			{
-				base.VisitAccessorDeclaration(node);
+		static bool FindIssuesInAccessor(SemanticModel semanticModel, AccessorDeclarationSyntax accessor)
+		{
+			var body = accessor.Body;
+			if (!IsEligible(body))
+				return false;
 
-				if (node.IsKind(SyntaxKind.SetAccessorDeclaration))
-				{
-					FindIssuesInAccessor(node, "The setter does not use the 'value' parameter");
-				}
-				else if (node.IsKind(SyntaxKind.AddAccessorDeclaration))
-				{
-					FindIssuesInAccessor(node, "The add accessor does not use the 'value' parameter");
-				}
-				else if (node.IsKind(SyntaxKind.RemoveAccessorDeclaration))
-				{
-					FindIssuesInAccessor(node, "The remove accessor does not use the 'value' parameter");
-				}
-			}
-
-			public override void VisitEventDeclaration(EventDeclarationSyntax node)
-			{
-				if ((node.AccessorList == null) || !node.AccessorList.Accessors.Any())
-					return;
-				if (node.AccessorList.Accessors.Any(a => a.IsKind(SyntaxKind.AddAccessorDeclaration) && a.Body.Statements.Count == 0)
-					&& (node.AccessorList.Accessors.Any(a => a.IsKind(SyntaxKind.RemoveAccessorDeclaration) && a.Body.Statements.Count == 0)))
-					return;
-
-				base.VisitEventDeclaration(node);
-			}
-
-			void FindIssuesInAccessor(AccessorDeclarationSyntax accessor, string issueText)
-			{
-				var body = accessor.Body;
-				if (!IsEligible(body))
-					return;
-
-				bool referenceFound = false;
-				if (body.Statements.Any())
-				{
-					var foundValueSymbol = semanticModel.LookupSymbols(body.Statements.First().SpanStart, null, "value").FirstOrDefault();
-					if (foundValueSymbol == null)
-						return;
-
-					foreach (var valueRef in body.DescendantNodes().OfType<IdentifierNameSyntax>().Where(ins => ins.Identifier.ValueText == "value"))
-					{
-						var valueRefSymbol = semanticModel.GetSymbolInfo(valueRef).Symbol;
-						if (foundValueSymbol.Equals(valueRefSymbol))
-						{
-							referenceFound = true;
-							break;
-						}
-					}
-				}
-
-				if (!referenceFound)
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, accessor.Keyword.GetLocation(), issueText));
-			}
-
-			static bool IsEligible(BlockSyntax body)
-			{
-				if (body == null)
+			if (body.Statements.Any()) {
+				var foundValueSymbol = semanticModel.LookupSymbols(body.Statements.First().SpanStart, null, "value").FirstOrDefault();
+				if (foundValueSymbol == null)
 					return false;
-				if (body.Statements.Any(s => s is ThrowStatementSyntax))
-					return false;
-				return true;
+
+				foreach (var valueRef in body.DescendantNodes().OfType<IdentifierNameSyntax>().Where(ins => ins.Identifier.ValueText == "value")) {
+					var valueRefSymbol = semanticModel.GetSymbolInfo(valueRef).Symbol;
+					if (foundValueSymbol.Equals(valueRefSymbol))
+						return false;
+				}
 			}
+
+			return true;
+		}
+
+		static bool IsEligible(BlockSyntax body)
+		{
+			if (body == null)
+				return false;
+			if (body.Statements.Any(s => s is ThrowStatementSyntax))
+				return false;
+			return true;
 		}
 	}
 }

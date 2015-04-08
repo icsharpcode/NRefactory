@@ -77,7 +77,7 @@ class Bar
 
 	void Test ()
 	{
-		// ReSharper disable once EventUnsubscriptionViaAnonymousDelegate
+#pragma warning disable " + NRefactoryDiagnosticIDs.EventUnsubscriptionViaAnonymousDelegateAnalyzerID + @"
 		Foo -= delegate { };
 	}
 }");

@@ -71,7 +71,7 @@ class Foo
 {
 	void Bar (Action a, Action b)
 	{
-		// ReSharper disable once DelegateSubtraction
+#pragma warning disable " + NRefactoryDiagnosticIDs.DelegateSubtractionAnalyzerID + @"
 		(a - b) ();
 	}
 }

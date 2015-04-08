@@ -23,93 +23,63 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "OptionalParameterRefOut")]
-	public class OptionalParameterRefOutAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class OptionalParameterRefOutAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "OptionalParameterRefOutAnalyzer";
-		const string Description            = "C# doesn't support optional 'ref' or 'out' parameters";
-		const string MessageFormat          = "C# doesn't support optional 'ref' or 'out' parameters";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.OptionalParameterRefOutAnalyzerID, 
+			GettextCatalog.GetString("C# doesn't support optional 'ref' or 'out' parameters"),
+			GettextCatalog.GetString("C# doesn't support optional 'ref' or 'out' parameters"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.OptionalParameterRefOutAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "[Optional] attribute with 'ref' or 'out' parameter");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.Parameter
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<OptionalParameterRefOutAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitParameter(ParameterSyntax node)
-			{
-				base.VisitParameter(node);
-				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.RefKeyword) || m.IsKind(SyntaxKind.OutKeyword)))
-					return;
-				foreach (var attributeLists in node.AttributeLists) {
-					foreach (var attribute in attributeLists.Attributes) {
-						var attrSymbol = semanticModel.GetTypeInfo(attribute).Type;
-						if (attrSymbol == null)
-							continue;
-						if (attrSymbol.Name == "OptionalAttribute" && attrSymbol.ContainingNamespace.Name == "InteropServices") {
-							AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-							return;
-						}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ParameterSyntax;
+			if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.RefKeyword) || m.IsKind(SyntaxKind.OutKeyword)))
+				return false;
+			foreach (var attributeLists in node.AttributeLists) {
+				foreach (var attribute in attributeLists.Attributes) {
+					var attrSymbol = nodeContext.SemanticModel.GetTypeInfo(attribute).Type;
+					if (attrSymbol == null)
+						continue;
+					if (attrSymbol.Name == "OptionalAttribute" && attrSymbol.ContainingNamespace.Name == "InteropServices") {
+						diagnostic = Diagnostic.Create (
+							descriptor,
+							node.GetLocation ()
+						);
+						return true;
 					}
 				}
 			}
+			return false;
 		}
 	}
-
-	//[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	//public class OptionalParameterRefOutIssueFixProvider : NRefactoryCodeFixProvider
-	//{
-	//	protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-	//	{
-	//		yield return OptionalParameterRefOutAnalyzer.DiagnosticId;
-	//	}
-
-	//	public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-	//	{
-	//		var document = context.Document;
-	//		var cancellationToken = context.CancellationToken;
-	//		var span = context.Span;
-	//		var diagnostics = context.Diagnostics;
-	//		var root = await document.GetSyntaxRootAsync(cancellationToken);
-	//		var result = new List<CodeAction>();
-	//		var diagnostic = diagnostics.First ();
-	//		var node = root.FindNode(context.Span);
-	//		context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document), diagnostic);
-	//	}
-	//}
 }

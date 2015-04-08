@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		bool TryRemovePartialModifier (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryRemovePartialModifier (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var classDeclaration = nodeContext.Node as ClassDeclarationSyntax;
 			diagnostic = default(Diagnostic);

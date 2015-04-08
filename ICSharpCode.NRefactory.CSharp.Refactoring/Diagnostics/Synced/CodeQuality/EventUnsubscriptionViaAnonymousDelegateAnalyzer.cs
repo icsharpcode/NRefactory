@@ -23,71 +23,57 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EventUnsubscriptionViaAnonymousDelegate")]
-	public class EventUnsubscriptionViaAnonymousDelegateAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EventUnsubscriptionViaAnonymousDelegateAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "EventUnsubscriptionViaAnonymousDelegateAnalyzer";
-		const string Description = "Event unsubscription via anonymous delegate is useless";
-		const string MessageFormat = "Event unsubscription via anonymous delegate is useless";
-		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EventUnsubscriptionViaAnonymousDelegateAnalyzerID, 
+			GettextCatalog.GetString("Event unsubscription via anonymous delegate is useless"),
+			GettextCatalog.GetString("Event unsubscription via anonymous delegate is useless"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EventUnsubscriptionViaAnonymousDelegateAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Event unsubscription via anonymous delegate");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		public override void Initialize(AnalysisContext context)
 		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
-			}
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.SubtractAssignmentExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<EventUnsubscriptionViaAnonymousDelegateAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
-			{
-				base.VisitAssignmentExpression(node);
-
-				if (!node.IsKind(SyntaxKind.SubtractAssignmentExpression))
-					return;
-				if (!(node.Right.IsKind(SyntaxKind.AnonymousMethodExpression)
-					|| node.Right.IsKind(SyntaxKind.SimpleLambdaExpression)
-					|| node.Right.IsKind(SyntaxKind.ParenthesizedLambdaExpression)))
-					return;
-				var rr = semanticModel.GetSymbolInfo(node.Left);
-				if (rr.Symbol.Kind != SymbolKind.Event)
-					return;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.OperatorToken.GetLocation()));
-			}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as AssignmentExpressionSyntax;
+			if (!(node.Right.IsKind(SyntaxKind.AnonymousMethodExpression)
+			          || node.Right.IsKind(SyntaxKind.SimpleLambdaExpression)
+			          || node.Right.IsKind(SyntaxKind.ParenthesizedLambdaExpression)))
+				return false;
+			var rr = nodeContext.SemanticModel.GetSymbolInfo(node.Left);
+			if (rr.Symbol.Kind != SymbolKind.Event)
+				return false;
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.OperatorToken.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

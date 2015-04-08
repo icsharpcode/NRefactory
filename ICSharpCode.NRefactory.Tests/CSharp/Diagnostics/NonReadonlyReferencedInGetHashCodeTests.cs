@@ -136,7 +136,7 @@ public class Test3
 		
 		
 		[Test]
-		public void TestResharperDisableRestore()
+		public void TestDisable()
 		{
 			Analyze<NonReadonlyReferencedInGetHashCodeAnalyzer>(@"using System;
 using System.Collections.Generic;
@@ -149,14 +149,12 @@ namespace resharper_test
 	{
 		private readonly int fooval;
 		private int tmpval;
-
+#pragma warning disable " + NRefactoryDiagnosticIDs.NonReadonlyReferencedInGetHashCodeAnalyzerID + @"
 		public override int GetHashCode()
 		{
 			int a = 6;
-//Resharper disable NonReadonlyReferencedInGetHashCode
 			tmpval = a + 3;
-//Resharper restore NonReadonlyReferencedInGetHashCode
-			a = $tmpval$ + 5;
+			a = tmpval + 5;
 			return fooval;
 		}
 	}

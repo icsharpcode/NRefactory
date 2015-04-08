@@ -66,7 +66,7 @@ class Bar
 using System.Runtime.InteropServices;
 class Bar
 {
-	// ReSharper disable once OptionalParameterRefOut
+#pragma warning disable " + NRefactoryDiagnosticIDs.OptionalParameterRefOutAnalyzerID + @"
 	public void Foo([Optional] ref int test)
 	{
 	}

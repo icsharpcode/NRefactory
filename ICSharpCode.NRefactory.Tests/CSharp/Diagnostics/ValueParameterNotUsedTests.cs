@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
     }
     int Property2
     {
-// ReSharper disable once ValueParameterNotUsed
+#pragma warning disable " + NRefactoryDiagnosticIDs.ValueParameterNotUsedAnalyzerID + @"
         set
         {
         }

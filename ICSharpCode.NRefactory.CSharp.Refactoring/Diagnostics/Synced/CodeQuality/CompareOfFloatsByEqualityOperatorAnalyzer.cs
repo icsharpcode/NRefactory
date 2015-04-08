@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction (
 				(nodeContext) => {
 					Diagnostic diagnostic;
-					if (GetDiagnostic (nodeContext, out diagnostic))
+					if (TryGetDiagnostic (nodeContext, out diagnostic))
 						nodeContext.ReportDiagnostic (diagnostic);
 				},
 				SyntaxKind.EqualsExpression,
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		bool GetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
 
@@ -134,7 +134,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				null,
 				new [] { tag, floatType }
 			);
-            return true;
+			return true;
 		}
 
 		internal static bool IsFloatingPointType (ITypeSymbol type)

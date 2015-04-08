@@ -23,210 +23,125 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoNotCallOverridableMethodsInConstructor")]
-	public class DoNotCallOverridableMethodsInConstructorAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class DoNotCallOverridableMethodsInConstructorAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "DoNotCallOverridableMethodsInConstructorAnalyzer";
-		const string Description = "Warns about calls to virtual member functions occuring in the constructor.";
-		const string MessageFormat = "Virtual member call in constructor";
-		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.DoNotCallOverridableMethodsInConstructorAnalyzerID, 
+			GettextCatalog.GetString("Warns about calls to virtual member functions occuring in the constructor"),
+			GettextCatalog.GetString("Virtual member call in constructor"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.DoNotCallOverridableMethodsInConstructorAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Virtual member call in constructor");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					IEnumerable<Diagnostic> diagnostics;
+					if (TryGetDiagnostic(nodeContext, out diagnostics))
+						foreach (var diagnostic in diagnostics)
+							nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.ConstructorDeclaration
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out IEnumerable<Diagnostic> diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(IEnumerable<Diagnostic>);
+
+			var node = nodeContext.Node as ConstructorDeclarationSyntax;
+			var type = node.Parent as TypeDeclarationSyntax;
+			if (type == null || type.Modifiers.Any (m => m.IsKind (SyntaxKind.SealedKeyword) || m.IsKind (SyntaxKind.StaticKeyword))) {
+				return false;
+			}
+			var visitor = new VirtualCallFinderVisitor (nodeContext, node, type);
+			visitor.Visit (node);
+			diagnostic = visitor.Diagnostics;
+			return true;
 		}
 
-		class GatherVisitor : GatherVisitorBase<DoNotCallOverridableMethodsInConstructorAnalyzer>
+
+		class VirtualCallFinderVisitor : CSharpSyntaxWalker
 		{
-			readonly VirtualCallFinderVisitor CallFinder;
+			readonly SyntaxNodeAnalysisContext nodeContext;
+			internal List<Diagnostic> Diagnostics = new List<Diagnostic> ();
+			ConstructorDeclarationSyntax node;
+			TypeDeclarationSyntax type;
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
+			public VirtualCallFinderVisitor (SyntaxNodeAnalysisContext nodeContext, ConstructorDeclarationSyntax node, TypeDeclarationSyntax type)
 			{
-				CallFinder = new VirtualCallFinderVisitor(this, semanticModel, addDiagnostic, cancellationToken);
+				this.nodeContext = nodeContext;
+				this.node = node;
+				this.type = type;
 			}
 
-			INamedTypeSymbol currentType;
-
-			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
+			void Check(SyntaxNode n)
 			{
-				var olddeclaredSymbol = currentType;
-				currentType = semanticModel.GetDeclaredSymbol(node); 
-				base.VisitClassDeclaration(node);
-				currentType = olddeclaredSymbol;
-			}
-
-			public override void VisitStructDeclaration(StructDeclarationSyntax node)
-			{
-				var olddeclaredSymbol = currentType;
-				currentType = semanticModel.GetDeclaredSymbol(node); 
-				base.VisitStructDeclaration(node);
-				currentType = olddeclaredSymbol;
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
-			{
-				if (currentType.IsSealed || currentType.IsStatic)
+				var info = nodeContext.SemanticModel.GetSymbolInfo(n);
+				var symbol = info.Symbol;
+				if (symbol == null || symbol.ContainingType.Locations.Where (loc => loc.IsInSource && loc.SourceTree.FilePath == type.SyntaxTree.FilePath).All (loc => !type.Span.Contains (loc.SourceSpan)))
 					return;
-				var body = node.Body;
-				if (body != null)
-					CallFinder.Visit(body);
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitEventDeclaration(EventDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitEventFieldDeclaration(EventFieldDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitEnumDeclaration(EnumDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
-			{
-				// nothing
-			}
-
-			class VirtualCallFinderVisitor: GatherVisitorBase<DoNotCallOverridableMethodsInConstructorAnalyzer>
-			{
-				GatherVisitor gv;
-
-				public VirtualCallFinderVisitor(GatherVisitor gv, SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-					: base(semanticModel, addDiagnostic, cancellationToken)
-				{
-					this.gv = gv;
+				if (symbol.IsVirtual || symbol.IsAbstract || symbol.IsOverride) {
+					Diagnostics.Add(Diagnostic.Create(descriptor, n.GetLocation()));
 				}
+			}
 
-				void Check(SyntaxNode n)
-				{
-					var symbol = semanticModel.GetSymbolInfo(n);
-					if (symbol.Symbol == null || symbol.Symbol.ContainingType != gv.currentType)
-						return;
-					if (symbol.Symbol.IsVirtual ||
-						symbol.Symbol.IsAbstract ||
-						symbol.Symbol.IsOverride) {
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, n.GetLocation()));
-					}
-				}
+			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
+			{
+				base.VisitMemberAccessExpression(node);
+				if (node.Parent is MemberAccessExpressionSyntax || node.Parent is InvocationExpressionSyntax)
+					return;
+				if (node.Expression.IsKind(SyntaxKind.ThisExpression))
+					Check(node);
+			}
 
-				public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-				{
-					base.VisitMemberAccessExpression(node);
-					if (node.Parent is MemberAccessExpressionSyntax || node.Parent is InvocationExpressionSyntax)
-						return;
-					if (node.Expression.IsKind(SyntaxKind.ThisExpression))
-						Check(node);
-				}
+			static bool IsSimpleThisCall(ExpressionSyntax expression)
+			{
+				var ma = expression as MemberAccessExpressionSyntax;
+				if (ma == null)
+					return false;
+				return ma.Expression.IsKind(SyntaxKind.ThisExpression);
+			}
 
-				static bool IsSimpleThisCall(ExpressionSyntax expression)
-				{
-					var ma = expression as MemberAccessExpressionSyntax;
-					if (ma == null)
-						return false;
-					return ma.Expression.IsKind(SyntaxKind.ThisExpression);
-				}
+			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
+			{
+				base.VisitInvocationExpression(node);
+				if (node.Parent is MemberAccessExpressionSyntax || node.Parent is InvocationExpressionSyntax)
+					return;
+				if (node.Expression.IsKind(SyntaxKind.IdentifierName) || IsSimpleThisCall(node.Expression))
+					Check(node);
+			}
 
-				public override void VisitInvocationExpression(InvocationExpressionSyntax node)
-				{
-					base.VisitInvocationExpression(node);
-					if (node.Parent is MemberAccessExpressionSyntax || node.Parent is InvocationExpressionSyntax)
-						return;
-					if (node.Expression.IsKind(SyntaxKind.IdentifierName) || IsSimpleThisCall(node.Expression))
-						Check(node);
-				}
+			public override void VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
+			{
+				// ignore lambdas
+			}
 
-				public override void VisitParenthesizedLambdaExpression(ParenthesizedLambdaExpressionSyntax node)
-				{
-					// ignore lambdas
-				}
+			public override void VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node)
+			{
+				// ignore lambdas
+			}
 
-				public override void VisitSimpleLambdaExpression(SimpleLambdaExpressionSyntax node)
-				{
-					// ignore lambdas
-				}
-
-				public override void VisitAnonymousMethodExpression(AnonymousMethodExpressionSyntax node)
-				{
-					// ignore anonymous methods
-				}
+			public override void VisitAnonymousMethodExpression(AnonymousMethodExpressionSyntax node)
+			{
+				// ignore anonymous methods
 			}
 		}
 	}
-
-	//	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	//	public class DoNotCallOverridableMethodsInConstructorFixProvider : NRefactoryCodeFixProvider
-	//	{
-	//		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-	//		{
-	//			yield return DoNotCallOverridableMethodsInConstructorAnalyzer.DiagnosticId;
-	//		}
-	//
-	//		public override async Task ComputeFixesAsync(CodeFixContext  context)
-	//		{
-	//			var root = await document.GetSyntaxRootAsync(cancellationToken);
-	//	//			var diagnostic = diagnostics.First ();
-	//				var node = root.FindNode(context.Span);
-	//				//if (!node.IsKind(SyntaxKind.BaseList))
-	//				//	continue;
-	//				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-	//				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make class '{0}' sealed", document.WithSyntaxRoot(newRoot)), diagnostic);
-	//			return result;
-	//		}
-	//	}
 }

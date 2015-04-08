@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	Foo()
 	{
-// ReSharper disable once DoNotCallOverridableMethodsInConstructor
+#pragma warning disable " + NRefactoryDiagnosticIDs.DoNotCallOverridableMethodsInConstructorAnalyzerID + @"
 		Bar();
 	}
 

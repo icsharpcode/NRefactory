@@ -85,13 +85,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 
 		[Test]
-		public void TestResharperSuppression ()
+		public void TestDisable ()
 		{
 			Analyze<ConditionalTernaryEqualBranchAnalyzer>(@"class Foo
 {
 	void Bar (string str)
 	{
-// ReSharper disable once ConditionalTernaryEqualBranch
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConditionalTernaryEqualBranchAnalyzerID + @"
 		string c = str != null ? ""default"" : ""default"";
 	}
 }");

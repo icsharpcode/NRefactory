@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 
 		[Test]
-		public void TestResharperDisableRestore()
+		public void TestDisable()
 		{
 			Analyze<EmptyGeneralCatchClauseAnalyzer>(@"using System;
 	using System.IO;
@@ -96,11 +96,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				{
 					F ();
 				}
-//Resharper disable EmptyGeneralCatchClause
+#pragma warning disable " + NRefactoryDiagnosticIDs.EmptyGeneralCatchClauseAnalyzerID + @"
 				catch (Exception e)
 				{
 				}
-//Resharper restore EmptyGeneralCatchClause
 			}
 		}
 	}

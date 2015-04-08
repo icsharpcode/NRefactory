@@ -47,5 +47,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string BitwiseOperatorOnEnumWithoutFlagsAnalyzerID = "NR0016";
 		public const string CompareNonConstrainedGenericWithNullAnalyzerID = "NR0017";
 		public const string CompareOfFloatsByEqualityOperatorAnalyzerID = "NR0018";
+		public const string ConditionalTernaryEqualBranchAnalyzerID = "NR0019";
+		public const string DelegateSubtractionAnalyzerID = "NR0020";
+		public const string DoNotCallOverridableMethodsInConstructorAnalyzerID = "NR0021";
+		public const string EmptyGeneralCatchClauseAnalyzerID = "NR0022";
+		public const string EventUnsubscriptionViaAnonymousDelegateAnalyzerID = "NR0023";
+		public const string LongLiteralEndingLowerLAnalyzerID = "NR0024";
+		public const string NonReadonlyReferencedInGetHashCodeAnalyzerID = "NR0025";
+		public const string ObjectCreationAsStatementAnalyzerID = "NR0026";
+		public const string OperatorIsCanBeUsedAnalyzerID = "NR0027";
+		public const string OptionalParameterRefOutAnalyzerID = "NR0028";
+		public const string ValueParameterNotUsedAnalyzerID = "NR0029";
 	}
 }

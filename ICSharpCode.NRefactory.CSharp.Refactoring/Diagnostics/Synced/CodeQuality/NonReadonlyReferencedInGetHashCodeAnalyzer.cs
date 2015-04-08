@@ -24,143 +24,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "NonReadonlyReferencedInGetHashCode")]
-	public class NonReadonlyReferencedInGetHashCodeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class NonReadonlyReferencedInGetHashCodeAnalyzer : DiagnosticAnalyzer
 	{	
-		internal const string DiagnosticId  = "NonReadonlyReferencedInGetHashCodeAnalyzer";
-		const string Description            = "Non-readonly field referenced in 'GetHashCode()'";
-		const string MessageFormat          = "Non-readonly field referenced in 'GetHashCode()'";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.NonReadonlyReferencedInGetHashCodeAnalyzerID, 
+			GettextCatalog.GetString("Non-readonly field referenced in 'GetHashCode()'"),
+			GettextCatalog.GetString("Non-readonly field referenced in 'GetHashCode()'"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.NonReadonlyReferencedInGetHashCodeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Non-readonly field referenced in 'GetHashCode()'");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					IEnumerable<Diagnostic> diagnostics;
+					if (TryGetDiagnostic(nodeContext, out diagnostics))
+						foreach (var diagnostic in diagnostics)
+							nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.MethodDeclaration
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out IEnumerable<Diagnostic> diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(IEnumerable<Diagnostic>);
+			var node = nodeContext.Node as MethodDeclarationSyntax;
+			IMethodSymbol method = nodeContext.SemanticModel.GetDeclaredSymbol(node);
+			if (method == null || method.Name != "GetHashCode" || !method.IsOverride || method.Parameters.Count() > 0)
+				return false;
+			if (method.ReturnType.SpecialType != SpecialType.System_Int32)
+				return false;
+
+			diagnostic = node
+				.DescendantNodes ()
+				.OfType<IdentifierNameSyntax> ()
+				.Where (n => IsNonReadonlyField (nodeContext.SemanticModel, n))
+				.Select (n => Diagnostic.Create (descriptor, n.GetLocation ())	);
+			return true;
 		}
 
-		class GatherVisitor : GatherVisitorBase<NonReadonlyReferencedInGetHashCodeAnalyzer>
+		static bool IsNonReadonlyField(SemanticModel semanticModel, SyntaxNode node)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			#region Skip these
-			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitEventDeclaration(EventDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
-			{
-			}
-
-			public override void VisitDelegateDeclaration(DelegateDeclarationSyntax node)
-			{
-			}
-
-			#endregion
-
-			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
-			{
-				IMethodSymbol method = semanticModel.GetDeclaredSymbol(node);
-				if (method == null || method.Name != "GetHashCode" || !method.IsOverride || method.Parameters.Count() > 0)
-					return;
-				if (method.ReturnType.SpecialType != SpecialType.System_Int32)
-					return;
-				base.VisitMethodDeclaration(node);
-			}
-
-
-			//note that visiting both identifier AND memberaccess would double up on issues - r.r.a in TestInspector4 would give issues for r, r.r, and r.r.a.
-			public override void VisitIdentifierName(IdentifierNameSyntax node)
-			{
-				base.VisitIdentifierName(node);
-				CheckNode(node, node.GetLocation());
-			}
-
-			private void CheckNode(SyntaxNode node, Location location)
-			{
-				var symbol = semanticModel.GetSymbolInfo(node).Symbol as IFieldSymbol;
-				if (symbol == null)
-					return;
-				if (!symbol.IsReadOnly && !symbol.IsConst) {
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, location));
-				}
-
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class NonReadonlyReferencedInGetHashCodeIssueFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return NonReadonlyReferencedInGetHashCodeAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document), diagnostic);
+			var symbol = semanticModel.GetSymbolInfo(node).Symbol as IFieldSymbol;
+			return symbol != null && !symbol.IsReadOnly && !symbol.IsConst;
 		}
 	}
 }

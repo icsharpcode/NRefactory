@@ -97,7 +97,7 @@ class Test
 			Analyze<LongLiteralEndingLowerLAnalyzer>(@"
 class Test
 {
-	// ReSharper disable once LongLiteralEndingLowerL
+#pragma warning disable " + NRefactoryDiagnosticIDs.LongLiteralEndingLowerLAnalyzerID + @"
 	public long x = 3l;
 }");
 		}

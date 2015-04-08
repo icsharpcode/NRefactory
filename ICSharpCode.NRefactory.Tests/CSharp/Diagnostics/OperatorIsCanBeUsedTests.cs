@@ -231,10 +231,9 @@ namespace Demo
 		public static void main(string[] args)
 		{
 			int a = 1;
-			//Resharper disable OperatorIsCanBeUsed
+#pragma warning disable " + NRefactoryDiagnosticIDs.OperatorIsCanBeUsedAnalyzerID + @"
 			if ((typeof (int) == a.GetType())) {
 			}
-			//Resharper restore OperatorIsCanBeUsed
 		}
 	}
 }");

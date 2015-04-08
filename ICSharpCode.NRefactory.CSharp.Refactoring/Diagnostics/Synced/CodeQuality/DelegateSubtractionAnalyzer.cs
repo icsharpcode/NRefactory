@@ -23,80 +23,78 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DelegateSubtraction")]
-	public class DelegateSubtractionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class DelegateSubtractionAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "DelegateSubtractionAnalyzer";
-		const string Description            = "Delegate subtraction has unpredictable result";
-		const string MessageFormat          = "Delegate subtraction has unpredictable result";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.DelegateSubtractionAnalyzerID, 
+			GettextCatalog.GetString("Delegate subtraction has unpredictable result"),
+			GettextCatalog.GetString("Delegate subtraction has unpredictable result"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.DelegateSubtractionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Delegate subtractions");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.SubtractAssignmentExpression,
+				SyntaxKind.SubtractExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(Diagnostic);
+			var assignment = nodeContext.Node as AssignmentExpressionSyntax;
+			if (assignment != null) {
+				if (!IsEvent(nodeContext.SemanticModel, assignment.Left) && IsDelegate(nodeContext.SemanticModel, assignment.Right)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						assignment.GetLocation ()
+					);
+					return true;
+				}
+			}
+			var binex = nodeContext.Node as BinaryExpressionSyntax;
+			if (binex != null) {
+				if (!IsEvent(nodeContext.SemanticModel, binex.Left) && IsDelegate(nodeContext.SemanticModel, binex.Right)) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						binex.GetLocation ()
+					);
+					return true;
+				}
+			}
+			return false;
 		}
 
-		class GatherVisitor : GatherVisitorBase<DelegateSubtractionAnalyzer>
+		static bool IsEvent(SemanticModel semanticModel, SyntaxNode node)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			var rr = semanticModel.GetSymbolInfo(node);
+			return rr.Symbol != null && rr.Symbol.Kind == SymbolKind.Event;
+		}
 
-			bool IsEvent(SyntaxNode node)
-			{
-				var rr = semanticModel.GetSymbolInfo(node);
-				return rr.Symbol != null && rr.Symbol.Kind == SymbolKind.Event;
-			}
-
-			bool IsDelegate(SyntaxNode node)
-			{
-				var rr = semanticModel.GetTypeInfo(node);
-				return rr.Type != null && rr.Type.TypeKind == TypeKind.Delegate;
-			}
-
-			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
-			{
-				base.VisitAssignmentExpression(node);
-				switch (node.Kind())
-				{
-					case SyntaxKind.SubtractAssignmentExpression:
-						if (!IsEvent(node.Left) && IsDelegate(node.Right))
-							AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-						break;
-				}
-			}
-
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
-			{
-				base.VisitBinaryExpression(node);
-				switch (node.Kind()) {
-					case SyntaxKind.SubtractExpression:
-						if (!IsEvent(node.Left) && IsDelegate(node.Right))
-							AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-						break;
-				}
-			}
+		static bool IsDelegate(SemanticModel semanticModel, SyntaxNode node)
+		{
+			var rr = semanticModel.GetTypeInfo(node);
+			return rr.Type != null && rr.Type.TypeKind == TypeKind.Delegate;
 		}
 	}
 }

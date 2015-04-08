@@ -53,14 +53,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction(
 				(nodeContext) => {
 					Diagnostic diagnostic;
-					if (GetDiagnostic(nodeContext, out diagnostic)) 
+					if (TryGetDiagnostic(nodeContext, out diagnostic)) 
 						nodeContext.ReportDiagnostic (diagnostic);
 				}, 
 				new SyntaxKind[] { SyntaxKind.InvocationExpression, SyntaxKind.ElementAccessExpression }
 			);
 		}
 
-		bool GetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
 

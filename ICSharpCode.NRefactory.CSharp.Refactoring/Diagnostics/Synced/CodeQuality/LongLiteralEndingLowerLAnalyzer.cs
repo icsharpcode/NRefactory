@@ -23,112 +23,67 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "LongLiteralEndingLowerL")]
-	public class LongLiteralEndingLowerLAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class LongLiteralEndingLowerLAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "LongLiteralEndingLowerLAnalyzer";
-		const string Description = "Lowercase 'l' is often confused with '1'";
-		const string MessageFormat = "Long literal ends with 'l' instead of 'L'";
-		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.LongLiteralEndingLowerLAnalyzerID, 
+			GettextCatalog.GetString("Lowercase 'l' is often confused with '1'"),
+			GettextCatalog.GetString("Long literal ends with 'l' instead of 'L'"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.LongLiteralEndingLowerLAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Long literal ends with 'l' instead of 'L'");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		public override void Initialize(AnalysisContext context)
 		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.NumericLiteralExpression
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as LiteralExpressionSyntax;
+			if (!(node.Token.Value is long || node.Token.Value is ulong))
+				return false;
+
+			var literal = node.Token.Text;
+			if (literal.Length < 2)
+				return false;
+
+			char prevChar = literal[literal.Length - 2];
+			char lastChar = literal[literal.Length - 1];
+
+			if (prevChar == 'u' || prevChar == 'U') //ul/Ul is not confusing
+				return false;
+
+			if (lastChar == 'l' || prevChar == 'l') {
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					node.GetLocation ()
+				);
+				return true;
 			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<LongLiteralEndingLowerLAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitLiteralExpression(LiteralExpressionSyntax node)
-			{
-				if (!(node.Token.Value is long || node.Token.Value is ulong))
-					return;
-
-				String literal = node.Token.Text;
-				if (literal.Length < 2)
-					return;
-
-				char prevChar = literal[literal.Length - 2];
-				char lastChar = literal[literal.Length - 1];
-
-				if (prevChar == 'u' || prevChar == 'U') //ul/Ul is not confusing
-					return;
-
-				if (lastChar == 'l' || prevChar == 'l')
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class LongLiteralEndingLowerLFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return LongLiteralEndingLowerLAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			String newLiteral = ((LiteralExpressionSyntax)node).Token.Text.ToUpperInvariant();
-			char prevChar = newLiteral[newLiteral.Length - 2];
-			char lastChar = newLiteral[newLiteral.Length - 1];
-			double newLong = 0;
-			if (prevChar == 'U' || prevChar == 'L') //match ul, lu, or l. no need to match just u.
-				newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 2));
-			else if (lastChar == 'L')
-				newLong = long.Parse(newLiteral.Remove(newLiteral.Length - 1));
-			else
-				newLong = long.Parse(newLiteral); //just in case
-
-			var newRoot = root.ReplaceNode((SyntaxNode)node, ((LiteralExpressionSyntax)node).WithToken(SyntaxFactory.Literal(newLiteral, newLong)));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Make suffix upper case", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return false;
 		}
 	}
 }

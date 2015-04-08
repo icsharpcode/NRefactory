@@ -23,10 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -69,7 +66,7 @@ class Foo
 {
 	void Bar ()
 	{
-		//ReSharper disable once ObjectCreationAsStatement
+#pragma warning disable " + NRefactoryDiagnosticIDs.ObjectCreationAsStatementAnalyzerID + @"
 		new Foo();
 	}
 }

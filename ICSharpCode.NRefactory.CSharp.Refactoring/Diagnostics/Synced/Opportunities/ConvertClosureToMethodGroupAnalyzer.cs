@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var simpleLambda = nodeContext.Node as SimpleLambdaExpressionSyntax;
 			var parenLambda = nodeContext.Node as ParenthesizedLambdaExpressionSyntax;

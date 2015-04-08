@@ -23,22 +23,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -46,90 +36,61 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// A catch clause that catches System.Exception and has an empty body
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyGeneralCatchClause")]
-	public class EmptyGeneralCatchClauseAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EmptyGeneralCatchClauseAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "EmptyGeneralCatchClauseAnalyzer";
-		const string Description = "A catch clause that catches System.Exception and has an empty body";
-		const string MessageFormat = "Empty general catch clause suppresses any error";
-		const string Category = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EmptyGeneralCatchClauseAnalyzerID, 
+			GettextCatalog.GetString("A catch clause that catches System.Exception and has an empty body"),
+			GettextCatalog.GetString("Empty general catch clause suppresses any error"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EmptyGeneralCatchClauseAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Empty general catch clause");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		public override void Initialize(AnalysisContext context)
 		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
-			}
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.CatchClause
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as CatchClauseSyntax;
+			if (node.Declaration == null) {
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					node.CatchKeyword.GetLocation ()
+				);
+				return true;
+			} else {
+				var type = node.Declaration.Type;
+				if (type != null) {
+					var typeSymbol = nodeContext.SemanticModel.GetTypeInfo (type).Type;
+					if (typeSymbol == null || typeSymbol.TypeKind == TypeKind.Error || !typeSymbol.GetFullName ().Equals ("System.Exception"))
+						return false;
 
-		class GatherVisitor : GatherVisitorBase<EmptyGeneralCatchClauseAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+					BlockSyntax body = node.Block;
+					if (body.Statements.Any ())
+						return false;
 
-			public override void VisitCatchClause(CatchClauseSyntax node)
-			{
-				base.VisitCatchClause(node);
-
-				if (node.Declaration == null)
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.CatchKeyword.GetLocation()));
-				else {
-					var type = node.Declaration.Type;
-					if (type != null) {
-						ITypeSymbol typeSymbol = semanticModel.GetTypeInfo(type).Type;
-						if (typeSymbol == null || typeSymbol.TypeKind == TypeKind.Error || !typeSymbol.GetFullName().Equals("System.Exception"))
-							return;
-
-						BlockSyntax body = node.Block;
-						if (body.Statements.Any())
-							return;
-
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.CatchKeyword.GetLocation()));
-					}
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						node.CatchKeyword.GetLocation ()
+					);
+					return true;
 				}
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EmptyGeneralCatchClauseFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EmptyGeneralCatchClauseAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			//var document = context.Document;
-			//var cancellationToken = context.CancellationToken;
-			//var span = context.Span;
-			//var diagnostics = context.Diagnostics;
-			//var root = await document.GetSyntaxRootAsync(cancellationToken);
-			//var result = new List<CodeAction>();
-			//var diagnostic = diagnostics.First ();
-			//original has no fix - leave it without any fixes?
-			//var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			//var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			//context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
-			return Task.FromResult (0);
-
+			return false;
 		}
 	}
 }

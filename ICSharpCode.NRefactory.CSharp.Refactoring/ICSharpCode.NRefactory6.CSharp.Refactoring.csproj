@@ -472,6 +472,16 @@
     <Compile Include="Diagnostics\Synced\CodeQuality\CanBeReplacedWithTryCastAndCheckForNullCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\CodeQuality\CompareNonConstrainedGenericWithNullCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\ConditionalTernaryEqualBranchCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\EqualExpressionComparisonCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\LongLiteralEndingLowerLCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\NotResolvedInTextIssueCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\OperatorIsCanBeUsedIssueCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\OptionalParameterHierarchyMismatchCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\PartialMethodParameterNameMismatchCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\PossibleAssignmentToReadonlyFieldCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\PossibleMultipleEnumerationCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\CodeQuality\ThreadStaticAtInstanceFieldCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
