@@ -23,20 +23,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using ICSharpCode.NRefactory6.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using ICSharpCode.NRefactory6.CSharp;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -44,78 +37,47 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// Finds redundant base qualifier 
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantBaseQualifier")]
-	public class RedundantBaseQualifierAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantBaseQualifierAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantBaseQualifierAnalyzer";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantBaseQualifierAnalyzerID, 
+			GettextCatalog.GetString("'base.' is redundant and can safely be removed"),
+			GettextCatalog.GetString("'base.' is redundant and can safely be removed"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantBaseQualifierAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'base.' is redundant and can safely be removed.", "'base.' is redundant and can be removed safely.", Category, DiagnosticSeverity.Warning, true, "Redundant 'base.' qualifier");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<RedundantBaseQualifierAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
-			{
-				if (node.Expression.IsKind(SyntaxKind.BaseExpression)) {
-					var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
-					if (node.CanReplaceWithReducedName(replacementNode, semanticModel, cancellationToken)) {
-						base.VisitMemberAccessExpression(node);
-
-						AddDiagnosticAnalyzer (Diagnostic.Create(Rule, node.Expression.GetLocation(), additionalLocations: new [] { node.OperatorToken.GetLocation() }));
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
 					}
-				} else {
-					base.VisitMemberAccessExpression(node);
+				}, 
+				new SyntaxKind[] {  SyntaxKind.SimpleMemberAccessExpression }
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+
+			var node = nodeContext.Node as MemberAccessExpressionSyntax;
+			if (node.Expression.IsKind(SyntaxKind.BaseExpression)) {
+				var replacementNode = node.Name.WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
+				if (node.CanReplaceWithReducedName(replacementNode, nodeContext.SemanticModel, nodeContext.CancellationToken)) {
+					diagnostic = Diagnostic.Create (descriptor, node.Expression.GetLocation(), additionalLocations: new [] { node.OperatorToken.GetLocation() });
+					return true;
 				}
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantBaseQualifierCodeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantBaseQualifierAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			var parentMa = node.Parent as MemberAccessExpressionSyntax;
-			if (parentMa != null) {
-				var newRoot = root.ReplaceNode((SyntaxNode)parentMa,
-					parentMa.Name
-					.WithLeadingTrivia(parentMa.GetLeadingTrivia())
-					.WithTrailingTrivia(parentMa.GetTrailingTrivia()));
-				context.RegisterCodeFix(CodeActionFactory.Create(parentMa.Span, diagnostic.Severity, "Remove 'base.'", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			return false;
 		}
 	}
 }

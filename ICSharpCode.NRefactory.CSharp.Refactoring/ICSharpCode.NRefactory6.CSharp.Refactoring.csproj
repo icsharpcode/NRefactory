@@ -536,6 +536,35 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantArgumentDefaultValueCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantArgumentNameCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantAttributeParenthesesCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantBaseQualifierCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantBoolCompareCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCaseLabelCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCatchClauseCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCheckBeforeAssignmentCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantCommaInArrayInitializerCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantComparisonWithNullCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantDelegateCreationCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantEmptyFinallyBlockCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantEnumerableCastCallCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantExplicitArrayCreationCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantExplicitArraySizeCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantExplicitNullableCreationCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantExtendsListEntryCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantIfElseBlockCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantLambdaParameterTypeCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantLambdaSignatureParenthesesCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantLogicalConditionalExpressionOperandCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantObjectCreationArgumentListCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantStringToCharArrayCallCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

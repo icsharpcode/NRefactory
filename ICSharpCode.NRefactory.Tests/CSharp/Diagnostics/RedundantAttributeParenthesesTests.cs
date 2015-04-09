@@ -64,7 +64,7 @@ class TestClass { }");
 		public void TestDisable ()
 		{
 			Analyze<RedundantAttributeParenthesesAnalyzer>(@"
-// Resharper disable once RedundantAttributeParentheses
+#pragma warning disable " + NRefactoryDiagnosticIDs.RedundantAttributeParenthesesAnalyzerID + @"
 [Test ()]
 class TestClass { }");
 		}

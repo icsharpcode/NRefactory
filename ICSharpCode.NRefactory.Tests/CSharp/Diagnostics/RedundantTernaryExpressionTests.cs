@@ -62,7 +62,7 @@ class Foo
 {
 	void Bar ()
 	{
-		// ReSharper disable once RedundantTernaryExpression
+#pragma warning disable " + NRefactoryDiagnosticIDs.RedundantTernaryExpressionAnalyzerID + @"
 		var a = 1 < 2 ? true : false;
 	}
 }

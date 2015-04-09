@@ -23,105 +23,70 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
+using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantTernaryExpression")]
-	public class RedundantTernaryExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantTernaryExpressionAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantTernaryExpressionAnalyzer";
-		const string Description            = "Redundant conditional expression";
-		const string MessageFormat          = "Redundant conditional expression";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantTernaryExpressionAnalyzerID, 
+			GettextCatalog.GetString("Redundant conditional expression"),
+			GettextCatalog.GetString("Redundant conditional expression"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantTernaryExpressionAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Redundant conditional expression");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.ConditionalExpression }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<RedundantTernaryExpressionAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			var node = nodeContext.Node as ConditionalExpressionSyntax;
 
-			bool IsBoolean(LiteralExpressionSyntax expr, out bool value)
-			{
-				value = false;
-				if (expr != null && (expr.Token.Value is bool)) {
-					value = (bool)expr.Token.Value;
-					return true;
-				}
+			bool whenTrue;
+			bool whenFalse;;
+			if (!IsBoolean(node.WhenTrue as LiteralExpressionSyntax, out whenTrue) || !IsBoolean(node.WhenFalse as LiteralExpressionSyntax, out whenFalse))
 				return false;
+			if (!whenTrue || whenFalse)
+				return false;
+
+			diagnostic = Diagnostic.Create (descriptor, Location.Create(node.SyntaxTree, new TextSpan(node.QuestionToken.SpanStart, (node.WhenFalse.Span.End - node.QuestionToken.SpanStart))));
+			return true;
+		}
+
+		static bool IsBoolean(LiteralExpressionSyntax expr, out bool value)
+		{
+			value = false;
+			if (expr != null && (expr.Token.Value is bool)) {
+				value = (bool)expr.Token.Value;
+				return true;
 			}
-
-			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
-			{
-				base.VisitConditionalExpression(node);
-				bool whenTrue;
-				bool whenFalse;;
-				if (!IsBoolean(node.WhenTrue as LiteralExpressionSyntax, out whenTrue) || !IsBoolean(node.WhenFalse as LiteralExpressionSyntax, out whenFalse))
-					return;
-				if (!whenTrue || whenFalse)
-					return;
-
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, Location.Create(node.SyntaxTree, new TextSpan(node.QuestionToken.SpanStart, (node.WhenFalse.Span.End - node.QuestionToken.SpanStart)))));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantTernaryExpressionFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantTernaryExpressionAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
-			if (node == null)
-				return;
-			var newRoot = root.ReplaceNode((SyntaxNode)node, node.Condition.WithAdditionalAnnotations(Formatter.Annotation));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace by condition", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return false;
 		}
 	}
 }

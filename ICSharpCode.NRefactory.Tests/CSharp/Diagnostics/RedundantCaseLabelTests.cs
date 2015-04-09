@@ -103,7 +103,7 @@ class TestClass
 	void TestMethod (int i)
 	{
 		switch (i) {
-// ReSharper disable once RedundantCaseLabel
+#pragma warning disable " + NRefactoryDiagnosticIDs.RedundantCaseLabelAnalyzerID + @"
 			case 1:
 			default:
 				break;

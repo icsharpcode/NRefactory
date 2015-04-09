@@ -23,101 +23,64 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RemoveRedundantOrStatement")]
-	public class RemoveRedundantOrStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RemoveRedundantOrStatementAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "RemoveRedundantOrStatementAnalyzer";
-		const string Description = "Remove redundant statement";
-		const string MessageFormat = "Statement is redundant";
-		const string Category = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RemoveRedundantOrStatementAnalyzerID, 
+			GettextCatalog.GetString("Remove redundant statement"),
+			GettextCatalog.GetString("Statement is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RemoveRedundantOrStatementAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Remove redundant statement");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
+		public override void Initialize(AnalysisContext context)
 		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.OrAssignmentExpression, SyntaxKind.AndAssignmentExpression }
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+
+			var assignment = nodeContext.Node as AssignmentExpressionSyntax;
+			if (assignment == null || !(assignment.Parent is ExpressionStatementSyntax))
+				return false;
+
+			//check redundant foo |= false
+			var literalRight = assignment.Right as LiteralExpressionSyntax;
+			if (literalRight == null)
+				return false;
+
+			bool isOrWithFalse = assignment.IsKind(SyntaxKind.OrAssignmentExpression) && literalRight.IsKind(SyntaxKind.FalseLiteralExpression);
+			bool isAndWithTrue = assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression);
+			if (isOrWithFalse || isAndWithTrue) {
+				diagnostic = Diagnostic.Create (descriptor, assignment.GetLocation ());
+				return true;
 			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<RemoveRedundantOrStatementAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitExpressionStatement(ExpressionStatementSyntax node)
-			{
-				base.VisitExpressionStatement(node);
-				var assignment = node.Expression as AssignmentExpressionSyntax;
-				if (assignment == null)
-					return;
-
-				//check redundant foo |= false
-				var literalRight = assignment.Right as LiteralExpressionSyntax;
-				if (literalRight == null)
-					return;
-
-				bool isOrWithFalse = assignment.IsKind(SyntaxKind.OrAssignmentExpression) && literalRight.IsKind(SyntaxKind.FalseLiteralExpression);
-				bool isAndWithTrue = assignment.IsKind(SyntaxKind.AndAssignmentExpression) && literalRight.IsKind(SyntaxKind.TrueLiteralExpression);
-				if (isOrWithFalse || isAndWithTrue)
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, assignment.GetLocation()));
-
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RemoveRedundantOrStatementFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RemoveRedundantOrStatementAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span).Parent;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant statement", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return false;
 		}
 	}
 }

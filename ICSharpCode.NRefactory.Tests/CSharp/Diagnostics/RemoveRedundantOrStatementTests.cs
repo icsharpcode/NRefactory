@@ -87,7 +87,7 @@ class MainClass
 	static bool bb { get; set; }
 	public static void Main(string[] args)
 	{
-		// ReSharper disable once RemoveRedundantOrStatement
+#pragma warning disable " + NRefactoryDiagnosticIDs.RemoveRedundantOrStatementAnalyzerID + @"
 		MainClass.bb |= false;
 	}
 }

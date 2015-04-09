@@ -23,92 +23,56 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEmptyDefaultSwitchBranch")]
-	public class RedundantEmptyDefaultSwitchBranchAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantEmptyDefaultSwitchBranchAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantEmptyDefaultSwitchBranchAnalyzer";
-		const string Description            = "Redundant empty 'default' switch branch";
-		const string MessageFormat          = "Redundant empty 'default' switch branch";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantEmptyDefaultSwitchBranchAnalyzerID,
+			GettextCatalog.GetString ("Redundant empty 'default' switch branch"),
+			GettextCatalog.GetString ("Redundant empty 'default' switch branch"),
+			DiagnosticAnalyzerCategories.RedundanciesInCode,
+			DiagnosticSeverity.Warning,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.RedundantEmptyDefaultSwitchBranchAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Redundant empty 'default' switch branch");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize (AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction (
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic (diagnostic);
+					}
+				},
+				new SyntaxKind [] { SyntaxKind.SwitchStatement }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<RedundantEmptyDefaultSwitchBranchAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitSwitchStatement(SwitchStatementSyntax node)
-			{
-				base.VisitSwitchStatement(node);
-				var defaultCase = node.Sections.FirstOrDefault(s => s.Labels.Any(l => l.IsKind(SyntaxKind.DefaultSwitchLabel)));
-				if (defaultCase == null || defaultCase.Statements.Any(s => !s.IsKind(SyntaxKind.BreakStatement)))
-					return;
-				var switchLabelSyntax = defaultCase.Labels.Last() as DefaultSwitchLabelSyntax;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, switchLabelSyntax.Keyword.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantEmptyDefaultSwitchBranchFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantEmptyDefaultSwitchBranchAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span).Parent as SwitchSectionSyntax;
-			if (node == null)
-				return;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant 'default' branch", document.WithSyntaxRoot(newRoot)), diagnostic);
+			var node = nodeContext.Node as SwitchStatementSyntax;
+			var defaultCase = node.Sections.FirstOrDefault (s => s.Labels.Any (l => l.IsKind (SyntaxKind.DefaultSwitchLabel)));
+			if (defaultCase == null || defaultCase.Statements.Any (s => !s.IsKind (SyntaxKind.BreakStatement)))
+				return false;
+			var switchLabelSyntax = defaultCase.Labels.Last () as DefaultSwitchLabelSyntax;
+			diagnostic = Diagnostic.Create (descriptor, switchLabelSyntax.Keyword.GetLocation ());
+			return true;
 		}
 	}
 }

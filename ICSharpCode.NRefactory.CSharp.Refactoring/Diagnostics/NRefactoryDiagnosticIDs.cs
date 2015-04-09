@@ -99,5 +99,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string ForStatementConditionIsTrueAnalyzerID = "NR0068";
 		public const string RedundantAnonymousTypePropertyNameAnalyzerID = "NR0069";
 		public const string RedundantArgumentNameAnalyzerID = "NR0070";
+		public const string RedundantAttributeParenthesesAnalyzerID = "NR0071";
+		public const string RedundantBaseQualifierAnalyzerID = "NR0072";
+		public const string RedundantCaseLabelAnalyzerID = "NR0073";
+		public const string RedundantEmptyDefaultSwitchBranchAnalyzerID = "NR0074";
+		public const string RedundantTernaryExpressionAnalyzerID = "NR0075";
+		public const string RemoveRedundantOrStatementAnalyzerID = "NR0076";
 	}
 }

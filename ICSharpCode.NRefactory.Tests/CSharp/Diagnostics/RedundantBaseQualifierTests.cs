@@ -188,43 +188,6 @@ class Foo : Base
 	}
 }");
 		}
-
-		[Test]
-		[Ignore("works, but onflicts with VS 2015 builtin redundancy checker")]
-		public void TestResharperDisableRestore()
-		{
-			Analyze<RedundantBaseQualifierAnalyzer>(@"using System;
-	namespace Application
-	{
-		public class BaseClass
-		{
-			public int a;
-			public virtual void print()
-			{
-				Console.Write(Environment.NewLine);
-			}
-			public void print1()
-			{
-				Console.Write(Environment.NewLine);
-			}
-		}
-
-		class Program : BaseClass
-		{
-			public void print2()
-			{
-//Resharper disable RedundantBaseQualifier
-				base.a = 1;
-//Resharper restore RedundantBaseQualifier
-				$base.$a = 1;
-			}
-			public override void print()
-			{
-				base.print1();
-			}
-		}
-	}", issueToFix: 2);
-		}
 		
 		[Test]
 		public void InvalidUseOfBaseInFieldInitializer()

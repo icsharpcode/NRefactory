@@ -98,7 +98,7 @@ class Test
 		case 0:
 			System.Console.WriteLine();
 			break;
-		// ReSharper disable once RedundantEmptyDefaultSwitchBranch
+#pragma warning disable " + NRefactoryDiagnosticIDs.RedundantEmptyDefaultSwitchBranchAnalyzerID + @"
 		default:
 			break;
 		}
