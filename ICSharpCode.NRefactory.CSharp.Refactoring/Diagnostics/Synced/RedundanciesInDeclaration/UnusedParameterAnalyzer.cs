@@ -34,7 +34,6 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "UnusedParameter")]
 	public class UnusedParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "UnusedParameterAnalyzer";

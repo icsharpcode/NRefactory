@@ -46,7 +46,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// Type is either mentioned in the base type list of other part, or it is interface and appears as other's type base and contains no explicit implementation.
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantExtendsListEntry")]
 	public class RedundantExtendsListEntryAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "RedundantExtendsListEntryAnalyzer";

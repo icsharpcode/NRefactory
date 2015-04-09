@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory = "Microsoft.Design", SuppressMessageCheckId  = "CA1000:DoNotDeclareStaticMembersOnGenericTypes", AnalysisDisableKeyword = "StaticFieldInGenericType")]
 	public class StaticFieldInGenericTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "StaticFieldInGenericTypeAnalyzer";

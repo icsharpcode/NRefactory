@@ -84,18 +84,6 @@ namespace ICSharpCode.NRefactory6.CSharp
 			restoreString = "restore " + disableKeyword;
 		}
 
-		static GatherVisitorBase()
-		{
-			var attr = (NRefactoryCodeDiagnosticAnalyzerAttribute)typeof(T).GetCustomAttributes(false).FirstOrDefault(a => a is NRefactoryCodeDiagnosticAnalyzerAttribute);
-			if (attr == null)
-				return;
-			if (attr.AnalysisDisableKeyword != null) 
-				SetDisableKeyword(attr.AnalysisDisableKeyword);
-			suppressMessageCheckId = attr.SuppressMessageCheckId;
-			suppressMessageCategory = attr.SuppressMessageCategory;
-			//pragmaWarning = attr.PragmaWarning;
-		}
-
 		protected void VisitLeadingTrivia (SyntaxNode node)
 		{
 			var token = node.ChildTokens().First();

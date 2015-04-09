@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfStatementToNullCoalescingExpression")]
 	public class ConvertIfStatementToNullCoalescingExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "ConvertIfStatementToNullCoalescingExpressionAnalyzer";

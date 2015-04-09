@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantOverridenMember")]
 	public class RedundantOverriddenMemberAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "RedundantOverriddenMemberAnalyzer";

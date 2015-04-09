@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ParameterHidesMember")]
 	public class ParameterHidesMemberAnalyzer : VariableHidesMemberAnalyzer
 	{
 		internal const string DiagnosticId = "ParameterHidesMemberAnalyzer";

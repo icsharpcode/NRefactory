@@ -44,7 +44,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "MemberCanBeMadeStatic.Local")]
 	public class MemberCanBeMadeStaticAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		public const string DiagnosticIdPrivate  = "MemberCanBeMadeStatic.Private";

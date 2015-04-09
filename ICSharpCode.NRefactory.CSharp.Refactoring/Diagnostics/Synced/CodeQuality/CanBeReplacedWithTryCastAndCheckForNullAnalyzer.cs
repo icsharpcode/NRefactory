@@ -34,7 +34,6 @@ using System.Threading;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "CanBeReplacedWithTryCastAndCheckForNull")]
 	public class CanBeReplacedWithTryCastAndCheckForNullAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CanBeReplacedWithTryCastAndCheckForNullAnalyzer";

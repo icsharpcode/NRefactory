@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(SuppressMessageCategory="Microsoft.Design", SuppressMessageCheckId="CA1011:ConsiderPassingBaseTypesAsParameters")]
 	public class ParameterCanBeDeclaredWithBaseTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		//bool tryResolve;

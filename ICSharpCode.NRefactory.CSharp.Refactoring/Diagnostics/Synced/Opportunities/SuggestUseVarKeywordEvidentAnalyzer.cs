@@ -47,7 +47,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// action.
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SuggestUseVarKeywordEvident")]
 	public class SuggestUseVarKeywordEvidentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "SuggestUseVarKeywordEvidentAnalyzer";

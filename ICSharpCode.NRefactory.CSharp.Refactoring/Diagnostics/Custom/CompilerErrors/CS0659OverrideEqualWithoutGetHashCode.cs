@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(PragmaWarning = 1717, AnalysisDisableKeyword = "CSharpWarnings::CS0659")]
 	public class CS0659ClassOverrideEqualsWithoutGetHashCode : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId = "CS0659ClassOverrideEqualsWithoutGetHashCode";

@@ -44,7 +44,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	// OfType -> Underline (+suggest to compare to null)
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantEnumerableCastCall")]
 	public class RedundantEnumerableCastCallAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "RedundantEnumerableCastCallAnalyzer";

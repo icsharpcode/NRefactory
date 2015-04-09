@@ -40,7 +40,6 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
 	public class RedundantArgumentDefaultValueAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "RedundantArgumentDefaultValueAnalyzer";
