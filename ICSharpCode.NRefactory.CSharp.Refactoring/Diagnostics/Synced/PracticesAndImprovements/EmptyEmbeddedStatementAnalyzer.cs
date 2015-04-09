@@ -23,117 +23,144 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyEmbeddedStatement")]
-	public class EmptyEmbeddedStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EmptyEmbeddedStatementAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyEmbeddedStatementAnalyzer";
-		const string Description            = "Empty control statement body";
-		const string MessageFormat          = "';' should be avoided. Use '{{}}' instead";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EmptyEmbeddedStatementAnalyzerID, 
+			GettextCatalog.GetString("Empty control statement body"),
+			GettextCatalog.GetString("';' should be avoided. Use '{{}}' instead"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EmptyEmbeddedStatementAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Empty control statement body");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnosticForWhile(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.WhileStatement
+			);
+
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnosticForForeach(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.ForEachStatement
+			);
+
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnosticForIf(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.IfStatement
+			);
+
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnosticForFor(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.ForStatement
+			);
+
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnosticForWhile (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as WhileStatementSyntax;
+
+			if (!Check(node.Statement))
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.Statement.GetLocation ()
+			);
+			return true;
 		}
 
-		class GatherVisitor : GatherVisitorBase<EmptyEmbeddedStatementAnalyzer>
+		static bool TryGetDiagnosticForForeach (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ForEachStatementSyntax;
 
-			public override void VisitWhileStatement(WhileStatementSyntax node)
-			{
-				base.VisitWhileStatement(node);
-				Check(node.Statement);
-			}
+			if (!Check(node.Statement))
+				return false;
 
-			public override void VisitForEachStatement(ForEachStatementSyntax node)
-			{
-				base.VisitForEachStatement(node);
-				Check(node.Statement);
-			}
-
-			public override void VisitIfStatement(IfStatementSyntax node)
-			{
-				base.VisitIfStatement(node);
-				Check(node.Statement);
-				if (node.Else != null)
-					Check(node.Else.Statement);
-			}
-
-			public override void VisitForStatement(ForStatementSyntax node)
-			{
-				base.VisitForStatement(node);
-				Check(node.Statement);
-			}
-
-			void Check(SyntaxNode body)
-			{
-				if (body == null || !body.IsKind(SyntaxKind.EmptyStatement))
-					return;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, body.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EmptyEmbeddedStatementFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EmptyEmbeddedStatementAnalyzer.DiagnosticId;
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.Statement.GetLocation ()
+			);
+			return true;
 		}
 
-		public override FixAllProvider GetFixAllProvider()
+		static bool TryGetDiagnosticForIf (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return WellKnownFixAllProviders.BatchFixer;
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as IfStatementSyntax;
+
+			if (Check (node.Statement)) {
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					node.Statement.GetLocation ()
+				);
+				return true;
+			}
+
+			if (node.Else != null && Check (node.Else.Statement)) {
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					node.Else.Statement.GetLocation ()
+				);
+				return true;
+			}
+
+			return false;
 		}
 
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
+		static bool TryGetDiagnosticForFor (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (!node.IsKind(SyntaxKind.EmptyStatement))
-				return;
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{}'", token => {
-				var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.Block().WithAdditionalAnnotations(Formatter.Annotation));
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}), diagnostic);
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ForStatementSyntax;
+
+			if (!Check(node.Statement))
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.Statement.GetLocation ()
+			);
+			return true;
+		}
+
+
+		static bool Check(SyntaxNode body)
+		{
+			if (body == null || !body.IsKind(SyntaxKind.EmptyStatement))
+				return false;
+			return true;
 		}
 	}
 }

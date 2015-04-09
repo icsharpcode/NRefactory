@@ -25,85 +25,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
-using Microsoft.CodeAnalysis.Simplification;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringIndexOfIsCultureSpecific")]
-	public class StringIndexOfIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class StringIndexOfIsCultureSpecificAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringIndexOfIsCultureSpecificAnalyzer";
-		const string Description            = "Warns when a culture-aware 'IndexOf' call is used by default.";
-		const string MessageFormat          = "'IndexOf' is culture-aware and missing a StringComparison argument";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StringIndexOfIsCultureSpecificAnalyzerID, 
+			GettextCatalog.GetString("Warns when a culture-aware 'IndexOf' call is used by default."),
+			GettextCatalog.GetString("'IndexOf' is culture-aware and missing a StringComparison argument"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.StringIndexOfIsCultureSpecificAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.IndexOf' is culture-aware");
-		// "Add 'StringComparison.Ordinal'" / "Add 'StringComparison.CurrentCulture'
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor<StringIndexOfIsCultureSpecificAnalyzer>(Rule, semanticModel, addDiagnostic, cancellationToken, "IndexOf");
-		}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as InvocationExpressionSyntax;
+			MemberAccessExpressionSyntax mre = node.Expression as MemberAccessExpressionSyntax;
+			if (mre == null)
+				return false;
+			if (mre.Name.Identifier.ValueText != "IndexOf")
+				return false;
 
-		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : GatherVisitorDiagnosticAnalyzer
-		{
-			readonly string memberName;
-			readonly DiagnosticDescriptor rule;
-
-			public GatherVisitor(DiagnosticDescriptor rule, SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string memberName)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-				this.rule = rule;
-				this.memberName = memberName;
-			}
-
-			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
-			{
-				base.VisitInvocationExpression(node);
-
-				MemberAccessExpressionSyntax mre = node.Expression as MemberAccessExpressionSyntax;
-				if (mre == null)
-					return;
-				if (mre.Name.Identifier.ValueText != memberName)
-					return;
-
-				var rr = semanticModel.GetSymbolInfo(node, cancellationToken);
-				if (rr.Symbol == null)
-					return;
-				var symbol = rr.Symbol;
-				if (!(symbol.ContainingType != null && symbol.ContainingType.SpecialType == SpecialType.System_String))
-					return;
-				var parameters = symbol.GetParameters();
-				var firstParameter = parameters.FirstOrDefault();
-				if (firstParameter == null || firstParameter.Type.SpecialType != SpecialType.System_String)
-					return;	// First parameter not a string
-				var lastParameter = parameters.Last();
-				if (lastParameter.Type.Name == "StringComparison")
-					return;	// already specifying a string comparison
-				AddDiagnosticAnalyzer(Diagnostic.Create(rule, node.GetLocation()));
-			}
+			var rr = nodeContext.SemanticModel.GetSymbolInfo(node, nodeContext.CancellationToken);
+			if (rr.Symbol == null)
+				return false;
+			var symbol = rr.Symbol;
+			if (!(symbol.ContainingType != null && symbol.ContainingType.SpecialType == SpecialType.System_String))
+				return false;
+			var parameters = symbol.GetParameters();
+			var firstParameter = parameters.FirstOrDefault();
+			if (firstParameter == null || firstParameter.Type.SpecialType != SpecialType.System_String)
+				return false;	// First parameter not a string
+			var lastParameter = parameters.Last();
+			if (lastParameter.Type.Name == "StringComparison")
+				return false;	// already specifying a string comparison
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

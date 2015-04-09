@@ -81,7 +81,7 @@ class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType.Count
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithOfTypeCountAnalyzerID + @"
 		obj.Select (q => q as Test).Count (q => q != null);
 	}
 }");

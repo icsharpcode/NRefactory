@@ -243,7 +243,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	int Bar(int o)
 	{
 		bool b = o > 10;
-		// ReSharper disable once ConvertIfToOrExpression
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConvertIfToOrExpressionAnalyzerID + @"
 		if (o < 10)
 			b = true;
 	}

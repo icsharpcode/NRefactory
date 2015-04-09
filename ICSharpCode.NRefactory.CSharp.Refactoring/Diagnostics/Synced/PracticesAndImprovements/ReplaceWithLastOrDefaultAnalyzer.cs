@@ -23,105 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithLastOrDefault")]
-	public class ReplaceWithLastOrDefaultAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithLastOrDefaultAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithLastOrDefaultAnalyzer";
-		const string Description            = "Replace with call to LastOrDefault<T>()";
-		const string MessageFormat          = "Expression can be simlified to 'LastOrDefault<T>()'";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithLastOrDefaultAnalyzerID, 
+			GettextCatalog.GetString("Replace with call to LastOrDefault<T>()"),
+			GettextCatalog.GetString("Expression can be simlified to 'LastOrDefault<T>()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithLastOrDefaultAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with LastOrDefault<T>()");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.ConditionalExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ConditionalExpressionSyntax;
 
-		class GatherVisitor : GatherVisitorBase<ReplaceWithLastOrDefaultAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			//pattern is Any(param) ? Last(param) : null/default
+			var anyInvocation = node.Condition as InvocationExpressionSyntax;
+			var lastInvocation = node.WhenTrue as InvocationExpressionSyntax;
+			var nullDefaultWhenFalse = node.WhenFalse;
 
-			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
-			{
-				base.VisitConditionalExpression(node);
-				//pattern is Any(param) ? Last(param) : null/default
-				var anyInvocation = node.Condition as InvocationExpressionSyntax;
-				var lastInvocation = node.WhenTrue as InvocationExpressionSyntax;
-				var nullDefaultWhenFalse = node.WhenFalse;
+			if (anyInvocation == null || lastInvocation == null || nullDefaultWhenFalse == null)
+				return false;
+			var anyExpression = anyInvocation.Expression as MemberAccessExpressionSyntax;
+			if (anyExpression == null || anyExpression.Name.Identifier.ValueText != "Any")
+				return false;
+			var anyParam = anyInvocation.ArgumentList;
 
-				if (anyInvocation == null || lastInvocation == null || nullDefaultWhenFalse == null)
-					return;
-				var anyExpression = anyInvocation.Expression as MemberAccessExpressionSyntax;
-				if (anyExpression == null || anyExpression.Name.Identifier.ValueText != "Any")
-					return;
-				var anyParam = anyInvocation.ArgumentList;
+			var lastExpression = lastInvocation.Expression as MemberAccessExpressionSyntax;
+			if (lastExpression == null || lastExpression.Name.Identifier.ValueText != "Last" || !lastInvocation.ArgumentList.IsEquivalentTo(anyParam))
+				return false;
 
-				var lastExpression = lastInvocation.Expression as MemberAccessExpressionSyntax;
-				if (lastExpression == null || lastExpression.Name.Identifier.ValueText != "Last" || !lastInvocation.ArgumentList.IsEquivalentTo(anyParam))
-					return;
+			if (!nullDefaultWhenFalse.IsKind(SyntaxKind.NullLiteralExpression) && !nullDefaultWhenFalse.IsKind(SyntaxKind.DefaultExpression))
+				return false;
 
-				if (!nullDefaultWhenFalse.IsKind(SyntaxKind.NullLiteralExpression) && !nullDefaultWhenFalse.IsKind(SyntaxKind.DefaultExpression))
-					return;
-
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithLastOrDefaultFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ReplaceWithLastOrDefaultAnalyzer.DiagnosticId;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as ConditionalExpressionSyntax;
-			//replace a conditional Any(x) ? Last(x) : null/default with LastOrDefault(x)
-			var parameterExpr = ((InvocationExpressionSyntax)node.Condition).ArgumentList;
-			var baseExpression = ((MemberAccessExpressionSyntax)((InvocationExpressionSyntax)node.Condition).Expression).Expression;
-			var newNode = SyntaxFactory.InvocationExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, baseExpression,
-				SyntaxFactory.IdentifierName("LastOrDefault")), parameterExpr);
-			var newRoot = root.ReplaceNode((ExpressionSyntax)node, newNode.WithAdditionalAnnotations(Formatter.Annotation));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'LastOrDefault<T>()'", document.WithSyntaxRoot(newRoot)), diagnostic);
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

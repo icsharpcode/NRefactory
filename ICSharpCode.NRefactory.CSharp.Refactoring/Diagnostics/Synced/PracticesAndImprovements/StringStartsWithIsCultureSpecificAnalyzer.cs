@@ -23,45 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringStartsWithIsCultureSpecific")]
-	public class StringStartsWithIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class StringStartsWithIsCultureSpecificAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringStartsWithIsCultureSpecificAnalyzer";
-		const string Description            = "Warns when a culture-aware 'StartsWith' call is used by default.";
-		const string MessageFormat          = "'StartsWith' is culture-aware and missing a StringComparison argument";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StringStartsWithIsCultureSpecificAnalyzerID,
+			GettextCatalog.GetString ("Warns when a culture-aware 'StartsWith' call is used by default."),
+			GettextCatalog.GetString ("'StartsWith' is culture-aware and missing a StringComparison argument"),
+			DiagnosticAnalyzerCategories.PracticesAndImprovements,
+			DiagnosticSeverity.Warning,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.StringStartsWithIsCultureSpecificAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.StartsWith' is culture-aware");
-		// "Add 'StringComparison.Ordinal'" / "Add 'StringComparison.CurrentCulture'
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+
+		public override void Initialize (AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic (diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new StringIndexOfIsCultureSpecificAnalyzer.GatherVisitor<StringStartsWithIsCultureSpecificAnalyzer>(Rule, semanticModel, addDiagnostic, cancellationToken, "StartsWith");
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as InvocationExpressionSyntax;
+			MemberAccessExpressionSyntax mre = node.Expression as MemberAccessExpressionSyntax;
+			if (mre == null)
+				return false;
+			if (mre.Name.Identifier.ValueText != "StartsWith")
+				return false;
+
+			var rr = nodeContext.SemanticModel.GetSymbolInfo (node, nodeContext.CancellationToken);
+			if (rr.Symbol == null)
+				return false;
+			var symbol = rr.Symbol;
+			if (!(symbol.ContainingType != null && symbol.ContainingType.SpecialType == SpecialType.System_String))
+				return false;
+			var parameters = symbol.GetParameters ();
+			var firstParameter = parameters.FirstOrDefault ();
+			if (firstParameter == null || firstParameter.Type.SpecialType != SpecialType.System_String)
+				return false;   // First parameter not a string
+			var lastParameter = parameters.Last ();
+			if (lastParameter.Type.Name == "StringComparison")
+				return false;   // already specifying a string comparison
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

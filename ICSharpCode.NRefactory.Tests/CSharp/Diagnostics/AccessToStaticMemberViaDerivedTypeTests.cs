@@ -110,7 +110,7 @@ class C
 {
 	void Main()
 	{
-        // ReSharper disable once AccessToStaticMemberViaDerivedType
+#pragma warning disable " + NRefactoryDiagnosticIDs.AccessToStaticMemberViaDerivedTypeAnalyzerID + @"
 		B.F ();
 	}
 }");

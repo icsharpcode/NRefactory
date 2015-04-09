@@ -23,73 +23,76 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.FirstOrDefault")]
-	public class ReplaceWithOfTypeFirstOrDefaultAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithOfTypeFirstOrDefaultAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithOfTypeFirstOrDefaultAnalyzer";
-		const string Description            = "Replace with call to OfType<T>().FirstOrDefault()";
-		const string MessageFormat          = "Replace with OfType<T>().FirstOrDefault()";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithOfTypeFirstOrDefaultAnalyzerID, 
+			GettextCatalog.GetString("Replace with call to OfType<T>().FirstOrDefault()"),
+			GettextCatalog.GetString("Replace with 'OfType<T>().FirstOrDefault()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithOfTypeFirstOrDefaultAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with OfType<T>().FirstOrDefault()");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			var anyInvoke = nodeContext.Node as InvocationExpressionSyntax;
+
+			var info = nodeContext.SemanticModel.GetSymbolInfo(anyInvoke);
+
+			IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
+			if (anyResolve == null) {
+				anyResolve = info.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault(candidate => HasPredicateVersion(candidate));
+			} 
+
+			if (anyResolve == null || !HasPredicateVersion(anyResolve))
+				return false;
+
+			ExpressionSyntax target, followUp;
+			TypeSyntax type;
+			ParameterSyntax param;
+			if (ReplaceWithOfTypeAnyAnalyzer.MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
+				// if (member == "Where" && followUp == null) return;
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					anyInvoke.GetLocation ()
+				);
+				return true;
 			}
+			return false;
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool HasPredicateVersion(IMethodSymbol member)
 		{
-			return new ReplaceWithOfTypeAnyAnalyzer.GatherVisitor<ReplaceWithOfTypeFirstOrDefaultAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "FirstOrDefault");
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithOfTypeFirstOrDefaultFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ReplaceWithOfTypeFirstOrDefaultAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span, getInnermostNodeForTie: true) as InvocationExpressionSyntax;
-			var newRoot = root.ReplaceNode(node, ReplaceWithOfTypeAnyAnalyzer.MakeOfTypeCall(node));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to OfType<T>().FirstOrDefault()", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (!ReplaceWithOfTypeAnyAnalyzer.IsQueryExtensionClass(member.ContainingType))
+				return false;
+			return member.Name == "FirstOrDefault";
 		}
 	}
 }
-

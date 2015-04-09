@@ -23,96 +23,62 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "PossibleMistakenCallToGetType")]
-	public class PossibleMistakenCallToGetTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class PossibleMistakenCallToGetTypeAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PossibleMistakenCallToGetTypeAnalyzer";
-		const string Description            = "Possible mistaken call to 'object.GetType()'";
-		const string MessageFormat          = "Possible mistaken call to 'object.GetType()'";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.PossibleMistakenCallToGetTypeAnalyzerID, 
+			GettextCatalog.GetString("Possible mistaken call to 'object.GetType()'"),
+			GettextCatalog.GetString("Possible mistaken call to 'object.GetType()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.PossibleMistakenCallToGetTypeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Possible mistaken call to 'object.GetType()'");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
 		}
 
-		class GatherVisitor : GatherVisitorBase<PossibleMistakenCallToGetTypeAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			private INamedTypeSymbol systemType;
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-				systemType = semanticModel.Compilation.GetTypeByMetadataName("System.Type");
-			}
-
-			public override void VisitInvocationExpression(InvocationExpressionSyntax node)
-			{
-				base.VisitInvocationExpression(node);
-				var memberExpr = node.Expression as MemberAccessExpressionSyntax;
-				if (memberExpr == null || memberExpr.Name.Identifier.ValueText != "GetType")
-					return;
-				var methodSymbol = semanticModel.GetSymbolInfo(memberExpr);
-				if (methodSymbol.Symbol == null || !methodSymbol.Symbol.ContainingType.Equals(systemType) || methodSymbol.Symbol.IsStatic)
-					return;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-			}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as InvocationExpressionSyntax;
+			var memberExpr = node.Expression as MemberAccessExpressionSyntax;
+			if (memberExpr == null || memberExpr.Name.Identifier.ValueText != "GetType")
+				return false;
+			var methodSymbol = nodeContext.SemanticModel.GetSymbolInfo(memberExpr);
+			if (methodSymbol.Symbol == null || !IsSystemType(methodSymbol.Symbol.ContainingType) || methodSymbol.Symbol.IsStatic)
+				return false;
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
-	}
 
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class PossibleMistakenCallToGetTypeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
+		static bool IsSystemType (INamedTypeSymbol type)
 		{
-			yield return PossibleMistakenCallToGetTypeAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span).DescendantNodesAndSelf().OfType<InvocationExpressionSyntax>().First();
-			if (node == null)
-				return;
-			var newRoot = root.ReplaceNode((SyntaxNode)node, ((MemberAccessExpressionSyntax)node.Expression).Expression);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove call to 'object.GetType()'", document.WithSyntaxRoot(newRoot)), diagnostic);
-		}
+			return type.Name == "Type" && type.ContainingNamespace.ToDisplayString () == "System";
+        }
 	}
 }

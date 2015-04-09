@@ -212,7 +212,7 @@ class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithOfTypeAnalyzerID + @"
 		obj.Where(o => o is Test).Select (o => o as Test);
 	}
 }");

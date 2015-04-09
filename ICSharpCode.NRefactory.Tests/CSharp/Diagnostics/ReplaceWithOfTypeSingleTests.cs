@@ -81,7 +81,7 @@ class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType.Single
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithOfTypeSingleAnalyzerID + @"
 		obj.Select (q => q as Test).Single (q => q != null);
 	}
 }");

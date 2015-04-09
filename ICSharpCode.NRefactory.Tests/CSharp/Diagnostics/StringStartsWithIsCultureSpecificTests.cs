@@ -62,7 +62,7 @@ public class Test
 {
 	public void Foo (string bar)
 	{
-		// ReSharper disable once StringStartsWithIsCultureSpecific
+#pragma warning disable " + NRefactoryDiagnosticIDs.StringStartsWithIsCultureSpecificAnalyzerID + @"
 		bar.StartsWith ("".com"");
 	}
 }

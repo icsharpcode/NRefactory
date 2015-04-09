@@ -24,103 +24,71 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSimpleAssignment")]
-	public class ReplaceWithSimpleAssignmentAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithSimpleAssignmentAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSimpleAssignmentAnalyzer";
-		const string Description            = "Replace with simple assignment";
-		const string MessageFormat          = "Replace with simple assignment";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithSimpleAssignmentAnalyzerID, 
+			GettextCatalog.GetString("Replace with simple assignment"),
+			GettextCatalog.GetString("Replace with simple assignment"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithSimpleAssignmentAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with simple assignment");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.OrAssignmentExpression,
+				SyntaxKind.AndAssignmentExpression
+
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as AssignmentExpressionSyntax;
 
-		class GatherVisitor : GatherVisitorBase<ReplaceWithSimpleAssignmentAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitAssignmentExpression(AssignmentExpressionSyntax node)
-			{
-				base.VisitAssignmentExpression(node);
-				//ignore non |= and &=
-				if (node.IsKind(SyntaxKind.OrAssignmentExpression)) {
-					LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
-					//if right is true
-					if (right != null && (bool)right.Token.Value) {
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-					}
-
-				} else if (node.IsKind(SyntaxKind.AndAssignmentExpression)) {
-					LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
-					//if right is false
-					if (right != null && !(bool)right.Token.Value) {
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-					}
+			if (node.IsKind(SyntaxKind.OrAssignmentExpression)) {
+				LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
+				//if right is true
+				if (right != null && (bool)right.Token.Value) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						node.GetLocation ()
+					);
+					return true;
 				}
 
+			} else if (node.IsKind(SyntaxKind.AndAssignmentExpression)) {
+				LiteralExpressionSyntax right = node.Right as LiteralExpressionSyntax;
+				//if right is false
+				if (right != null && !(bool)right.Token.Value) {
+					diagnostic = Diagnostic.Create (
+						descriptor,
+						node.GetLocation ()
+					);
+					return true;
+				}
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithSimpleAssignmentFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ReplaceWithSimpleAssignmentAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as AssignmentExpressionSyntax;
-			if (node == null)
-				return;
-			var newRoot = root.ReplaceNode((SyntaxNode)node, node.WithOperatorToken(SyntaxFactory.Token(SyntaxKind.EqualsToken)).WithAdditionalAnnotations(Formatter.Annotation));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with '{0}'", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return false;
 		}
 	}
 }

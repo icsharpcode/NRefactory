@@ -81,7 +81,7 @@ class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType.LongCount
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithOfTypeLongCountAnalyzerID + @"
 		obj.Select (q => q as Test).LongCount (q => q != null);
 	}
 }");

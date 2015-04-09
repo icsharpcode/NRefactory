@@ -59,7 +59,7 @@ public class CSharpDemo {
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
-// ReSharper disable ReplaceWithSingleCallToCount
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithSingleCallToCountAnalyzerID + @"
 		var bla = arr.Where (x => x < 4).Count ();
 	}
 }");

@@ -101,7 +101,7 @@ class Bar
 {
 	public void FooBar(string[] args)
 	{
-		// ReSharper disable once ReplaceWithFirstOrDefault
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithFirstOrDefaultAnalyzerID + @"
 		var first = args.Any() ? args.First() : null;
 	}
 }");

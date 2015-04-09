@@ -186,7 +186,7 @@ class Foo
 {
 	void Bar ()
 	{
-		// ReSharper disable once SimplifyConditionalTernaryExpression
+#pragma warning disable " + NRefactoryDiagnosticIDs.SimplifyConditionalTernaryExpressionAnalyzerID + @"
 		var a = 1 < 2 ? false : true;
 	}
 }

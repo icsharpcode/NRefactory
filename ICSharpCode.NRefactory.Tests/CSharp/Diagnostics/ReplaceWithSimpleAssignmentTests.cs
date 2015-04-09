@@ -85,7 +85,7 @@ class Test
 {
 	void Foo (bool b)
 	{
-		// ReSharper disable once ReplaceWithSimpleAssignment
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithSimpleAssignmentAnalyzerID + @"
 		b |= true;
 	}
 }

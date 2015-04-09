@@ -23,151 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "SimplifyConditionalTernaryExpression")]
-	public class SimplifyConditionalTernaryExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class SimplifyConditionalTernaryExpressionAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "SimplifyConditionalTernaryExpressionAnalyzer";
-		const string Description            = "Conditional expression can be simplified";
-		const string MessageFormat          = "Simplify conditional expression";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.SimplifyConditionalTernaryExpressionAnalyzerID,
+			GettextCatalog.GetString ("Conditional expression can be simplified"),
+			GettextCatalog.GetString ("Simplify conditional expression"),
+			DiagnosticAnalyzerCategories.PracticesAndImprovements,
+			DiagnosticSeverity.Info,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.SimplifyConditionalTernaryExpressionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Simplify conditional expression");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize (AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic (diagnostic);
+				},
+				SyntaxKind.ConditionalExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ConditionalExpressionSyntax;
 
-		class GatherVisitor : GatherVisitorBase<SimplifyConditionalTernaryExpressionAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			bool? trueBranch = SimplifyConditionalTernaryExpressionCodeFixProvider.GetBool (node.WhenTrue.SkipParens ());
+			bool? falseBranch = SimplifyConditionalTernaryExpressionCodeFixProvider.GetBool (node.WhenFalse.SkipParens ());
 
-			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
-			{
-				base.VisitConditionalExpression(node);
+			if (trueBranch == falseBranch ||
+				trueBranch == true && falseBranch == false) // Handled by RedundantTernaryExpressionIssue
+				return false;
 
-				bool? trueBranch = SimplifyConditionalTernaryExpressionFixProvider.GetBool(node.WhenTrue.SkipParens());
-				bool? falseBranch = SimplifyConditionalTernaryExpressionFixProvider.GetBool(node.WhenFalse.SkipParens());
-
-				if (trueBranch == falseBranch ||
-					trueBranch == true && falseBranch == false)	// Handled by RedundantTernaryExpressionIssue
-					return;
-
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class SimplifyConditionalTernaryExpressionFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return SimplifyConditionalTernaryExpressionAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		internal static bool? GetBool(ExpressionSyntax trueExpression)
-		{
-			var pExpr = trueExpression as LiteralExpressionSyntax;
-			if (pExpr == null || !(pExpr.Token.Value is bool))
-				return null;
-			return (bool)pExpr.Token.Value;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span, getInnermostNodeForTie:true) as ConditionalExpressionSyntax;
-			var newRoot = root;
-
-			bool? trueBranch = GetBool(node.WhenTrue.SkipParens());
-			bool? falseBranch = GetBool(node.WhenFalse.SkipParens());
-
-			if (trueBranch == false && falseBranch == true) {
-				newRoot = newRoot.ReplaceNode(node, CSharpUtil.InvertCondition(node.Condition).WithAdditionalAnnotations(Formatter.Annotation));
-			} else if (trueBranch == true) {
-				newRoot = newRoot.ReplaceNode(
-					(SyntaxNode)node,
-					SyntaxFactory.BinaryExpression(
-						SyntaxKind.LogicalOrExpression,
-						node.Condition,
-						SyntaxFactory.ParseToken(" || "),
-						node.WhenFalse
-					).WithAdditionalAnnotations(Formatter.Annotation)
-				);
-			} else if (trueBranch == false) {
-				newRoot = newRoot.ReplaceNode(
-					(SyntaxNode)node,
-					SyntaxFactory.BinaryExpression(
-						SyntaxKind.LogicalAndExpression,
-						CSharpUtil.InvertCondition(node.Condition),
-						SyntaxFactory.ParseToken(" && "),
-						node.WhenFalse
-					).WithAdditionalAnnotations(Formatter.Annotation)
-				);
-			} else if (falseBranch == true) {
-				newRoot = newRoot.ReplaceNode(
-					(SyntaxNode)node,
-					SyntaxFactory.BinaryExpression(
-						SyntaxKind.LogicalOrExpression,
-						CSharpUtil.InvertCondition(node.Condition),
-						SyntaxFactory.ParseToken(" || "),
-						node.WhenTrue
-					).WithAdditionalAnnotations(Formatter.Annotation)
-				);
-			} else if (falseBranch == false) {
-				newRoot = newRoot.ReplaceNode(
-					(SyntaxNode)node,
-					SyntaxFactory.BinaryExpression(
-						SyntaxKind.LogicalAndExpression,
-						node.Condition,
-						SyntaxFactory.ParseToken(" && "),
-						node.WhenTrue
-					).WithAdditionalAnnotations(Formatter.Annotation)
-				);
-			}
-
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Simplify conditional expression", document.WithSyntaxRoot(newRoot)), diagnostic);
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

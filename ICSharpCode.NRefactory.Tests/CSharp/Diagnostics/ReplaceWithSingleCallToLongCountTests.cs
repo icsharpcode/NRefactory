@@ -59,7 +59,7 @@ public class CSharpDemo {
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
-// ReSharper disable ReplaceWithSingleCallToLongCount
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithSingleCallToLongCountAnalyzerID + @"
 		var bla = arr.Where (x => x < 4).LongCount ();
 	}
 }");

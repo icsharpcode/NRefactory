@@ -85,7 +85,7 @@ public class Bar
 {
 	public void FooBar(Type a)
 	{
-		// ReSharper disable once PossibleMistakenCallToGetType
+#pragma warning disable " + NRefactoryDiagnosticIDs.PossibleMistakenCallToGetTypeAnalyzerID + @"
 		Console.WriteLine(a.GetType());
 	}
 }

@@ -23,82 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "StringEndsWithIsCultureSpecific")]
-	public class StringEndsWithIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class StringEndsWithIsCultureSpecificAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringEndsWithIsCultureSpecificAnalyzer";
-		const string Description            = "Warns when a culture-aware 'EndsWith' call is used by default.";
-		const string MessageFormat          = "'EndsWith' is culture-aware and missing a StringComparison argument";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StringEndsWithIsCultureSpecificAnalyzerID,
+			GettextCatalog.GetString ("Warns when a culture-aware 'EndsWith' call is used by default."),
+			GettextCatalog.GetString ("'EndsWith' is culture-aware and missing a StringComparison argument"),
+			DiagnosticAnalyzerCategories.PracticesAndImprovements,
+			DiagnosticSeverity.Warning,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.StringEndsWithIsCultureSpecificAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.EndsWith' is culture-aware");
-		// "Add 'StringComparison.Ordinal'" / "Add 'StringComparison.CurrentCulture'
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+
+		public override void Initialize (AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic (diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new StringIndexOfIsCultureSpecificAnalyzer.GatherVisitor<StringEndsWithIsCultureSpecificAnalyzer>(Rule, semanticModel, addDiagnostic, cancellationToken, "EndsWith");
-		}
-	}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as InvocationExpressionSyntax;
+			MemberAccessExpressionSyntax mre = node.Expression as MemberAccessExpressionSyntax;
+			if (mre == null)
+				return false;
+			if (mre.Name.Identifier.ValueText != "EndsWith")
+				return false;
 
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class StringMethodIsCultureSpecificFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			return ImmutableArray.Create(
-				StringEndsWithIsCultureSpecificAnalyzer.DiagnosticId,
-				StringIndexOfIsCultureSpecificAnalyzer.DiagnosticId,
-				StringLastIndexOfIsCultureSpecificAnalyzer.DiagnosticId,
-				StringStartsWithIsCultureSpecificAnalyzer.DiagnosticId);
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span).SkipArgument () as InvocationExpressionSyntax;
-			RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
-			RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
-		}
-
-		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, CancellationToken cancellationToken = default(CancellationToken))
-		{
-			var stringComparisonType = SyntaxFactory.ParseTypeName("System.StringComparison").WithAdditionalAnnotations(Microsoft.CodeAnalysis.Simplification.Simplifier.Annotation);
-			var stringComparisonArgument = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, stringComparisonType, (SimpleNameSyntax)SyntaxFactory.ParseName(stringComparison));
-			var newArguments = invocationExpression.ArgumentList.AddArguments(SyntaxFactory.Argument(stringComparisonArgument));
-			var newInvocation = SyntaxFactory.InvocationExpression(invocationExpression.Expression, newArguments);
-			var newRoot = root.ReplaceNode(invocationExpression, newInvocation.WithAdditionalAnnotations(Formatter.Annotation));
-
-			context.RegisterCodeFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, string.Format ("Add 'StringComparison.{0}'", stringComparison), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
+			var rr = nodeContext.SemanticModel.GetSymbolInfo (node, nodeContext.CancellationToken);
+			if (rr.Symbol == null)
+				return false;
+			var symbol = rr.Symbol;
+			if (!(symbol.ContainingType != null && symbol.ContainingType.SpecialType == SpecialType.System_String))
+				return false;
+			var parameters = symbol.GetParameters ();
+			var firstParameter = parameters.FirstOrDefault ();
+			if (firstParameter == null || firstParameter.Type.SpecialType != SpecialType.System_String)
+				return false;   // First parameter not a string
+			var lastParameter = parameters.Last ();
+			if (lastParameter.Type.Name == "StringComparison")
+				return false;   // already specifying a string comparison
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
 	}
 }

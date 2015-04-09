@@ -23,45 +23,72 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.Any")]
-	public class ReplaceWithOfTypeAnyAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithOfTypeAnyAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ReplaceWithOfTypeAnyAnalyzer";
-		const string Description            = "Replace with call to OfType<T>().Any()";
-		const string MessageFormat          = "Replace with OfType<T>().{0}()";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithOfTypeAnyAnalyzerID, 
+			GettextCatalog.GetString("Replace with call to OfType<T>().Any()"),
+			GettextCatalog.GetString("Replace with 'OfType<T>().Any()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithOfTypeAnyAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Replace with OfType<T>().Any()");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor<ReplaceWithOfTypeAnyAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "Any");
+			diagnostic = default(Diagnostic);
+			var anyInvoke = nodeContext.Node as InvocationExpressionSyntax;
+
+			var info = nodeContext.SemanticModel.GetSymbolInfo(anyInvoke);
+
+			IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
+			if (anyResolve == null) {
+				anyResolve = info.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault(candidate => HasPredicateVersion(candidate));
+			} 
+
+			if (anyResolve == null || !HasPredicateVersion(anyResolve))
+				return false;
+
+			ExpressionSyntax target, followUp;
+			TypeSyntax type;
+			ParameterSyntax param;
+			if (MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
+				// if (member == "Where" && followUp == null) return;
+
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					anyInvoke.GetLocation ()
+				);
+				return true;
+			}
+			return false;
+
 		}
 
 		static bool CompareNames(ParameterSyntax param, IdentifierNameSyntax expr)
@@ -112,7 +139,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		//					}
 		//				)
 		//			);
-		static bool MatchSelect(InvocationExpressionSyntax anyInvoke, out ExpressionSyntax target, out TypeSyntax type, out ParameterSyntax lambdaParam, out ExpressionSyntax followUpExpression)
+		internal static bool MatchSelect(InvocationExpressionSyntax anyInvoke, out ExpressionSyntax target, out TypeSyntax type, out ParameterSyntax lambdaParam, out ExpressionSyntax followUpExpression)
 		{
 			target = null;
 			type = null;
@@ -213,87 +240,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			return null;
 		}
 
-		internal class GatherVisitor<T> : GatherVisitorBase<T> where T : GatherVisitorDiagnosticAnalyzer
+		internal static bool IsQueryExtensionClass(INamedTypeSymbol typeDef)
 		{
-			readonly string member;
-
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken, string member)
-				: base (semanticModel, addDiagnostic, cancellationToken)
+			if (typeDef == null || typeDef.ContainingNamespace == null || typeDef.ContainingNamespace.GetFullName() != "System.Linq")
+				return false;
+			switch (typeDef.Name)
 			{
-				this.member = member;
-			}
-
-			public override void VisitInvocationExpression(InvocationExpressionSyntax anyInvoke)
-			{
-				base.VisitInvocationExpression(anyInvoke);
-
-				var info = semanticModel.GetSymbolInfo(anyInvoke);
-				IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
-				if (anyResolve == null) {
-					anyResolve = info.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault(candidate => HasPredicateVersion(candidate));
-				} 
-
-				if (anyResolve == null || !HasPredicateVersion(anyResolve))
-					return;
-
-				ExpressionSyntax target, followUp;
-				TypeSyntax type;
-				ParameterSyntax param;
-				if (MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
-					if (member == "Where" && followUp == null) return;
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, anyInvoke.GetLocation(), member));
-					return;
-				}
-			}
-
-			static bool IsQueryExtensionClass(INamedTypeSymbol typeDef)
-			{
-				if (typeDef == null || typeDef.ContainingNamespace == null || typeDef.ContainingNamespace.GetFullName() != "System.Linq")
-					return false;
-				switch (typeDef.Name)
-				{
-					case "Enumerable":
-					case "ParallelEnumerable":
-					case "Queryable":
-						return true;
-					default:
-						return false;
-				}
-			}
-
-			bool HasPredicateVersion(IMethodSymbol member)
-			{
-				if (!IsQueryExtensionClass(member.ContainingType))
-					return false;
-				return member.Name == this.member;
+				case "Enumerable":
+				case "ParallelEnumerable":
+				case "Queryable":
+				return true;
+				default:
+				return false;
 			}
 		}
-	}
 
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithOfTypeAnyFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
+		static bool HasPredicateVersion(IMethodSymbol member)
 		{
-			yield return ReplaceWithOfTypeAnyAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span, getInnermostNodeForTie:true) as InvocationExpressionSyntax;
-			var newRoot = root.ReplaceNode(node, ReplaceWithOfTypeAnyAnalyzer.MakeOfTypeCall(node));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to OfType<T>().Any()", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (!IsQueryExtensionClass(member.ContainingType))
+				return false;
+			return member.Name == "Any";
 		}
 	}
 }

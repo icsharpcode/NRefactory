@@ -81,7 +81,7 @@ class Test
 {
 	public void Foo(object[] obj)
 	{
-		// ReSharper disable once ReplaceWithOfType.First
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithOfTypeFirstAnalyzerID + @"
 		obj.Select (q => q as Test).First (q => q != null);
 	}
 }");

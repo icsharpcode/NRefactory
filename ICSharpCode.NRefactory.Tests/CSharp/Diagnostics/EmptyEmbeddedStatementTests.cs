@@ -84,7 +84,7 @@ class TestClass
 {
     void TestMethod (int i)
     {
-//ReSharper disable once EmptyEmbeddedStatement
+#pragma warning disable " + NRefactoryDiagnosticIDs.EmptyEmbeddedStatementAnalyzerID + @"
         if (i > 0);
     }
 }");

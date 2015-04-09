@@ -59,7 +59,7 @@ public class CSharpDemo {
 public class CSharpDemo {
 	public void Bla () {
 		int[] arr;
-// ReSharper disable ReplaceWithSingleCallToSingle
+#pragma warning disable " + NRefactoryDiagnosticIDs.ReplaceWithSingleCallToSingleAnalyzerID + @"
 		var bla = arr.Where (x => x < 4).Single ();
 	}
 }");

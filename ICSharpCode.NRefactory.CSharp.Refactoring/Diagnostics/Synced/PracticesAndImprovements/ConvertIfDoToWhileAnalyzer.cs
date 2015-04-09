@@ -23,45 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConvertIfDoToWhile")]
-	public class ConvertIfDoToWhileAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertIfDoToWhileAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertIfDoToWhileAnalyzer";
-		const string Description            = "Convert 'if-do-while' to 'while' statement";
-		const string MessageFormat          = "Statement can be simplified to 'while' statement";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConvertIfDoToWhileAnalyzerID, 
+			GettextCatalog.GetString("Convert 'if-do-while' to 'while' statement"),
+			GettextCatalog.GetString("Statement can be simplified to 'while' statement"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertIfDoToWhileAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "'if-do-while' statement can be re-written as 'while' statement");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.IfStatement
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as IfStatementSyntax;
+
+			if (node.Else != null)
+				return false;
+			var embeddedDo = GetEmbeddedDoStatement (node.Statement);
+			if (embeddedDo == null)
+				return false;
+			if (!CSharpUtil.AreConditionsEqual(node.Condition, embeddedDo.Condition))
+				return false;
+
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.IfKeyword.GetLocation ()
+			);
+			return true;
 		}
 
 		internal static DoStatementSyntax GetEmbeddedDoStatement (SyntaxNode block)
@@ -73,63 +87,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				return null;
 			}
 			return block as DoStatementSyntax;
-		}
-
-		class GatherVisitor : GatherVisitorBase<ConvertIfDoToWhileAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitIfStatement(IfStatementSyntax node)
-			{
-				base.VisitIfStatement(node);
-				if (node.Else != null)
-					return;
-				var embeddedDo = GetEmbeddedDoStatement (node.Statement);
-				if (embeddedDo == null)
-					return;
-				if (!CSharpUtil.AreConditionsEqual(node.Condition, embeddedDo.Condition))
-					return;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.IfKeyword.GetLocation()));
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertIfDoToWhileFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ConvertIfDoToWhileAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as IfStatementSyntax;
-			if (node == null)
-				return;
-
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with 'while'", token => {
-				var newNode = SyntaxFactory.WhileStatement(
-					node.Condition,
-					ConvertIfDoToWhileAnalyzer.GetEmbeddedDoStatement(node.Statement).Statement
-				);
-				var newRoot = root.ReplaceNode((SyntaxNode)node, newNode.WithLeadingTrivia(node.GetLeadingTrivia()).WithAdditionalAnnotations(Formatter.Annotation));
-				return Task.FromResult(document.WithSyntaxRoot(newRoot));
-			}), diagnostic);
 		}
 	}
 }

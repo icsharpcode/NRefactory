@@ -99,7 +99,7 @@ using System.Collections.Generic;
 class Test {
 	public void StringIndexOfStringCalls(List<string> list)
 	{
-		// ReSharper disable once StringIndexOfIsCultureSpecific
+#pragma warning disable " + NRefactoryDiagnosticIDs.StringIndexOfIsCultureSpecificAnalyzerID + @"
 		list[0].IndexOf("".com"");
 	}
 }");

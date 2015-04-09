@@ -23,72 +23,86 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithSingleCallToSingle")]
-	public class ReplaceWithSingleCallToSingleAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithSingleCallToSingleAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithSingleCallToSingleAnalyzer";
-		const string Description            = "Replace with single call to Single(...)";
-		const string MessageFormat          = "Redundant Where() call with predicate followed by Single()";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithSingleCallToSingleAnalyzerID, 
+			GettextCatalog.GetString("Redundant Where() call with predicate followed by Single()"),
+			GettextCatalog.GetString("Replace with single call to 'Single()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithSingleCallToSingleAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with single call to Single(...)");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			var anyInvoke = nodeContext.Node as InvocationExpressionSyntax;
+			var info = nodeContext.SemanticModel.GetSymbolInfo (anyInvoke);
+
+			IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
+			if (anyResolve == null) {
+				anyResolve = info.CandidateSymbols.OfType<IMethodSymbol> ().FirstOrDefault (candidate => HasPredicateVersion (candidate));
 			}
+
+			if (anyResolve == null || !HasPredicateVersion (anyResolve))
+				return false;
+
+			ExpressionSyntax target;
+			InvocationExpressionSyntax whereInvoke;
+			if (!ReplaceWithSingleCallToAnyAnalyzer.MatchWhere (anyInvoke, out target, out whereInvoke))
+				return false;
+			info = nodeContext.SemanticModel.GetSymbolInfo (whereInvoke);
+			IMethodSymbol whereResolve = info.Symbol as IMethodSymbol;
+			if (whereResolve == null) {
+				whereResolve = info.CandidateSymbols.OfType<IMethodSymbol> ().FirstOrDefault (candidate => candidate.Name == "Where" && ReplaceWithSingleCallToAnyAnalyzer.IsQueryExtensionClass (candidate.ContainingType));
+			}
+
+			if (whereResolve == null || whereResolve.Name != "Where" || !ReplaceWithSingleCallToAnyAnalyzer.IsQueryExtensionClass (whereResolve.ContainingType))
+				return false;
+			if (whereResolve.Parameters.Length != 1)
+				return false;
+			var predResolve = whereResolve.Parameters [0];
+			if (predResolve.Type.GetTypeParameters ().Length != 2)
+				return false;
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				anyInvoke.GetLocation ()
+			);
+			return true;
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool HasPredicateVersion (IMethodSymbol member)
 		{
-			return new ReplaceWithSingleCallToAnyAnalyzer.GatherVisitor<ReplaceWithSingleCallToSingleAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "Single");
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithSingleCallToSingleFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ReplaceWithSingleCallToSingleAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span, getInnermostNodeForTie: true) as InvocationExpressionSyntax;
-			var newRoot = root.ReplaceNode(node, ReplaceWithSingleCallToAnyAnalyzer.MakeSingleCall(node));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with single call to 'Single'", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (!ReplaceWithSingleCallToAnyAnalyzer.IsQueryExtensionClass (member.ContainingType))
+				return false;
+			return member.Name == "Single";
 		}
 	}
 }

@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	public void FooFoo (int x)
 	{
-		// ReSharper disable once ConvertIfDoToWhile
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConvertIfDoToWhileAnalyzerID + @"
 		if (x < 10) {
 			do {
 				Console.WriteLine (x++);

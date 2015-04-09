@@ -43,52 +43,66 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.Single")]
-	public class ReplaceWithOfTypeSingleAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithOfTypeSingleAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithOfTypeSingleAnalyzer";
-		const string Description            = "Replace with call to OfType<T>().Single()";
-		const string MessageFormat          = "Replace with OfType<T>().Single()";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithOfTypeSingleAnalyzerID, 
+			GettextCatalog.GetString("Replace with call to OfType<T>().Single()"),
+			GettextCatalog.GetString("Replace with 'OfType<T>().Single()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithOfTypeSingleAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with OfType<T>().Single()");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			var anyInvoke = nodeContext.Node as InvocationExpressionSyntax;
+
+			var info = nodeContext.SemanticModel.GetSymbolInfo(anyInvoke);
+
+			IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
+			if (anyResolve == null) {
+				anyResolve = info.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault(candidate => HasPredicateVersion(candidate));
+			} 
+
+			if (anyResolve == null || !HasPredicateVersion(anyResolve))
+				return false;
+
+			ExpressionSyntax target, followUp;
+			TypeSyntax type;
+			ParameterSyntax param;
+			if (ReplaceWithOfTypeAnyAnalyzer.MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
+				// if (member == "Where" && followUp == null) return;
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					anyInvoke.GetLocation ()
+				);
+				return true;
 			}
+			return false;
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool HasPredicateVersion(IMethodSymbol member)
 		{
-			return new ReplaceWithOfTypeAnyAnalyzer.GatherVisitor<ReplaceWithOfTypeSingleAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "Single");
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithOfTypeSingleFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ReplaceWithOfTypeSingleAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span, getInnermostNodeForTie: true) as InvocationExpressionSyntax;
-			var newRoot = root.ReplaceNode(node, ReplaceWithOfTypeAnyAnalyzer.MakeOfTypeCall(node));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to OfType<T>().Single()", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (!ReplaceWithOfTypeAnyAnalyzer.IsQueryExtensionClass(member.ContainingType))
+				return false;
+			return member.Name == "Single";
 		}
 	}
 }

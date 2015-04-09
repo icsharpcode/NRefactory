@@ -54,25 +54,33 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
         static InspectionActionTestBase()
         {
-			mscorlib = MetadataReference.CreateFromFile(typeof(Console).Assembly.Location);
-			systemAssembly = MetadataReference.CreateFromFile(typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
-			systemXmlLinq = MetadataReference.CreateFromFile(typeof(System.Xml.Linq.XElement).Assembly.Location);
-			systemCore = MetadataReference.CreateFromFile(typeof(Enumerable).Assembly.Location);
-			DefaultMetadataReferences = new [] {
-				mscorlib,
-				systemAssembly,
-				systemCore,
-				systemXmlLinq
-			};
+			try {
+				mscorlib = MetadataReference.CreateFromFile (typeof(Console).Assembly.Location);
+				systemAssembly = MetadataReference.CreateFromFile (typeof(System.ComponentModel.BrowsableAttribute).Assembly.Location);
+				systemXmlLinq = MetadataReference.CreateFromFile (typeof(System.Xml.Linq.XElement).Assembly.Location);
+				systemCore = MetadataReference.CreateFromFile (typeof(Enumerable).Assembly.Location);
+				DefaultMetadataReferences = new [] {
+					mscorlib,
+					systemAssembly,
+					systemCore,
+					systemXmlLinq
+				};
 
-			foreach (var provider in typeof(DiagnosticAnalyzerCategories).Assembly.GetTypes().Where(t => t.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
-				//var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
-				var codeFixProvider = (CodeFixProvider)Activator.CreateInstance(provider);
-				foreach (var id in codeFixProvider.FixableDiagnosticIds) {
-					providers.Add(id, codeFixProvider);
+				foreach (var provider in typeof(DiagnosticAnalyzerCategories).Assembly.GetTypes ().Where (t => t.GetCustomAttributes (typeof(ExportCodeFixProviderAttribute), false).Length > 0)) {
+					//var attr = (ExportCodeFixProviderAttribute)provider.GetCustomAttributes(typeof(ExportCodeFixProviderAttribute), false) [0];
+					var codeFixProvider = (CodeFixProvider)Activator.CreateInstance (provider);
+					foreach (var id in codeFixProvider.FixableDiagnosticIds) {
+						if (providers.ContainsKey (id)) {
+							Console.WriteLine ("Provider " + id + " already added.");
+							continue;
+						}
+						providers.Add (id, codeFixProvider);
+					}
 				}
+			} catch (Exception e) {
+				Console.WriteLine (e);
 			}
-		}
+		 }
 
 		public static string GetUniqueName()
 		{

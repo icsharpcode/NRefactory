@@ -89,7 +89,7 @@ public class Test
 {
 	public void Foo (string bar)
 	{
-		// ReSharper disable once StringLastIndexOfIsCultureSpecific
+#pragma warning disable " + NRefactoryDiagnosticIDs.StringLastIndexOfIsCultureSpecificAnalyzerID + @"
 		bar.LastIndexOf ("".com"");
 	}
 }

@@ -97,7 +97,7 @@ class FooBar2 : FooBar
 
 class FooBar2 : FooBar
 {
-	// ReSharper disable once BaseMemberHasParams
+#pragma warning disable " + NRefactoryDiagnosticIDs.BaseMemberHasParamsAnalyzerID + @"
 	public override void Foo(string fmt, object[] args)
 	{
 		System.Console.WriteLine(fmt, args);

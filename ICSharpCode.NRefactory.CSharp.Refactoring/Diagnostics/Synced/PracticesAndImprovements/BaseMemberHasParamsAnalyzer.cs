@@ -23,108 +23,68 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "BaseMemberHasParams")]
-	public class BaseMemberHasParamsAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class BaseMemberHasParamsAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BaseMemberHasParamsAnalyzer";
-		const string Description            = "Base parameter has 'params' modifier, but missing in overrider";
-		const string MessageFormat          = "Base method '{0}' has a 'params' modifier";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.BaseMemberHasParamsAnalyzerID, 
+			GettextCatalog.GetString("Base parameter has 'params' modifier, but missing in overrider"),
+			GettextCatalog.GetString("Base method '{0}' has a 'params' modifier"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.BaseMemberHasParamsAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Base parameter has 'params' modifier, but missing in overrider");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.MethodDeclaration
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as MethodDeclarationSyntax;
 
-		class GatherVisitor : GatherVisitorBase<BaseMemberHasParamsAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
-			{
-				if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
-					return;
-				var lastParam = node.ParameterList.Parameters.LastOrDefault();
-				if (lastParam == null || lastParam.Modifiers.Any(m => m.IsKind(SyntaxKind.ParamsKeyword)))
-					return;
-				if (lastParam.Type == null || !lastParam.Type.IsKind(SyntaxKind.ArrayType))
-					return;
-				var rr = semanticModel.GetDeclaredSymbol(node);
-				if (rr == null || !rr.IsOverride)
-					return;
-				var baseMember = rr.OverriddenMethod;
-				if (baseMember == null || baseMember.Parameters.Length == 0 || !baseMember.Parameters.Last().IsParams)
-					return;
-				VisitLeadingTrivia(node);
-				AddDiagnosticAnalyzer (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, lastParam.Span), baseMember.Name));
-			}
-
-
-			public override void VisitBlock(BlockSyntax node)
-			{
-				// SKIP
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class BaseMemberHasParamsFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return BaseMemberHasParamsAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (!node.IsKind(SyntaxKind.Parameter))
-				return;
-			var param = (ParameterSyntax)node;
-			var newRoot = root.ReplaceNode(node, param.AddModifiers(SyntaxFactory.Token(SyntaxKind.ParamsKeyword)).WithAdditionalAnnotations(Formatter.Annotation));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Add 'params' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.OverrideKeyword)))
+				return false;
+			var lastParam = node.ParameterList.Parameters.LastOrDefault();
+			if (lastParam == null || lastParam.Modifiers.Any(m => m.IsKind(SyntaxKind.ParamsKeyword)))
+				return false;
+			if (lastParam.Type == null || !lastParam.Type.IsKind(SyntaxKind.ArrayType))
+				return false;
+			var rr = nodeContext.SemanticModel.GetDeclaredSymbol(node);
+			if (rr == null || !rr.IsOverride)
+				return false;
+			var baseMember = rr.OverriddenMethod;
+			if (baseMember == null || baseMember.Parameters.Length == 0 || !baseMember.Parameters.Last().IsParams)
+				return false;
+			
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				lastParam.GetLocation (),
+				baseMember.Name
+			);
+			return true;
 		}
 	}
 }

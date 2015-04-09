@@ -43,52 +43,66 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ReplaceWithOfType.SingleOrDefault")]
-	public class ReplaceWithOfTypeSingleOrDefaultAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithOfTypeSingleOrDefaultAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ReplaceWithOfTypeSingleOrDefaultAnalyzer";
-		const string Description            = "Replace with call to OfType<T>().SingleOrDefault()";
-		const string MessageFormat          = "Replace with OfType<T>().SingleOrDefault()";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ReplaceWithOfTypeSingleOrDefaultAnalyzerID, 
+			GettextCatalog.GetString("Replace with call to OfType<T>().SingleOrDefault()"),
+			GettextCatalog.GetString("Replace with 'OfType<T>().SingleOrDefault()'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ReplaceWithOfTypeSingleOrDefaultAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with OfType<T>().SingleOrDefault()");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic(nodeContext, out diagnostic))
+						nodeContext.ReportDiagnostic(diagnostic);
+				},
+				SyntaxKind.InvocationExpression
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			var anyInvoke = nodeContext.Node as InvocationExpressionSyntax;
+
+			var info = nodeContext.SemanticModel.GetSymbolInfo(anyInvoke);
+
+			IMethodSymbol anyResolve = info.Symbol as IMethodSymbol;
+			if (anyResolve == null) {
+				anyResolve = info.CandidateSymbols.OfType<IMethodSymbol>().FirstOrDefault(candidate => HasPredicateVersion(candidate));
+			} 
+
+			if (anyResolve == null || !HasPredicateVersion(anyResolve))
+				return false;
+
+			ExpressionSyntax target, followUp;
+			TypeSyntax type;
+			ParameterSyntax param;
+			if (ReplaceWithOfTypeAnyAnalyzer.MatchSelect(anyInvoke, out target, out type, out param, out followUp)) {
+				// if (member == "Where" && followUp == null) return;
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					anyInvoke.GetLocation ()
+				);
+				return true;
 			}
+			return false;
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool HasPredicateVersion(IMethodSymbol member)
 		{
-			return new ReplaceWithOfTypeAnyAnalyzer.GatherVisitor<ReplaceWithOfTypeSingleOrDefaultAnalyzer>(semanticModel, addDiagnostic, cancellationToken, "SingleOrDefault");
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ReplaceWithOfTypeSingleOrDefaultFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ReplaceWithOfTypeSingleOrDefaultAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span, getInnermostNodeForTie: true) as InvocationExpressionSyntax;
-			var newRoot = root.ReplaceNode(node, ReplaceWithOfTypeAnyAnalyzer.MakeOfTypeCall(node));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Replace with call to OfType<T>().SingeOrDefault()", document.WithSyntaxRoot(newRoot)), diagnostic);
+			if (!ReplaceWithOfTypeAnyAnalyzer.IsQueryExtensionClass(member.ContainingType))
+				return false;
+			return member.Name == "SingleOrDefault";
 		}
 	}
 }
