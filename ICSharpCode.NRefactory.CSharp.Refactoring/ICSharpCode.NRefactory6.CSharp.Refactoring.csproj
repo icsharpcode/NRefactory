@@ -527,6 +527,15 @@
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\UseIsOperatorCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\UseMethodAnyCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\UseMethodIsInstanceOfTypeCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\ConstantNullCoalescingConditionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\DoubleNegationOperatorCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\EmptyStatementCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\ForStatementConditionIsTrueCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantArgumentDefaultValueCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantArgumentNameCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

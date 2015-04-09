@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction(
 				nodeContext => {
 					Diagnostic diagnostic;
-					if (TryAnalyzeNamespace (nodeContext, out diagnostic)) {
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
 						nodeContext.ReportDiagnostic(diagnostic);
 					}
 				}, 
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		static bool TryAnalyzeNamespace (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var namespaceDeclaration = nodeContext.Node as NamespaceDeclarationSyntax;
 			diagnostic = default(Diagnostic);

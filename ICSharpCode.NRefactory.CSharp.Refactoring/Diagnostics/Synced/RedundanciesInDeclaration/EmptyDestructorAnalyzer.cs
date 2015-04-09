@@ -51,7 +51,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction(
 				nodeContext => {
 					Diagnostic diagnostic;
-					if (TryAnalyzeDestructor (nodeContext, out diagnostic)) {
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
 						nodeContext.ReportDiagnostic(diagnostic);
 					}
 				}, 
@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		static bool TryAnalyzeDestructor (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var destructorDeclaration = nodeContext.Node as DestructorDeclarationSyntax;
 			diagnostic = default(Diagnostic);

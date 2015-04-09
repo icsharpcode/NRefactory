@@ -1,10 +1,10 @@
 //
-// RedundantArgumentDefaultValueAnalyzer.cs
+// RedundantArgumentDefaultValueCodeFixProvider.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -39,106 +39,33 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
-	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "RedundantArgumentDefaultValue")]
-	public class RedundantArgumentDefaultValueAnalyzer : GatherVisitorDiagnosticAnalyzer
+	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	public class RedundantArgumentDefaultValueCodeFixProvider : NRefactoryCodeFixProvider
 	{
-		internal const string DiagnosticId  = "RedundantArgumentDefaultValueAnalyzer";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
-
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Default argument value is redundant", "The parameter is optional with the same default value", Category, DiagnosticSeverity.Warning, true, "Redundant argument with default value");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
+		{
+			yield return RedundantArgumentDefaultValueAnalyzer.DiagnosticId;
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override FixAllProvider GetFixAllProvider()
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			return WellKnownFixAllProviders.BatchFixer;
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantArgumentDefaultValueAnalyzer>
+		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			bool IsDefaultValue(Expression arg, ICSharpCode.NRefactory.TypeSystem.IParameter par)
-//			{
-//				var ne = arg as NamedArgumentExpression;
-//				if (ne != null) {
-//					if (ne.Name != par.Name)
-//						return false;
-//					arg = ne.Expression;
-//				}
-//				var cr = ctx.Resolve(arg);
-//				if (cr == null || !cr.IsCompileTimeConstant || !par.IsOptional)
-//					return false;
-//				return 
-//					cr.ConstantValue == null && par.ConstantValue == null || 
-//					cr.ConstantValue.Equals(par.ConstantValue);
-//			}
-//
-//			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
-//			{
-//				base.VisitObjectCreateExpression(objectCreateExpression);
-//				Check(objectCreateExpression, objectCreateExpression.Arguments.ToList());
-//			}
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//				Check(invocationExpression, invocationExpression.Arguments.ToList());
-//			}
-//
-//			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
-//			{
-//				base.VisitIndexerExpression(indexerExpression);
-//				Check(indexerExpression, indexerExpression.Arguments.ToList());
-//			}
-//
-//			void Check(AstNode invocationExpression, List<Expression> arguments)
-//			{
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//
-//				for (int i = 0; i < arguments.Count && i < rr.Member.Parameters.Count; i++) {
-//
-//					if (!IsDefaultValue(arguments[i], rr.Member.Parameters[i]))
-//						continue;
-//					bool nextAreAllDefault = true;
-//					for (int j = i + 1; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
-//						if (!IsDefaultValue(arguments[j], rr.Member.Parameters[j])) {
-//							nextAreAllDefault = false;
-//							break;
-//						}
-//					}
-//					if (!nextAreAllDefault)
-//						continue;
-//					for (int j = i; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
-//						var _i = j;
-//						AddDiagnosticAnalyzer(new CodeIssue(
-//							arguments[j],
-//							i + 1 < arguments.Count ? ctx.TranslateString("Argument values are redundant") : ctx.TranslateString("Argument value is redundant"),
-//							i + 1 < arguments.Count ? ctx.TranslateString("Remove redundant arguments") : ctx.TranslateString("Remove redundant argument"),
-//							script => {
-//								var invoke = invocationExpression.Clone();
-//
-//								var argCollection = invoke.GetChildrenByRole<Expression>(Roles.Argument);
-//								argCollection.Clear();
-//								for (int k = 0; k < _i; k++)
-//									argCollection.Add(arguments[k].Clone());
-//								script.Replace(invocationExpression, invoke);
-//							}
-//						) { IssueMarker = IssueMarker.GrayOut });
-//					}
-//					break;
-//				}
-//			}
+			var document = context.Document;
+			var cancellationToken = context.CancellationToken;
+			var span = context.Span;
+			var diagnostics = context.Diagnostics;
+			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var diagnostic = diagnostics.First ();
+			var node = root.FindNode(context.Span);
+			//if (!node.IsKind(SyntaxKind.BaseList))
+			//	continue;
+			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+			 
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant arguments", document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 

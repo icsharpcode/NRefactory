@@ -23,147 +23,143 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+
+using System.Collections.Immutable;
 using System.Linq;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "ConditionIsAlwaysTrueOrFalse")]
-	public class ConditionIsAlwaysTrueOrFalseAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConditionIsAlwaysTrueOrFalseAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticIdTrue  = "ConditionIsAlwaysTrueOrFalseAnalyzer.True";
-		internal const string DiagnosticIdFalse = "ConditionIsAlwaysTrueOrFalseAnalyzer.False";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConditionIsAlwaysTrueOrFalseAnalyzerID, 
+			GettextCatalog.GetString("Expression is always 'true' or always 'false'"),
+			GettextCatalog.GetString("Expression is always '{0}'"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConditionIsAlwaysTrueOrFalseAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdTrue, "Expression is always 'true'", "Value of the expression is always 'true'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdFalse, "Expression is always 'false'", "Value of the expression is always 'false'", Category, DiagnosticSeverity.Warning, true, "Expression is always 'true' or always 'false'");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule1, Rule2);
-			}
-		}
-
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<ConditionIsAlwaysTrueOrFalseAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitBinaryExpression(BinaryExpressionSyntax node)
-			{
-				base.VisitBinaryExpression(node);
-				if (CheckConstant(node))
-					return;
-
-				if (node.Left.SkipParens().IsKind(SyntaxKind.NullLiteralExpression)) {
-					if (CheckNullComparison(node, node.Right, node.Left))
-						return;
-				} else if (node.Right.SkipParens().IsKind(SyntaxKind.NullLiteralExpression)) {
-					if (CheckNullComparison(node, node.Left, node.Right))
-						return;
-				}
-			}
-
-			bool CheckNullComparison(BinaryExpressionSyntax binaryOperatorExpression, ExpressionSyntax right, ExpressionSyntax nullNode)
-			{
-				if (!binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) && !binaryOperatorExpression.IsKind(SyntaxKind.NotEqualsExpression))
-					return false;
-				// note null == null is checked by similiar expression comparison.
-				var expr = right.SkipParens();
-
-				var rr = semanticModel.GetTypeInfo(expr);
-				if (rr.Type == null)
-					return false;
-				var returnType = rr.Type;
-				if (returnType != null && returnType.IsValueType) {
-					// nullable check
-					if (returnType.IsNullableType())
-						return false;
-
-					var conversion = semanticModel.GetConversion(nullNode);
-					if (conversion.IsUserDefined)
-						return false;
-					// check for user operators
-					foreach (IMethodSymbol op in returnType.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.UserDefinedOperator && m.Parameters.Length == 2)) {
-						if (op.Parameters[0].Type.IsReferenceType == false && op.Parameters[1].Type.IsReferenceType == false)
-							continue;
-						if (binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) && op.Name == "op_Equality")
-							return false;
-						if (binaryOperatorExpression.IsKind(SyntaxKind.NotEqualsExpression) && op.Name == "op_Inequality")
-							return false;
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
 					}
-					AddDiagnosticAnalyzer(Diagnostic.Create(!binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) ? Rule1 : Rule2, binaryOperatorExpression.GetLocation()));
-					return true;
+				}, 
+				new SyntaxKind[] {
+					SyntaxKind.EqualsExpression,
+					SyntaxKind.NotEqualsExpression,
+					SyntaxKind.LessThanExpression,
+					SyntaxKind.LessThanOrEqualExpression,
+					SyntaxKind.GreaterThanExpression,
+					SyntaxKind.GreaterThanOrEqualExpression
 				}
-				return false;
-			}
+			);
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic2 (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.LogicalNotExpression }
+			);
+		}
 
-			bool CheckConstant(SyntaxNode expr)
-			{
-				var rr = semanticModel.GetConstantValue(expr);
-				if (rr.HasValue && rr.Value is bool) {
-					var result = (bool)rr.Value;
-					AddDiagnosticAnalyzer(Diagnostic.Create(result ? Rule1 : Rule2, expr.GetLocation()));
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+
+			var node = nodeContext.Node as BinaryExpressionSyntax;
+
+			if (CheckConstant(nodeContext, node, ref diagnostic))
+				return true;
+
+			if (node.Left.SkipParens().IsKind(SyntaxKind.NullLiteralExpression)) {
+				if (CheckNullComparison(nodeContext, node, node.Right, node.Left, ref diagnostic))
 					return true;
-				}
+			} else if (node.Right.SkipParens().IsKind(SyntaxKind.NullLiteralExpression)) {
+				if (CheckNullComparison(nodeContext, node, node.Left, node.Right, ref diagnostic))
+					return true;
+			}
+			return false;
+		}
+
+		static bool TryGetDiagnostic2 (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+
+			var node = nodeContext.Node as PrefixUnaryExpressionSyntax;
+
+			if (CheckConstant(nodeContext, node, ref diagnostic))
+				return true;
+			return false;
+		}
+
+
+		static bool CheckNullComparison(SyntaxNodeAnalysisContext nodeContext, BinaryExpressionSyntax binaryOperatorExpression, ExpressionSyntax right, ExpressionSyntax nullNode, ref Diagnostic diagnostic)
+		{
+			if (!binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) && !binaryOperatorExpression.IsKind(SyntaxKind.NotEqualsExpression))
 				return false;
+			// note null == null is checked by similiar expression comparison.
+			var expr = right.SkipParens();
+
+			var rr = nodeContext.SemanticModel.GetTypeInfo(expr);
+			if (rr.Type == null)
+				return false;
+			var returnType = rr.Type;
+			if (returnType != null && returnType.IsValueType) {
+				// nullable check
+				if (returnType.IsNullableType())
+					return false;
+
+				var conversion = nodeContext.SemanticModel.GetConversion(nullNode);
+				if (conversion.IsUserDefined)
+					return false;
+				// check for user operators
+				foreach (IMethodSymbol op in returnType.GetMembers().OfType<IMethodSymbol>().Where(m => m.MethodKind == MethodKind.UserDefinedOperator && m.Parameters.Length == 2)) {
+					if (op.Parameters[0].Type.IsReferenceType == false && op.Parameters[1].Type.IsReferenceType == false)
+						continue;
+					if (binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression) && op.Name == "op_Equality")
+						return false;
+					if (binaryOperatorExpression.IsKind(SyntaxKind.NotEqualsExpression) && op.Name == "op_Inequality")
+						return false;
+				}
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					binaryOperatorExpression.GetLocation(),
+					!binaryOperatorExpression.IsKind(SyntaxKind.EqualsExpression)  ? "true" : "false"
+				);
+				return true;
 			}
+			return false;
+		}
 
-			public override void VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
-			{
-				base.VisitPrefixUnaryExpression(node);
-				CheckConstant(node);
+		static bool CheckConstant(SyntaxNodeAnalysisContext nodeContext, SyntaxNode expr, ref Diagnostic diagnostic)
+		{
+			var rr = nodeContext.SemanticModel.GetConstantValue(expr);
+			if (rr.HasValue && rr.Value is bool) {
+				var result = (bool)rr.Value;
+				diagnostic = Diagnostic.Create (
+					descriptor,
+					expr.GetLocation(),
+					result ? "true" : "false"
+				);
+				return true;
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConditionIsAlwaysTrueOrFalseFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ConditionIsAlwaysTrueOrFalseAnalyzer.DiagnosticIdTrue;
-			yield return ConditionIsAlwaysTrueOrFalseAnalyzer.DiagnosticIdFalse;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			var newRoot = root.ReplaceNode(node,
-				SyntaxFactory.LiteralExpression(diagnostic.Id == ConditionIsAlwaysTrueOrFalseAnalyzer.DiagnosticIdTrue ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression) 
-				.WithLeadingTrivia(node.GetLeadingTrivia())
-				.WithTrailingTrivia(node.GetTrailingTrivia()));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.Id == ConditionIsAlwaysTrueOrFalseAnalyzer.DiagnosticIdTrue ? "Replace with 'true'" : "Replace with 'false'", document.WithSyntaxRoot(newRoot)), diagnostic);
+			return false;
 		}
 	}
 }

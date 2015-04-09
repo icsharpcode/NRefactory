@@ -61,7 +61,7 @@ class Test
 {
 	public void Foo ()
 	{
-		// ReSharper disable once EmptyStatement
+#pragma warning disable " + NRefactoryDiagnosticIDs.EmptyStatementAnalyzerID + @"
 		;
 	}
 }

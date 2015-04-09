@@ -23,97 +23,59 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "RedundantAnonymousTypePropertyName")]
-	public class RedundantAnonymousTypePropertyNameAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantAnonymousTypePropertyNameAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantAnonymousTypePropertyNameAnalyzer";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantAnonymousTypePropertyNameAnalyzerID, 
+			GettextCatalog.GetString("Redundant explicit property name"),
+			GettextCatalog.GetString("The name can be inferred from the initializer expression"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantAnonymousTypePropertyNameAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Redundant explicit property name", "The name can be inferred from the initializer expression", Category, DiagnosticSeverity.Warning, true, "Redundant anonymous type property namen");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					GetDiagnostics (nodeContext);
+				}, 
+				new SyntaxKind[] {  SyntaxKind.AnonymousObjectCreationExpression }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static void GetDiagnostics (SyntaxNodeAnalysisContext nodeContext)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			var node = nodeContext.Node as AnonymousObjectCreationExpressionSyntax;
 
-		class GatherVisitor : GatherVisitorBase<RedundantAnonymousTypePropertyNameAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			foreach (var expr in node.Initializers) {
+				if (expr.NameEquals == null || expr.NameEquals.Name == null)
+					continue;
 
-			static string GetAnonymousTypePropertyName(SyntaxNode expr)
-			{
-				var mAccess = expr as MemberAccessExpressionSyntax;
-				return mAccess != null ? mAccess.Name.ToString() : expr.ToString();
-			}
-
-			public override void VisitAnonymousObjectCreationExpression(AnonymousObjectCreationExpressionSyntax node)
-			{
-				base.VisitAnonymousObjectCreationExpression(node);
-
-				foreach (var expr in node.Initializers) {
-					if (expr.NameEquals == null || expr.NameEquals.Name == null)
-						continue;
-
-					if (expr.NameEquals.Name.ToString() == GetAnonymousTypePropertyName(expr.Expression)) {
-						AddDiagnosticAnalyzer (Diagnostic.Create(Rule, expr.NameEquals.GetLocation()));
-					}
+				if (expr.NameEquals.Name.ToString() == GetAnonymousTypePropertyName(expr.Expression)) {
+					nodeContext.ReportDiagnostic (Diagnostic.Create(descriptor, expr.NameEquals.GetLocation()));
 				}
 			}
 		}
-	}
 
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantAnonymousTypePropertyNameFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
+		static string GetAnonymousTypePropertyName(SyntaxNode expr)
 		{
-			yield return RedundantAnonymousTypePropertyNameAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (node.IsKind(SyntaxKind.NameEquals)) {
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepLeadingTrivia);
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant name", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			var mAccess = expr as MemberAccessExpressionSyntax;
+			return mAccess != null ? mAccess.Name.ToString() : expr.ToString();
 		}
 	}
 }

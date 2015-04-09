@@ -95,7 +95,7 @@ namespace resharper_test
 		}
 
 		[Test]
-		public void TestResharperDisableRestore()
+		public void TestDisable()
 		{
 			Analyze<ForStatementConditionIsTrueAnalyzer>(@"using System;
 namespace resharper_test
@@ -104,10 +104,9 @@ namespace resharper_test
 	{
 		public void method()
 		{
-//Resharper disable ForStatementConditionIsTrue
+#pragma warning disable " + NRefactoryDiagnosticIDs.ForStatementConditionIsTrueAnalyzerID + @"
 			for (; true ;)
 			{}
-//Resharper restore ForStatementConditionIsTrue
 		}
 	}
 }

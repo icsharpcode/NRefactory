@@ -32,7 +32,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[TestFixture]
 	public class DoubleNegationOperatorTests : InspectionActionTestBase
 	{
-		[Ignore("Roslyn bug in FindNode")]
 		[Test]
 		public void TestLogicalNot ()
 		{
@@ -87,7 +86,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		// disable once DoubleNegationOperator
+#pragma warning disable " + NRefactoryDiagnosticIDs.DoubleNegationOperatorAnalyzerID + @"
 		var x = ~(~(123));
 	}
 }");

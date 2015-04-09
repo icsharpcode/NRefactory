@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction(
 				(nodeContext) => {
 					Diagnostic diagnostic;
-					if (TryRemovePartialModifier (nodeContext, out diagnostic)) {
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
 						nodeContext.ReportDiagnostic(diagnostic);
 					}
 				}, 
@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		static bool TryRemovePartialModifier (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var classDeclaration = nodeContext.Node as ClassDeclarationSyntax;
 			diagnostic = default(Diagnostic);

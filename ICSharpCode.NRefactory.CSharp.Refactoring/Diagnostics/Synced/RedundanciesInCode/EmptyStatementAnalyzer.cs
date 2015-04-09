@@ -24,89 +24,56 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "EmptyStatement")]
-	public class EmptyStatementAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class EmptyStatementAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EmptyStatementAnalyzer";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EmptyStatementAnalyzerID, 
+			GettextCatalog.GetString("Empty statement is redundant"),
+			GettextCatalog.GetString("Empty statement is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EmptyStatementAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "Empty statement is redundant", "Empty statement is redundant", Category, DiagnosticSeverity.Warning, true, "Empty statement is redundant");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.EmptyStatement }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<EmptyStatementAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitEmptyStatement(Microsoft.CodeAnalysis.CSharp.Syntax.EmptyStatementSyntax node)
-			{
-				if (IsEmbeddedStatement(node))
-					return;
-				VisitLeadingTrivia(node); 
-				AddDiagnosticAnalyzer (Diagnostic.Create(Rule, node.GetLocation()));
-			}
+			var node = nodeContext.Node as Microsoft.CodeAnalysis.CSharp.Syntax.EmptyStatementSyntax;
+			if (IsEmbeddedStatement(node))
+				return false;
+			diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			return true;
 		}
 
 		internal static bool IsEmbeddedStatement(SyntaxNode stmt)
 		{
 			return !stmt.Parent.IsKind(SyntaxKind.Block);
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EmptyStatementCodeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EmptyStatementAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (node.IsKind(SyntaxKind.EmptyStatement)) {
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove ';'", document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
 		}
 	}
 }

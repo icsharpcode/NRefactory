@@ -92,5 +92,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string StringEndsWithIsCultureSpecificAnalyzerID = "NR0061";
 		public const string StringLastIndexOfIsCultureSpecificAnalyzerID = "NR0062";
 		public const string StringStartsWithIsCultureSpecificAnalyzerID = "NR0063";
+		public const string ArrayCreationCanBeReplacedWithArrayInitializerAnalyzerID = "NR0064";
+		public const string ConditionIsAlwaysTrueOrFalseAnalyzerID = "NR0065";
+		public const string DoubleNegationOperatorAnalyzerID = "NR0066";
+		public const string EmptyStatementAnalyzerID = "NR0067";
+		public const string ForStatementConditionIsTrueAnalyzerID = "NR0068";
+		public const string RedundantAnonymousTypePropertyNameAnalyzerID = "NR0069";
+		public const string RedundantArgumentNameAnalyzerID = "NR0070";
 	}
 }

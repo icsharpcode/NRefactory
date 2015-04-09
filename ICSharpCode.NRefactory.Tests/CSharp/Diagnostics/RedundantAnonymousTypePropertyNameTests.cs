@@ -93,7 +93,7 @@ class TestClass
 {
 	public void Test(FooBar f)
 	{
-		// ReSharper disable once RedundantAnonymousTypePropertyName
+#pragma warning disable " + NRefactoryDiagnosticIDs.RedundantAnonymousTypePropertyNameAnalyzerID + @"
 		var n = new { Foo = f.Foo, b = 12 };
 	}
 }");

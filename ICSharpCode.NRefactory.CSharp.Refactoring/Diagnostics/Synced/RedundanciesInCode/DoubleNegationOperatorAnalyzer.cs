@@ -24,104 +24,66 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzer(AnalysisDisableKeyword = "DoubleNegationOperator")]
-	public class DoubleNegationOperatorAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class DoubleNegationOperatorAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "DoubleNegationOperatorAnalyzer";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.DoubleNegationOperatorAnalyzerID, 
+			GettextCatalog.GetString("Double negation is redundant"),
+			GettextCatalog.GetString("Double negation is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.DoubleNegationOperatorAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId,  "Double negation is redundant", "Double negation is meaningless", Category, DiagnosticSeverity.Warning, true, "Double negation operator");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize(AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction(
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] {  SyntaxKind.LogicalNotExpression, SyntaxKind.BitwiseNotExpression }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
+			diagnostic = default(Diagnostic);
 
-		class GatherVisitor : GatherVisitorBase<DoubleNegationOperatorAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
+			var node = nodeContext.Node as PrefixUnaryExpressionSyntax;
+
+			if (node.IsKind(SyntaxKind.LogicalNotExpression)) {
+				var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
+				if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.LogicalNotExpression))
+					return false;
+				diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+				return true;
+
 			}
 
-			public override void VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
-			{
-				base.VisitPrefixUnaryExpression(node);
-
-				if (node.IsKind(SyntaxKind.LogicalNotExpression)) {
-					var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
-
-					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.LogicalNotExpression))
-						return;
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-
-				}
-
-				if (node.IsKind(SyntaxKind.BitwiseNotExpression)) {
-					var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
-
-					if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.BitwiseNotExpression))
-						return;
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.GetLocation()));
-				}
+			if (node.IsKind(SyntaxKind.BitwiseNotExpression)) {
+				var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
+				if (innerUnaryOperatorExpr == null || !innerUnaryOperatorExpr.IsKind(SyntaxKind.BitwiseNotExpression))
+					return false;
+				diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+				return true;
 			}
+			return false;
 		}
 	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class DoubleNegationOperatorFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return DoubleNegationOperatorAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var n = root.FindNode(context.Span, true, true);
-			var node = n as PrefixUnaryExpressionSyntax;
-			if (node == null)
-				return;
-			var innerUnaryOperatorExpr = node.Operand.SkipParens() as PrefixUnaryExpressionSyntax;
-			if (innerUnaryOperatorExpr == null)
-				return;
-			var newRoot = root.ReplaceNode((SyntaxNode)node, innerUnaryOperatorExpr.Operand.SkipParens());
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, node.IsKind(SyntaxKind.LogicalNotExpression) ? "Remove '!!'" : "Remove '~~'", document.WithSyntaxRoot(newRoot)), diagnostic);
-		}
-	}
-
 }

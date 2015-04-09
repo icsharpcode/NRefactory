@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterSyntaxNodeAction(
 				nodeContext => {
 					Diagnostic diagnostic;
-					if (TryAnalyzeEnumDeclaration (nodeContext, out diagnostic)) {
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
 						nodeContext.ReportDiagnostic(diagnostic);
 					}
 				}, 
@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			);
 		}
 
-		static bool TryAnalyzeEnumDeclaration (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			var enumDeclaration = nodeContext.Node as EnumDeclarationSyntax;
 			diagnostic = default(Diagnostic);

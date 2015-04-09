@@ -141,7 +141,7 @@ class Test
 {
 	void Foo(int i)
 	{
-		// ReSharper disable once ConditionIsAlwaysTrueOrFalse
+#pragma warning disable " + NRefactoryDiagnosticIDs.ConditionIsAlwaysTrueOrFalseAnalyzerID + @"
 		if (i == null) {
 		}
 	}

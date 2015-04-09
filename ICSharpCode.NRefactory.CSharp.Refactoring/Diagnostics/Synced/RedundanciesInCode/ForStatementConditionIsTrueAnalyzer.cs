@@ -23,86 +23,52 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	[NRefactoryCodeDiagnosticAnalyzerAttribute(AnalysisDisableKeyword = "ForStatementConditionIsTrue")]
-	public class ForStatementConditionIsTrueAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ForStatementConditionIsTrueAnalyzer : DiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ForStatementConditionIsTrueAnalyzer";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ForStatementConditionIsTrueAnalyzerID,
+			GettextCatalog.GetString ("'true' is redundant as for statement condition"),
+			GettextCatalog.GetString ("true is redundant as for statement condition, thus can be safely ommited"),
+			DiagnosticAnalyzerCategories.RedundanciesInCode,
+			DiagnosticSeverity.Warning,
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.ForStatementConditionIsTrueAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, "'true' is redundant as for statement condition", "true is redundant as for statement condition, thus can be safely ommited", Category, DiagnosticSeverity.Warning, true, "'true' is redundant as for statement condition");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
+		public override void Initialize (AnalysisContext context)
+		{
+			context.RegisterSyntaxNodeAction (
+				nodeContext => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic (diagnostic);
+					}
+				},
+				new SyntaxKind [] { SyntaxKind.ForStatement }
+			);
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
-		}
-
-		class GatherVisitor : GatherVisitorBase<ForStatementConditionIsTrueAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitForStatement(ForStatementSyntax node)
-			{
-				if (node.Condition.IsKind(SyntaxKind.TrueLiteralExpression)) {
-					VisitLeadingTrivia(node);
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.Condition.GetLocation()));
-				}
-				base.VisitForStatement(node);
-			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ForStatementConditionIsTrueCodeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ForStatementConditionIsTrueAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (node.IsKind(SyntaxKind.TrueLiteralExpression)) {
-				var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ForStatementSyntax;
+			if (!node.Condition.IsKind (SyntaxKind.TrueLiteralExpression))
+				return false;
+			diagnostic = Diagnostic.Create (descriptor, node.Condition.GetLocation ());
+			return true;
 		}
 	}
 }
