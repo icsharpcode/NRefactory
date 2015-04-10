@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UseMethodAnyAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class UseMethodAnyAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UseMethodAnyAnalyzerID, 
@@ -57,122 +57,139 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<UseMethodAnyAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-//
-//			void AddDiagnosticAnalyzer2(BinaryOperatorExpression binaryOperatorExpression, Expression expr)
-//			{
-//			}
-//
-//			readonly AstNode anyPattern =
-//				new Choice {
-//					PatternHelper.CommutativeOperatorWithOptionalParentheses(
-//						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
-//						BinaryOperatorType.InEquality,
-//						new PrimitiveExpression(0)
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-//						BinaryOperatorType.GreaterThan,
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
-//						BinaryOperatorType.LessThan,
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-//						BinaryOperatorType.GreaterThanOrEqual,
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
-//						BinaryOperatorType.LessThanOrEqual,
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-//					)
-//			};
-//
-//			readonly AstNode notAnyPattern =
-//				new Choice {
-//					PatternHelper.CommutativeOperatorWithOptionalParentheses(
-//						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
-//						BinaryOperatorType.Equality,
-//						new PrimitiveExpression(0)
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-//						BinaryOperatorType.LessThan,
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
-//						BinaryOperatorType.GreaterThan,
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
-//						BinaryOperatorType.LessThanOrEqual,
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
-//					),
-//					new BinaryOperatorExpression (
-//						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
-//						BinaryOperatorType.GreaterThanOrEqual,
-//						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
-//					)
-//				};
-//
-//			void AddMatch(BinaryOperatorExpression binaryOperatorExpression, Match match, bool negateAny)
-//			{
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					binaryOperatorExpression,
-//					ctx.TranslateString(""), 
-//					script =>  {
-//						Expression expr = new InvocationExpression(new MemberReferenceExpression(match.Get<Expression>("expr").First().Clone(), "Any"));
-//						if (negateAny)
-//							expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
-//						script.Replace(binaryOperatorExpression, expr);
-//					}
-//				));
-//			}
-//
-//			bool CheckMethod(Match match)
-//			{
-//				var invocation = match.Get<Expression>("invocation").First();
-//				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return false;
-//				var method = rr.Member as IMethod;
-//				return 
-//					method != null &&
-//					method.IsExtensionMethod &&
-//					method.DeclaringTypeDefinition.Namespace == "System.Linq" && 
-//					method.DeclaringTypeDefinition.Name == "Enumerable";
-//			}
-//
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-//			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//				var match = anyPattern.Match(binaryOperatorExpression);
-//				if (match.Success && CheckMethod (match)) {
-//					AddMatch(binaryOperatorExpression, match, false);
-//					return;
-//				}
-//				match = notAnyPattern.Match(binaryOperatorExpression);
-//				if (match.Success && CheckMethod (match)) {
-//					AddMatch(binaryOperatorExpression, match, true);
-//					return;
-//				}
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<UseMethodAnyAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+////
+////			void AddDiagnosticAnalyzer2(BinaryOperatorExpression binaryOperatorExpression, Expression expr)
+////			{
+////			}
+////
+////			readonly AstNode anyPattern =
+////				new Choice {
+////					PatternHelper.CommutativeOperatorWithOptionalParentheses(
+////						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
+////						BinaryOperatorType.InEquality,
+////						new PrimitiveExpression(0)
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+////						BinaryOperatorType.GreaterThan,
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
+////						BinaryOperatorType.LessThan,
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+////						BinaryOperatorType.GreaterThanOrEqual,
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
+////						BinaryOperatorType.LessThanOrEqual,
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+////					)
+////			};
+////
+////			readonly AstNode notAnyPattern =
+////				new Choice {
+////					PatternHelper.CommutativeOperatorWithOptionalParentheses(
+////						new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))),
+////						BinaryOperatorType.Equality,
+////						new PrimitiveExpression(0)
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+////						BinaryOperatorType.LessThan,
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(1))
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(1)),
+////						BinaryOperatorType.GreaterThan,
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count")))),
+////						BinaryOperatorType.LessThanOrEqual,
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(0))
+////					),
+////					new BinaryOperatorExpression (
+////						PatternHelper.OptionalParentheses(new PrimitiveExpression(0)),
+////						BinaryOperatorType.GreaterThanOrEqual,
+////						PatternHelper.OptionalParentheses(new NamedNode ("invocation", new InvocationExpression(new MemberReferenceExpression(new AnyNode("expr"), "Count"))))
+////					)
+////				};
+////
+////			void AddMatch(BinaryOperatorExpression binaryOperatorExpression, Match match, bool negateAny)
+////			{
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					binaryOperatorExpression,
+////					ctx.TranslateString(""), 
+////					script =>  {
+////						Expression expr = new InvocationExpression(new MemberReferenceExpression(match.Get<Expression>("expr").First().Clone(), "Any"));
+////						if (negateAny)
+////							expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
+////						script.Replace(binaryOperatorExpression, expr);
+////					}
+////				));
+////			}
+////
+////			bool CheckMethod(Match match)
+////			{
+////				var invocation = match.Get<Expression>("invocation").First();
+////				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return false;
+////				var method = rr.Member as IMethod;
+////				return 
+////					method != null &&
+////					method.IsExtensionMethod &&
+////					method.DeclaringTypeDefinition.Namespace == "System.Linq" && 
+////					method.DeclaringTypeDefinition.Name == "Enumerable";
+////			}
+////
+////			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+////			{
+////				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+////				var match = anyPattern.Match(binaryOperatorExpression);
+////				if (match.Success && CheckMethod (match)) {
+////					AddMatch(binaryOperatorExpression, match, false);
+////					return;
+////				}
+////				match = notAnyPattern.Match(binaryOperatorExpression);
+////				if (match.Success && CheckMethod (match)) {
+////					AddMatch(binaryOperatorExpression, match, true);
+////					return;
+////				}
+////			}
+//		}
 	}
 }

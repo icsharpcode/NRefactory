@@ -40,7 +40,7 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantArgumentDefaultValueAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantArgumentDefaultValueAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantArgumentDefaultValueAnalyzerID, 
@@ -55,92 +55,109 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantArgumentDefaultValueAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			bool IsDefaultValue(Expression arg, ICSharpCode.NRefactory.TypeSystem.IParameter par)
-//			{
-//				var ne = arg as NamedArgumentExpression;
-//				if (ne != null) {
-//					if (ne.Name != par.Name)
-//						return false;
-//					arg = ne.Expression;
-//				}
-//				var cr = ctx.Resolve(arg);
-//				if (cr == null || !cr.IsCompileTimeConstant || !par.IsOptional)
-//					return false;
-//				return 
-//					cr.ConstantValue == null && par.ConstantValue == null || 
-//					cr.ConstantValue.Equals(par.ConstantValue);
-//			}
-//
-//			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
-//			{
-//				base.VisitObjectCreateExpression(objectCreateExpression);
-//				Check(objectCreateExpression, objectCreateExpression.Arguments.ToList());
-//			}
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//				Check(invocationExpression, invocationExpression.Arguments.ToList());
-//			}
-//
-//			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
-//			{
-//				base.VisitIndexerExpression(indexerExpression);
-//				Check(indexerExpression, indexerExpression.Arguments.ToList());
-//			}
-//
-//			void Check(AstNode invocationExpression, List<Expression> arguments)
-//			{
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//
-//				for (int i = 0; i < arguments.Count && i < rr.Member.Parameters.Count; i++) {
-//
-//					if (!IsDefaultValue(arguments[i], rr.Member.Parameters[i]))
-//						continue;
-//					bool nextAreAllDefault = true;
-//					for (int j = i + 1; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
-//						if (!IsDefaultValue(arguments[j], rr.Member.Parameters[j])) {
-//							nextAreAllDefault = false;
-//							break;
-//						}
-//					}
-//					if (!nextAreAllDefault)
-//						continue;
-//					for (int j = i; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
-//						var _i = j;
-//						AddDiagnosticAnalyzer(new CodeIssue(
-//							arguments[j],
-//							i + 1 < arguments.Count ? ctx.TranslateString("Argument values are redundant") : ctx.TranslateString("Argument value is redundant"),
-//							i + 1 < arguments.Count ? ctx.TranslateString("Remove redundant arguments") : ctx.TranslateString("Remove redundant argument"),
-//							script => {
-//								var invoke = invocationExpression.Clone();
-//
-//								var argCollection = invoke.GetChildrenByRole<Expression>(Roles.Argument);
-//								argCollection.Clear();
-//								for (int k = 0; k < _i; k++)
-//									argCollection.Add(arguments[k].Clone());
-//								script.Replace(invocationExpression, invoke);
-//							}
-//						) { IssueMarker = IssueMarker.GrayOut });
-//					}
-//					break;
-//				}
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<RedundantArgumentDefaultValueAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			bool IsDefaultValue(Expression arg, ICSharpCode.NRefactory.TypeSystem.IParameter par)
+////			{
+////				var ne = arg as NamedArgumentExpression;
+////				if (ne != null) {
+////					if (ne.Name != par.Name)
+////						return false;
+////					arg = ne.Expression;
+////				}
+////				var cr = ctx.Resolve(arg);
+////				if (cr == null || !cr.IsCompileTimeConstant || !par.IsOptional)
+////					return false;
+////				return 
+////					cr.ConstantValue == null && par.ConstantValue == null || 
+////					cr.ConstantValue.Equals(par.ConstantValue);
+////			}
+////
+////			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
+////			{
+////				base.VisitObjectCreateExpression(objectCreateExpression);
+////				Check(objectCreateExpression, objectCreateExpression.Arguments.ToList());
+////			}
+////
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////				Check(invocationExpression, invocationExpression.Arguments.ToList());
+////			}
+////
+////			public override void VisitIndexerExpression(IndexerExpression indexerExpression)
+////			{
+////				base.VisitIndexerExpression(indexerExpression);
+////				Check(indexerExpression, indexerExpression.Arguments.ToList());
+////			}
+////
+////			void Check(AstNode invocationExpression, List<Expression> arguments)
+////			{
+////				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return;
+////
+////				for (int i = 0; i < arguments.Count && i < rr.Member.Parameters.Count; i++) {
+////
+////					if (!IsDefaultValue(arguments[i], rr.Member.Parameters[i]))
+////						continue;
+////					bool nextAreAllDefault = true;
+////					for (int j = i + 1; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
+////						if (!IsDefaultValue(arguments[j], rr.Member.Parameters[j])) {
+////							nextAreAllDefault = false;
+////							break;
+////						}
+////					}
+////					if (!nextAreAllDefault)
+////						continue;
+////					for (int j = i; j < arguments.Count && j < rr.Member.Parameters.Count; j++) {
+////						var _i = j;
+////						AddDiagnosticAnalyzer(new CodeIssue(
+////							arguments[j],
+////							i + 1 < arguments.Count ? ctx.TranslateString("Argument values are redundant") : ctx.TranslateString("Argument value is redundant"),
+////							i + 1 < arguments.Count ? ctx.TranslateString("Remove redundant arguments") : ctx.TranslateString("Remove redundant argument"),
+////							script => {
+////								var invoke = invocationExpression.Clone();
+////
+////								var argCollection = invoke.GetChildrenByRole<Expression>(Roles.Argument);
+////								argCollection.Clear();
+////								for (int k = 0; k < _i; k++)
+////									argCollection.Add(arguments[k].Clone());
+////								script.Replace(invocationExpression, invoke);
+////							}
+////						) { IssueMarker = IssueMarker.GrayOut });
+////					}
+////					break;
+////				}
+////			}
+//		}
 	}
 
 	/* TODO: Merge:

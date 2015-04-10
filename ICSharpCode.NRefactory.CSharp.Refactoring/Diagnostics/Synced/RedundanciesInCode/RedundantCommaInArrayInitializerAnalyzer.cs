@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantCommaInArrayInitializerAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantCommaInArrayInitializerAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantCommaInArrayInitializerAnalyzerID, 
@@ -62,43 +62,60 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		//			"Redundant comma in collection initializer"
 		//			"Redundant comma in array initializer"
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantCommaInArrayInitializerAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitArrayInitializerExpression(ArrayInitializerExpression arrayInitializerExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantCommaInArrayInitializerAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitArrayInitializerExpression(arrayInitializerExpression);
-//
-//				if (arrayInitializerExpression.IsSingleElement)
-//					return;
-//
-//				var commaToken = arrayInitializerExpression.RBraceToken.PrevSibling as CSharpTokenNode;
-//				if (commaToken == null || commaToken.ToString() != ",")
-//					return;
-//				string issueDescription;
-//				if (arrayInitializerExpression.Parent is ObjectCreateExpression) {
-//					if (arrayInitializerExpression.Elements.FirstOrNullObject() is NamedExpression) {
-//						issueDescription = ctx.TranslateString("");
-//					} else {
-//						issueDescription = ctx.TranslateString("");
-//					}
-//				} else {
-//					issueDescription = ctx.TranslateString("");
-//				}
-//				AddDiagnosticAnalyzer(new CodeIssue(commaToken,
-//				         issueDescription,
-//				         ctx.TranslateString(""),
-//					script => script.Remove(commaToken)) { IssueMarker = IssueMarker.GrayOut });
 //			}
-		}
+
+////			public override void VisitArrayInitializerExpression(ArrayInitializerExpression arrayInitializerExpression)
+////			{
+////				base.VisitArrayInitializerExpression(arrayInitializerExpression);
+////
+////				if (arrayInitializerExpression.IsSingleElement)
+////					return;
+////
+////				var commaToken = arrayInitializerExpression.RBraceToken.PrevSibling as CSharpTokenNode;
+////				if (commaToken == null || commaToken.ToString() != ",")
+////					return;
+////				string issueDescription;
+////				if (arrayInitializerExpression.Parent is ObjectCreateExpression) {
+////					if (arrayInitializerExpression.Elements.FirstOrNullObject() is NamedExpression) {
+////						issueDescription = ctx.TranslateString("");
+////					} else {
+////						issueDescription = ctx.TranslateString("");
+////					}
+////				} else {
+////					issueDescription = ctx.TranslateString("");
+////				}
+////				AddDiagnosticAnalyzer(new CodeIssue(commaToken,
+////				         issueDescription,
+////				         ctx.TranslateString(""),
+////					script => script.Remove(commaToken)) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

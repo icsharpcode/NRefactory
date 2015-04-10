@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConvertIfStatementToNullCoalescingExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertIfStatementToNullCoalescingExpressionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.ConvertIfStatementToNullCoalescingExpressionAnalyzerID, 
@@ -57,38 +57,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToNullCoalescingExpressionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//		class GatherVisitor : GatherVisitorBase<ConvertIfStatementToNullCoalescingExpressionAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//				Expression rightSide;
-//				var leftSide = ConvertIfStatementToNullCoalescingExpressionAction.CheckNode(ifElseStatement, out rightSide);
-//				if (leftSide == null)
-//					return;
-//				if (ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(leftSide) || 
-//				    ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(rightSide))
-//					return;
-//				var previousNode = ifElseStatement.GetPrevSibling(sibling => sibling is Statement) as VariableDeclarationStatement;
-//				if (previousNode == null || ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(previousNode))
-//					return;
-//
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					ifElseStatement.IfToken,
-//					ctx.TranslateString("")
-//				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToNullCoalescingExpressionAction) } });
 //			}
-		}
+
+////			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+////			{
+////				base.VisitIfElseStatement(ifElseStatement);
+////				Expression rightSide;
+////				var leftSide = ConvertIfStatementToNullCoalescingExpressionAction.CheckNode(ifElseStatement, out rightSide);
+////				if (leftSide == null)
+////					return;
+////				if (ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(leftSide) || 
+////				    ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(rightSide))
+////					return;
+////				var previousNode = ifElseStatement.GetPrevSibling(sibling => sibling is Statement) as VariableDeclarationStatement;
+////				if (previousNode == null || ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(previousNode))
+////					return;
+////
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					ifElseStatement.IfToken,
+////					ctx.TranslateString("")
+////				){ IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToNullCoalescingExpressionAction) } });
+////			}
+//		}
 	}
 
 	

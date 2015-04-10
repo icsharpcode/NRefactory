@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class NegativeRelationalExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class NegativeRelationalExpressionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.NegativeRelationalExpressionAnalyzerID, 
@@ -58,72 +58,89 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<NegativeRelationalExpressionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			bool IsFloatingPoint (AstNode node)
-//			{
-//				var typeDef = ctx.Resolve (node).Type.GetDefinition ();
-//				return typeDef != null &&
-//					(typeDef.KnownTypeCode == KnownTypeCode.Single || typeDef.KnownTypeCode == KnownTypeCode.Double);
-//			}
-//
-//			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
-//			{
-//				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
-//
-//				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
-//					return;
-//
-//				var expr = unaryOperatorExpression.Expression;
-//				while (expr != null && expr is ParenthesizedExpression)
-//					expr = ((ParenthesizedExpression)expr).Expression;
-//
-//				var binaryOperatorExpr = expr as BinaryOperatorExpression;
-//				if (binaryOperatorExpr == null)
-//					return;
-//				switch (binaryOperatorExpr.Operator) {
-//					case BinaryOperatorType.BitwiseAnd:
-//					case BinaryOperatorType.BitwiseOr:
-//					case BinaryOperatorType.ConditionalAnd:
-//					case BinaryOperatorType.ConditionalOr:
-//					case BinaryOperatorType.ExclusiveOr:
-//						return;
-//				}
-//
-//				var negatedOp = CSharpUtil.NegateRelationalOperator(binaryOperatorExpr.Operator);
-//				if (negatedOp == BinaryOperatorType.Any)
-//					return;
-//
-//				if (IsFloatingPoint (binaryOperatorExpr.Left) || IsFloatingPoint (binaryOperatorExpr.Right)) {
-//					if (negatedOp != BinaryOperatorType.Equality && negatedOp != BinaryOperatorType.InEquality)
-//						return;
-//				}
-//
-			//				AddDiagnosticAnalyzer (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
-//					script => script.Replace (unaryOperatorExpression,
-//						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
-//							binaryOperatorExpr.Right.Clone ()))));
-//			}
-//			
-//			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
-//			{
-//				if (operatorDeclaration.OperatorType.IsComparisonOperator()) {
-//					// Ignore operator declaration; within them it's common to define one operator
-//					// by negating another.
-//					return;
-//				}
-//				base.VisitOperatorDeclaration(operatorDeclaration);
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<NegativeRelationalExpressionAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			bool IsFloatingPoint (AstNode node)
+////			{
+////				var typeDef = ctx.Resolve (node).Type.GetDefinition ();
+////				return typeDef != null &&
+////					(typeDef.KnownTypeCode == KnownTypeCode.Single || typeDef.KnownTypeCode == KnownTypeCode.Double);
+////			}
+////
+////			public override void VisitUnaryOperatorExpression (UnaryOperatorExpression unaryOperatorExpression)
+////			{
+////				base.VisitUnaryOperatorExpression (unaryOperatorExpression);
+////
+////				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
+////					return;
+////
+////				var expr = unaryOperatorExpression.Expression;
+////				while (expr != null && expr is ParenthesizedExpression)
+////					expr = ((ParenthesizedExpression)expr).Expression;
+////
+////				var binaryOperatorExpr = expr as BinaryOperatorExpression;
+////				if (binaryOperatorExpr == null)
+////					return;
+////				switch (binaryOperatorExpr.Operator) {
+////					case BinaryOperatorType.BitwiseAnd:
+////					case BinaryOperatorType.BitwiseOr:
+////					case BinaryOperatorType.ConditionalAnd:
+////					case BinaryOperatorType.ConditionalOr:
+////					case BinaryOperatorType.ExclusiveOr:
+////						return;
+////				}
+////
+////				var negatedOp = CSharpUtil.NegateRelationalOperator(binaryOperatorExpr.Operator);
+////				if (negatedOp == BinaryOperatorType.Any)
+////					return;
+////
+////				if (IsFloatingPoint (binaryOperatorExpr.Left) || IsFloatingPoint (binaryOperatorExpr.Right)) {
+////					if (negatedOp != BinaryOperatorType.Equality && negatedOp != BinaryOperatorType.InEquality)
+////						return;
+////				}
+////
+//			//				AddDiagnosticAnalyzer (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
+////					script => script.Replace (unaryOperatorExpression,
+////						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
+////							binaryOperatorExpr.Right.Clone ()))));
+////			}
+////			
+////			public override void VisitOperatorDeclaration(OperatorDeclaration operatorDeclaration)
+////			{
+////				if (operatorDeclaration.OperatorType.IsComparisonOperator()) {
+////					// Ignore operator declaration; within them it's common to define one operator
+////					// by negating another.
+////					return;
+////				}
+////				base.VisitOperatorDeclaration(operatorDeclaration);
+////			}
+//		}
 	}
 }

@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UseArrayCreationExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class UseArrayCreationExpressionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UseArrayCreationExpressionAnalyzerID, 
@@ -58,51 +58,68 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<UseArrayCreationExpressionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
+
+//		class GatherVisitor : GatherVisitorBase<UseArrayCreationExpressionAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
 
 			
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//
-//				if (rr.Member.Name != "CreateInstance" ||
-//				    !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Array))
-//					return;
-//				var firstArg = invocationExpression.Arguments.FirstOrDefault() as TypeOfExpression;
-//				if (firstArg == null)
-//					return;
-//				var argRR = ctx.Resolve(invocationExpression.Arguments.ElementAt(1));
-//				if (!argRR.Type.IsKnownType(KnownTypeCode.Int32))
-//					return;
-//
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					invocationExpression,
-//					ctx.TranslateString(""), 
-//					ctx.TranslateString(""), 
-//					script => {
-//						var ac = new ArrayCreateExpression {
-//							Type = firstArg.Type.Clone()
-//						};
-//						foreach (var arg in invocationExpression.Arguments.Skip(1))
-//							ac.Arguments.Add(arg.Clone()) ;
-//						script.Replace(invocationExpression, ac);
-//					}
-//				));
-//			}
-		}
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////
+////				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return;
+////
+////				if (rr.Member.Name != "CreateInstance" ||
+////				    !rr.Member.DeclaringType.IsKnownType(KnownTypeCode.Array))
+////					return;
+////				var firstArg = invocationExpression.Arguments.FirstOrDefault() as TypeOfExpression;
+////				if (firstArg == null)
+////					return;
+////				var argRR = ctx.Resolve(invocationExpression.Arguments.ElementAt(1));
+////				if (!argRR.Type.IsKnownType(KnownTypeCode.Int32))
+////					return;
+////
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					invocationExpression,
+////					ctx.TranslateString(""), 
+////					ctx.TranslateString(""), 
+////					script => {
+////						var ac = new ArrayCreateExpression {
+////							Type = firstArg.Type.Clone()
+////						};
+////						foreach (var arg in invocationExpression.Arguments.Skip(1))
+////							ac.Arguments.Add(arg.Clone()) ;
+////						script.Replace(invocationExpression, ac);
+////					}
+////				));
+////			}
+//		}
 	}
 }

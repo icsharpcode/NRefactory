@@ -57,34 +57,51 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		private class GatherVisitor : GatherVisitorBase<ParameterOnlyAssignedAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+//		private class GatherVisitor : GatherVisitorBase<ParameterOnlyAssignedAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitParameterDeclaration(parameterDeclaration);
-//
-//				var resolveResult = ctx.Resolve(parameterDeclaration) as LocalResolveResult;
-//				if (resolveResult == null)
-//					return;
-//
-//				var parameterModifier = parameterDeclaration.ParameterModifier;
-//				if (parameterModifier == ParameterModifier.Out || parameterModifier == ParameterModifier.Ref ||
-//					!TestOnlyAssigned(ctx, parameterDeclaration.Parent, resolveResult.Variable)) {
-//					return;
-//				}
-//				AddDiagnosticAnalyzer(new CodeIssue(parameterDeclaration.NameToken, 
-			//					ctx.TranslateString("Parameter is assigned but its value is never used")));
 //			}
-		}
+
+////			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+////			{
+////				base.VisitParameterDeclaration(parameterDeclaration);
+////
+////				var resolveResult = ctx.Resolve(parameterDeclaration) as LocalResolveResult;
+////				if (resolveResult == null)
+////					return;
+////
+////				var parameterModifier = parameterDeclaration.ParameterModifier;
+////				if (parameterModifier == ParameterModifier.Out || parameterModifier == ParameterModifier.Ref ||
+////					!TestOnlyAssigned(ctx, parameterDeclaration.Parent, resolveResult.Variable)) {
+////					return;
+////				}
+////				AddDiagnosticAnalyzer(new CodeIssue(parameterDeclaration.NameToken, 
+//			//					ctx.TranslateString("Parameter is assigned but its value is never used")));
+////			}
+//		}
 	}
 }

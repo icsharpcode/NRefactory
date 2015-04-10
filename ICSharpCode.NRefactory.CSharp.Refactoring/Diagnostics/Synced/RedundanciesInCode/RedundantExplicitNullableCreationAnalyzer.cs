@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantExplicitNullableCreationAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantExplicitNullableCreationAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantExplicitNullableCreationAnalyzerID, 
@@ -58,41 +58,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantExplicitNullableCreationAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantExplicitNullableCreationAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitObjectCreateExpression(objectCreateExpression);
-//
-//				// test for var foo = new ... 
-//				var parentVarDecl = objectCreateExpression.Parent.Parent as VariableDeclarationStatement;
-//				if (parentVarDecl != null && parentVarDecl.Type.IsVar())
-//					return;
-//
-//				var rr = ctx.Resolve(objectCreateExpression);
-//				if (!NullableType.IsNullable(rr.Type))
-//					return;
-//				var arg = objectCreateExpression.Arguments.FirstOrDefault();
-//				if (arg == null)
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					objectCreateExpression.StartLocation,
-//					objectCreateExpression.Type.EndLocation,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					s => s.Replace(objectCreateExpression, arg.Clone())
-//				) { IssueMarker = IssueMarker.GrayOut });
 //			}
-		}
+
+////			public override void VisitObjectCreateExpression(ObjectCreateExpression objectCreateExpression)
+////			{
+////				base.VisitObjectCreateExpression(objectCreateExpression);
+////
+////				// test for var foo = new ... 
+////				var parentVarDecl = objectCreateExpression.Parent.Parent as VariableDeclarationStatement;
+////				if (parentVarDecl != null && parentVarDecl.Type.IsVar())
+////					return;
+////
+////				var rr = ctx.Resolve(objectCreateExpression);
+////				if (!NullableType.IsNullable(rr.Type))
+////					return;
+////				var arg = objectCreateExpression.Arguments.FirstOrDefault();
+////				if (arg == null)
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					objectCreateExpression.StartLocation,
+////					objectCreateExpression.Type.EndLocation,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString(""),
+////					s => s.Replace(objectCreateExpression, arg.Clone())
+////				) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

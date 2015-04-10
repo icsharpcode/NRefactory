@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CS1717AssignmentMadeToSameVariableAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class CS1717AssignmentMadeToSameVariableAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS1717AssignmentMadeToSameVariableAnalyzer";
 		const string Description            = "CS1717:Assignment made to same variable";
@@ -59,63 +59,80 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<CS1717AssignmentMadeToSameVariableAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitAssignmentExpression (AssignmentExpression assignmentExpression)
-//			{
-//				base.VisitAssignmentExpression (assignmentExpression);
-//
-//				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
-//					return;
-//				if (!(assignmentExpression.Left is IdentifierExpression) && 
-//					!(assignmentExpression.Left is MemberReferenceExpression))
-//					return;
-//
-//				var resolveResult = ctx.Resolve (assignmentExpression.Left);
-//				var memberResolveResult = resolveResult as MemberResolveResult;
-//				if (memberResolveResult != null) {
-//					var memberResolveResult2 = ctx.Resolve (assignmentExpression.Right) as MemberResolveResult;
-//					if (memberResolveResult2 == null || !AreEquivalent(memberResolveResult, memberResolveResult2))
-//						return;
-//				} else if (resolveResult is LocalResolveResult) {
-//					if (!assignmentExpression.Left.Match (assignmentExpression.Right).Success)
-//						return;
-//				} else {
-//					return;
-//				}
-//
-//				AstNode node;
-//				Action<Script> action;
-//				if (assignmentExpression.Parent is ExpressionStatement) {
-//					node = assignmentExpression.Parent;
-//					action = script => script.Remove (assignmentExpression.Parent);
-//				} else {
-//					node = assignmentExpression;
-//					action = script => script.Replace (assignmentExpression, assignmentExpression.Left.Clone ());
-//				}
-//				AddDiagnosticAnalyzer (new CodeIssue(node, ctx.TranslateString (""),
-//					new [] { new CodeAction (ctx.TranslateString (""), action, node) })
-//					{ IssueMarker = IssueMarker.GrayOut }
-//				);
-//			}
-//
-//			static bool AreEquivalent(ResolveResult first, ResolveResult second)
-//			{
-//				var firstPath = AccessPath.FromResolveResult(first);
-//				var secondPath = AccessPath.FromResolveResult(second);
-//				return firstPath != null && firstPath.Equals(secondPath) && !firstPath.MemberPath.Any(m => !(m is IField));
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<CS1717AssignmentMadeToSameVariableAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			public override void VisitAssignmentExpression (AssignmentExpression assignmentExpression)
+////			{
+////				base.VisitAssignmentExpression (assignmentExpression);
+////
+////				if (assignmentExpression.Operator != AssignmentOperatorType.Assign)
+////					return;
+////				if (!(assignmentExpression.Left is IdentifierExpression) && 
+////					!(assignmentExpression.Left is MemberReferenceExpression))
+////					return;
+////
+////				var resolveResult = ctx.Resolve (assignmentExpression.Left);
+////				var memberResolveResult = resolveResult as MemberResolveResult;
+////				if (memberResolveResult != null) {
+////					var memberResolveResult2 = ctx.Resolve (assignmentExpression.Right) as MemberResolveResult;
+////					if (memberResolveResult2 == null || !AreEquivalent(memberResolveResult, memberResolveResult2))
+////						return;
+////				} else if (resolveResult is LocalResolveResult) {
+////					if (!assignmentExpression.Left.Match (assignmentExpression.Right).Success)
+////						return;
+////				} else {
+////					return;
+////				}
+////
+////				AstNode node;
+////				Action<Script> action;
+////				if (assignmentExpression.Parent is ExpressionStatement) {
+////					node = assignmentExpression.Parent;
+////					action = script => script.Remove (assignmentExpression.Parent);
+////				} else {
+////					node = assignmentExpression;
+////					action = script => script.Replace (assignmentExpression, assignmentExpression.Left.Clone ());
+////				}
+////				AddDiagnosticAnalyzer (new CodeIssue(node, ctx.TranslateString (""),
+////					new [] { new CodeAction (ctx.TranslateString (""), action, node) })
+////					{ IssueMarker = IssueMarker.GrayOut }
+////				);
+////			}
+////
+////			static bool AreEquivalent(ResolveResult first, ResolveResult second)
+////			{
+////				var firstPath = AccessPath.FromResolveResult(first);
+////				var secondPath = AccessPath.FromResolveResult(second);
+////				return firstPath != null && firstPath.Equals(secondPath) && !firstPath.MemberPath.Any(m => !(m is IField));
+////			}
+//		}
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]

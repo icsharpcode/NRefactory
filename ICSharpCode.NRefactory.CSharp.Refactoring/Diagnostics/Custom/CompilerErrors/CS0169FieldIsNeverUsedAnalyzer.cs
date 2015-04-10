@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CS0169FieldIsNeverUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class CS0169FieldIsNeverUsedAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS0169FieldIsNeverUsedAnalyzer";
 		const string Description            = "CS0169: Field is never used";
@@ -58,81 +58,99 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<CS0169FieldIsNeverUsedAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			//readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
-
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			void Collect()
-//			{
-//				foreach (var varDecl in fieldStack.Peek()) {
-//					AddDiagnosticAnalyzer(new CodeIssue(
-//						varDecl.Item1.NameToken,
-//						string.Format(ctx.TranslateString("The private field '{0}' is never assigned"), varDecl.Item2.Name)
-//					));
-//				}
-//			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{	
-//				var list = new List<Tuple<VariableInitializer, IVariable>>();
-//				fieldStack.Push(list);
-//
-//				foreach (var fieldDeclaration in ConvertToConstantAnalyzer.CollectFields (this, typeDeclaration)) {
-//					if (fieldDeclaration.HasModifier(Modifiers.Const))
-//						continue;
-//					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
-//						continue;
-//					if (fieldDeclaration.Variables.Count() > 1)
-//						continue;
-//					var variable = fieldDeclaration.Variables.First();
-//					if (!variable.Initializer.IsNull)
-//						continue;
-//					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-//					if (rr.Type.IsReferenceType == false) {
-//						// Value type:
-//						var def = rr.Type.GetDefinition();
-//						if (def != null && def.KnownTypeCode == KnownTypeCode.None) {
-//							// user-defined value type -- might be mutable
-//							continue;
-//						} else if (ctx.Resolve (variable.Initializer).IsCompileTimeConstant) {
-//							// handled by ConvertToConstantIssue
-//							continue;
-//						}
-//					}
-//
-//					var mr = ctx.Resolve(variable) as MemberResolveResult;
-//					if (mr == null || !(mr.Member is IVariable))
-//						continue;
-//					list.Add(Tuple.Create(variable, (IVariable)mr.Member)); 
-//				}
-//				base.VisitTypeDeclaration(typeDeclaration);
-//				Collect();
-//				fieldStack.Pop();
-//			}
-//
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				var assignmentAnalysis = new ConvertToConstantAnalyzer.VariableUsageAnalyzation (ctx);
-//				var newVars = new List<Tuple<VariableInitializer, IVariable>>();
-//				blockStatement.AcceptVisitor(assignmentAnalysis); 
-//				foreach (var variable in fieldStack.Pop()) {
-//					if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
-//						continue;
-//					newVars.Add(variable);
-//				}
-//				fieldStack.Push(newVars);
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+
+//		class GatherVisitor : GatherVisitorBase<CS0169FieldIsNeverUsedAnalyzer>
+//		{
+//			//readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
+
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			void Collect()
+////			{
+////				foreach (var varDecl in fieldStack.Peek()) {
+////					AddDiagnosticAnalyzer(new CodeIssue(
+////						varDecl.Item1.NameToken,
+////						string.Format(ctx.TranslateString("The private field '{0}' is never assigned"), varDecl.Item2.Name)
+////					));
+////				}
+////			}
+////
+////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+////			{	
+////				var list = new List<Tuple<VariableInitializer, IVariable>>();
+////				fieldStack.Push(list);
+////
+////				foreach (var fieldDeclaration in ConvertToConstantAnalyzer.CollectFields (this, typeDeclaration)) {
+////					if (fieldDeclaration.HasModifier(Modifiers.Const))
+////						continue;
+////					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
+////						continue;
+////					if (fieldDeclaration.Variables.Count() > 1)
+////						continue;
+////					var variable = fieldDeclaration.Variables.First();
+////					if (!variable.Initializer.IsNull)
+////						continue;
+////					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+////					if (rr.Type.IsReferenceType == false) {
+////						// Value type:
+////						var def = rr.Type.GetDefinition();
+////						if (def != null && def.KnownTypeCode == KnownTypeCode.None) {
+////							// user-defined value type -- might be mutable
+////							continue;
+////						} else if (ctx.Resolve (variable.Initializer).IsCompileTimeConstant) {
+////							// handled by ConvertToConstantIssue
+////							continue;
+////						}
+////					}
+////
+////					var mr = ctx.Resolve(variable) as MemberResolveResult;
+////					if (mr == null || !(mr.Member is IVariable))
+////						continue;
+////					list.Add(Tuple.Create(variable, (IVariable)mr.Member)); 
+////				}
+////				base.VisitTypeDeclaration(typeDeclaration);
+////				Collect();
+////				fieldStack.Pop();
+////			}
+////
+////			public override void VisitBlockStatement(BlockStatement blockStatement)
+////			{
+////				var assignmentAnalysis = new ConvertToConstantAnalyzer.VariableUsageAnalyzation (ctx);
+////				var newVars = new List<Tuple<VariableInitializer, IVariable>>();
+////				blockStatement.AcceptVisitor(assignmentAnalysis); 
+////				foreach (var variable in fieldStack.Pop()) {
+////					if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
+////						continue;
+////					newVars.Add(variable);
+////				}
+////				fieldStack.Push(newVars);
+////			}
+//		}
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]

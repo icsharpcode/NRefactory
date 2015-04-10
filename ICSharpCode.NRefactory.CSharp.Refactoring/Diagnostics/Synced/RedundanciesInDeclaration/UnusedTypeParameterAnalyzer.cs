@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UnusedTypeParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class UnusedTypeParameterAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UnusedTypeParameterAnalyzerID, 
@@ -61,9 +61,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		//static FindReferences refFinder = new FindReferences();
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
 
 //		protected static bool FindUsage(BaseSemanticModel context, SyntaxTree unit,
@@ -79,35 +96,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //			return found;
 //		}
 //
-		class GatherVisitor : GatherVisitorBase<UnusedTypeParameterAnalyzer>
-		{
-			//SyntaxTree unit;
+//		class GatherVisitor : GatherVisitorBase<UnusedTypeParameterAnalyzer>
+//		{
+//			//SyntaxTree unit;
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitTypeParameterDeclaration(TypeParameterDeclaration decl)
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitTypeParameterDeclaration(decl);
-//
-//				var resolveResult = ctx.Resolve(decl) as TypeResolveResult;
-//				if (resolveResult == null)
-//					return;
-//				var typeParameter = resolveResult.Type as ITypeParameter;
-//				if (typeParameter == null)
-//					return;
-//				var methodDecl = decl.Parent as MethodDeclaration;
-//				if (methodDecl == null)
-//					return;
-//
-//				if (FindUsage(ctx, unit, typeParameter, decl))
-//					return;
-//
-			//				AddDiagnosticAnalyzer(new CodeIssue(decl.NameToken, ctx.TranslateString("Type parameter is never used")) { IssueMarker = IssueMarker.GrayOut });
 //			}
-		}
+
+////			public override void VisitTypeParameterDeclaration(TypeParameterDeclaration decl)
+////			{
+////				base.VisitTypeParameterDeclaration(decl);
+////
+////				var resolveResult = ctx.Resolve(decl) as TypeResolveResult;
+////				if (resolveResult == null)
+////					return;
+////				var typeParameter = resolveResult.Type as ITypeParameter;
+////				if (typeParameter == null)
+////					return;
+////				var methodDecl = decl.Parent as MethodDeclaration;
+////				if (methodDecl == null)
+////					return;
+////
+////				if (FindUsage(ctx, unit, typeParameter, decl))
+////					return;
+////
+//			//				AddDiagnosticAnalyzer(new CodeIssue(decl.NameToken, ctx.TranslateString("Type parameter is never used")) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 
 }

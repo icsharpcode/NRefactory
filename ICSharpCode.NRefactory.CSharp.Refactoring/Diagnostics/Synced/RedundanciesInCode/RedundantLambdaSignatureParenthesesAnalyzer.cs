@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantLambdaSignatureParenthesesAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantLambdaSignatureParenthesesAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantLambdaSignatureParenthesesAnalyzerID, 
@@ -58,40 +58,57 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantLambdaSignatureParenthesesAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantLambdaSignatureParenthesesAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitLambdaExpression(lambdaExpression);
-//				var p = lambdaExpression.Parameters.FirstOrDefault();
-//				if (p == null || !p.Type.IsNull)
-//					return;
-//				var lParToken = lambdaExpression.LParToken;
-//				if (lParToken.IsNull)
-//					return;
-//				if (p.GetNextSibling(n => n.Role == Roles.Parameter) != null)
-//					return;
-//				Action<Script> action = script =>  {
-//					script.Remove(lParToken);
-//					script.Remove(lambdaExpression.RParToken);
-//					script.FormatText(lambdaExpression);
-//				};
-//
-//				var issueText = ctx.TranslateString("");
-//				var fixText = ctx.TranslateString("");
-//				AddDiagnosticAnalyzer(new CodeIssue(lambdaExpression.LParToken, issueText, fixText, action) { IssueMarker = IssueMarker.GrayOut });
-//				AddDiagnosticAnalyzer(new CodeIssue(lambdaExpression.RParToken, issueText, fixText, action) { IssueMarker = IssueMarker.GrayOut });
 //			}
-		}
+
+////			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+////			{
+////				base.VisitLambdaExpression(lambdaExpression);
+////				var p = lambdaExpression.Parameters.FirstOrDefault();
+////				if (p == null || !p.Type.IsNull)
+////					return;
+////				var lParToken = lambdaExpression.LParToken;
+////				if (lParToken.IsNull)
+////					return;
+////				if (p.GetNextSibling(n => n.Role == Roles.Parameter) != null)
+////					return;
+////				Action<Script> action = script =>  {
+////					script.Remove(lParToken);
+////					script.Remove(lambdaExpression.RParToken);
+////					script.FormatText(lambdaExpression);
+////				};
+////
+////				var issueText = ctx.TranslateString("");
+////				var fixText = ctx.TranslateString("");
+////				AddDiagnosticAnalyzer(new CodeIssue(lambdaExpression.LParToken, issueText, fixText, action) { IssueMarker = IssueMarker.GrayOut });
+////				AddDiagnosticAnalyzer(new CodeIssue(lambdaExpression.RParToken, issueText, fixText, action) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

@@ -46,7 +46,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UnusedAnonymousMethodSignatureAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class UnusedAnonymousMethodSignatureAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UnusedAnonymousMethodSignatureAnalyzerID, 
@@ -60,54 +60,71 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<UnusedAnonymousMethodSignatureAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			bool IsParameterListRedundant(Expression expression)
-//			{
-//				var validTypes = TypeGuessing.GetValidTypes(ctx.Resolver, expression);
-//				return validTypes.Count(t => t.Kind == TypeKind.Delegate) == 1;
-//			}
-//
-//			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-//			{
-//				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
-//				if (!anonymousMethodExpression.HasParameterList || !IsParameterListRedundant(anonymousMethodExpression))
-//					return;
-//
-//				var parameters = anonymousMethodExpression.Parameters.ToList();
-//				if (parameters.Count > 0) {
-//					var usageAnalysis = new ConvertToConstantAnalyzer.VariableUsageAnalyzation(ctx);
-//					anonymousMethodExpression.Body.AcceptVisitor(usageAnalysis); 
-//					foreach (var parameter in parameters) {
-//						var rr = ctx.Resolve(parameter) as LocalResolveResult;
-//						if (rr == null)
-//							continue;
-//						if (usageAnalysis.GetStatus(rr.Variable) != ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.None)
-//							return;
-//					}
-//				}
-//
-//				AddDiagnosticAnalyzer(new CodeIssue(anonymousMethodExpression.LParToken.StartLocation,
-//					anonymousMethodExpression.RParToken.EndLocation,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => {
-//						int start = script.GetCurrentOffset(anonymousMethodExpression.DelegateToken.EndLocation);
-//						int end = script.GetCurrentOffset(anonymousMethodExpression.Body.StartLocation);
-//
-//						script.Replace(start, end - start, " ");
-//					}) { IssueMarker = IssueMarker.GrayOut });
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<UnusedAnonymousMethodSignatureAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			bool IsParameterListRedundant(Expression expression)
+////			{
+////				var validTypes = TypeGuessing.GetValidTypes(ctx.Resolver, expression);
+////				return validTypes.Count(t => t.Kind == TypeKind.Delegate) == 1;
+////			}
+////
+////			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+////			{
+////				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+////				if (!anonymousMethodExpression.HasParameterList || !IsParameterListRedundant(anonymousMethodExpression))
+////					return;
+////
+////				var parameters = anonymousMethodExpression.Parameters.ToList();
+////				if (parameters.Count > 0) {
+////					var usageAnalysis = new ConvertToConstantAnalyzer.VariableUsageAnalyzation(ctx);
+////					anonymousMethodExpression.Body.AcceptVisitor(usageAnalysis); 
+////					foreach (var parameter in parameters) {
+////						var rr = ctx.Resolve(parameter) as LocalResolveResult;
+////						if (rr == null)
+////							continue;
+////						if (usageAnalysis.GetStatus(rr.Variable) != ICSharpCode.NRefactory6.CSharp.Refactoring.ExtractMethod.VariableState.None)
+////							return;
+////					}
+////				}
+////
+////				AddDiagnosticAnalyzer(new CodeIssue(anonymousMethodExpression.LParToken.StartLocation,
+////					anonymousMethodExpression.RParToken.EndLocation,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString(""),
+////					script => {
+////						int start = script.GetCurrentOffset(anonymousMethodExpression.DelegateToken.EndLocation);
+////						int end = script.GetCurrentOffset(anonymousMethodExpression.Body.StartLocation);
+////
+////						script.Replace(start, end - start, " ");
+////					}) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

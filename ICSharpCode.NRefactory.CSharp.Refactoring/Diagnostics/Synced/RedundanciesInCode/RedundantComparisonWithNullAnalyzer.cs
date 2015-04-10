@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantComparisonWithNullAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantComparisonWithNullAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantComparisonWithNullAnalyzerID, 
@@ -59,35 +59,52 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantComparisonWithNullAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantComparisonWithNullAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//				Match m1 = pattern1.Match(binaryOperatorExpression);
-//				if (m1.Success) {
-//					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression,
-//					         ctx.TranslateString(""),
-//					         ctx.TranslateString(""), 
-//					         script => {
-//					         	var isExpr = m1.Get<AstType>("t").Single().Parent;
-//					         	script.Replace(binaryOperatorExpression, isExpr);
-//					         }
-//					) { IssueMarker = IssueMarker.GrayOut });
-//					return;
-//				}
 //			}
-		}
+
+////			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+////			{
+////				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+////				Match m1 = pattern1.Match(binaryOperatorExpression);
+////				if (m1.Success) {
+////					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression,
+////					         ctx.TranslateString(""),
+////					         ctx.TranslateString(""), 
+////					         script => {
+////					         	var isExpr = m1.Get<AstType>("t").Single().Parent;
+////					         	script.Replace(binaryOperatorExpression, isExpr);
+////					         }
+////					) { IssueMarker = IssueMarker.GrayOut });
+////					return;
+////				}
+////			}
+//		}
 
 //		private static readonly Pattern pattern1
 //		= new Choice {

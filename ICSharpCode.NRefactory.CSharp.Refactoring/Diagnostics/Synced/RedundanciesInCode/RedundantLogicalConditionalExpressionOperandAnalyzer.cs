@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantLogicalConditionalExpressionOperandAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantLogicalConditionalExpressionOperandAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantLogicalConditionalExpressionOperandAnalyzerID, 
@@ -58,39 +58,56 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantLogicalConditionalExpressionOperandAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			static readonly AstNode pattern = new Choice {
-//				PatternHelper.CommutativeOperator(new NamedNode ("redundant", PatternHelper.OptionalParentheses(new PrimitiveExpression(true))), BinaryOperatorType.ConditionalOr, new AnyNode("expr")),	
-//				PatternHelper.CommutativeOperator(new NamedNode ("redundant", PatternHelper.OptionalParentheses(new PrimitiveExpression(false))), BinaryOperatorType.ConditionalAnd, new AnyNode("expr"))
-//			};
-//
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantLogicalConditionalExpressionOperandAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//				var match = pattern.Match(binaryOperatorExpression);
-//				if (!match.Success)
-//					return;
-//				var redundant = match.Get<Expression>("redundant").Single();
-//				var expr = match.Get<Expression>("expr").Single();
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					redundant,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => script.Replace(binaryOperatorExpression, expr.Clone())
-//				) { IssueMarker = IssueMarker.GrayOut });
 //			}
-		}
+
+////			static readonly AstNode pattern = new Choice {
+////				PatternHelper.CommutativeOperator(new NamedNode ("redundant", PatternHelper.OptionalParentheses(new PrimitiveExpression(true))), BinaryOperatorType.ConditionalOr, new AnyNode("expr")),	
+////				PatternHelper.CommutativeOperator(new NamedNode ("redundant", PatternHelper.OptionalParentheses(new PrimitiveExpression(false))), BinaryOperatorType.ConditionalAnd, new AnyNode("expr"))
+////			};
+////
+////			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+////			{
+////				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+////				var match = pattern.Match(binaryOperatorExpression);
+////				if (!match.Success)
+////					return;
+////				var redundant = match.Get<Expression>("redundant").Single();
+////				var expr = match.Get<Expression>("expr").Single();
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					redundant,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString(""),
+////					script => script.Replace(binaryOperatorExpression, expr.Clone())
+////				) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 
 	

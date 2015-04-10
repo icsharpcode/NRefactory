@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class StringCompareToIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class StringCompareToIsCultureSpecificAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.StringCompareToIsCultureSpecificAnalyzerID, 
@@ -58,58 +58,75 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<StringCompareToIsCultureSpecificAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//
-//				if (rr.Member.Name != "CompareTo" || 
-//				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
-//				    rr.Member.Parameters.Count != 1 ||
-//				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
-//					return;
-//				}
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					invocationExpression,
-//					ctx.TranslateString(""), 
-//					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
-//					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-//				));
-//
-//			}
-//
-//			void AddArgument(Script script, InvocationExpression invocationExpression, string ordinal)
-//			{
-//				var mr = invocationExpression.Target as MemberReferenceExpression;
-//				if (mr == null)
-//					return;
-//
-//				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-//				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ordinal);
-//
-//				var newInvocation = new PrimitiveType("string").Invoke(
-//					"Compare",
-//					mr.Target.Clone(),
-//					invocationExpression.Arguments.First().Clone(),
-//					newArgument
-//				);
-//				script.Replace(invocationExpression, newInvocation);
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<StringCompareToIsCultureSpecificAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////
+////				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return;
+////
+////				if (rr.Member.Name != "CompareTo" || 
+////				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
+////				    rr.Member.Parameters.Count != 1 ||
+////				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
+////					return;
+////				}
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					invocationExpression,
+////					ctx.TranslateString(""), 
+////					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
+////					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
+////				));
+////
+////			}
+////
+////			void AddArgument(Script script, InvocationExpression invocationExpression, string ordinal)
+////			{
+////				var mr = invocationExpression.Target as MemberReferenceExpression;
+////				if (mr == null)
+////					return;
+////
+////				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
+////				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ordinal);
+////
+////				var newInvocation = new PrimitiveType("string").Invoke(
+////					"Compare",
+////					mr.Target.Clone(),
+////					invocationExpression.Arguments.First().Clone(),
+////					newArgument
+////				);
+////				script.Replace(invocationExpression, newInvocation);
+////			}
+//		}
 	}
 }

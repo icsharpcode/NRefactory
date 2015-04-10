@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConstantNullCoalescingConditionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConstantNullCoalescingConditionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.ConstantNullCoalescingConditionAnalyzerID, 
@@ -63,71 +63,88 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		//static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (DiagnosticId, "Redundant ??. Left side is never null.", "Remove redundant right side", Category, DiagnosticSeverity.Warning, true, "'??' condition is known to be null or not null");
 
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConstantNullCoalescingConditionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			Dictionary<AstNode, NullValueAnalysis> cachedNullAnalysis = new Dictionary<AstNode, NullValueAnalysis>();
-//
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+//		class GatherVisitor : GatherVisitorBase<ConstantNullCoalescingConditionAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//
-//				if (binaryOperatorExpression.Operator != BinaryOperatorType.NullCoalescing) {
-//					//The issue is not applicable
-//					return;
-//				}
-//
-//				var parentFunction = GetParentFunctionNode(binaryOperatorExpression);
-//				var analysis = GetAnalysis(parentFunction);
-//
-//				NullValueStatus leftStatus = analysis.GetExpressionResult(binaryOperatorExpression.Left);
-//				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
-//					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
-//					         binaryOperatorExpression.Right.EndLocation,
-//					         ctx.TranslateString(""),
-//					         ctx.TranslateString(""),
-//					         script => {
-//
-//						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
-//
-//						}) { IssueMarker = IssueMarker.GrayOut });
-//					return;
-//				}
-//				if (leftStatus == NullValueStatus.DefinitelyNull) {
-//					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression.Left.StartLocation,
-//					         binaryOperatorExpression.OperatorToken.EndLocation,
-//					         ctx.TranslateString(""),
-//					         ctx.TranslateString(""),
-//					         script => {
-//
-//						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Right.Clone());
-//
-//						}));
-//					return;
-//				}
-//				NullValueStatus rightStatus = analysis.GetExpressionResult(binaryOperatorExpression.Right);
-//				if (rightStatus == NullValueStatus.DefinitelyNull) {
-//					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
-//					         binaryOperatorExpression.Right.EndLocation,
-//					         ctx.TranslateString(""),
-//					         ctx.TranslateString(""),
-//					         script => {
-//
-//						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
-//
-//						}));
-//					return;
-//				}
-			}
+//			}
+
+////			Dictionary<AstNode, NullValueAnalysis> cachedNullAnalysis = new Dictionary<AstNode, NullValueAnalysis>();
+////
+////			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+////			{
+////				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+////
+////				if (binaryOperatorExpression.Operator != BinaryOperatorType.NullCoalescing) {
+////					//The issue is not applicable
+////					return;
+////				}
+////
+////				var parentFunction = GetParentFunctionNode(binaryOperatorExpression);
+////				var analysis = GetAnalysis(parentFunction);
+////
+////				NullValueStatus leftStatus = analysis.GetExpressionResult(binaryOperatorExpression.Left);
+////				if (leftStatus == NullValueStatus.DefinitelyNotNull) {
+////					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+////					         binaryOperatorExpression.Right.EndLocation,
+////					         ctx.TranslateString(""),
+////					         ctx.TranslateString(""),
+////					         script => {
+////
+////						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
+////
+////						}) { IssueMarker = IssueMarker.GrayOut });
+////					return;
+////				}
+////				if (leftStatus == NullValueStatus.DefinitelyNull) {
+////					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression.Left.StartLocation,
+////					         binaryOperatorExpression.OperatorToken.EndLocation,
+////					         ctx.TranslateString(""),
+////					         ctx.TranslateString(""),
+////					         script => {
+////
+////						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Right.Clone());
+////
+////						}));
+////					return;
+////				}
+////				NullValueStatus rightStatus = analysis.GetExpressionResult(binaryOperatorExpression.Right);
+////				if (rightStatus == NullValueStatus.DefinitelyNull) {
+////					AddDiagnosticAnalyzer(new CodeIssue(binaryOperatorExpression.OperatorToken.StartLocation,
+////					         binaryOperatorExpression.Right.EndLocation,
+////					         ctx.TranslateString(""),
+////					         ctx.TranslateString(""),
+////					         script => {
+////
+////						script.Replace(binaryOperatorExpression, binaryOperatorExpression.Left.Clone());
+////
+////						}));
+////					return;
+////				}
+//			}
 
 //			NullValueAnalysis GetAnalysis(AstNode parentFunction)
 //			{

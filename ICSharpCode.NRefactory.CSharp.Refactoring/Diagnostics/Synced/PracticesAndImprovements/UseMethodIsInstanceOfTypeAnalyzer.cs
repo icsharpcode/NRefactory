@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UseMethodIsInstanceOfTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class UseMethodIsInstanceOfTypeAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UseMethodIsInstanceOfTypeAnalyzerID, 
@@ -57,43 +57,60 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<UseMethodIsInstanceOfTypeAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			static readonly Expression pattern = new InvocationExpression(
-//				new MemberReferenceExpression(new AnyNode("target"), "IsAssignableFrom"),
-//				new InvocationExpression(
-//					new MemberReferenceExpression(new AnyNode("object"), "GetType")
-//				)
-//			);
-//
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//		class GatherVisitor : GatherVisitorBase<UseMethodIsInstanceOfTypeAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitInvocationExpression(invocationExpression);
-//				var match = pattern.Match(invocationExpression);
-//				if (match.Success) {
-//					AddDiagnosticAnalyzer(new CodeIssue(
-//						invocationExpression,
-//						ctx.TranslateString(""),
-//						ctx.TranslateString(""),
-//						s => {
-//							s.Replace(invocationExpression, new InvocationExpression(
-//								new MemberReferenceExpression(match.Get<Expression>("target").Single().Clone(), "IsInstanceOfType"),
-//								match.Get<Expression>("object").Single().Clone()
-//							));
-//						}
-//					));
-//				}
 //			}
-		}
+
+////			static readonly Expression pattern = new InvocationExpression(
+////				new MemberReferenceExpression(new AnyNode("target"), "IsAssignableFrom"),
+////				new InvocationExpression(
+////					new MemberReferenceExpression(new AnyNode("object"), "GetType")
+////				)
+////			);
+////
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////				var match = pattern.Match(invocationExpression);
+////				if (match.Success) {
+////					AddDiagnosticAnalyzer(new CodeIssue(
+////						invocationExpression,
+////						ctx.TranslateString(""),
+////						ctx.TranslateString(""),
+////						s => {
+////							s.Replace(invocationExpression, new InvocationExpression(
+////								new MemberReferenceExpression(match.Get<Expression>("target").Single().Clone(), "IsInstanceOfType"),
+////								match.Get<Expression>("object").Single().Clone()
+////							));
+////						}
+////					));
+////				}
+////			}
+//		}
 	}
 }

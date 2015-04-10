@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantBaseConstructorCallAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantBaseConstructorCallAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantBaseConstructorCallAnalyzerID, 
@@ -58,53 +58,70 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantBaseConstructorCallAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				base.VisitConstructorDeclaration(constructorDeclaration);
-//
-//				if (constructorDeclaration.Initializer.ConstructorInitializerType != ConstructorInitializerType.Base)
-//					return;
-//				if (constructorDeclaration.Initializer.IsNull)
-//					return;
-//				if (constructorDeclaration.Initializer.Arguments.Count != 0)
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(constructorDeclaration.Initializer.StartLocation, constructorDeclaration.Initializer.EndLocation,
-//				         ctx.TranslateString(""),
-//				         ctx.TranslateString(""),
-//				         script => {
-//					var clone = (ConstructorDeclaration)constructorDeclaration.Clone();
-//					script.Replace(clone.ColonToken, CSharpTokenNode.Null.Clone());
-//					script.Replace(constructorDeclaration.Initializer, ConstructorInitializer.Null.Clone());
-//					}) { IssueMarker = IssueMarker.GrayOut });
-//			}
-//
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//				//ignore properties
-//			}
-//
-//			public override void  VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-//			{
-//				//ignore fields
-//			}
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				//ignore method declarations
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<RedundantBaseConstructorCallAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+////			{
+////				base.VisitConstructorDeclaration(constructorDeclaration);
+////
+////				if (constructorDeclaration.Initializer.ConstructorInitializerType != ConstructorInitializerType.Base)
+////					return;
+////				if (constructorDeclaration.Initializer.IsNull)
+////					return;
+////				if (constructorDeclaration.Initializer.Arguments.Count != 0)
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(constructorDeclaration.Initializer.StartLocation, constructorDeclaration.Initializer.EndLocation,
+////				         ctx.TranslateString(""),
+////				         ctx.TranslateString(""),
+////				         script => {
+////					var clone = (ConstructorDeclaration)constructorDeclaration.Clone();
+////					script.Replace(clone.ColonToken, CSharpTokenNode.Null.Clone());
+////					script.Replace(constructorDeclaration.Initializer, ConstructorInitializer.Null.Clone());
+////					}) { IssueMarker = IssueMarker.GrayOut });
+////			}
+////
+////			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+////			{
+////				//ignore properties
+////			}
+////
+////			public override void  VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
+////			{
+////				//ignore fields
+////			}
+////
+////			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+////			{
+////				//ignore method declarations
+////			}
+//		}
 	}
 
 	

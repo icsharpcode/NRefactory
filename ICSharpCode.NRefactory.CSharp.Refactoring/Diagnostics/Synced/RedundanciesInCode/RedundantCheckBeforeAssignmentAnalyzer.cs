@@ -46,7 +46,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantCheckBeforeAssignmentAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantCheckBeforeAssignmentAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantCheckBeforeAssignmentAnalyzerID, 
@@ -61,43 +61,60 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantCheckBeforeAssignmentAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			static readonly AstNode pattern = 
-//				new IfElseStatement(
-//					PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new AnyNode("b")),
-//					PatternHelper.EmbeddedStatement(new AssignmentExpression(new Backreference("a"), PatternHelper.OptionalParentheses(new Backreference("b"))))
-//				);
-//
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//		class GatherVisitor : GatherVisitorBase<RedundantCheckBeforeAssignmentAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//				var m = pattern.Match(ifElseStatement);
-//				if (!m.Success)
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					ifElseStatement.Condition,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					script => {
-//						var stmt = ifElseStatement.TrueStatement;
-//						var block = stmt as BlockStatement;
-//						if (block != null)
-//							stmt = block.Statements.First();
-//						script.Replace(ifElseStatement, stmt.Clone());
-//					}
-//				));
 //			}
-		}
+
+////			static readonly AstNode pattern = 
+////				new IfElseStatement(
+////					PatternHelper.CommutativeOperatorWithOptionalParentheses(new AnyNode("a"), BinaryOperatorType.InEquality, new AnyNode("b")),
+////					PatternHelper.EmbeddedStatement(new AssignmentExpression(new Backreference("a"), PatternHelper.OptionalParentheses(new Backreference("b"))))
+////				);
+////
+////			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+////			{
+////				base.VisitIfElseStatement(ifElseStatement);
+////				var m = pattern.Match(ifElseStatement);
+////				if (!m.Success)
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					ifElseStatement.Condition,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString(""),
+////					script => {
+////						var stmt = ifElseStatement.TrueStatement;
+////						var block = stmt as BlockStatement;
+////						if (block != null)
+////							stmt = block.Statements.First();
+////						script.Replace(ifElseStatement, stmt.Clone());
+////					}
+////				));
+////			}
+//		}
 	}
 }

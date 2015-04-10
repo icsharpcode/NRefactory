@@ -46,7 +46,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantLambdaParameterTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantLambdaParameterTypeAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantLambdaParameterTypeAnalyzerID, 
@@ -61,46 +61,63 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantLambdaParameterTypeAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitLambdaExpression(lambdaExpression);
-//
-//				var arguments = lambdaExpression.Parameters.ToList();
-//				if (arguments.Any(f => f.Type.IsNull))
-//					return;
-//				if (!LambdaTypeCanBeInferred(ctx, lambdaExpression, arguments))
-//					return;
-//
-//				foreach (var argument in arguments) {
-//					AddDiagnosticAnalyzer(new CodeIssue(
-//						argument.Type,
-//						ctx.TranslateString(""), 
-//						ctx.TranslateString(""),
-//						script => {
-//							if (arguments.Count == 1) {
-//								if (argument.NextSibling.ToString().Equals(")") && argument.PrevSibling.ToString().Equals("(")) {
-//									script.Remove(argument.NextSibling);
-//									script.Remove(argument.PrevSibling);
-//								}
-//							}
-//							foreach (var arg in arguments)
-//								script.Replace(arg, new ParameterDeclaration(arg.Name));
-//						}) { IssueMarker = IssueMarker.GrayOut });
-//				}
 //			}
-		}
+
+////			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+////			{
+////				base.VisitLambdaExpression(lambdaExpression);
+////
+////				var arguments = lambdaExpression.Parameters.ToList();
+////				if (arguments.Any(f => f.Type.IsNull))
+////					return;
+////				if (!LambdaTypeCanBeInferred(ctx, lambdaExpression, arguments))
+////					return;
+////
+////				foreach (var argument in arguments) {
+////					AddDiagnosticAnalyzer(new CodeIssue(
+////						argument.Type,
+////						ctx.TranslateString(""), 
+////						ctx.TranslateString(""),
+////						script => {
+////							if (arguments.Count == 1) {
+////								if (argument.NextSibling.ToString().Equals(")") && argument.PrevSibling.ToString().Equals("(")) {
+////									script.Remove(argument.NextSibling);
+////									script.Remove(argument.PrevSibling);
+////								}
+////							}
+////							foreach (var arg in arguments)
+////								script.Replace(arg, new ParameterDeclaration(arg.Name));
+////						}) { IssueMarker = IssueMarker.GrayOut });
+////				}
+////			}
+//		}
 
 //		public static bool LambdaTypeCanBeInferred(BaseSemanticModel ctx, Expression expression, List<ParameterDeclaration> parameters)
 //		{

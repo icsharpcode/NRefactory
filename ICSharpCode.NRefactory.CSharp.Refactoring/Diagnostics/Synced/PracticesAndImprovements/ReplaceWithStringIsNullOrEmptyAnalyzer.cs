@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// Converts to: string.IsNullOrEmpty (str)
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ReplaceWithStringIsNullOrEmptyAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReplaceWithStringIsNullOrEmptyAnalyzer : DiagnosticAnalyzer
 	{
 //		static readonly Pattern pattern = new Choice {
 //			// str == null || str == ""
@@ -124,51 +124,68 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ReplaceWithStringIsNullOrEmptyAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-//
-//			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
-//			{
-//				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
-//				Match m = pattern.Match(binaryOperatorExpression);
-//				bool isNegated = false;
-//				if (!m.Success) {
-//					m = negPattern.Match(binaryOperatorExpression);
-//					isNegated = true;
-//				}
-//				if (m.Success) {
-//					var str = m.Get<Expression>("str").Single();
-//					var def = ctx.Resolve(str).Type.GetDefinition();
-//					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
-//						return;
-//					AddDiagnosticAnalyzer(new CodeIssue(
-//						binaryOperatorExpression,
-			//						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString(""),
-//						new CodeAction (
-			//							isNegated ? ctx.TranslateString("Use !string.IsNullOrEmpty") : ctx.TranslateString("Use string.IsNullOrEmpty"),
-//							script => {
-//								Expression expr = new PrimitiveType("string").Invoke("IsNullOrEmpty", str.Clone());
-//								if (isNegated)
-//									expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
-//								script.Replace(binaryOperatorExpression, expr);
-//							},
-//							binaryOperatorExpression
-//						)
-//					));
-//					return;
-//				}
-//			}
-//	
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<ReplaceWithStringIsNullOrEmptyAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+////
+////			public override void VisitBinaryOperatorExpression(BinaryOperatorExpression binaryOperatorExpression)
+////			{
+////				base.VisitBinaryOperatorExpression(binaryOperatorExpression);
+////				Match m = pattern.Match(binaryOperatorExpression);
+////				bool isNegated = false;
+////				if (!m.Success) {
+////					m = negPattern.Match(binaryOperatorExpression);
+////					isNegated = true;
+////				}
+////				if (m.Success) {
+////					var str = m.Get<Expression>("str").Single();
+////					var def = ctx.Resolve(str).Type.GetDefinition();
+////					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
+////						return;
+////					AddDiagnosticAnalyzer(new CodeIssue(
+////						binaryOperatorExpression,
+//			//						isNegated ? ctx.TranslateString("Expression can be replaced with !string.IsNullOrEmpty") : ctx.TranslateString(""),
+////						new CodeAction (
+//			//							isNegated ? ctx.TranslateString("Use !string.IsNullOrEmpty") : ctx.TranslateString("Use string.IsNullOrEmpty"),
+////							script => {
+////								Expression expr = new PrimitiveType("string").Invoke("IsNullOrEmpty", str.Clone());
+////								if (isNegated)
+////									expr = new UnaryOperatorExpression(UnaryOperatorType.Not, expr);
+////								script.Replace(binaryOperatorExpression, expr);
+////							},
+////							binaryOperatorExpression
+////						)
+////					));
+////					return;
+////				}
+////			}
+////	
+//		}
 	}
 
 	

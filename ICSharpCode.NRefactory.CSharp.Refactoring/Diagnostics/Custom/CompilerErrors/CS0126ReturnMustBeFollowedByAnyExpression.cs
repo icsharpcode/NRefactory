@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CS0126ReturnMustBeFollowedByAnyExpression : GatherVisitorDiagnosticAnalyzer
+	public class CS0126ReturnMustBeFollowedByAnyExpression : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS0126ReturnMustBeFollowedByAnyExpression";
 		const string Description            = "Since 'function' doesn't return void, a return keyword must be followed by an object expression";
@@ -58,10 +58,28 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
+
 
 //		internal static IType GetRequestedReturnType (BaseSemanticModel ctx, AstNode returnStatement, out AstNode entityNode)
 //		{
@@ -93,129 +111,129 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //		}
 
 
-		class GatherVisitor : GatherVisitorBase<CS0126ReturnMustBeFollowedByAnyExpression>
-		{
-			//string currentMethodName;
+//		class GatherVisitor : GatherVisitorBase<CS0126ReturnMustBeFollowedByAnyExpression>
+//		{
+//			//string currentMethodName;
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
 
-//			bool skip;
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				var primitiveType = methodDeclaration.ReturnType as PrimitiveType;
-//				skip = (primitiveType != null && primitiveType.Keyword == "void");
-//				currentMethodName = methodDeclaration.Name;
-//				base.VisitMethodDeclaration(methodDeclaration);
-//			}
-//
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				currentMethodName = constructorDeclaration.Name;
-//				skip = true;
-//				base.VisitConstructorDeclaration(constructorDeclaration);
-//			}
-//
-//			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
-//			{
-//				currentMethodName = "~" + destructorDeclaration.Name;
-//				skip = true;
-//				base.VisitDestructorDeclaration(destructorDeclaration);
-//			}
-//
-//			public override void VisitAccessor(Accessor accessor)
-//			{
-//				bool old = skip; 
-//				skip = accessor.Role != PropertyDeclaration.GetterRole && accessor.Role != IndexerDeclaration.GetterRole;
-//				base.VisitAccessor(accessor);
-//				skip = old;
-//			}
-//
-//			static bool AnonymousMethodMayReturnVoid(BaseSemanticModel ctx, Expression anonymousMethodExpression)
-//			{
-//				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
-//					if (type.Kind != TypeKind.Delegate)
-//						continue;
-//					var invoke = type.GetDelegateInvokeMethod();
-//					if (invoke != null && invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
-//						return true;
-//				}
-//				return false;
-//			}
-//
-//
-//			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
-//			{
-//				bool old = skip;
-//				skip = AnonymousMethodMayReturnVoid(ctx, anonymousMethodExpression);
-//				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
-//				skip = old;
-//			}
-//
-//			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
-//			{
-//				bool old = skip;
-//				skip = AnonymousMethodMayReturnVoid(ctx, lambdaExpression);
-//				base.VisitLambdaExpression(lambdaExpression);
-//				skip = old;
-//			}
-//
-//			public override void VisitReturnStatement(ReturnStatement returnStatement)
-//			{
-//				base.VisitReturnStatement(returnStatement);
-//				if (skip)
-//					return;
-//
-//				if (returnStatement.Expression.IsNull) {
-//					var entity = returnStatement.GetParent<EntityDeclaration>();
-//					if (entity is Accessor)
-//						entity = entity.GetParent<EntityDeclaration>();
-//					if (entity == null)
-//						return;
-//					AstNode entityNode;
-//					var rr = GetRequestedReturnType (ctx, returnStatement, out entityNode);
-//					if (rr.Kind == TypeKind.Void)
-//						return;
-//					var actions = new List<CodeAction>();
-//					if (rr.Kind != TypeKind.Unknown) {
-//						actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
-//							Expression p;
-//							if (rr.IsKnownType(KnownTypeCode.Boolean)) {
-//								p = new PrimitiveExpression(false);
-//							} else if (rr.IsKnownType(KnownTypeCode.String)) {
-//								p = new PrimitiveExpression("");
-//							} else if (rr.IsKnownType(KnownTypeCode.Char)) {
-//								p = new PrimitiveExpression(' ');
-//							} else if (rr.IsReferenceType == true) {
-//								p = new NullReferenceExpression();
-//							} else if (rr.GetDefinition() != null &&
-//								rr.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
-//								p = new PrimitiveExpression(0x0);
-//							} else {
-//								p = new DefaultValueExpression(ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr));
-//							}
-//
-//							script.Replace(returnStatement, new ReturnStatement(p));
-//						}, returnStatement));
-//					}
-//					var method = returnStatement.GetParent<MethodDeclaration>();
-//					if (method != null) {
-//						actions.Add(new CodeAction(ctx.TranslateString("Change method return type to 'void'"), script => {
-//							script.Replace(method.ReturnType, new PrimitiveType("void"));
-//						}, returnStatement));
-//					}
-//
-//					AddDiagnosticAnalyzer(new CodeIssue(
-//						returnStatement, 
-//						string.Format(ctx.TranslateString("`{0}': A return keyword must be followed by any expression when method returns a value"), currentMethodName),
-//						actions
-//					));
-//				}
-//			}
-		}
+////			bool skip;
+////
+////			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+////			{
+////				var primitiveType = methodDeclaration.ReturnType as PrimitiveType;
+////				skip = (primitiveType != null && primitiveType.Keyword == "void");
+////				currentMethodName = methodDeclaration.Name;
+////				base.VisitMethodDeclaration(methodDeclaration);
+////			}
+////
+////			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+////			{
+////				currentMethodName = constructorDeclaration.Name;
+////				skip = true;
+////				base.VisitConstructorDeclaration(constructorDeclaration);
+////			}
+////
+////			public override void VisitDestructorDeclaration(DestructorDeclaration destructorDeclaration)
+////			{
+////				currentMethodName = "~" + destructorDeclaration.Name;
+////				skip = true;
+////				base.VisitDestructorDeclaration(destructorDeclaration);
+////			}
+////
+////			public override void VisitAccessor(Accessor accessor)
+////			{
+////				bool old = skip; 
+////				skip = accessor.Role != PropertyDeclaration.GetterRole && accessor.Role != IndexerDeclaration.GetterRole;
+////				base.VisitAccessor(accessor);
+////				skip = old;
+////			}
+////
+////			static bool AnonymousMethodMayReturnVoid(BaseSemanticModel ctx, Expression anonymousMethodExpression)
+////			{
+////				foreach (var type in TypeGuessing.GetValidTypes(ctx.Resolver, anonymousMethodExpression)) {
+////					if (type.Kind != TypeKind.Delegate)
+////						continue;
+////					var invoke = type.GetDelegateInvokeMethod();
+////					if (invoke != null && invoke.ReturnType.IsKnownType(KnownTypeCode.Void))
+////						return true;
+////				}
+////				return false;
+////			}
+////
+////
+////			public override void VisitAnonymousMethodExpression(AnonymousMethodExpression anonymousMethodExpression)
+////			{
+////				bool old = skip;
+////				skip = AnonymousMethodMayReturnVoid(ctx, anonymousMethodExpression);
+////				base.VisitAnonymousMethodExpression(anonymousMethodExpression);
+////				skip = old;
+////			}
+////
+////			public override void VisitLambdaExpression(LambdaExpression lambdaExpression)
+////			{
+////				bool old = skip;
+////				skip = AnonymousMethodMayReturnVoid(ctx, lambdaExpression);
+////				base.VisitLambdaExpression(lambdaExpression);
+////				skip = old;
+////			}
+////
+////			public override void VisitReturnStatement(ReturnStatement returnStatement)
+////			{
+////				base.VisitReturnStatement(returnStatement);
+////				if (skip)
+////					return;
+////
+////				if (returnStatement.Expression.IsNull) {
+////					var entity = returnStatement.GetParent<EntityDeclaration>();
+////					if (entity is Accessor)
+////						entity = entity.GetParent<EntityDeclaration>();
+////					if (entity == null)
+////						return;
+////					AstNode entityNode;
+////					var rr = GetRequestedReturnType (ctx, returnStatement, out entityNode);
+////					if (rr.Kind == TypeKind.Void)
+////						return;
+////					var actions = new List<CodeAction>();
+////					if (rr.Kind != TypeKind.Unknown) {
+////						actions.Add(new CodeAction(ctx.TranslateString("Return default value"), script => {
+////							Expression p;
+////							if (rr.IsKnownType(KnownTypeCode.Boolean)) {
+////								p = new PrimitiveExpression(false);
+////							} else if (rr.IsKnownType(KnownTypeCode.String)) {
+////								p = new PrimitiveExpression("");
+////							} else if (rr.IsKnownType(KnownTypeCode.Char)) {
+////								p = new PrimitiveExpression(' ');
+////							} else if (rr.IsReferenceType == true) {
+////								p = new NullReferenceExpression();
+////							} else if (rr.GetDefinition() != null &&
+////								rr.GetDefinition().KnownTypeCode < KnownTypeCode.DateTime) {
+////								p = new PrimitiveExpression(0x0);
+////							} else {
+////								p = new DefaultValueExpression(ctx.CreateTypeSystemAstBuilder(returnStatement).ConvertType(rr));
+////							}
+////
+////							script.Replace(returnStatement, new ReturnStatement(p));
+////						}, returnStatement));
+////					}
+////					var method = returnStatement.GetParent<MethodDeclaration>();
+////					if (method != null) {
+////						actions.Add(new CodeAction(ctx.TranslateString("Change method return type to 'void'"), script => {
+////							script.Replace(method.ReturnType, new PrimitiveType("void"));
+////						}, returnStatement));
+////					}
+////
+////					AddDiagnosticAnalyzer(new CodeIssue(
+////						returnStatement, 
+////						string.Format(ctx.TranslateString("`{0}': A return keyword must be followed by any expression when method returns a value"), currentMethodName),
+////						actions
+////					));
+////				}
+////			}
+//		}
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]

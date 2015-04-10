@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class MissingInterfaceMemberImplementationAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class MissingInterfaceMemberImplementationAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "MissingInterfaceMemberImplementationAnalyzer";
 		const string Description            = "Searches for missing interface implementations";
@@ -58,39 +58,56 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<MissingInterfaceMemberImplementationAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+//		class GatherVisitor : GatherVisitorBase<MissingInterfaceMemberImplementationAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				if (typeDeclaration.ClassType == ClassType.Interface || typeDeclaration.ClassType == ClassType.Enum)
-//					return;
-//				base.VisitTypeDeclaration(typeDeclaration);
-//				var rr = ctx.Resolve(typeDeclaration);
-//				if (rr.IsError)
-//					return;
-//				foreach (var baseType in typeDeclaration.BaseTypes) {
-//					var bt = ctx.Resolve(baseType);
-//					if (bt.IsError || bt.Type.Kind != TypeKind.Interface)
-//						continue;
-//					bool interfaceMissing;
-//					var toImplement = ImplementInterfaceAction.CollectMembersToImplement(rr.Type.GetDefinition(), bt.Type, false, out interfaceMissing);
-//					if (toImplement.Count == 0)
-//						continue;
-//
-//					AddDiagnosticAnalyzer(new CodeIssue(baseType, ctx.TranslateString("Missing interface member implementations")) { ActionProvider = { typeof(ImplementInterfaceAction), typeof(ImplementInterfaceExplicitAction)} });
-//				}
 //			}
-		}
+
+////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+////			{
+////				if (typeDeclaration.ClassType == ClassType.Interface || typeDeclaration.ClassType == ClassType.Enum)
+////					return;
+////				base.VisitTypeDeclaration(typeDeclaration);
+////				var rr = ctx.Resolve(typeDeclaration);
+////				if (rr.IsError)
+////					return;
+////				foreach (var baseType in typeDeclaration.BaseTypes) {
+////					var bt = ctx.Resolve(baseType);
+////					if (bt.IsError || bt.Type.Kind != TypeKind.Interface)
+////						continue;
+////					bool interfaceMissing;
+////					var toImplement = ImplementInterfaceAction.CollectMembersToImplement(rr.Type.GetDefinition(), bt.Type, false, out interfaceMissing);
+////					if (toImplement.Count == 0)
+////						continue;
+////
+////					AddDiagnosticAnalyzer(new CodeIssue(baseType, ctx.TranslateString("Missing interface member implementations")) { ActionProvider = { typeof(ImplementInterfaceAction), typeof(ImplementInterfaceExplicitAction)} });
+////				}
+////			}
+//		}
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]

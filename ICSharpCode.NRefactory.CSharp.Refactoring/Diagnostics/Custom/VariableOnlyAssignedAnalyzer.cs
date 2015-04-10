@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
-	public abstract class VariableOnlyAssignedAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public abstract class VariableOnlyAssignedAnalyzer : DiagnosticAnalyzer
 	{
 //
 //		protected static bool TestOnlyAssigned(BaseSemanticModel ctx, AstNode rootNode, IVariable variable)

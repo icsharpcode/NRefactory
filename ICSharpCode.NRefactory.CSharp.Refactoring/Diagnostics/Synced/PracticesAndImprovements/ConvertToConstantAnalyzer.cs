@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConvertToConstantAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertToConstantAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.ConvertToConstantAnalyzerID, 
@@ -57,9 +57,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
 //
 //		internal static IEnumerable<FieldDeclaration> CollectFields<T>(GatherVisitorBase<T> provider, TypeDeclaration typeDeclaration) where T : CodeIssueProvider
@@ -99,133 +116,133 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //			}
 //		}
 //
-		class GatherVisitor : GatherVisitorBase<ConvertToConstantAnalyzer>
-		{
-//			readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
+//		class GatherVisitor : GatherVisitorBase<ConvertToConstantAnalyzer>
+//		{
+////			readonly Stack<List<Tuple<VariableInitializer, IVariable>>> fieldStack = new Stack<List<Tuple<VariableInitializer, IVariable>>>();
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-//
-//			virtual void Collect()
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				foreach (var varDecl in fieldStack.Peek()) {
-//					AddDiagnosticAnalyzer(new CodeIssue(
-//						varDecl.Item1.NameToken,
-//						ctx.TranslateString("Convert to constant"),
-//						ctx.TranslateString("To const"),
-//						script => {
-//							var constVarDecl = (FieldDeclaration)varDecl.Item1.Parent;
-//							script.ChangeModifier(constVarDecl, (constVarDecl.Modifiers & ~Modifiers.Static) | Modifiers.Const);
-//						}
-//					));
-//				}
 //			}
-//
-//
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				base.VisitBlockStatement(blockStatement);
-//				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
-//					var assignmentAnalysis = new VariableUsageAnalyzation (ctx);
-//					var newVars = new List<Tuple<VariableInitializer, IVariable>>();
-//					blockStatement.AcceptVisitor(assignmentAnalysis); 
-//					foreach (var variable in fieldStack.Pop()) {
-//						if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
-//							continue;
-//						newVars.Add(variable);
-//					}
-//					fieldStack.Push(newVars);
-//				}
-//			}
-//
-//			static bool IsValidConstType(IType type)
-//			{
-//				var def = type.GetDefinition();
-//				if (def == null)
-//					return false;
-//				return KnownTypeCode.Boolean <= def.KnownTypeCode && def.KnownTypeCode <= KnownTypeCode.Decimal ||
-//					def.KnownTypeCode == KnownTypeCode.String;
-//			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				var list = new List<Tuple<VariableInitializer, IVariable>>();
-//				fieldStack.Push(list);
-//				foreach (var fieldDeclaration in ConvertToConstantAnalyzer.CollectFields(this, typeDeclaration)) {
-//					if (IsSuppressed(fieldDeclaration.StartLocation))
-//						continue;
-//					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const) || fieldDeclaration.Modifiers.HasFlag (Modifiers.Readonly))
-//						continue;
-//					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
-//						continue;
-//					if (fieldDeclaration.Variables.Any (v => !ctx.Resolve (v.Initializer).IsCompileTimeConstant))
-//						continue;
-//					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
-//					if (!IsValidConstType(rr.Type))
-//						continue;
-//					if (fieldDeclaration.Variables.Count() > 1)
-//						continue;
-//					var variable = fieldDeclaration.Variables.First();
-//					var mr = ctx.Resolve(variable) as MemberResolveResult;
-//					if (mr == null || !(mr.Member is IVariable))
-//						continue;
-//					list.Add(Tuple.Create(variable, (IVariable)mr.Member)); 
-//				}
-//				base.VisitTypeDeclaration(typeDeclaration);
-//				Collect();
-//				fieldStack.Pop();
-//			}
-//
-//			public override void VisitVariableDeclarationStatement (VariableDeclarationStatement varDecl)
-//			{
-//				base.VisitVariableDeclarationStatement(varDecl);
-//				if (varDecl.Modifiers.HasFlag (Modifiers.Const) || varDecl.Role == ForStatement.InitializerRole)
-//					return;
-//				if (varDecl.Variables.Count () > 1)
-//					return;
-//				if (varDecl.Variables.Any (v => !ctx.Resolve (v.Initializer).IsCompileTimeConstant))
-//					return;
-//				var containingBlock = varDecl.GetParent<BlockStatement> ();
-//				if (containingBlock == null)
-//					return;
-//
-//				var returnTypeRR = ctx.Resolve(varDecl.Type);
-//				if (returnTypeRR.Type.IsReferenceType.HasValue && returnTypeRR.Type.IsReferenceType.Value)
-//					return;
-//
-//				var variable = varDecl.Variables.First();
-//				var vr = ctx.Resolve(variable) as LocalResolveResult;
-//				if (vr == null)
-//					return;
-//
-//				if (ctx.Resolve(variable.Initializer).ConstantValue == null)
-//					return;
-//
-//				var assignmentAnalysis = new VariableUsageAnalyzation (ctx);
-//
-//				containingBlock.AcceptVisitor(assignmentAnalysis);
-//
-//				if (assignmentAnalysis.GetStatus(vr.Variable) == VariableState.Changed)
-//					return;
-//				AddDiagnosticAnalyzer (new CodeIssue(
-//					variable.NameToken,
-//					ctx.TranslateString ("Convert to constant"),
-//					ctx.TranslateString ("To const"),
-//					script => {
-//						var constVarDecl = (VariableDeclarationStatement)varDecl.Clone ();
-//						constVarDecl.Modifiers |= Modifiers.Const;
-//						if (varDecl.Type.IsVar()) {
-//							var builder = ctx.CreateTypeSystemAstBuilder(varDecl);
-//							constVarDecl.Type = builder.ConvertType (ctx.Resolve(varDecl.Type).Type);
-//						}
-//						script.Replace (varDecl, constVarDecl);
-//					}
-//				));
-//			}
-//		
-		}
+////
+////			virtual void Collect()
+////			{
+////				foreach (var varDecl in fieldStack.Peek()) {
+////					AddDiagnosticAnalyzer(new CodeIssue(
+////						varDecl.Item1.NameToken,
+////						ctx.TranslateString("Convert to constant"),
+////						ctx.TranslateString("To const"),
+////						script => {
+////							var constVarDecl = (FieldDeclaration)varDecl.Item1.Parent;
+////							script.ChangeModifier(constVarDecl, (constVarDecl.Modifiers & ~Modifiers.Static) | Modifiers.Const);
+////						}
+////					));
+////				}
+////			}
+////
+////
+////			public override void VisitBlockStatement(BlockStatement blockStatement)
+////			{
+////				base.VisitBlockStatement(blockStatement);
+////				if (blockStatement.Parent is EntityDeclaration || blockStatement.Parent is Accessor) {
+////					var assignmentAnalysis = new VariableUsageAnalyzation (ctx);
+////					var newVars = new List<Tuple<VariableInitializer, IVariable>>();
+////					blockStatement.AcceptVisitor(assignmentAnalysis); 
+////					foreach (var variable in fieldStack.Pop()) {
+////						if (assignmentAnalysis.GetStatus(variable.Item2) == VariableState.Changed)
+////							continue;
+////						newVars.Add(variable);
+////					}
+////					fieldStack.Push(newVars);
+////				}
+////			}
+////
+////			static bool IsValidConstType(IType type)
+////			{
+////				var def = type.GetDefinition();
+////				if (def == null)
+////					return false;
+////				return KnownTypeCode.Boolean <= def.KnownTypeCode && def.KnownTypeCode <= KnownTypeCode.Decimal ||
+////					def.KnownTypeCode == KnownTypeCode.String;
+////			}
+////
+////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+////			{
+////				var list = new List<Tuple<VariableInitializer, IVariable>>();
+////				fieldStack.Push(list);
+////				foreach (var fieldDeclaration in ConvertToConstantAnalyzer.CollectFields(this, typeDeclaration)) {
+////					if (IsSuppressed(fieldDeclaration.StartLocation))
+////						continue;
+////					if (fieldDeclaration.Modifiers.HasFlag (Modifiers.Const) || fieldDeclaration.Modifiers.HasFlag (Modifiers.Readonly))
+////						continue;
+////					if (fieldDeclaration.HasModifier(Modifiers.Public) || fieldDeclaration.HasModifier(Modifiers.Protected) || fieldDeclaration.HasModifier(Modifiers.Internal))
+////						continue;
+////					if (fieldDeclaration.Variables.Any (v => !ctx.Resolve (v.Initializer).IsCompileTimeConstant))
+////						continue;
+////					var rr = ctx.Resolve(fieldDeclaration.ReturnType);
+////					if (!IsValidConstType(rr.Type))
+////						continue;
+////					if (fieldDeclaration.Variables.Count() > 1)
+////						continue;
+////					var variable = fieldDeclaration.Variables.First();
+////					var mr = ctx.Resolve(variable) as MemberResolveResult;
+////					if (mr == null || !(mr.Member is IVariable))
+////						continue;
+////					list.Add(Tuple.Create(variable, (IVariable)mr.Member)); 
+////				}
+////				base.VisitTypeDeclaration(typeDeclaration);
+////				Collect();
+////				fieldStack.Pop();
+////			}
+////
+////			public override void VisitVariableDeclarationStatement (VariableDeclarationStatement varDecl)
+////			{
+////				base.VisitVariableDeclarationStatement(varDecl);
+////				if (varDecl.Modifiers.HasFlag (Modifiers.Const) || varDecl.Role == ForStatement.InitializerRole)
+////					return;
+////				if (varDecl.Variables.Count () > 1)
+////					return;
+////				if (varDecl.Variables.Any (v => !ctx.Resolve (v.Initializer).IsCompileTimeConstant))
+////					return;
+////				var containingBlock = varDecl.GetParent<BlockStatement> ();
+////				if (containingBlock == null)
+////					return;
+////
+////				var returnTypeRR = ctx.Resolve(varDecl.Type);
+////				if (returnTypeRR.Type.IsReferenceType.HasValue && returnTypeRR.Type.IsReferenceType.Value)
+////					return;
+////
+////				var variable = varDecl.Variables.First();
+////				var vr = ctx.Resolve(variable) as LocalResolveResult;
+////				if (vr == null)
+////					return;
+////
+////				if (ctx.Resolve(variable.Initializer).ConstantValue == null)
+////					return;
+////
+////				var assignmentAnalysis = new VariableUsageAnalyzation (ctx);
+////
+////				containingBlock.AcceptVisitor(assignmentAnalysis);
+////
+////				if (assignmentAnalysis.GetStatus(vr.Variable) == VariableState.Changed)
+////					return;
+////				AddDiagnosticAnalyzer (new CodeIssue(
+////					variable.NameToken,
+////					ctx.TranslateString ("Convert to constant"),
+////					ctx.TranslateString ("To const"),
+////					script => {
+////						var constVarDecl = (VariableDeclarationStatement)varDecl.Clone ();
+////						constVarDecl.Modifiers |= Modifiers.Const;
+////						if (varDecl.Type.IsVar()) {
+////							var builder = ctx.CreateTypeSystemAstBuilder(varDecl);
+////							constVarDecl.Type = builder.ConvertType (ctx.Resolve(varDecl.Type).Type);
+////						}
+////						script.Replace (varDecl, constVarDecl);
+////					}
+////				));
+////			}
+////		
+//		}
 	
 //
 //		public class VariableUsageAnalyzation : DepthFirstAstVisitor

@@ -24,117 +24,102 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConstantConditionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConstantConditionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
-			NRefactoryDiagnosticIDs.ConstantConditionAnalyzerID, 
-			GettextCatalog.GetString("Condition is always 'true' or always 'false'"),
-			GettextCatalog.GetString("Condition is always '{0}'"), 
-			DiagnosticAnalyzerCategories.CodeQualityIssues, 
-			DiagnosticSeverity.Warning, 
+			NRefactoryDiagnosticIDs.ConstantConditionAnalyzerID,
+			GettextCatalog.GetString ("Condition is always 'true' or always 'false'"),
+			GettextCatalog.GetString ("Condition is always '{0}'"),
+			DiagnosticAnalyzerCategories.CodeQualityIssues,
+			DiagnosticSeverity.Warning,
 			isEnabledByDefault: true,
-			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConstantConditionAnalyzerID)
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.ConstantConditionAnalyzerID)
 		);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize (AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Check (nodeContext, ((IfStatementSyntax)nodeContext.Node).Condition);
+				},
+				new SyntaxKind [] { SyntaxKind.IfStatement }
+			);
+
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Check (nodeContext, ((WhileStatementSyntax)nodeContext.Node).Condition);
+				},
+				new SyntaxKind [] { SyntaxKind.WhileStatement }
+			);
+
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Check (nodeContext, ((DoStatementSyntax)nodeContext.Node).Condition);
+				},
+				new SyntaxKind [] { SyntaxKind.DoStatement }
+			);
+
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Check (nodeContext, ((ConditionalExpressionSyntax)nodeContext.Node).Condition);
+				},
+				new SyntaxKind [] { SyntaxKind.ConditionalExpression }
+			);
+
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Check (nodeContext, ((ForStatementSyntax)nodeContext.Node).Condition);
+				},
+				new SyntaxKind [] { SyntaxKind.ForStatement }
+			);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConstantConditionAnalyzer>
+		void Check (SyntaxNodeAnalysisContext nodeContext, ExpressionSyntax condition)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			if (condition.IsKind (SyntaxKind.TrueLiteralExpression) || condition.IsKind (SyntaxKind.FalseLiteralExpression))
+				return;
 
-			public override void VisitConditionalExpression(ConditionalExpressionSyntax node)
-			{
-				base.VisitConditionalExpression(node);
-				CheckCondition(node.Condition);
-			}
+			var resolveResult = nodeContext.SemanticModel.GetConstantValue (condition);
+			if (!resolveResult.HasValue || !(resolveResult.Value is bool))
+				return;
 
-			public override void VisitIfStatement(IfStatementSyntax node)
-			{
-				base.VisitIfStatement(node);
-				CheckCondition(node.Condition);
-			}
+			var value = (bool)resolveResult.Value;
 
-			public override void VisitWhileStatement(WhileStatementSyntax node)
-			{
-				base.VisitWhileStatement(node);
-				CheckCondition(node.Condition);
-			}
-
-			public override void VisitDoStatement(DoStatementSyntax node)
-			{
-				base.VisitDoStatement(node);
-				CheckCondition(node.Condition);
-			}
-
-			public override void VisitForStatement(ForStatementSyntax node)
-			{
-				base.VisitForStatement(node);
-				CheckCondition(node.Condition);
-			}
-
-			void CheckCondition(ExpressionSyntax condition)
-			{
-				if (condition.IsKind(SyntaxKind.TrueLiteralExpression) || condition.IsKind(SyntaxKind.FalseLiteralExpression))
-					return;
-
-				var resolveResult = semanticModel.GetConstantValue(condition);
-				if (!resolveResult.HasValue || !(resolveResult.Value is bool))
-					return;
-
-				var value = (bool)resolveResult.Value;
-			
-				AddDiagnosticAnalyzer (Diagnostic.Create(
-					descriptor.Id,
-					descriptor.Category,
-					string.Format(descriptor.MessageFormat.ToString (), value),
-					descriptor.DefaultSeverity,
-					descriptor.DefaultSeverity,
-					descriptor.IsEnabledByDefault,
-					4,
-					descriptor.Title,
-					descriptor.Description,
-					descriptor.HelpLinkUri,
-					condition.GetLocation(),
-					null,
-					new [] { value.ToString() } 
-				));
-			}
-
-//			void RemoveText(Script script, TextLocation start, TextLocation end)
-//			{
-//				var startOffset = script.GetCurrentOffset(start);
-//				var endOffset = script.GetCurrentOffset(end);
-//				if (startOffset < endOffset)
-//					script.RemoveText(startOffset, endOffset - startOffset);
-//			}
+			nodeContext.ReportDiagnostic (Diagnostic.Create (
+				descriptor.Id,
+				descriptor.Category,
+				string.Format (descriptor.MessageFormat.ToString (), value),
+				descriptor.DefaultSeverity,
+				descriptor.DefaultSeverity,
+				descriptor.IsEnabledByDefault,
+				4,
+				descriptor.Title,
+				descriptor.Description,
+				descriptor.HelpLinkUri,
+				condition.GetLocation (),
+				null,
+				new [] { value.ToString () }
+			));
 		}
+
+		////			void RemoveText(Script script, TextLocation start, TextLocation end)
+		////			{
+		////				var startOffset = script.GetCurrentOffset(start);
+		////				var endOffset = script.GetCurrentOffset(end);
+		////				if (startOffset < endOffset)
+		////					script.RemoveText(startOffset, endOffset - startOffset);
+		////			}
+		//		}
 	}
 }

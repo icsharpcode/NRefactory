@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// action.
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class SuggestUseVarKeywordEvidentAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class SuggestUseVarKeywordEvidentAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.SuggestUseVarKeywordEvidentAnalyzerID, 
@@ -61,68 +61,85 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-//
-//			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
-//			{
-//				if (!ctx.Supports(UseVarKeywordAction.minimumVersion))
-//					return;
-//				base.VisitSyntaxTree(syntaxTree);
-//			}
-//
-//			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
-//			{
-//				base.VisitVariableDeclarationStatement(variableDeclarationStatement);
-//				if (variableDeclarationStatement.Type is PrimitiveType) {
-//					return;
-//				}
-//				if (variableDeclarationStatement.Type.IsVar()) {
-//					return;
-//				}
-//				if (variableDeclarationStatement.Variables.Count != 1) {
-//					return;
-//				}
-//				
-//				//only checks for cases where the type would be obvious - assignment of new, cast, etc.
-//				//also check the type actually matches else the user might want to assign different subclasses later
-//				var v = variableDeclarationStatement.Variables.Single();
-//				
-//				var arrCreate = v.Initializer as ArrayCreateExpression;
-//				if (arrCreate != null) {
-//					var n = variableDeclarationStatement.Type as ComposedType;
-//					//FIXME: check the specifier compatibility
-//					if (n != null && n.ArraySpecifiers.Any() && n.BaseType.IsMatch(arrCreate.Type)) {
-//						AddDiagnosticAnalyzer(variableDeclarationStatement);
-//					}
-//				}
-//				var objCreate = v.Initializer as ObjectCreateExpression;
-//				if (objCreate != null && objCreate.Type.IsMatch(variableDeclarationStatement.Type)) {
-//					AddDiagnosticAnalyzer(variableDeclarationStatement);
-//				}
-//				var asCast = v.Initializer as AsExpression;
-//				if (asCast != null && asCast.Type.IsMatch(variableDeclarationStatement.Type)) {
-//					AddDiagnosticAnalyzer(variableDeclarationStatement);
-//				}
-//				var cast = v.Initializer as CastExpression;
-//				if (cast != null && cast.Type.IsMatch(variableDeclarationStatement.Type)) {
-//					AddDiagnosticAnalyzer(variableDeclarationStatement);
-//				}
-//			}
-//			
-//			void AddDiagnosticAnalyzer(VariableDeclarationStatement variableDeclarationStatement)
-//			{
-//				AddDiagnosticAnalyzer(new CodeIssue(variableDeclarationStatement.Type, ctx.TranslateString("")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(UseVarKeywordAction) } });
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+////
+////			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
+////			{
+////				if (!ctx.Supports(UseVarKeywordAction.minimumVersion))
+////					return;
+////				base.VisitSyntaxTree(syntaxTree);
+////			}
+////
+////			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
+////			{
+////				base.VisitVariableDeclarationStatement(variableDeclarationStatement);
+////				if (variableDeclarationStatement.Type is PrimitiveType) {
+////					return;
+////				}
+////				if (variableDeclarationStatement.Type.IsVar()) {
+////					return;
+////				}
+////				if (variableDeclarationStatement.Variables.Count != 1) {
+////					return;
+////				}
+////				
+////				//only checks for cases where the type would be obvious - assignment of new, cast, etc.
+////				//also check the type actually matches else the user might want to assign different subclasses later
+////				var v = variableDeclarationStatement.Variables.Single();
+////				
+////				var arrCreate = v.Initializer as ArrayCreateExpression;
+////				if (arrCreate != null) {
+////					var n = variableDeclarationStatement.Type as ComposedType;
+////					//FIXME: check the specifier compatibility
+////					if (n != null && n.ArraySpecifiers.Any() && n.BaseType.IsMatch(arrCreate.Type)) {
+////						AddDiagnosticAnalyzer(variableDeclarationStatement);
+////					}
+////				}
+////				var objCreate = v.Initializer as ObjectCreateExpression;
+////				if (objCreate != null && objCreate.Type.IsMatch(variableDeclarationStatement.Type)) {
+////					AddDiagnosticAnalyzer(variableDeclarationStatement);
+////				}
+////				var asCast = v.Initializer as AsExpression;
+////				if (asCast != null && asCast.Type.IsMatch(variableDeclarationStatement.Type)) {
+////					AddDiagnosticAnalyzer(variableDeclarationStatement);
+////				}
+////				var cast = v.Initializer as CastExpression;
+////				if (cast != null && cast.Type.IsMatch(variableDeclarationStatement.Type)) {
+////					AddDiagnosticAnalyzer(variableDeclarationStatement);
+////				}
+////			}
+////			
+////			void AddDiagnosticAnalyzer(VariableDeclarationStatement variableDeclarationStatement)
+////			{
+////				AddDiagnosticAnalyzer(new CodeIssue(variableDeclarationStatement.Type, ctx.TranslateString("")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(UseVarKeywordAction) } });
+////			}
+//		}
 	}
 }

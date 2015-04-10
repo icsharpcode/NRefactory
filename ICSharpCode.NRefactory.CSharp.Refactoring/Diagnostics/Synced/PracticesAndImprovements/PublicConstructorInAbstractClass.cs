@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class PublicConstructorInAbstractClassAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class PublicConstructorInAbstractClassAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.PublicConstructorInAbstractClassAnalyzerID, 
@@ -57,41 +57,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<PublicConstructorInAbstractClassAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				if (!typeDeclaration.HasModifier(Modifiers.Abstract)) {
-//					return;
-//				}
-//				foreach (var constructor in typeDeclaration.Children.OfType<ConstructorDeclaration>()) {
-//					VisitConstructorDeclaration(constructor);
-//				}
-//			}
-//
-//			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-//			{
-//				if (constructorDeclaration.HasModifier(Modifiers.Public)) {
-//
-//					var makeProtected = new CodeAction(ctx.TranslateString("Make constructor protected"), script => script.Replace(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public), new CSharpModifierToken(TextLocation.Empty, Modifiers.Protected)), constructorDeclaration.NameToken);
-//					var makePrivate = new CodeAction(ctx.TranslateString("Make constructor private"), script => script.Remove(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public)), constructorDeclaration.NameToken);
-//
-//					AddDiagnosticAnalyzer(new CodeIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] {
-//						makeProtected,
-//						makePrivate
-//					}));
-//				}
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<PublicConstructorInAbstractClassAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+////			{
+////				if (!typeDeclaration.HasModifier(Modifiers.Abstract)) {
+////					return;
+////				}
+////				foreach (var constructor in typeDeclaration.Children.OfType<ConstructorDeclaration>()) {
+////					VisitConstructorDeclaration(constructor);
+////				}
+////			}
+////
+////			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
+////			{
+////				if (constructorDeclaration.HasModifier(Modifiers.Public)) {
+////
+////					var makeProtected = new CodeAction(ctx.TranslateString("Make constructor protected"), script => script.Replace(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public), new CSharpModifierToken(TextLocation.Empty, Modifiers.Protected)), constructorDeclaration.NameToken);
+////					var makePrivate = new CodeAction(ctx.TranslateString("Make constructor private"), script => script.Remove(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public)), constructorDeclaration.NameToken);
+////
+////					AddDiagnosticAnalyzer(new CodeIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] {
+////						makeProtected,
+////						makePrivate
+////					}));
+////				}
+////			}
+//		}
 	}
 }

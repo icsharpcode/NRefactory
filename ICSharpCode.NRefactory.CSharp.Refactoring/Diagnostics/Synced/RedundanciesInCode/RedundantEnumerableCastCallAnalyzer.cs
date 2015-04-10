@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	// OfType -> Underline (+suggest to compare to null)
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantEnumerableCastCallAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantEnumerableCastCallAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantEnumerableCastCallAnalyzerID, 
@@ -59,74 +59,91 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantEnumerableCastCallAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantEnumerableCastCallAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitInvocationExpression(invocationExpression);
-//				var mt = invocationExpression.Target as MemberReferenceExpression;
-//				if (mt == null)
-//					return;
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//				if (rr.Member.DeclaringType.Name != "Enumerable" || rr.Member.DeclaringType.Namespace != "System.Linq")
-//					return;
-//				bool isCast = rr.Member.Name == "Cast";
-//				if (!isCast && rr.Member.Name != "OfType")
-//					return;
-//				var tr = ctx.Resolve(mt.Target);
-//				if (tr.Type.Equals(rr.Type) || tr.Type.GetAllBaseTypes().Any (bt=> bt.Equals(rr.Type))) {
-//					if (isCast) {
-//						AddDiagnosticAnalyzer(new CodeIssue(
-//							mt.DotToken.StartLocation,
-//							mt.EndLocation,
-//							ctx.TranslateString(""),
-//							ctx.TranslateString(""),
-//							s => s.Replace(invocationExpression, mt.Target.Clone())
-//						) { IssueMarker = IssueMarker.GrayOut });
-//					} else {
-//						AddDiagnosticAnalyzer(new CodeIssue(
-//							mt.DotToken.StartLocation,
-//							mt.EndLocation,
-//							ctx.TranslateString(""),
-//							new [] {
-//								new CodeAction(
-//									ctx.TranslateString("Compare items with null"),
-//									s => {
-//										var name = ctx.GetNameProposal("i", mt.StartLocation);
-//										s.Replace(invocationExpression, 
-//											new InvocationExpression(
-//												new MemberReferenceExpression(mt.Target.Clone(), "Where"), 
-//												new LambdaExpression {
-//													Parameters = { new ParameterDeclaration(name) },
-//													Body = new BinaryOperatorExpression(new IdentifierExpression(name), BinaryOperatorType.InEquality, new NullReferenceExpression())
-//												}
-//											)
-//										);
-//									},
-//									mt
-//								),
-//								new CodeAction(
-//									ctx.TranslateString("Remove 'OfType<T>' call"),
-//									s => s.Replace(invocationExpression, mt.Target.Clone()),
-//									mt
-//								),
-//							}
-//						));
-//					}
-//				}
 //			}
-		}
+
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////				var mt = invocationExpression.Target as MemberReferenceExpression;
+////				if (mt == null)
+////					return;
+////				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return;
+////				if (rr.Member.DeclaringType.Name != "Enumerable" || rr.Member.DeclaringType.Namespace != "System.Linq")
+////					return;
+////				bool isCast = rr.Member.Name == "Cast";
+////				if (!isCast && rr.Member.Name != "OfType")
+////					return;
+////				var tr = ctx.Resolve(mt.Target);
+////				if (tr.Type.Equals(rr.Type) || tr.Type.GetAllBaseTypes().Any (bt=> bt.Equals(rr.Type))) {
+////					if (isCast) {
+////						AddDiagnosticAnalyzer(new CodeIssue(
+////							mt.DotToken.StartLocation,
+////							mt.EndLocation,
+////							ctx.TranslateString(""),
+////							ctx.TranslateString(""),
+////							s => s.Replace(invocationExpression, mt.Target.Clone())
+////						) { IssueMarker = IssueMarker.GrayOut });
+////					} else {
+////						AddDiagnosticAnalyzer(new CodeIssue(
+////							mt.DotToken.StartLocation,
+////							mt.EndLocation,
+////							ctx.TranslateString(""),
+////							new [] {
+////								new CodeAction(
+////									ctx.TranslateString("Compare items with null"),
+////									s => {
+////										var name = ctx.GetNameProposal("i", mt.StartLocation);
+////										s.Replace(invocationExpression, 
+////											new InvocationExpression(
+////												new MemberReferenceExpression(mt.Target.Clone(), "Where"), 
+////												new LambdaExpression {
+////													Parameters = { new ParameterDeclaration(name) },
+////													Body = new BinaryOperatorExpression(new IdentifierExpression(name), BinaryOperatorType.InEquality, new NullReferenceExpression())
+////												}
+////											)
+////										);
+////									},
+////									mt
+////								),
+////								new CodeAction(
+////									ctx.TranslateString("Remove 'OfType<T>' call"),
+////									s => s.Replace(invocationExpression, mt.Target.Clone()),
+////									mt
+////								),
+////							}
+////						));
+////					}
+////				}
+////			}
+//		}
 	}
 }

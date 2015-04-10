@@ -24,22 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -47,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// <summary>
 	/// Finds redundant internal modifiers.
 	/// </summary>
-	public class RedundantPrivateAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantPrivateAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantPrivateAnalyzerID, 
@@ -62,9 +52,110 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] { 
+					SyntaxKind.MethodDeclaration, 
+					          SyntaxKind.FieldDeclaration,
+					          SyntaxKind.PropertyDeclaration,
+					          SyntaxKind.IndexerDeclaration,
+					          SyntaxKind.EventDeclaration,
+					          SyntaxKind.ConstructorDeclaration,
+					          SyntaxKind.OperatorDeclaration,
+					          SyntaxKind.ClassDeclaration,
+					          SyntaxKind.InterfaceDeclaration,
+					          SyntaxKind.StructDeclaration,
+					          SyntaxKind.EnumDeclaration,
+					          SyntaxKind.DelegateDeclaration
+				}
+			);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+
+			var methodDeclaration = nodeContext.Node as MethodDeclarationSyntax;
+			if (methodDeclaration != null && methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, methodDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var fieldDeclaration = nodeContext.Node as FieldDeclarationSyntax;
+			if (fieldDeclaration != null && fieldDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, fieldDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var propertyDeclaration = nodeContext.Node as PropertyDeclarationSyntax;
+			if (propertyDeclaration != null && propertyDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, propertyDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var indexerDeclaration = nodeContext.Node as IndexerDeclarationSyntax;
+			if (indexerDeclaration != null && indexerDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, indexerDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+
+			var eventDeclaration = nodeContext.Node as EventDeclarationSyntax;
+			if (eventDeclaration != null && eventDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, eventDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var constructorDeclaration = nodeContext.Node as ConstructorDeclarationSyntax;
+			if (constructorDeclaration != null && constructorDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, constructorDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var operatorDeclaration = nodeContext.Node as OperatorDeclarationSyntax;
+			if (operatorDeclaration != null && operatorDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, operatorDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var delegateDeclaration = nodeContext.Node as DelegateDeclarationSyntax;
+			if (delegateDeclaration != null && delegateDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, delegateDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var enumDeclaration = nodeContext.Node as EnumDeclarationSyntax;
+			if (enumDeclaration != null && enumDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, enumDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var structDeclaration = nodeContext.Node as StructDeclarationSyntax;
+			if (structDeclaration != null && structDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, structDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var interfaceDeclaration = nodeContext.Node as InterfaceDeclarationSyntax;
+			if (interfaceDeclaration != null && interfaceDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, interfaceDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			var classDeclaration = nodeContext.Node as ClassDeclarationSyntax;
+			if (classDeclaration != null && classDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {
+				diagnostic = Diagnostic.Create (descriptor, classDeclaration.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
+				return true;
+			}
+
+			return false;
 		}
 
 		public static SyntaxNode RemoveModifierFromNode(SyntaxNode node, SyntaxKind modifier)
@@ -81,135 +172,58 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			FieldDeclarationSyntax fieldNode = node as FieldDeclarationSyntax;
 			if (fieldNode != null)
 				return fieldNode.WithModifiers(SyntaxFactory.TokenList(fieldNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(fieldNode.GetLeadingTrivia());
+					            .WithLeadingTrivia(fieldNode.GetLeadingTrivia());
 
 			PropertyDeclarationSyntax propertyNode = node as PropertyDeclarationSyntax;
 			if (propertyNode != null)
 				return propertyNode.WithModifiers(SyntaxFactory.TokenList(propertyNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(propertyNode.GetLeadingTrivia());
+					               .WithLeadingTrivia(propertyNode.GetLeadingTrivia());
 
 			IndexerDeclarationSyntax indexerNode = node as IndexerDeclarationSyntax;
 			if (indexerNode != null)
 				return indexerNode.WithModifiers(SyntaxFactory.TokenList(indexerNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(indexerNode.GetLeadingTrivia());
+					              .WithLeadingTrivia(indexerNode.GetLeadingTrivia());
 
 			EventDeclarationSyntax eventNode = node as EventDeclarationSyntax;
 			if (eventNode != null)
 				return eventNode.WithModifiers(SyntaxFactory.TokenList(eventNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(eventNode.GetLeadingTrivia());
+					            .WithLeadingTrivia(eventNode.GetLeadingTrivia());
 
 			ConstructorDeclarationSyntax ctrNode = node as ConstructorDeclarationSyntax;
 			if (ctrNode != null)
 				return ctrNode.WithModifiers(SyntaxFactory.TokenList(ctrNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(ctrNode.GetLeadingTrivia());
+					          .WithLeadingTrivia(ctrNode.GetLeadingTrivia());
 
 			OperatorDeclarationSyntax opNode = node as OperatorDeclarationSyntax;
 			if (opNode != null)
 				return opNode.WithModifiers(SyntaxFactory.TokenList(opNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(opNode.GetLeadingTrivia());
+					         .WithLeadingTrivia(opNode.GetLeadingTrivia());
 
 			ClassDeclarationSyntax classNode = node as ClassDeclarationSyntax;
 			if (classNode != null)
 				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(classNode.GetLeadingTrivia());
+					            .WithLeadingTrivia(classNode.GetLeadingTrivia());
 
 			InterfaceDeclarationSyntax interfaceNode = node as InterfaceDeclarationSyntax;
 			if (interfaceNode != null)
 				return interfaceNode.WithModifiers(SyntaxFactory.TokenList(interfaceNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(interfaceNode.GetLeadingTrivia());
+					                .WithLeadingTrivia(interfaceNode.GetLeadingTrivia());
 
 			StructDeclarationSyntax structNode = node as StructDeclarationSyntax;
 			if (structNode != null)
 				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(m => !m.IsKind(modifier))))
-					.WithLeadingTrivia(structNode.GetLeadingTrivia());
+					             .WithLeadingTrivia(structNode.GetLeadingTrivia());
 
+			var enumNode = node as EnumDeclarationSyntax;
+			if (enumNode != null)
+				return enumNode.WithModifiers(SyntaxFactory.TokenList(enumNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					             .WithLeadingTrivia(enumNode.GetLeadingTrivia());
+
+			var delegateNode = node as DelegateDeclarationSyntax;
+			if (delegateNode != null)
+				return delegateNode.WithModifiers(SyntaxFactory.TokenList(delegateNode.Modifiers.Where(m => !m.IsKind(modifier))))
+					             .WithLeadingTrivia(delegateNode.GetLeadingTrivia());
 			return node;
-		}
-
-		class GatherVisitor : GatherVisitorBase<RedundantPrivateAnalyzer>
-		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-			private void AddDiagnosticAnalyzer(SyntaxNode node, Location location)
-			{
-				AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, location));
-			}
-
-			public override void VisitDestructorDeclaration(DestructorDeclarationSyntax node)
-			{
-				// SKIP
-			}
-
-			public override void VisitMethodDeclaration(MethodDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitFieldDeclaration(FieldDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitPropertyDeclaration(PropertyDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitIndexerDeclaration(IndexerDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitEventDeclaration(EventDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitConstructorDeclaration(ConstructorDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitOperatorDeclaration(OperatorDeclarationSyntax node)
-			{
-				if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-					AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-			}
-
-			public override void VisitClassDeclaration(ClassDeclarationSyntax node)
-			{
-				if (node.Parent is TypeDeclarationSyntax) {
-					if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-						AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-				}
-				base.VisitClassDeclaration(node);
-			}
-
-			public override void VisitInterfaceDeclaration(InterfaceDeclarationSyntax node)
-			{
-				if (node.Parent is TypeDeclarationSyntax) {
-					if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-						AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-				}
-				base.VisitInterfaceDeclaration(node);
-			}
-
-			public override void VisitStructDeclaration(StructDeclarationSyntax node)
-			{
-				if (node.Parent is StructDeclarationSyntax) {
-					if (node.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword)))
-						AddDiagnosticAnalyzer(node, node.Modifiers.FirstOrDefault(m => m.IsKind(SyntaxKind.PrivateKeyword)).GetLocation());
-				}
-				base.VisitStructDeclaration(node);
-			}
 		}
 	}
 }

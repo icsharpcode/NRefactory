@@ -23,22 +23,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -47,42 +37,42 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// Should only be shown in overview bar, no underlining.
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class NotImplementedExceptionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class NotImplementedExceptionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
-			NRefactoryDiagnosticIDs.NotImplementedExceptionAnalyzerID, 
-			GettextCatalog.GetString("Shows NotImplementedException throws in the quick task bar"),
-			GettextCatalog.GetString("Not implemented"), 
-			DiagnosticAnalyzerCategories.Notifications, 
-			DiagnosticSeverity.Info, 
+			NRefactoryDiagnosticIDs.NotImplementedExceptionAnalyzerID,
+			GettextCatalog.GetString ("Shows NotImplementedException throws in the quick task bar"),
+			GettextCatalog.GetString ("Not implemented"),
+			DiagnosticAnalyzerCategories.Notifications,
+			DiagnosticSeverity.Info,
 			isEnabledByDefault: true,
-			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.NotImplementedExceptionAnalyzerID)
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.NotImplementedExceptionAnalyzerID)
 		);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize (AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic (diagnostic);
+					}
+				},
+				new SyntaxKind [] { SyntaxKind.ThrowStatement }
+			);
 		}
 
-		class GatherVisitor : GatherVisitorBase<NotImplementedExceptionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			private INamedTypeSymbol notImpl;
-
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-				notImpl = semanticModel.Compilation.GetTypeByMetadataName("System.NotImplementedException");
-			}
-
-			public override void VisitThrowStatement(ThrowStatementSyntax node)
-			{
-				var result = semanticModel.GetTypeInfo(node.Expression).Type;
-				if (result == null || result.Equals(notImpl))
-					AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.Expression.GetLocation()));
-				base.VisitThrowStatement(node);
-			}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as ThrowStatementSyntax;
+			var result = nodeContext.SemanticModel.GetTypeInfo (node.Expression).Type;
+			if (result == null || result.Name != "NotImplementedException" || result.ContainingNamespace.ToDisplayString () != "System")
+				return false;
+			diagnostic = Diagnostic.Create (descriptor, node.Expression.GetLocation ());
+			return true;
 		}
 	}
 }

@@ -23,82 +23,71 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConvertIfToAndExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertIfToAndExpressionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
-			NRefactoryDiagnosticIDs.ConvertIfToAndExpressionAnalyzerID, 
-			GettextCatalog.GetString("Convert 'if' to '&&' expression"),
-			"{0}", 
-			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
-			DiagnosticSeverity.Info, 
+			NRefactoryDiagnosticIDs.ConvertIfToAndExpressionAnalyzerID,
+			GettextCatalog.GetString ("Convert 'if' to '&&' expression"),
+			"{0}",
+			DiagnosticAnalyzerCategories.PracticesAndImprovements,
+			DiagnosticSeverity.Info,
 			isEnabledByDefault: true,
-			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertIfToAndExpressionAnalyzerID)
+			helpLinkUri: HelpLink.CreateFor (NRefactoryDiagnosticIDs.ConvertIfToAndExpressionAnalyzerID)
 		);
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize (AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			context.RegisterSyntaxNodeAction (
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic (diagnostic);
+					}
+				},
+				new SyntaxKind [] { SyntaxKind.IfStatement }
+			);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConvertIfToAndExpressionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-			public override void VisitIfStatement(IfStatementSyntax node)
-			{
-				base.VisitIfStatement(node);
-
-				ExpressionSyntax target;
-				SyntaxTriviaList assignmentTrailingTriviaList;
-				if (ConvertIfToOrExpressionAnalyzer.MatchIfElseStatement(node, SyntaxKind.FalseLiteralExpression, out target, out assignmentTrailingTriviaList))
-				{
-					var varDeclaration = ConvertIfToOrExpressionAnalyzer.FindPreviousVarDeclaration(node);
-					if (varDeclaration != null)
-					{
-						var targetIdentifier = target as IdentifierNameSyntax;
-						if (targetIdentifier == null)
-							return;
-						var declaredVarName = varDeclaration.Declaration.Variables.First().Identifier.Value;
-						var assignedVarName = targetIdentifier.Identifier.Value;
-						if (declaredVarName != assignedVarName)
-							return;
-						if (!ConvertIfToOrExpressionAnalyzer.CheckTarget(targetIdentifier, node.Condition))
-							return;
-						AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.IfKeyword.GetLocation(), "Convert to '&&' expression"));
-					}
-					else
-					{
-						if (!ConvertIfToOrExpressionAnalyzer.CheckTarget(target, node.Condition))
-							return;
-						AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.IfKeyword.GetLocation(), "Replace with '&='"));
-					}
+			diagnostic = default(Diagnostic);
+			var node = nodeContext.Node as IfStatementSyntax;
+			ExpressionSyntax target;
+			SyntaxTriviaList assignmentTrailingTriviaList;
+			if (ConvertIfToOrExpressionAnalyzer.MatchIfElseStatement (node, SyntaxKind.FalseLiteralExpression, out target, out assignmentTrailingTriviaList)) {
+				var varDeclaration = ConvertIfToOrExpressionAnalyzer.FindPreviousVarDeclaration (node);
+				if (varDeclaration != null) {
+					var targetIdentifier = target as IdentifierNameSyntax;
+					if (targetIdentifier == null)
+						return false;
+					var declaredVarName = varDeclaration.Declaration.Variables.First ().Identifier.Value;
+					var assignedVarName = targetIdentifier.Identifier.Value;
+					if (declaredVarName != assignedVarName)
+						return false;
+					if (!ConvertIfToOrExpressionAnalyzer.CheckTarget (targetIdentifier, node.Condition))
+						return false;
+					diagnostic = Diagnostic.Create (descriptor, node.IfKeyword.GetLocation (), GettextCatalog.GetString ("Convert to '&&' expression"));
+					return true;
+				} else {
+					if (!ConvertIfToOrExpressionAnalyzer.CheckTarget (target, node.Condition))
+						return false;
+					diagnostic = Diagnostic.Create (descriptor, node.IfKeyword.GetLocation (), GettextCatalog.GetString ("Replace with '&='"));
+					return true;
 				}
 			}
+			return false;
 		}
 	}
 

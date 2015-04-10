@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ReferenceEqualsWithValueTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ReferenceEqualsWithValueTypeAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.ReferenceEqualsWithValueTypeAnalyzerID, 
@@ -58,46 +58,63 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ReferenceEqualsWithValueTypeAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+//		class GatherVisitor : GatherVisitorBase<ReferenceEqualsWithValueTypeAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				// Quickly determine if this invocation is eligible to speed up the inspector
-//				var nameToken = invocationExpression.Target.GetChildByRole(Roles.Identifier);
-//				if (nameToken.Name != "ReferenceEquals")
-//					return;
-//
-//				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
-//				if (resolveResult == null ||
-//				    resolveResult.Member.DeclaringTypeDefinition == null ||
-//				    resolveResult.Member.DeclaringTypeDefinition.KnownTypeCode != KnownTypeCode.Object ||
-//				    resolveResult.Member.Name != "ReferenceEquals" ||
-//				    invocationExpression.Arguments.All(arg => ctx.Resolve(arg).Type.IsReferenceType ?? true))
-//					return;
-//
-//				var action1 = new CodeAction(ctx.TranslateString("Replace expression with 'false'"),
-//					              script => script.Replace(invocationExpression, new PrimitiveExpression(false)), invocationExpression);
-//
-//				var action2 = new CodeAction(ctx.TranslateString("Use Equals()"),
-//					              script => script.Replace(invocationExpression.Target,
-//						              new PrimitiveType("object").Member("Equals")), invocationExpression);
-//
-//				AddDiagnosticAnalyzer(new CodeIssue(invocationExpression,
-//					ctx.TranslateString("'Object.ReferenceEquals' is always false because it is called with value type"),
-//					new [] { action1, action2 }));
 //			}
-		}
+
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////
+////				// Quickly determine if this invocation is eligible to speed up the inspector
+////				var nameToken = invocationExpression.Target.GetChildByRole(Roles.Identifier);
+////				if (nameToken.Name != "ReferenceEquals")
+////					return;
+////
+////				var resolveResult = ctx.Resolve(invocationExpression) as InvocationResolveResult;
+////				if (resolveResult == null ||
+////				    resolveResult.Member.DeclaringTypeDefinition == null ||
+////				    resolveResult.Member.DeclaringTypeDefinition.KnownTypeCode != KnownTypeCode.Object ||
+////				    resolveResult.Member.Name != "ReferenceEquals" ||
+////				    invocationExpression.Arguments.All(arg => ctx.Resolve(arg).Type.IsReferenceType ?? true))
+////					return;
+////
+////				var action1 = new CodeAction(ctx.TranslateString("Replace expression with 'false'"),
+////					              script => script.Replace(invocationExpression, new PrimitiveExpression(false)), invocationExpression);
+////
+////				var action2 = new CodeAction(ctx.TranslateString("Use Equals()"),
+////					              script => script.Replace(invocationExpression.Target,
+////						              new PrimitiveType("object").Member("Equals")), invocationExpression);
+////
+////				AddDiagnosticAnalyzer(new CodeIssue(invocationExpression,
+////					ctx.TranslateString("'Object.ReferenceEquals' is always false because it is called with value type"),
+////					new [] { action1, action2 }));
+////			}
+//		}
 	}
 }

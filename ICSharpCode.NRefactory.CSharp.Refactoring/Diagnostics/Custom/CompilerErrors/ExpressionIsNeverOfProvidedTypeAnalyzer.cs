@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ExpressionIsNeverOfProvidedTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ExpressionIsNeverOfProvidedTypeAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "ExpressionIsNeverOfProvidedTypeAnalyzer";
 		const string Description            = "CS0184:Given expression is never of the provided type";
@@ -59,55 +59,72 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 		}
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ExpressionIsNeverOfProvidedTypeAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			//readonly CSharpConversions conversions;
-
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base(semanticModel, addDiagnostic, cancellationToken)
-			{
-				//conversions = CSharpConversions.Get(ctx.Compilation);
-			}
-
-//			public override void VisitIsExpression(IsExpression isExpression)
-//			{
-//				base.VisitIsExpression(isExpression);
-//
-////				var conversions = CSharpConversions.Get(ctx.Compilation);
-//				var exprType = ctx.Resolve(isExpression.Expression).Type;
-//				var providedType = ctx.ResolveType(isExpression.Type);
-//
-//				if (exprType.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
-//					return;
-//				if (IsValidReferenceOrBoxingConversion(exprType, providedType))
-//					return;
-//				
-//				var exprTP = exprType as ITypeParameter;
-//				var providedTP = providedType as ITypeParameter;
-//				if (exprTP != null) {
-//					if (IsValidReferenceOrBoxingConversion(exprTP.EffectiveBaseClass, providedType)
-//					    && exprTP.EffectiveInterfaceSet.All(i => IsValidReferenceOrBoxingConversion(i, providedType)))
-//						return;
-//				}
-//				if (providedTP != null) {
-//					if (IsValidReferenceOrBoxingConversion(exprType, providedTP.EffectiveBaseClass))
-//						return;
-//				}
-//				
-//				AddDiagnosticAnalyzer(new CodeIssue(isExpression, ctx.TranslateString("Given expression is never of the provided type")));
-//			}
-//
-//			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
-//			{
-//				Conversion c = conversions.ExplicitConversion(fromType, toType);
-//				return c.IsValid && (c.IsIdentityConversion || c.IsReferenceConversion || c.IsBoxingConversion || c.IsUnboxingConversion);
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<ExpressionIsNeverOfProvidedTypeAnalyzer>
+//		{
+//			//readonly CSharpConversions conversions;
+
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base(semanticModel, addDiagnostic, cancellationToken)
+//			{
+//				//conversions = CSharpConversions.Get(ctx.Compilation);
+//			}
+
+////			public override void VisitIsExpression(IsExpression isExpression)
+////			{
+////				base.VisitIsExpression(isExpression);
+////
+//////				var conversions = CSharpConversions.Get(ctx.Compilation);
+////				var exprType = ctx.Resolve(isExpression.Expression).Type;
+////				var providedType = ctx.ResolveType(isExpression.Type);
+////
+////				if (exprType.Kind == TypeKind.Unknown || providedType.Kind == TypeKind.Unknown)
+////					return;
+////				if (IsValidReferenceOrBoxingConversion(exprType, providedType))
+////					return;
+////				
+////				var exprTP = exprType as ITypeParameter;
+////				var providedTP = providedType as ITypeParameter;
+////				if (exprTP != null) {
+////					if (IsValidReferenceOrBoxingConversion(exprTP.EffectiveBaseClass, providedType)
+////					    && exprTP.EffectiveInterfaceSet.All(i => IsValidReferenceOrBoxingConversion(i, providedType)))
+////						return;
+////				}
+////				if (providedTP != null) {
+////					if (IsValidReferenceOrBoxingConversion(exprType, providedTP.EffectiveBaseClass))
+////						return;
+////				}
+////				
+////				AddDiagnosticAnalyzer(new CodeIssue(isExpression, ctx.TranslateString("Given expression is never of the provided type")));
+////			}
+////
+////			bool IsValidReferenceOrBoxingConversion(IType fromType, IType toType)
+////			{
+////				Conversion c = conversions.ExplicitConversion(fromType, toType);
+////				return c.IsValid && (c.IsIdentityConversion || c.IsReferenceConversion || c.IsBoxingConversion || c.IsUnboxingConversion);
+////			}
+//		}
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]

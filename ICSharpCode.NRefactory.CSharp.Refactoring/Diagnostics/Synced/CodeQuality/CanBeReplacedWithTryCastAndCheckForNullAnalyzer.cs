@@ -34,7 +34,7 @@ using System.Threading;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CanBeReplacedWithTryCastAndCheckForNullAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class CanBeReplacedWithTryCastAndCheckForNullAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.CanBeReplacedWithTryCastAndCheckForNullAnalyzerID, 
@@ -48,35 +48,52 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<CanBeReplacedWithTryCastAndCheckForNullAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+//		class GatherVisitor : GatherVisitorBase<CanBeReplacedWithTryCastAndCheckForNullAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//
-//				IsExpression isExpression;
-//				int foundCastCount;
-//				if (UseAsAndNullCheckAction.ScanIfElse(ctx, ifElseStatement, out isExpression, out foundCastCount) == null)
-//					return;
-//				if (foundCastCount == 0)
-//					return;
-//
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					isExpression.IsToken,
-//					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check")
-//				) { ActionProvider = { typeof(UseAsAndNullCheckAction) } } );
 //			}
-		}
+
+////			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+////			{
+////				base.VisitIfElseStatement(ifElseStatement);
+////
+////				IsExpression isExpression;
+////				int foundCastCount;
+////				if (UseAsAndNullCheckAction.ScanIfElse(ctx, ifElseStatement, out isExpression, out foundCastCount) == null)
+////					return;
+////				if (foundCastCount == 0)
+////					return;
+////
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					isExpression.IsToken,
+////					ctx.TranslateString("Type check and casts can be replaced with 'as' and null check")
+////				) { ActionProvider = { typeof(UseAsAndNullCheckAction) } } );
+////			}
+//		}
 	}
 
 	

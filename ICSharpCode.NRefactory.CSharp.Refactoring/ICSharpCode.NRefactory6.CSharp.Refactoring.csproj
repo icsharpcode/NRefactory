@@ -255,8 +255,6 @@
     <Compile Include="Diagnostics\Custom\StaticEventSubscriptionAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\VariableOnlyAssignedAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\XmlDocAnalyzer.cs" />
-    <Compile Include="Diagnostics\GatherVisitorDiagnosticAnalyzer.cs" />
-    <Compile Include="Diagnostics\GatherVisitorBase.cs" />
     <Compile Include="Diagnostics\Synced\CodeQuality\BaseMethodCallWithDefaultParameterAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\CodeQuality\BitwiseOperatorOnEnumWithoutFlagsAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\CodeQuality\CanBeReplacedWithTryCastAndCheckForNullAnalyzer.cs" />

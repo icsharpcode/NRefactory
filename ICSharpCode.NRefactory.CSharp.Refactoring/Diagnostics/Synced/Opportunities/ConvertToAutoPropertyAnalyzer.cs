@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConvertToAutoPropertyAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class ConvertToAutoPropertyAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.ConvertToAutoPropertyAnalyzerID, 
@@ -57,62 +57,79 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<ConvertToAutoPropertyAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			//readonly Stack<TypeDeclaration> typeStack = new Stack<TypeDeclaration>();
-
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				// SKIP
-//			}
-//
-//			bool IsValidField(IField field)
-//			{
-//				if (field == null || field.Attributes.Count > 0 || field.IsVolatile)
-//					return false;
-//				foreach (var m in typeStack.Peek().Members.OfType<FieldDeclaration>()) {
-//					foreach (var i in m.Variables) {
-//						if (i.StartLocation == field.BodyRegion.Begin) {
-//							if (!i.Initializer.IsNull)
-//								return false;
-//							break;
-//						}
-//					}
-//				}
-//				return true;
-//			}
-//
-//			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
-//			{
-//				var field = RemoveBackingStoreAction.GetBackingField(ctx, propertyDeclaration);
-//				if (!IsValidField(field))
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					propertyDeclaration.NameToken,
-//					ctx.TranslateString("Convert to auto property")
-//				) {
-//					ActionProvider = { typeof (RemoveBackingStoreAction) }
-//				}
-//				);
-//			}
-//
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				typeStack.Push(typeDeclaration); 
-//				base.VisitTypeDeclaration(typeDeclaration);
-//				typeStack.Pop();
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<ConvertToAutoPropertyAnalyzer>
+//		{
+//			//readonly Stack<TypeDeclaration> typeStack = new Stack<TypeDeclaration>();
+
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			public override void VisitBlockStatement(BlockStatement blockStatement)
+////			{
+////				// SKIP
+////			}
+////
+////			bool IsValidField(IField field)
+////			{
+////				if (field == null || field.Attributes.Count > 0 || field.IsVolatile)
+////					return false;
+////				foreach (var m in typeStack.Peek().Members.OfType<FieldDeclaration>()) {
+////					foreach (var i in m.Variables) {
+////						if (i.StartLocation == field.BodyRegion.Begin) {
+////							if (!i.Initializer.IsNull)
+////								return false;
+////							break;
+////						}
+////					}
+////				}
+////				return true;
+////			}
+////
+////			public override void VisitPropertyDeclaration(PropertyDeclaration propertyDeclaration)
+////			{
+////				var field = RemoveBackingStoreAction.GetBackingField(ctx, propertyDeclaration);
+////				if (!IsValidField(field))
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					propertyDeclaration.NameToken,
+////					ctx.TranslateString("Convert to auto property")
+////				) {
+////					ActionProvider = { typeof (RemoveBackingStoreAction) }
+////				}
+////				);
+////			}
+////
+////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+////			{
+////				typeStack.Push(typeDeclaration); 
+////				base.VisitTypeDeclaration(typeDeclaration);
+////				typeStack.Pop();
+////			}
+//		}
 	}
 
 	

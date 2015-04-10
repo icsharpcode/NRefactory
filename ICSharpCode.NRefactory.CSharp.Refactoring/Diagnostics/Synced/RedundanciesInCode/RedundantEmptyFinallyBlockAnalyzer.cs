@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantEmptyFinallyBlockAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantEmptyFinallyBlockAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantEmptyFinallyBlockAnalyzerID, 
@@ -59,52 +59,69 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantEmptyFinallyBlockAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			static bool IsEmpty (BlockStatement blockStatement)
-//			{
-//				return !blockStatement.Descendants.Any(s => s is Statement && !(s is EmptyStatement || s is BlockStatement));
-//			}
-//
-//			public override void VisitBlockStatement(BlockStatement blockStatement)
-//			{
-//				base.VisitBlockStatement(blockStatement);
-//				if (blockStatement.Role != TryCatchStatement.FinallyBlockRole || !IsEmpty (blockStatement))
-//					return;
-//				var tryCatch = blockStatement.Parent as TryCatchStatement;
-//				if (tryCatch == null)
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					tryCatch.FinallyToken.StartLocation,
-//					blockStatement.EndLocation,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					s => {
-//						if (tryCatch.CatchClauses.Any()) {
-//							s.Remove(tryCatch.FinallyToken);
-//							s.Remove(blockStatement); 
-//							s.FormatText(tryCatch);
-//							return;
-//						}
-//						s.Remove(tryCatch.TryToken);
-//						s.Remove(tryCatch.TryBlock.LBraceToken);
-//						s.Remove(tryCatch.TryBlock.RBraceToken);
-//						s.Remove(tryCatch.FinallyToken);
-//						s.Remove(tryCatch.FinallyBlock); 
-//						s.FormatText(tryCatch.Parent);
-//					}
-//				) { IssueMarker = IssueMarker.GrayOut });
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<RedundantEmptyFinallyBlockAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			static bool IsEmpty (BlockStatement blockStatement)
+////			{
+////				return !blockStatement.Descendants.Any(s => s is Statement && !(s is EmptyStatement || s is BlockStatement));
+////			}
+////
+////			public override void VisitBlockStatement(BlockStatement blockStatement)
+////			{
+////				base.VisitBlockStatement(blockStatement);
+////				if (blockStatement.Role != TryCatchStatement.FinallyBlockRole || !IsEmpty (blockStatement))
+////					return;
+////				var tryCatch = blockStatement.Parent as TryCatchStatement;
+////				if (tryCatch == null)
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					tryCatch.FinallyToken.StartLocation,
+////					blockStatement.EndLocation,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString(""),
+////					s => {
+////						if (tryCatch.CatchClauses.Any()) {
+////							s.Remove(tryCatch.FinallyToken);
+////							s.Remove(blockStatement); 
+////							s.FormatText(tryCatch);
+////							return;
+////						}
+////						s.Remove(tryCatch.TryToken);
+////						s.Remove(tryCatch.TryBlock.LBraceToken);
+////						s.Remove(tryCatch.TryBlock.RBraceToken);
+////						s.Remove(tryCatch.FinallyToken);
+////						s.Remove(tryCatch.FinallyBlock); 
+////						s.FormatText(tryCatch.Parent);
+////					}
+////				) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

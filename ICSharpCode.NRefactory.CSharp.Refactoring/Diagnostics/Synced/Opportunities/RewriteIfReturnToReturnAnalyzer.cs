@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RewriteIfReturnToReturnAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RewriteIfReturnToReturnAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RewriteIfReturnToReturnAnalyzerID, 
@@ -57,37 +57,54 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RewriteIfReturnToReturnAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-//
-//			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
-//			{
-//				base.VisitIfElseStatement(ifElseStatement);
-//
-//				if (ifElseStatement.Parent is IfElseStatement)
-//					return;
-//				Expression c, e1, e2;
-//				AstNode rs;
-//				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
-//					return;
-//				if (ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexCondition(c) || 
-//				    ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(e1) || 
-//				    ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(e2))
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					ifElseStatement.IfToken,
-//					ctx.TranslateString("")
-//				) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToReturnStatementAction) } });
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<RewriteIfReturnToReturnAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+////
+////			public override void VisitIfElseStatement(IfElseStatement ifElseStatement)
+////			{
+////				base.VisitIfElseStatement(ifElseStatement);
+////
+////				if (ifElseStatement.Parent is IfElseStatement)
+////					return;
+////				Expression c, e1, e2;
+////				AstNode rs;
+////				if (!ConvertIfStatementToReturnStatementAction.GetMatch(ifElseStatement, out c, out e1, out e2, out rs))
+////					return;
+////				if (ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexCondition(c) || 
+////				    ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(e1) || 
+////				    ConvertIfStatementToConditionalTernaryExpressionAnalyzer.IsComplexExpression(e2))
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					ifElseStatement.IfToken,
+////					ctx.TranslateString("")
+////				) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(ConvertIfStatementToReturnStatementAction) } });
+////			}
+//		}
 	}
 }

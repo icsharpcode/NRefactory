@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantDelegateCreationAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class RedundantDelegateCreationAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantDelegateCreationAnalyzerID, 
@@ -58,38 +58,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<RedundantDelegateCreationAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
+//		class GatherVisitor : GatherVisitorBase<RedundantDelegateCreationAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitAssignmentExpression(assignmentExpression);
-//				if (assignmentExpression.Operator != AssignmentOperatorType.Add && assignmentExpression.Operator != AssignmentOperatorType.Subtract)
-//					return;
-//				var oce = assignmentExpression.Right as ObjectCreateExpression;
-//				if (oce == null || oce.Arguments.Count != 1)
-//					return;
-//				var left = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
-//				if (left == null || left.Member.SymbolKind != SymbolKind.Event)
-//					return;
-//				var right = ctx.Resolve(assignmentExpression.Right);
-//				if (right.IsError || !Equals(left.Type, right.Type))
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue(oce.StartLocation, oce.Type.EndLocation,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString(""),
-//					s => s.Replace(assignmentExpression.Right, oce.Arguments.First())
-//				) { IssueMarker = IssueMarker.GrayOut });
 //			}
-		}
+
+////			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
+////			{
+////				base.VisitAssignmentExpression(assignmentExpression);
+////				if (assignmentExpression.Operator != AssignmentOperatorType.Add && assignmentExpression.Operator != AssignmentOperatorType.Subtract)
+////					return;
+////				var oce = assignmentExpression.Right as ObjectCreateExpression;
+////				if (oce == null || oce.Arguments.Count != 1)
+////					return;
+////				var left = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
+////				if (left == null || left.Member.SymbolKind != SymbolKind.Event)
+////					return;
+////				var right = ctx.Resolve(assignmentExpression.Right);
+////				if (right.IsError || !Equals(left.Type, right.Type))
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue(oce.StartLocation, oce.Type.EndLocation,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString(""),
+////					s => s.Replace(assignmentExpression.Right, oce.Arguments.First())
+////				) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

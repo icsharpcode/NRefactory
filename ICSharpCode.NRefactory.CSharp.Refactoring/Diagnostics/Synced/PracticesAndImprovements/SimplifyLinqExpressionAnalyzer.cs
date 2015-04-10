@@ -43,7 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class SimplifyLinqExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class SimplifyLinqExpressionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.SimplifyLinqExpressionAnalyzerID, 
@@ -58,80 +58,97 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<SimplifyLinqExpressionAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
+		}
 
-//			static readonly Expression simpleExpression = new Choice {
-//				new UnaryOperatorExpression (UnaryOperatorType.Not, new AnyNode()),
-//				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.Equality, new AnyNode()),
-//				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.InEquality, new AnyNode())
-//			};
-//
-//			static readonly AstNode argumentPattern = new Choice {
-//				new LambdaExpression  {
-//					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
-//					Body = new Choice {
-//						new NamedNode ("expr", simpleExpression),
-//						new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
-//					} 
-//				},
-//				new AnonymousMethodExpression {
-//					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
-//					Body = new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
-//				}
-//			};
-//
-//			public override void VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression)
+//		class GatherVisitor : GatherVisitorBase<SimplifyLinqExpressionAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
 //			{
-//				base.VisitUnaryOperatorExpression(unaryOperatorExpression);
-//				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
-//					return;
-//				var invocation =  CSharpUtil.GetInnerMostExpression(unaryOperatorExpression.Expression) as InvocationExpression;
-//				if (invocation == null)
-//					return; 
-//				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//
-//				if (rr.Member.DeclaringType.Name != "Enumerable" || rr.Member.DeclaringType.Namespace != "System.Linq")
-//					return;
-//				if (!new[] { "All", "Any" }.Contains(rr.Member.Name))
-//					return;
-//				if (invocation.Arguments.Count != 1)
-//					return;
-//				var arg = invocation.Arguments.First();
-//				var match = argumentPattern.Match(arg);
-//				if (!match.Success)
-//					return;
-//				AddDiagnosticAnalyzer(new CodeIssue (
-//					unaryOperatorExpression,
-//					ctx.TranslateString(""),
-//					ctx.TranslateString("Simplify LINQ expression"),
-//					s => {
-//						var target = invocation.Target.Clone() as MemberReferenceExpression;
-//						target.MemberName = target.MemberName == "All" ? "Any" : "All";
-//
-//						var expr = arg.Clone();
-//						var nmatch = argumentPattern.Match(expr);
-//						var cond = nmatch.Get<Expression>("expr").Single();
-//						cond.ReplaceWith(CSharpUtil.InvertCondition(cond));
-//						var simplifiedInvocation = new InvocationExpression(
-//							target,
-//							expr
-//						);
-//						s.Replace(unaryOperatorExpression, simplifiedInvocation);
-//					}
-//				));
 //			}
-		}
+
+////			static readonly Expression simpleExpression = new Choice {
+////				new UnaryOperatorExpression (UnaryOperatorType.Not, new AnyNode()),
+////				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.Equality, new AnyNode()),
+////				new BinaryOperatorExpression(new AnyNode(), BinaryOperatorType.InEquality, new AnyNode())
+////			};
+////
+////			static readonly AstNode argumentPattern = new Choice {
+////				new LambdaExpression  {
+////					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
+////					Body = new Choice {
+////						new NamedNode ("expr", simpleExpression),
+////						new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
+////					} 
+////				},
+////				new AnonymousMethodExpression {
+////					Parameters = { new ParameterDeclaration(PatternHelper.AnyType(true), Pattern.AnyString) },
+////					Body = new BlockStatement { new ReturnStatement(new NamedNode ("expr", simpleExpression))}
+////				}
+////			};
+////
+////			public override void VisitUnaryOperatorExpression(UnaryOperatorExpression unaryOperatorExpression)
+////			{
+////				base.VisitUnaryOperatorExpression(unaryOperatorExpression);
+////				if (unaryOperatorExpression.Operator != UnaryOperatorType.Not)
+////					return;
+////				var invocation =  CSharpUtil.GetInnerMostExpression(unaryOperatorExpression.Expression) as InvocationExpression;
+////				if (invocation == null)
+////					return; 
+////				var rr = ctx.Resolve(invocation) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return;
+////
+////				if (rr.Member.DeclaringType.Name != "Enumerable" || rr.Member.DeclaringType.Namespace != "System.Linq")
+////					return;
+////				if (!new[] { "All", "Any" }.Contains(rr.Member.Name))
+////					return;
+////				if (invocation.Arguments.Count != 1)
+////					return;
+////				var arg = invocation.Arguments.First();
+////				var match = argumentPattern.Match(arg);
+////				if (!match.Success)
+////					return;
+////				AddDiagnosticAnalyzer(new CodeIssue (
+////					unaryOperatorExpression,
+////					ctx.TranslateString(""),
+////					ctx.TranslateString("Simplify LINQ expression"),
+////					s => {
+////						var target = invocation.Target.Clone() as MemberReferenceExpression;
+////						target.MemberName = target.MemberName == "All" ? "Any" : "All";
+////
+////						var expr = arg.Clone();
+////						var nmatch = argumentPattern.Match(expr);
+////						var cond = nmatch.Get<Expression>("expr").Single();
+////						cond.ReplaceWith(CSharpUtil.InvertCondition(cond));
+////						var simplifiedInvocation = new InvocationExpression(
+////							target,
+////							expr
+////						);
+////						s.Replace(unaryOperatorExpression, simplifiedInvocation);
+////					}
+////				));
+////			}
+//		}
 	}
 }

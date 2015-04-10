@@ -34,7 +34,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UnusedParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class UnusedParameterAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UnusedParameterAnalyzerID, 
@@ -48,9 +48,26 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
+		}
+
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+		{
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
 
 //		#region ICodeIssueProvider implementation
@@ -102,76 +119,76 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //			}
 //		}
 
-		class GatherVisitor : GatherVisitorBase<UnusedParameterAnalyzer>
-		{
-			//			GetDelgateUsagesVisitor usedDelegates;
-			//bool currentTypeIsPartial;
+//		class GatherVisitor : GatherVisitorBase<UnusedParameterAnalyzer>
+//		{
+//			//			GetDelgateUsagesVisitor usedDelegates;
+//			//bool currentTypeIsPartial;
 
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
 
-//			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-//			{
-//				bool outerTypeIsPartial = currentTypeIsPartial;
-//				currentTypeIsPartial = typeDeclaration.HasModifier(Modifiers.Partial);
-//				base.VisitTypeDeclaration(typeDeclaration);
-//				currentTypeIsPartial = outerTypeIsPartial;
-//			}
-//
-//			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
-//			{
-//				// Only some methods are candidates for the warning
-//
-//				if (methodDeclaration.Body.IsNull)
-//					return;
-//				if (methodDeclaration.Modifiers.HasFlag(Modifiers.Virtual) ||
-//				    methodDeclaration.Modifiers.HasFlag(Modifiers.New) ||
-//				    methodDeclaration.Modifiers.HasFlag(Modifiers.Partial))
-//					return;
-//				var methodResolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
-//				if (methodResolveResult == null)
-//					return;
-//				var member = methodResolveResult.Member;
-//				if (member.IsOverride)
-//					return;
-//				if (member.ImplementedInterfaceMembers.Any())
-//					return;
-//				if (usedDelegates.UsedMethods.Any(m => m.MemberDefinition == member))
-//					return;
-//				if (currentTypeIsPartial && methodDeclaration.Parameters.Count == 2) {
-//					if (methodDeclaration.Parameters.First().Name == "sender") {
-//						// Looks like an event handler; the registration might be in the designer part
-//						return;
-//					}
-//				}
-//				foreach (var parameter in methodDeclaration.Parameters)
-//					parameter.AcceptVisitor(this);
-//			}
-//
-//			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
-//			{
-//				base.VisitParameterDeclaration(parameterDeclaration);
-//
-//				if (!(parameterDeclaration.Parent is MethodDeclaration || parameterDeclaration.Parent is ConstructorDeclaration))
-//					return;
-//
-//				var resolveResult = ctx.Resolve(parameterDeclaration) as LocalResolveResult;
-//				if (resolveResult == null)
-//					return;
-//				if (resolveResult.Type.Name == "StreamingContext" && resolveResult.Type.Namespace == "System.Runtime.Serialization") {
-//					// commonly unused parameter in constructors associated with ISerializable
-//					return;
-//				}
-//
-//				if (ctx.FindReferences(parameterDeclaration.Parent, resolveResult.Variable).Any(r => r.Node != parameterDeclaration))
-//					return;
-//
-//				AddDiagnosticAnalyzer(new CodeIssue (
-//					parameterDeclaration.NameToken, 
-			//					string.Format(ctx.TranslateString("Parameter '{0}' is never used"), parameterDeclaration.Name)) { IssueMarker = IssueMarker.GrayOut });
-//			}
-		}
+////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
+////			{
+////				bool outerTypeIsPartial = currentTypeIsPartial;
+////				currentTypeIsPartial = typeDeclaration.HasModifier(Modifiers.Partial);
+////				base.VisitTypeDeclaration(typeDeclaration);
+////				currentTypeIsPartial = outerTypeIsPartial;
+////			}
+////
+////			public override void VisitMethodDeclaration(MethodDeclaration methodDeclaration)
+////			{
+////				// Only some methods are candidates for the warning
+////
+////				if (methodDeclaration.Body.IsNull)
+////					return;
+////				if (methodDeclaration.Modifiers.HasFlag(Modifiers.Virtual) ||
+////				    methodDeclaration.Modifiers.HasFlag(Modifiers.New) ||
+////				    methodDeclaration.Modifiers.HasFlag(Modifiers.Partial))
+////					return;
+////				var methodResolveResult = ctx.Resolve(methodDeclaration) as MemberResolveResult;
+////				if (methodResolveResult == null)
+////					return;
+////				var member = methodResolveResult.Member;
+////				if (member.IsOverride)
+////					return;
+////				if (member.ImplementedInterfaceMembers.Any())
+////					return;
+////				if (usedDelegates.UsedMethods.Any(m => m.MemberDefinition == member))
+////					return;
+////				if (currentTypeIsPartial && methodDeclaration.Parameters.Count == 2) {
+////					if (methodDeclaration.Parameters.First().Name == "sender") {
+////						// Looks like an event handler; the registration might be in the designer part
+////						return;
+////					}
+////				}
+////				foreach (var parameter in methodDeclaration.Parameters)
+////					parameter.AcceptVisitor(this);
+////			}
+////
+////			public override void VisitParameterDeclaration(ParameterDeclaration parameterDeclaration)
+////			{
+////				base.VisitParameterDeclaration(parameterDeclaration);
+////
+////				if (!(parameterDeclaration.Parent is MethodDeclaration || parameterDeclaration.Parent is ConstructorDeclaration))
+////					return;
+////
+////				var resolveResult = ctx.Resolve(parameterDeclaration) as LocalResolveResult;
+////				if (resolveResult == null)
+////					return;
+////				if (resolveResult.Type.Name == "StreamingContext" && resolveResult.Type.Namespace == "System.Runtime.Serialization") {
+////					// commonly unused parameter in constructors associated with ISerializable
+////					return;
+////				}
+////
+////				if (ctx.FindReferences(parameterDeclaration.Parent, resolveResult.Variable).Any(r => r.Node != parameterDeclaration))
+////					return;
+////
+////				AddDiagnosticAnalyzer(new CodeIssue (
+////					parameterDeclaration.NameToken, 
+//			//					string.Format(ctx.TranslateString("Parameter '{0}' is never used"), parameterDeclaration.Name)) { IssueMarker = IssueMarker.GrayOut });
+////			}
+//		}
 	}
 }

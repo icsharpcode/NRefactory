@@ -44,7 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class StringCompareIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
+	public class StringCompareIsCultureSpecificAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.StringCompareIsCultureSpecificAnalyzerID, 
@@ -62,106 +62,123 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		//static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use culture-aware comparison", Category, DiagnosticSeverity.Warning, true, "'string.Compare' is culture-aware");
 
 
-		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+		public override void Initialize(AnalysisContext context)
 		{
-			return new GatherVisitor(semanticModel, addDiagnostic, cancellationToken);
+			//context.RegisterSyntaxNodeAction(
+			//	(nodeContext) => {
+			//		Diagnostic diagnostic;
+			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+			//			nodeContext.ReportDiagnostic(diagnostic);
+			//		}
+			//	}, 
+			//	new SyntaxKind[] { SyntaxKind.None }
+			//);
 		}
 
-		class GatherVisitor : GatherVisitorBase<StringCompareIsCultureSpecificAnalyzer>
+		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
-			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-				: base (semanticModel, addDiagnostic, cancellationToken)
-			{
-			}
-
-//			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-//			{
-//				base.VisitInvocationExpression(invocationExpression);
-//
-//				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-//				if (rr == null || rr.IsError)
-//					return;
-//
-//				if (!rr.Member.IsStatic ||
-//					rr.Member.Name != "Compare" || 
-//				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
-//				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
-//					return;
-//				}
-//				if (rr.Member.Parameters.Count != 2 &&
-//				    rr.Member.Parameters.Count != 3 &&
-//				    rr.Member.Parameters.Count != 5 &&
-//				    rr.Member.Parameters.Count != 6)
-//					return;
-//
-//				bool? ignoreCase = null;
-//				Expression caseArg = null;
-//				IParameter lastParameter = rr.Member.Parameters.Last();
-//				if (lastParameter.Type.Name == "StringComparison")
-//					return; // already specifying a string comparison
-//
-//				if (rr.Member.Parameters.Count == 3) {
-//					if (!rr.Member.Parameters[2].Type.IsKnownType(KnownTypeCode.Boolean))
-//						return;
-//					if (rr.Arguments[2].IsCompileTimeConstant) {
-//						ignoreCase = (bool)rr.Arguments[2].ConstantValue;
-//					} else {
-//						caseArg = invocationExpression.Arguments.ElementAt(2);
-//					}
-//				}
-//
-//				if (rr.Member.Parameters.Count == 6) {
-//					if (!rr.Member.Parameters[5].Type.IsKnownType(KnownTypeCode.Boolean))
-//						return;
-//					if (rr.Arguments[5].IsCompileTimeConstant) {
-//						ignoreCase = (bool)rr.Arguments[5].ConstantValue;
-//					} else {
-//						caseArg = invocationExpression.Arguments.ElementAt(5);
-//					}
-//				}
-//
-//
-//				AddDiagnosticAnalyzer(new CodeIssue(
-//					invocationExpression,
-//					ctx.TranslateString(), 
-//					new CodeAction(
-//						ctx.TranslateString("), 
-//						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
-//						invocationExpression
-//					),
-//					new CodeAction(
-//						ctx.TranslateString(), 
-//						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
-//						invocationExpression
-//					)
-//				));
-//			}
-//
-//			Expression CreateCompareArgument (InvocationExpression invocationExpression, bool? ignoreCase, Expression caseArg, string stringComparison)
-//			{
-//				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-//				if (caseArg == null)
-//					return astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ignoreCase == true ? stringComparison + "IgnoreCase" : stringComparison);
-//
-//				return new ConditionalExpression(
-//					caseArg.Clone(),
-//					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison + "IgnoreCase"),
-//					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison)
-//				);
-//			}
-//
-//			void AddArgument(Script script, InvocationExpression invocationExpression, Expression compareArgument)
-//			{
-//				var copy = (InvocationExpression)invocationExpression.Clone();
-//				copy.Arguments.Clear();
-//				if (invocationExpression.Arguments.Count() <= 3) {
-//					copy.Arguments.AddRange(invocationExpression.Arguments.Take(2).Select(a => a.Clone())); 
-//				} else {
-//					copy.Arguments.AddRange(invocationExpression.Arguments.Take(5).Select(a => a.Clone())); 
-//				}
-//				copy.Arguments.Add(compareArgument);
-//				script.Replace(invocationExpression, copy);
-//			}
+			diagnostic = default(Diagnostic);
+			//var node = nodeContext.Node as ;
+			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
+			//return true;
+			return false;
 		}
+
+//		class GatherVisitor : GatherVisitorBase<StringCompareIsCultureSpecificAnalyzer>
+//		{
+//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
+//				: base (semanticModel, addDiagnostic, cancellationToken)
+//			{
+//			}
+
+////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
+////			{
+////				base.VisitInvocationExpression(invocationExpression);
+////
+////				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
+////				if (rr == null || rr.IsError)
+////					return;
+////
+////				if (!rr.Member.IsStatic ||
+////					rr.Member.Name != "Compare" || 
+////				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
+////				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
+////					return;
+////				}
+////				if (rr.Member.Parameters.Count != 2 &&
+////				    rr.Member.Parameters.Count != 3 &&
+////				    rr.Member.Parameters.Count != 5 &&
+////				    rr.Member.Parameters.Count != 6)
+////					return;
+////
+////				bool? ignoreCase = null;
+////				Expression caseArg = null;
+////				IParameter lastParameter = rr.Member.Parameters.Last();
+////				if (lastParameter.Type.Name == "StringComparison")
+////					return; // already specifying a string comparison
+////
+////				if (rr.Member.Parameters.Count == 3) {
+////					if (!rr.Member.Parameters[2].Type.IsKnownType(KnownTypeCode.Boolean))
+////						return;
+////					if (rr.Arguments[2].IsCompileTimeConstant) {
+////						ignoreCase = (bool)rr.Arguments[2].ConstantValue;
+////					} else {
+////						caseArg = invocationExpression.Arguments.ElementAt(2);
+////					}
+////				}
+////
+////				if (rr.Member.Parameters.Count == 6) {
+////					if (!rr.Member.Parameters[5].Type.IsKnownType(KnownTypeCode.Boolean))
+////						return;
+////					if (rr.Arguments[5].IsCompileTimeConstant) {
+////						ignoreCase = (bool)rr.Arguments[5].ConstantValue;
+////					} else {
+////						caseArg = invocationExpression.Arguments.ElementAt(5);
+////					}
+////				}
+////
+////
+////				AddDiagnosticAnalyzer(new CodeIssue(
+////					invocationExpression,
+////					ctx.TranslateString(), 
+////					new CodeAction(
+////						ctx.TranslateString("), 
+////						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
+////						invocationExpression
+////					),
+////					new CodeAction(
+////						ctx.TranslateString(), 
+////						script => AddArgument(script, invocationExpression, CreateCompareArgument (invocationExpression, ignoreCase, caseArg, "Ordinal")), 
+////						invocationExpression
+////					)
+////				));
+////			}
+////
+////			Expression CreateCompareArgument (InvocationExpression invocationExpression, bool? ignoreCase, Expression caseArg, string stringComparison)
+////			{
+////				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
+////				if (caseArg == null)
+////					return astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ignoreCase == true ? stringComparison + "IgnoreCase" : stringComparison);
+////
+////				return new ConditionalExpression(
+////					caseArg.Clone(),
+////					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison + "IgnoreCase"),
+////					astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(stringComparison)
+////				);
+////			}
+////
+////			void AddArgument(Script script, InvocationExpression invocationExpression, Expression compareArgument)
+////			{
+////				var copy = (InvocationExpression)invocationExpression.Clone();
+////				copy.Arguments.Clear();
+////				if (invocationExpression.Arguments.Count() <= 3) {
+////					copy.Arguments.AddRange(invocationExpression.Arguments.Take(2).Select(a => a.Clone())); 
+////				} else {
+////					copy.Arguments.AddRange(invocationExpression.Arguments.Take(5).Select(a => a.Clone())); 
+////				}
+////				copy.Arguments.Add(compareArgument);
+////				script.Replace(invocationExpression, copy);
+////			}
+//		}
 	}
 }
