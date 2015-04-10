@@ -48,18 +48,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RedundantCheckBeforeAssignmentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantCheckBeforeAssignmentAnalyzer";
-		const string Description   = "Check for inequality before assignment is redundant if (x != value) x = value;";
-		const string MessageFormat = "Redundant condition check before assignment";
-		const string Category      = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantCheckBeforeAssignmentAnalyzerID, 
+			GettextCatalog.GetString("Check for inequality before assignment is redundant if (x != value) x = value;"),
+			GettextCatalog.GetString("Redundant condition check before assignment"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantCheckBeforeAssignmentAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Redundant condition check before assignment");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

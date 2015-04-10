@@ -49,18 +49,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class NotImplementedExceptionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NotImplementedExceptionAnalyzer";
-		const string Description            = "Shows NotImplementedException throws in the quick task bar";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.Notifications;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.NotImplementedExceptionAnalyzerID, 
+			GettextCatalog.GetString("Shows NotImplementedException throws in the quick task bar"),
+			GettextCatalog.GetString("Not implemented"), 
+			DiagnosticAnalyzerCategories.Notifications, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.NotImplementedExceptionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Show NotImplementedExceptions");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -81,7 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			{
 				var result = semanticModel.GetTypeInfo(node.Expression).Type;
 				if (result == null || result.Equals(notImpl))
-					AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.Expression.GetLocation()));
+					AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.Expression.GetLocation()));
 				base.VisitThrowStatement(node);
 			}
 		}

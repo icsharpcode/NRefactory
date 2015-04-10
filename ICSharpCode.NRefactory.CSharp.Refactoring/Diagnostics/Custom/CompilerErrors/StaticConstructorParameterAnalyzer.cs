@@ -86,11 +86,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class StaticConstructorParameterFixProvider : NRefactoryCodeFixProvider
+	public class StaticConstructorParameterFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return StaticConstructorParameterAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (StaticConstructorParameterAnalyzer.DiagnosticId);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

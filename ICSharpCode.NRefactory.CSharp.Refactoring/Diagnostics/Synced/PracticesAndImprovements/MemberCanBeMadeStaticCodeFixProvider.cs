@@ -45,12 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class MemberCanBeMadeStaticCodeFixProvider : NRefactoryCodeFixProvider
+	public class MemberCanBeMadeStaticCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return MemberCanBeMadeStaticAnalyzer.DiagnosticIdPrivate;
-			yield return MemberCanBeMadeStaticAnalyzer.DiagnosticIdNonPrivate;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.MemberCanBeMadeStaticAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

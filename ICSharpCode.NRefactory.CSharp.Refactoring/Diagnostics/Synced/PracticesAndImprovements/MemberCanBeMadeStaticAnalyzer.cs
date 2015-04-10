@@ -46,20 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class MemberCanBeMadeStaticAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		public const string DiagnosticIdPrivate  = "MemberCanBeMadeStatic.Private";
-		public const string DiagnosticIdNonPrivate  = "MemberCanBeMadeStatic.NonPrivate";
-		const string Description            = "A member doesn't use 'this' object neither explicit nor implicit. It can be made static.";
-		const string MessageFormat          = "Member can be made static";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.MemberCanBeMadeStaticAnalyzerID, 
+			GettextCatalog.GetString("A member doesn't use 'this' object neither explicit nor implicit. It can be made static"),
+			GettextCatalog.GetString("Member can be made static"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.MemberCanBeMadeStaticAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticIdPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Member can be made static");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticIdNonPrivate, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Member can be made static");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule1, Rule2);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

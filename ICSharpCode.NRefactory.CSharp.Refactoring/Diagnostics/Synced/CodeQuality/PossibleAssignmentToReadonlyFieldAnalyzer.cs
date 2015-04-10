@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class PossibleAssignmentToReadonlyFieldAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PossibleAssignmentToReadonlyFieldAnalyzer";
-		const string Description            = "Check if a readonly field is used as assignment target";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.PossibleAssignmentToReadonlyFieldAnalyzerID, 
+			GettextCatalog.GetString("Check if a readonly field is used as assignment target"),
+			"{0}", 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.PossibleAssignmentToReadonlyFieldAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Possible assignment to readonly field");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

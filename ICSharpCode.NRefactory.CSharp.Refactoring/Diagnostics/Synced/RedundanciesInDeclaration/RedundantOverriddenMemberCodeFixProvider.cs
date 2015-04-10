@@ -70,11 +70,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantOverriddenMemberCodeFixProvider : NRefactoryCodeFixProvider
+	public class RedundantOverriddenMemberCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantOverriddenMemberAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.RedundantOverriddenMemberAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

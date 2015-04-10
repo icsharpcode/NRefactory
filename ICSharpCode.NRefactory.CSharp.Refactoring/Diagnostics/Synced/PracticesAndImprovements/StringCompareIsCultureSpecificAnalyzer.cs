@@ -46,19 +46,21 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StringCompareIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringCompareIsCultureSpecificAnalyzer";
-		const string Description            = "Warns when a culture-aware 'Compare' call is used by default.";
-		const string MessageFormat          = "'string.Compare' is culture-aware";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StringCompareIsCultureSpecificAnalyzerID, 
+			GettextCatalog.GetString("Warns when a culture-aware 'Compare' call is used by default"),
+			GettextCatalog.GetString("'string.Compare' is culture-aware"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.StringCompareIsCultureSpecificAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Use ordinal comparison", Category, DiagnosticSeverity.Warning, true, "'string.Compare' is culture-aware");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use culture-aware comparison", Category, DiagnosticSeverity.Warning, true, "'string.Compare' is culture-aware");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule1, Rule2);
-			}
-		}
+		//static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Use ordinal comparison", Category, DiagnosticSeverity.Warning, true, "'string.Compare' is culture-aware");
+		//static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Use culture-aware comparison", Category, DiagnosticSeverity.Warning, true, "'string.Compare' is culture-aware");
+
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

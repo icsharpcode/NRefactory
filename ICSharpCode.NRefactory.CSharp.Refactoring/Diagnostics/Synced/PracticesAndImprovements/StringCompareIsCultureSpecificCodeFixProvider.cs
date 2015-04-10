@@ -45,11 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class StringCompareIsCultureSpecificCodeFixProvider : NRefactoryCodeFixProvider
+	public class StringCompareIsCultureSpecificCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return StringCompareIsCultureSpecificAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.StringCompareIsCultureSpecificAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

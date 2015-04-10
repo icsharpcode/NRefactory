@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConvertIfStatementToNullCoalescingExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertIfStatementToNullCoalescingExpressionAnalyzer";
-		const string Description            = "Convert 'if' to '??'";
-		const string MessageFormat          = "Convert to '??' expresssion";
-		const string Category               = DiagnosticAnalyzerCategories.Opportunities;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConvertIfStatementToNullCoalescingExpressionAnalyzerID, 
+			GettextCatalog.GetString("Convert 'if' to '??'"),
+			GettextCatalog.GetString("Convert to '??' expresssion"), 
+			DiagnosticAnalyzerCategories.Opportunities, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertIfStatementToNullCoalescingExpressionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "'if' statement can be re-written as '??' expression");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

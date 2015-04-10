@@ -46,18 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ForControlVariableIsNeverModifiedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ForControlVariableIsNeverModifiedAnalyzer";
-		const string Description            = "'for' loop control variable is never modified";
-		const string MessageFormat          = "'for' loop control variable is never modified";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ForControlVariableIsNeverModifiedAnalyzerID, 
+			GettextCatalog.GetString("'for' loop control variable is never modified"),
+			GettextCatalog.GetString("'for' loop control variable is never modified"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ForControlVariableIsNeverModifiedAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'for' loop control variable is never modified");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

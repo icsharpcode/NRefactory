@@ -36,18 +36,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class CanBeReplacedWithTryCastAndCheckForNullAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CanBeReplacedWithTryCastAndCheckForNullAnalyzer";
-		const string Description            = "Type check and casts can be replaced with 'as' and null check";
-		const string MessageFormat          = "Type check and casts can be replaced with 'as' and null check";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.CanBeReplacedWithTryCastAndCheckForNullAnalyzerID, 
+			GettextCatalog.GetString("Type check and casts can be replaced with 'as' and null check"),
+			GettextCatalog.GetString("Type check and casts can be replaced with 'as' and null check"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.CanBeReplacedWithTryCastAndCheckForNullAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Type check and casts can be replaced with 'as' and null check");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

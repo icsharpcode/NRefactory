@@ -40,11 +40,12 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantBoolCompareCodeFixProvider : NRefactoryCodeFixProvider
+	public class RedundantBoolCompareCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantBoolCompareAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.RedundantBoolCompareAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

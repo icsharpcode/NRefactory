@@ -29,16 +29,18 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
 using System.Threading.Tasks;
 using System.Linq;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CanBeReplacedWithTryCastAndCheckForNullCodeFixProvider : NRefactoryCodeFixProvider
+	public class CanBeReplacedWithTryCastAndCheckForNullCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CanBeReplacedWithTryCastAndCheckForNullAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.CanBeReplacedWithTryCastAndCheckForNullAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

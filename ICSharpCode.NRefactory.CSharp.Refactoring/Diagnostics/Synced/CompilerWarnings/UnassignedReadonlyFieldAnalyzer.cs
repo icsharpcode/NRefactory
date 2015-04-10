@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class UnassignedReadonlyFieldAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "UnassignedReadonlyFieldAnalyzer";
-		const string Description            = "Unassigned readonly field";
-		const string MessageFormat          = "Readonly field is never assigned";
-		const string Category               = DiagnosticAnalyzerCategories.CompilerWarnings;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.UnassignedReadonlyFieldAnalyzerID, 
+			GettextCatalog.GetString("Unassigned readonly field"),
+			GettextCatalog.GetString("Readonly field is never assigned"), 
+			DiagnosticAnalyzerCategories.CompilerWarnings, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.UnassignedReadonlyFieldAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Unassigned readonly field");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -147,11 +146,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class UnassignedReadonlyFieldFixProvider : NRefactoryCodeFixProvider
+	public class UnassignedReadonlyFieldFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return UnassignedReadonlyFieldAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.UnassignedReadonlyFieldAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

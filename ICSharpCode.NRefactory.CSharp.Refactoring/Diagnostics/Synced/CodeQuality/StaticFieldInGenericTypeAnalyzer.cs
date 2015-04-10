@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StaticFieldInGenericTypeAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StaticFieldInGenericTypeAnalyzer";
-		const string Description            = "Warns about static fields in generic types.";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StaticFieldInGenericTypeAnalyzerID, 
+			GettextCatalog.GetString("Warns about static fields in generic types"),
+			GettextCatalog.GetString("Static field in generic type"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.StaticFieldInGenericTypeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Static field in generic type");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -115,7 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //			{
 //				base.VisitFieldDeclaration(fieldDeclaration);
 //				if (fieldDeclaration.Modifiers.HasFlag(Modifiers.Static) && !UsesAllTypeParameters(fieldDeclaration)) {
-//					AddDiagnosticAnalyzer(new CodeIssue(fieldDeclaration, ctx.TranslateString("Static field in generic type")));
+			//					AddDiagnosticAnalyzer(new CodeIssue(fieldDeclaration, ctx.TranslateString("Static field in generic type")));
 //				}
 //			}
 		}

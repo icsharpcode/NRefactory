@@ -44,18 +44,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class CallToObjectEqualsViaBaseAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "CallToObjectEqualsViaBaseAnalyzer";
-		const string Description            = "Finds potentially erroneous calls to Object.Equals.";
-		const string MessageFormat          = "Call to base.Equals resolves to Object.Equals, which is reference equality";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.CallToObjectEqualsViaBaseAnalyzerID, 
+			GettextCatalog.GetString("Finds potentially erroneous calls to Object.Equals"),
+			GettextCatalog.GetString("Call to base.Equals resolves to Object.Equals, which is reference equality"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.CallToObjectEqualsViaBaseAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Call to base.Equals resolves to Object.Equals, which is reference equality");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -81,59 +80,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				var resolveResult = semanticModel.GetSymbolInfo(node);
 				if (resolveResult.Symbol == null || resolveResult.Symbol.ContainingType.SpecialType != SpecialType.System_Object)
 					return;
-				AddDiagnosticAnalyzer (Diagnostic.Create(Rule, Location.Create(semanticModel.SyntaxTree, node.Span)));
+				AddDiagnosticAnalyzer (Diagnostic.Create(descriptor, Location.Create(semanticModel.SyntaxTree, node.Span)));
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class FixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CallToObjectEqualsViaBaseAnalyzer.DiagnosticId;
-		}
-
-		// TODO : not sure if this makes sense
-		// Test and enable or add comment with reason
-		//public override FixAllProvider GetFixAllProvider()
-		//{
-		//	return WellKnownFixAllProviders.BatchFixer;
-		//}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span) as InvocationExpressionSyntax;
-			if (node == null)
-				return;
-
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Change invocation to call 'object.ReferenceEquals'", arg => {
-				var arguments = new SeparatedSyntaxList<ArgumentSyntax>();
-				arguments = arguments.Add(SyntaxFactory.Argument(SyntaxFactory.ThisExpression())); 
-				arguments = arguments.Add(node.ArgumentList.Arguments[0]); 
-
-				return Task.FromResult(document.WithSyntaxRoot(
-					root.ReplaceNode((SyntaxNode)
-						node, 
-						SyntaxFactory.InvocationExpression(
-							SyntaxFactory.ParseExpression("object.ReferenceEquals"),
-							SyntaxFactory.ArgumentList(arguments)
-						)
-							.WithLeadingTrivia(node.GetLeadingTrivia())
-							.WithAdditionalAnnotations(Formatter.Annotation))
-					)
-				);
-			}), diagnostic);
-
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove 'base.'", arg => {
-				return Task.FromResult(document.WithSyntaxRoot(root.ReplaceNode((SyntaxNode)node, node.WithExpression(SyntaxFactory.IdentifierName("Equals")))));
-			}), diagnostic);
 		}
 	}
 }

@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConvertToConstantAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConvertToConstantAnalyzer";
-		const string Description            = "Convert local variable or field to constant";
-		const string MessageFormat          = "Convert to constant";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConvertToConstantAnalyzerID, 
+			GettextCatalog.GetString("Convert local variable or field to constant"),
+			GettextCatalog.GetString("Convert to constant"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertToConstantAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Convert local variable or field to constant");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

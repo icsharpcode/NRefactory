@@ -46,18 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class LocalVariableNotUsedAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "LocalVariableNotUsedAnalyzer";
-		const string Description            = "Local variable is never used";
-		const string MessageFormat          = "Local variable is never used";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.LocalVariableNotUsedAnalyzerID, 
+			GettextCatalog.GetString("Local variable is never used"),
+			GettextCatalog.GetString("Local variable is never used"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.LocalVariableNotUsedAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Unused local variable");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

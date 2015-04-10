@@ -49,20 +49,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// </summary>
 	public class RedundantInternalAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "RedundantInternalAnalyzer";
-		const string Description = "Removes 'internal' modifiers that are not required";
-		const string MessageFormat = "";
-		const string Category = DiagnosticAnalyzerCategories.RedundanciesInCode;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantInternalAnalyzerID, 
+			GettextCatalog.GetString("Removes 'internal' modifiers that are not required"),
+			GettextCatalog.GetString("'internal' modifier is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantInternalAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Remove redundant 'internal' modifier");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -106,7 +104,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					return;
 				if (node.Parent is BaseTypeDeclarationSyntax)
 					return;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
+				AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
 			}
 
 			public void VisitTypeDeclaration(BaseTypeDeclarationSyntax node)
@@ -115,65 +113,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					return;
 				if (node.Parent is BaseTypeDeclarationSyntax)
 					return;
-				AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
+				AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.Modifiers.First(m => m.IsKind(SyntaxKind.InternalKeyword)).GetLocation()));
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantInternalFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantInternalAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			var newRoot = root.ReplaceNode(node, RemoveInternalModifier(node));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Remove redundant 'internal' modifier", document.WithSyntaxRoot(newRoot)), diagnostic);
-		}
-
-		public static SyntaxNode RemoveInternalModifier(SyntaxNode node)
-		{
-			Func<SyntaxToken, bool> isNotInternal = (m => !m.IsKind(SyntaxKind.InternalKeyword));
-			var classNode = node as ClassDeclarationSyntax;
-			if (classNode != null)
-				return classNode.WithModifiers(SyntaxFactory.TokenList(classNode.Modifiers.Where(isNotInternal)))
-					.WithLeadingTrivia(classNode.GetLeadingTrivia());
-
-			var structNode = node as StructDeclarationSyntax;
-			if (structNode != null)
-				return structNode.WithModifiers(SyntaxFactory.TokenList(structNode.Modifiers.Where(isNotInternal)))
-					.WithLeadingTrivia(structNode.GetLeadingTrivia());
-
-			var interNode = node as InterfaceDeclarationSyntax;
-			if (interNode != null)
-				return interNode.WithModifiers(SyntaxFactory.TokenList(interNode.Modifiers.Where(isNotInternal)))
-					.WithLeadingTrivia(interNode.GetLeadingTrivia());
-
-			var delegateNode = node as DelegateDeclarationSyntax;
-			if (delegateNode != null)
-				return delegateNode.WithModifiers(SyntaxFactory.TokenList(delegateNode.Modifiers.Where(isNotInternal)))
-					.WithLeadingTrivia(delegateNode.GetLeadingTrivia());
-
-			var enumNode = node as EnumDeclarationSyntax;
-			if (enumNode != null)
-				return enumNode.WithModifiers(SyntaxFactory.TokenList(enumNode.Modifiers.Where(isNotInternal)))
-					.WithLeadingTrivia(enumNode.GetLeadingTrivia());
-			return node;
 		}
 	}
 }

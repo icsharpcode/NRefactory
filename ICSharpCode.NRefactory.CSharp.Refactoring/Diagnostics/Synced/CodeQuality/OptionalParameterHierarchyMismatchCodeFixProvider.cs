@@ -44,11 +44,12 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class OptionalParameterHierarchyMismatchCodeFixProvider : NRefactoryCodeFixProvider
+	public class OptionalParameterHierarchyMismatchCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return OptionalParameterHierarchyMismatchAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.OptionalParameterHierarchyMismatchAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

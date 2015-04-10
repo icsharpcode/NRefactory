@@ -45,11 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantObjectCreationArgumentListCodeFixProvider : NRefactoryCodeFixProvider
+	public class RedundantObjectCreationArgumentListCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantObjectCreationArgumentListAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.RedundantObjectCreationArgumentListAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

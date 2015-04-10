@@ -228,7 +228,6 @@
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
-    <Compile Include="Diagnostics\NRefactoryCodeFixProvider.cs" />
     <Compile Include="Util\NRefactoryCodeRefactoringProviderAttribute.cs" />
     <Compile Include="Util\RefactoringHelpers.cs" />
     <Compile Include="Diagnostics\DiagnosticAnalyzerCategories.cs" />
@@ -564,6 +563,18 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\AdditionalOfTypeCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\BaseMethodParameterNameMismatchCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\CallToObjectEqualsViaBaseCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\ConstantConditionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\ConvertIfToAndExpressionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\LockThisCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\NegativeRelationalExpressionCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\ParameterOnlyAssignedCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\RedundantAssignmentCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\RedundantInternalCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\RedundantPrivateCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\XmlDocCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

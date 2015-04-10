@@ -38,11 +38,12 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class NotResolvedInTextIssueCodeFixProvider : NRefactoryCodeFixProvider
+	public class NotResolvedInTextIssueCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return NotResolvedInTextAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.NotResolvedInTextAnalyzerID);
+			}
 		}
 
 		public async override Task RegisterCodeFixesAsync(CodeFixContext context)

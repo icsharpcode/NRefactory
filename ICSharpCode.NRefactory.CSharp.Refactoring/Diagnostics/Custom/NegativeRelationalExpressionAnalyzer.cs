@@ -46,18 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class NegativeRelationalExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "NegativeRelationalExpressionAnalyzer";
-		const string Description            = "Simplify negative relational expression";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.NegativeRelationalExpressionAnalyzerID, 
+			GettextCatalog.GetString("Simplify negative relational expression"),
+			GettextCatalog.GetString("Simplify negative relational expression"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.NegativeRelationalExpressionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Simplify negative relational expression");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -110,7 +109,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //						return;
 //				}
 //
-//				AddDiagnosticAnalyzer (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
+			//				AddDiagnosticAnalyzer (new CodeIssue(unaryOperatorExpression, ctx.TranslateString ("Simplify negative relational expression"), ctx.TranslateString ("Simplify negative relational expression"),
 //					script => script.Replace (unaryOperatorExpression,
 //						new BinaryOperatorExpression (binaryOperatorExpr.Left.Clone (), negatedOp,
 //							binaryOperatorExpr.Right.Clone ()))));
@@ -125,35 +124,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //				}
 //				base.VisitOperatorDeclaration(operatorDeclaration);
 //			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class NegativeRelationalExpressionFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return NegativeRelationalExpressionAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

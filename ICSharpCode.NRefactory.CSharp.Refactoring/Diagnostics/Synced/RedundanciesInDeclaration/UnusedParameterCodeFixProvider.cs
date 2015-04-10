@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -33,11 +34,12 @@ using Microsoft.CodeAnalysis.CodeFixes;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class UnusedParameterCodeFixProvider : NRefactoryCodeFixProvider
+	public class UnusedParameterCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds ()
-		{
-			yield return UnusedParameterAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.UnusedParameterAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider ()

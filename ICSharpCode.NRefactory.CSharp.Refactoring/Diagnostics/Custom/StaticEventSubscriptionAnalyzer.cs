@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StaticEventSubscriptionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StaticEventSubscriptionAnalyzer";
-		const string Description            = "Checks if static events are removed";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StaticEventSubscriptionAnalyzerID, 
+			GettextCatalog.GetString("Checks if static events are removed"),
+			GettextCatalog.GetString("Subscription to static events without unsubscription may cause memory leaks"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.StaticEventSubscriptionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Static event removal check");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -96,7 +95,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //				foreach (var added in addedEvents) {
 //					foreach (var usage in added.Value) {
 //						AddDiagnosticAnalyzer(new CodeIssue(usage.Item2.OperatorToken,
-//							ctx.TranslateString("Subscription to static events without unsubscription may cause memory leaks."))); 
+			//							ctx.TranslateString("Subscription to static events without unsubscription may cause memory leaks."))); 
 //					}
 //				}
 //			}
@@ -159,35 +158,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //					assignedEvents.Add(left.Member); 
 //				}
 //			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class StaticEventSubscriptionFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return StaticEventSubscriptionAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

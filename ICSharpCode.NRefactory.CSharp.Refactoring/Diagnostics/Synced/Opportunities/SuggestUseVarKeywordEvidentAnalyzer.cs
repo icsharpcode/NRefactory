@@ -49,18 +49,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class SuggestUseVarKeywordEvidentAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "SuggestUseVarKeywordEvidentAnalyzer";
-		const string Description            = "Use 'var' keyword when possible";
-		const string MessageFormat          = "Use 'var' keyword";
-		const string Category               = DiagnosticAnalyzerCategories.Opportunities;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.SuggestUseVarKeywordEvidentAnalyzerID, 
+			GettextCatalog.GetString("Use 'var' keyword when possible"),
+			GettextCatalog.GetString("Use 'var' keyword"), 
+			DiagnosticAnalyzerCategories.Opportunities, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.SuggestUseVarKeywordEvidentAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Use 'var'");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

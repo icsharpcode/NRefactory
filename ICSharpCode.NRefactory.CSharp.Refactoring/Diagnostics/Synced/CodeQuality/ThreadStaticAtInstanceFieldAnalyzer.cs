@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ThreadStaticAtInstanceFieldAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ThreadStaticAtInstanceFieldAnalyzer";
-		const string Description            = "[ThreadStatic] doesn't work with instance fields";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ThreadStaticAtInstanceFieldAnalyzerID, 
+			GettextCatalog.GetString("[ThreadStatic] doesn't work with instance fields"),
+			GettextCatalog.GetString("ThreadStatic does nothing on instance fields"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ThreadStaticAtInstanceFieldAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "[ThreadStatic] doesn't work with instance fields");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -89,7 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //						if (resolvedAttribute == null)
 //							continue;
 //						if (threadStaticAttribute.Equals(resolvedAttribute.Type)) {
-//							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
+			//							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
 //							if (attributeCount == 1)
 //								AddDiagnosticAnalyzer(new CodeIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration)));
 //							else

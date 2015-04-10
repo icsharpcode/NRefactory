@@ -389,11 +389,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class InconsistentNamingIssueFixProvider : NRefactoryCodeFixProvider
+	public class InconsistentNamingIssueFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return InconsistentNamingAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (InconsistentNamingAnalyzer.DiagnosticId);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

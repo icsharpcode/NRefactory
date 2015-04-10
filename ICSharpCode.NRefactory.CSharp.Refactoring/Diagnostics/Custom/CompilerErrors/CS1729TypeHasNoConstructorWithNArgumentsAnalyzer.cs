@@ -158,11 +158,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CS1729TypeHasNoConstructorWithNArgumentsFixProvider : NRefactoryCodeFixProvider
+	public class CS1729TypeHasNoConstructorWithNArgumentsFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CS1729TypeHasNoConstructorWithNArgumentsAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (CS1729TypeHasNoConstructorWithNArgumentsAnalyzer.DiagnosticId);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

@@ -119,11 +119,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CS1717AssignmentMadeToSameVariableFixProvider : NRefactoryCodeFixProvider
+	public class CS1717AssignmentMadeToSameVariableFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CS1717AssignmentMadeToSameVariableAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (CS1717AssignmentMadeToSameVariableAnalyzer.DiagnosticId);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

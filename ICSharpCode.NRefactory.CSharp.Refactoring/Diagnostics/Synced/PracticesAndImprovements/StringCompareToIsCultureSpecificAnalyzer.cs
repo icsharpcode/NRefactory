@@ -46,19 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class StringCompareToIsCultureSpecificAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "StringCompareToIsCultureSpecificAnalyzer";
-		const string Description            = "Warns when a culture-aware 'string.CompareTo' call is used by default.";
-		const string MessageFormat          = "'string.CompareTo' is culture-aware";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.StringCompareToIsCultureSpecificAnalyzerID, 
+			GettextCatalog.GetString("Warns when a culture-aware 'string.CompareTo' call is used by default"),
+			GettextCatalog.GetString("'string.CompareTo' is culture-aware"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.StringCompareToIsCultureSpecificAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'string.CompareTo' is culture-aware");
-		// "Use ordinal comparison" / "Use culture-aware comparison"
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

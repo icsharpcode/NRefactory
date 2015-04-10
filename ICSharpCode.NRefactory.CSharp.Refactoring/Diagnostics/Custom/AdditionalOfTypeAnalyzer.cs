@@ -58,18 +58,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //				)
 //			);
 
-		internal const string DiagnosticId  = "AdditionalOfTypeIssues";
-		const string Description            = "Replace with call to OfType<T> (extended cases)";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.AdditionalOfTypeAnalyzerID, 
+			GettextCatalog.GetString("Replace with call to OfType<T> (extended cases)"),
+			GettextCatalog.GetString("Replace with 'OfType<T>'"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.AdditionalOfTypeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Replace with OfType<T> (extended)");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -109,7 +108,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //					return;
 //				AddDiagnosticAnalyzer (new CodeIssue(
 //					anyInvoke,
-//					ctx.TranslateString("Replace with OfType<T>"),
+			//					ctx.TranslateString("Replace with OfType<T>"),
 //					ctx.TranslateString("Replace with call to OfType<T>"),
 //					script => {
 //						var target = match.Get<Expression>("target").Single().Clone ();
@@ -121,32 +120,4 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		}
 	}
 
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class AdditionalOfTypeFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return AdditionalOfTypeAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
-		}
-	}
 }

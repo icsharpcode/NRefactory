@@ -45,19 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class MethodOverloadWithOptionalParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "MethodOverloadWithOptionalParameterAnalyzer";
-		const string Description            = "Method with optional parameter is hidden by overload";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.MethodOverloadWithOptionalParameterAnalyzerID, 
+			GettextCatalog.GetString("Method with optional parameter is hidden by overload"),
+			GettextCatalog.GetString("{0} with optional parameter is hidden by overload"),  // Method/Indexer
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.MethodOverloadWithOptionalParameterAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Method with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning, true, "Method with optional parameter is hidden by overload");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Indexer with optional parameter is hidden by overload", Category, DiagnosticSeverity.Warning, true, "Method with optional parameter is hidden by overload");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule1, Rule2);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

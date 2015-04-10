@@ -46,18 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConstantConditionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ConstantConditionAnalyzer";
-		const string Description            = "Condition is always 'true' or always 'false'";
-		const string MessageFormat          = "Condition is always '{0}'";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConstantConditionAnalyzerID, 
+			GettextCatalog.GetString("Condition is always 'true' or always 'false'"),
+			GettextCatalog.GetString("Condition is always '{0}'"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConstantConditionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Condition is always 'true' or always 'false'");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -113,16 +112,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				var value = (bool)resolveResult.Value;
 			
 				AddDiagnosticAnalyzer (Diagnostic.Create(
-					Rule.Id,
-					Rule.Category,
-					string.Format(Rule.MessageFormat.ToString (), value),
-					Rule.DefaultSeverity,
-					Rule.DefaultSeverity,
-					Rule.IsEnabledByDefault,
+					descriptor.Id,
+					descriptor.Category,
+					string.Format(descriptor.MessageFormat.ToString (), value),
+					descriptor.DefaultSeverity,
+					descriptor.DefaultSeverity,
+					descriptor.IsEnabledByDefault,
 					4,
-					Rule.Title,
-					Rule.Description,
-					Rule.HelpLinkUri,
+					descriptor.Title,
+					descriptor.Description,
+					descriptor.HelpLinkUri,
 					condition.GetLocation(),
 					null,
 					new [] { value.ToString() } 
@@ -136,93 +135,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //				if (startOffset < endOffset)
 //					script.RemoveText(startOffset, endOffset - startOffset);
 //			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConstantConditionFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ConstantConditionAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var semanticModel = await document.GetSemanticModelAsync(cancellationToken);
-			var root = semanticModel.SyntaxTree.GetRoot(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-
-			var value = bool.Parse(diagnostic.Descriptor.CustomTags.First());
-
-			var conditionalExpr = node.Parent as ConditionalExpressionSyntax;
-			var ifElseStatement = node.Parent as IfStatementSyntax;
-			var valueStr = value.ToString().ToLowerInvariant();
-
-			if (conditionalExpr != null)
-			{
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace '?:' with '{0}' branch", valueStr), token =>
-				{
-					var replaceWith = value ? conditionalExpr.WhenTrue : conditionalExpr.WhenFalse;
-					var newRoot = root.ReplaceNode((SyntaxNode)conditionalExpr, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
-			else if (ifElseStatement != null)
-			{
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace 'if' with '{0}' branch", valueStr), token =>
-				{
-					var list = new List<SyntaxNode>();
-					StatementSyntax branch;
-					if (value)
-					{
-						branch = ifElseStatement.Statement;
-					}
-					else
-					{
-						if (ifElseStatement.Else == null)
-							return Task.FromResult(document.WithSyntaxRoot(root.RemoveNode(ifElseStatement, SyntaxRemoveOptions.KeepNoTrivia)));
-						branch = ifElseStatement.Else.Statement;
-					}
-
-					var block = branch as BlockSyntax;
-					if (block != null)
-					{
-						foreach (var stmt in block.Statements)
-							list.Add(stmt.WithAdditionalAnnotations(Formatter.Annotation));
-					}
-					else
-					{
-						if (branch != null)
-							list.Add(branch.WithAdditionalAnnotations(Formatter.Annotation));
-					}
-					if (list.Count == 0)
-						return Task.FromResult(document);
-					var newRoot = root.ReplaceNode((SyntaxNode)ifElseStatement, list);
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
-			else
-			{
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Replace expression with '{0}'", valueStr), token =>
-				{
-					var replaceWith = SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-					var newRoot = root.ReplaceNode((SyntaxNode)node, replaceWith.WithAdditionalAnnotations(Formatter.Annotation));
-					return Task.FromResult(document.WithSyntaxRoot(newRoot));
-				}), diagnostic);
-			}
 		}
 	}
 }

@@ -45,18 +45,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RedundantDefaultFieldInitializerAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "RedundantDefaultFieldInitializerAnalyzer";
-		const string Description            = "Initializing field with default value is redundant.";
-		const string MessageFormat          = "Initializing field by default value is redundant";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantDefaultFieldInitializerAnalyzerID, 
+			GettextCatalog.GetString("Initializing field with default value is redundant"),
+			GettextCatalog.GetString("Initializing field by default value is redundant"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantDefaultFieldInitializerAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Redundant field initializer");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

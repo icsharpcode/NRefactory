@@ -105,11 +105,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CS0183ExpressionIsAlwaysOfProvidedTypeFixProvider : NRefactoryCodeFixProvider
+	public class CS0183ExpressionIsAlwaysOfProvidedTypeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer.DiagnosticId);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

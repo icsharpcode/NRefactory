@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ForCanBeConvertedToForeachAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "ForCanBeConvertedToForeachAnalyzer";
-		const string Description            = "Foreach loops are more efficient";
-		const string MessageFormat          = "'for' loop can be converted to 'foreach'";
-		const string Category               = DiagnosticAnalyzerCategories.Opportunities;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ForCanBeConvertedToForeachAnalyzerID, 
+			GettextCatalog.GetString("Foreach loops are more efficient"),
+			GettextCatalog.GetString("'for' loop can be converted to 'foreach'"), 
+			DiagnosticAnalyzerCategories.Opportunities, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ForCanBeConvertedToForeachAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "'for' can be converted into 'foreach'");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

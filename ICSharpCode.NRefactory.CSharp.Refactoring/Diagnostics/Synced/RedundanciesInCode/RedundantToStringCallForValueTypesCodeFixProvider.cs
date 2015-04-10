@@ -45,11 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantToStringCallForValueTypesCodeFixProvider : NRefactoryCodeFixProvider
+	public class RedundantToStringCallForValueTypesCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantToStringCallForValueTypesAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.RedundantToStringCallAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

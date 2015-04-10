@@ -45,11 +45,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class EqualExpressionComparisonCodeFixProvider : NRefactoryCodeFixProvider
+	public class EqualExpressionComparisonCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return EqualExpressionComparisonAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.EqualExpressionComparisonAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

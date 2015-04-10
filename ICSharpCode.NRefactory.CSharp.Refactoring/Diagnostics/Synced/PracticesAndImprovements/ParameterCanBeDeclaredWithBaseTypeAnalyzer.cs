@@ -56,18 +56,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			//this.tryResolve = tryResolve;
 		}
 
-		internal const string DiagnosticId  = "ParameterCanBeDeclaredWithBaseTypeAnalyzer";
-		const string Description            = "Finds parameters that can be demoted to a base class.";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ParameterCanBeDeclaredWithBaseTypeAnalyzerID, 
+			GettextCatalog.GetString("Finds parameters that can be demoted to a base class"),
+			GettextCatalog.GetString("Parameter can be declared with base type"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ParameterCanBeDeclaredWithBaseTypeAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Parameter can be declared with base type");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -165,7 +164,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //					 where (!tryResolve || TypeChangeResolvesCorrectly(ctx, parameter, rootResolutionNode, type)) && !FilterOut (variable.Type, type)
 //					 select type).ToList();
 //				if (validTypes.Any()) {
-//					AddDiagnosticAnalyzer(new CodeIssue(parameter.Type, ctx.TranslateString("Parameter can be declared with base type"), GetActions(parameter, validTypes)) {
+			//					AddDiagnosticAnalyzer(new CodeIssue(parameter.Type, ctx.TranslateString("Parameter can be declared with base type"), GetActions(parameter, validTypes)) {
 //						IssueMarker = IssueMarker.DottedLine
 //					});
 //					MembersWithIssues++;

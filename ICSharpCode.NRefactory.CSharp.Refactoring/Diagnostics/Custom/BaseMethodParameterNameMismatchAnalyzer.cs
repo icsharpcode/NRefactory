@@ -46,18 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class BaseMethodParameterNameMismatchAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "BaseMethodParameterNameMismatchAnalyzer";
-		const string Description            = "Parameter name differs in base declaration";
-		const string MessageFormat          = "Parameter name differs in base declaration";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.BaseMethodParameterNameMismatchAnalyzerID, 
+			GettextCatalog.GetString("Parameter name differs in base declaration"),
+			GettextCatalog.GetString("Parameter name differs in base declaration"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.BaseMethodParameterNameMismatchAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Parameter name differs in base declaration");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -142,16 +141,16 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 					if (arg.Name != baseArg.Name) {
 						AddDiagnosticAnalyzer (Diagnostic.Create(
-							Rule.Id,
-							Rule.Category,
-							Rule.MessageFormat,
-							Rule.DefaultSeverity,
-							Rule.DefaultSeverity,
-							Rule.IsEnabledByDefault,
+							descriptor.Id,
+							descriptor.Category,
+							descriptor.MessageFormat,
+							descriptor.DefaultSeverity,
+							descriptor.DefaultSeverity,
+							descriptor.IsEnabledByDefault,
 							4,
-							Rule.Title,
-							Rule.Description,
-							Rule.HelpLinkUri,
+							descriptor.Title,
+							descriptor.Description,
+							descriptor.HelpLinkUri,
 							Location.Create(semanticModel.SyntaxTree, syntaxParams[i].Identifier.Span),
 							null,
 							new [] { baseArg.Name }
@@ -159,36 +158,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					}
 				}
 			}
-		}
-	}
-
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class BaseMethodParameterNameMismatchFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return BaseMethodParameterNameMismatchAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			if (!node.IsKind(SyntaxKind.Parameter))
-				return;
-			var renamedParameter = ((ParameterSyntax)node).WithIdentifier(SyntaxFactory.Identifier(diagnostic.Descriptor.CustomTags.First()));
-			var newRoot = root.ReplaceNode((SyntaxNode)node, renamedParameter);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rename to '{0}'", diagnostic.Descriptor.CustomTags.First()), document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

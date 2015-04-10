@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class PolymorphicFieldLikeEventInvocationAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "PolymorphicFieldLikeEventInvocationAnalyzer";
-		const string Description            = "Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.PolymorphicFieldLikeEventInvocationAnalyzerID, 
+			GettextCatalog.GetString("Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual"),
+			GettextCatalog.GetString("The event `{0}' can only appear on the left hand side of `+=' or `-=' operator"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.PolymorphicFieldLikeEventInvocationAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Invocation of polymorphic field event");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -82,7 +81,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 //				if (evt.AddAccessor.HasBody) {
 //					AddDiagnosticAnalyzer(new CodeIssue(
 //						invocationExpression.Target,
-//						string.Format(ctx.TranslateString("The event `{0}' can only appear on the left hand side of `+=' or `-=' operator"), evt.Name)
+			//						string.Format(ctx.TranslateString("The event `{0}' can only appear on the left hand side of `+=' or `-=' operator"), evt.Name)
 //					));
 //					return;
 //				}

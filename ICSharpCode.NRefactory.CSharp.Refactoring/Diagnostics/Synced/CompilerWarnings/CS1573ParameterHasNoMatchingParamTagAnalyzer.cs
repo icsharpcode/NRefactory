@@ -294,11 +294,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class CS1573ParameterHasNoMatchingParamTagFixProvider : NRefactoryCodeFixProvider
+	public class CS1573ParameterHasNoMatchingParamTagFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return CS1573ParameterHasNoMatchingParamTagAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (CS1573ParameterHasNoMatchingParamTagAnalyzer.DiagnosticId);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

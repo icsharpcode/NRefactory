@@ -46,11 +46,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	// OfType -> Underline (+suggest to compare to null)
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class RedundantEnumerableCastCallCodeFixProvider : NRefactoryCodeFixProvider
+	public class RedundantEnumerableCastCallCodeFixProvider : CodeFixProvider
 	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return RedundantEnumerableCastCallAnalyzer.DiagnosticId;
+		public override ImmutableArray<string> FixableDiagnosticIds {
+			get {
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.RedundantEnumerableCastCallAnalyzerID);
+			}
 		}
 
 		public override FixAllProvider GetFixAllProvider()

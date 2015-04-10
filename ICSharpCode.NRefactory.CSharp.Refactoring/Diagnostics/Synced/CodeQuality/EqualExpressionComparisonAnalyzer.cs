@@ -45,19 +45,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class EqualExpressionComparisonAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId  = "EqualExpressionComparisonAnalyzer";
-		const string Description            = "Comparing equal expression for equality is usually useless";
-		const string MessageFormat          = "Equal expression comparison";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.EqualExpressionComparisonAnalyzerID, 
+			GettextCatalog.GetString("Comparing equal expression for equality is usually useless"),
+			GettextCatalog.GetString("Replace with '{0}'"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.EqualExpressionComparisonAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'true'", Category, DiagnosticSeverity.Warning, true, "Equal expression comparison");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Replace with 'false'", Category, DiagnosticSeverity.Warning, true, "Equal expression comparison");
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule1, Rule2);
-			}
-		}
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

@@ -45,18 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class PublicConstructorInAbstractClassAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "PublicConstructorInAbstractClassAnalyzer";
-		const string Description = "Constructor in abstract class should not be public";
-		const string MessageFormat = "Constructor in abstract class should not be public";
-		const string Category = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.PublicConstructorInAbstractClassAnalyzerID, 
+			GettextCatalog.GetString("Constructor in abstract class should not be public"),
+			GettextCatalog.GetString("Constructor in abstract class should not be public"), 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.PublicConstructorInAbstractClassAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "Make constructor in abstract class protected");
-		// "Make constructor protected" / "Make constructor private"
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

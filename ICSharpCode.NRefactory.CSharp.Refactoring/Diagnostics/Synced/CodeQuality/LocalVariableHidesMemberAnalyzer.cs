@@ -46,22 +46,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class LocalVariableHidesMemberAnalyzer : VariableHidesMemberAnalyzer
 	{
-		internal const string DiagnosticId  = "LocalVariableHidesMemberAnalyzer";
-		const string Description            = "Local variable has the same name as a member and hides it";
-		const string MessageFormat          = "";
-		const string Category               = DiagnosticAnalyzerCategories.CodeQualityIssues;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.LocalVariableHidesMemberAnalyzerID, 
+			GettextCatalog.GetString("Local variable has the same name as a member and hides it"),
+			GettextCatalog.GetString("Local variable '{0}' hides {1} '{2}'"), 
+			DiagnosticAnalyzerCategories.CodeQualityIssues, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.LocalVariableHidesMemberAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule1 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides field '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
-		static readonly DiagnosticDescriptor Rule2 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides method '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
-		static readonly DiagnosticDescriptor Rule3 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides property '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
-		static readonly DiagnosticDescriptor Rule4 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides event '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
-		static readonly DiagnosticDescriptor Rule5 = new DiagnosticDescriptor (DiagnosticId, Description, "Local variable '{0}' hides member '{1}'", Category, DiagnosticSeverity.Warning, true, "Local variable hides member");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule1, Rule2, Rule3, Rule4, Rule5);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{

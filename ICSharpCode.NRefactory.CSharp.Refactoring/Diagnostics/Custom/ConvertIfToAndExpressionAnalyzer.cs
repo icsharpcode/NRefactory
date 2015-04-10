@@ -45,20 +45,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class ConvertIfToAndExpressionAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
-		internal const string DiagnosticId = "ConvertIfToAndExpressionAnalyzer";
-		const string Description = "Convert 'if' to '&&' expression";
-		const string MessageFormat = "{0}";
-		const string Category = DiagnosticAnalyzerCategories.PracticesAndImprovements;
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.ConvertIfToAndExpressionAnalyzerID, 
+			GettextCatalog.GetString("Convert 'if' to '&&' expression"),
+			"{0}", 
+			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
+			DiagnosticSeverity.Info, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.ConvertIfToAndExpressionAnalyzerID)
+		);
 
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor(DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Info, true, "'if' statement can be re-written as '&&' expression");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics
-		{
-			get
-			{
-				return ImmutableArray.Create(Rule);
-			}
-		}
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		protected override CSharpSyntaxWalker CreateVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
@@ -92,83 +89,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 							return;
 						if (!ConvertIfToOrExpressionAnalyzer.CheckTarget(targetIdentifier, node.Condition))
 							return;
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.IfKeyword.GetLocation(), "Convert to '&&' expression"));
+						AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.IfKeyword.GetLocation(), "Convert to '&&' expression"));
 					}
 					else
 					{
 						if (!ConvertIfToOrExpressionAnalyzer.CheckTarget(target, node.Condition))
 							return;
-						AddDiagnosticAnalyzer(Diagnostic.Create(Rule, node.IfKeyword.GetLocation(), "Replace with '&='"));
+						AddDiagnosticAnalyzer(Diagnostic.Create(descriptor, node.IfKeyword.GetLocation(), "Replace with '&='"));
 					}
 				}
 			}
 		}
 	}
 
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class ConvertIfToAndExpressionFixProvider : NRefactoryCodeFixProvider
-	{
-		protected override IEnumerable<string> InternalGetFixableDiagnosticIds()
-		{
-			yield return ConvertIfToAndExpressionAnalyzer.DiagnosticId;
-		}
-
-		public override FixAllProvider GetFixAllProvider()
-		{
-			return WellKnownFixAllProviders.BatchFixer;
-		}
-
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
-		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			foreach (var diagnostic in diagnostics)
-			{
-				var node = root.FindNode(context.Span) as IfStatementSyntax;
-				ExpressionSyntax target;
-				SyntaxTriviaList assignmentTrailingTriviaList;
-				ConvertIfToOrExpressionAnalyzer.MatchIfElseStatement(node, SyntaxKind.FalseLiteralExpression, out target, out assignmentTrailingTriviaList);
-				SyntaxNode newRoot = null;
-				var varDeclaration = ConvertIfToOrExpressionAnalyzer.FindPreviousVarDeclaration(node);
-				if (varDeclaration != null)
-				{
-					var varDeclarator = varDeclaration.Declaration.Variables[0];
-					newRoot = root.ReplaceNodes(new SyntaxNode[] { varDeclaration, node }, (arg, arg2) =>
-					{
-						if (arg is LocalDeclarationStatementSyntax)
-							return SyntaxFactory.LocalDeclarationStatement(
-									SyntaxFactory.VariableDeclaration(varDeclaration.Declaration.Type,
-										SyntaxFactory.SeparatedList(
-											new[] {
-												SyntaxFactory.VariableDeclarator(varDeclarator.Identifier.ValueText)
-													.WithInitializer(
-														SyntaxFactory.EqualsValueClause(
-															SyntaxFactory.BinaryExpression(SyntaxKind.LogicalAndExpression, ConvertIfToOrExpressionAnalyzer.AddParensToComplexExpression(varDeclarator.Initializer.Value), ConvertIfToOrExpressionAnalyzer.AddParensToComplexExpression(CSharpUtil.InvertCondition(node.Condition))))
-																.WithAdditionalAnnotations(Formatter.Annotation)
-													)
-											}
-										))
-								).WithLeadingTrivia(varDeclaration.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia());
-						return null;
-					});
-				}
-				else
-				{
-                    newRoot = root.ReplaceNode((SyntaxNode)node,
-						SyntaxFactory.ExpressionStatement(
-							SyntaxFactory.AssignmentExpression(
-								SyntaxKind.AndAssignmentExpression,
-								ConvertIfToOrExpressionAnalyzer.AddParensToComplexExpression(target),
-								ConvertIfToOrExpressionAnalyzer.AddParensToComplexExpression(CSharpUtil.InvertCondition(node.Condition)).WithAdditionalAnnotations(Formatter.Annotation)
-							)
-						).WithLeadingTrivia(node.GetLeadingTrivia()).WithTrailingTrivia(node.GetTrailingTrivia()));
-				}
-
-				context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
-			}
-		}
-	}
 }

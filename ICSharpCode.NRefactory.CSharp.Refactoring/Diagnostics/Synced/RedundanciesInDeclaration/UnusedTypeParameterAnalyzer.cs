@@ -46,20 +46,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class UnusedTypeParameterAnalyzer : GatherVisitorDiagnosticAnalyzer
 	{
+		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.UnusedTypeParameterAnalyzerID, 
+			GettextCatalog.GetString("Type parameter is never used"),
+			GettextCatalog.GetString("Type parameter '{0}' is never used"), 
+			DiagnosticAnalyzerCategories.RedundanciesInDeclarations, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.UnusedTypeParameterAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+
 		//static FindReferences refFinder = new FindReferences();
-
-		internal const string DiagnosticId  = "UnusedTypeParameterAnalyzer";
-		const string Description            = "Type parameter is never used";
-		const string MessageFormat          = "Type parameter '{0}' is never used";
-		const string Category               = DiagnosticAnalyzerCategories.RedundanciesInDeclarations;
-
-		static readonly DiagnosticDescriptor Rule = new DiagnosticDescriptor (DiagnosticId, Description, MessageFormat, Category, DiagnosticSeverity.Warning, true, "Unused type parameter");
-
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics {
-			get {
-				return ImmutableArray.Create(Rule);
-			}
-		}
 
 		protected override CSharpSyntaxWalker CreateVisitor (SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
 		{
