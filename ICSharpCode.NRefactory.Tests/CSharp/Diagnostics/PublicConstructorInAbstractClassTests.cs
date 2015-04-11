@@ -24,24 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class PublicConstructorInAbstractClassTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<PublicConstructorInAbstractClassAnalyzer>(@"
+			Analyze<PublicConstructorInAbstractClassAnalyzer>(@"
 abstract class TestClass
 {
-	public TestClass ()
+	public $TestClass$ ()
 	{
 	}
 }", @"
@@ -72,10 +68,10 @@ abstract class TestClass
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Test<PublicConstructorInAbstractClassAnalyzer>(@"
+			Analyze<PublicConstructorInAbstractClassAnalyzer>(@"
 abstract class TestClass
 {
-	public TestClass ()
+	public $TestClass$ ()
 	{
 	}
 
@@ -83,7 +79,7 @@ abstract class TestClass
 	{
 	}
 	
-	public TestClass (string str)
+	public $TestClass$ (string str)
 	{
 		Console.WriteLine(str);
 	}
@@ -106,16 +102,15 @@ abstract class TestClass
 		}
 
 		[Test]
-		public void TestResharperDisable()
+		public void TestDisable()
 		{
 			Analyze<PublicConstructorInAbstractClassAnalyzer>(@"
-//Resharper disable PublicConstructorInAbstractClass
+#pragma warning disable " + NRefactoryDiagnosticIDs.PublicConstructorInAbstractClassAnalyzerID + @"
 abstract class TestClass
 {
 	public TestClass ()
 	{
 	}
-//Resharper restore PublicConstructorInAbstractClass
 }
 ");
 		}

@@ -23,22 +23,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -59,56 +49,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override void Initialize(AnalysisContext context)
 		{
-			//context.RegisterSyntaxNodeAction(
-			//	(nodeContext) => {
-			//		Diagnostic diagnostic;
-			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
-			//			nodeContext.ReportDiagnostic(diagnostic);
-			//		}
-			//	}, 
-			//	new SyntaxKind[] { SyntaxKind.None }
-			//);
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] { SyntaxKind.ConstructorDeclaration }
+			);
 		}
 
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
-			//var node = nodeContext.Node as ;
-			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
-			//return true;
-			return false;
+			var node = nodeContext.Node as ConstructorDeclarationSyntax;
+
+			if (!node.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
+				return false;
+
+			var type = node.Parent as ClassDeclarationSyntax;
+			if (type == null || !type.Modifiers.Any(m => m.IsKind(SyntaxKind.AbstractKeyword)))
+				return false;
+			
+			diagnostic = Diagnostic.Create (descriptor, node.Identifier.GetLocation ());
+			return true;
 		}
-
-//		class GatherVisitor : GatherVisitorBase<PublicConstructorInAbstractClassAnalyzer>
-//		{
-//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-//				: base(semanticModel, addDiagnostic, cancellationToken)
-//			{
-//			}
-
-////			public override void VisitTypeDeclaration(TypeDeclaration typeDeclaration)
-////			{
-////				if (!typeDeclaration.HasModifier(Modifiers.Abstract)) {
-////					return;
-////				}
-////				foreach (var constructor in typeDeclaration.Children.OfType<ConstructorDeclaration>()) {
-////					VisitConstructorDeclaration(constructor);
-////				}
-////			}
-////
-////			public override void VisitConstructorDeclaration(ConstructorDeclaration constructorDeclaration)
-////			{
-////				if (constructorDeclaration.HasModifier(Modifiers.Public)) {
-////
-////					var makeProtected = new CodeAction(ctx.TranslateString("Make constructor protected"), script => script.Replace(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public), new CSharpModifierToken(TextLocation.Empty, Modifiers.Protected)), constructorDeclaration.NameToken);
-////					var makePrivate = new CodeAction(ctx.TranslateString("Make constructor private"), script => script.Remove(constructorDeclaration.ModifierTokens.First(t => t.Modifier == Modifiers.Public)), constructorDeclaration.NameToken);
-////
-////					AddDiagnosticAnalyzer(new CodeIssue(constructorDeclaration.NameToken, ctx.TranslateString("Constructor in Abstract Class should not be public"), new[] {
-////						makeProtected,
-////						makePrivate
-////					}));
-////				}
-////			}
-//		}
 	}
 }

@@ -30,6 +30,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -55,11 +57,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync (cancellationToken);
 			var diagnostic = diagnostics.First ();
-			var node = root.FindNode (context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode (node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix (CodeActionFactory.Create (node.Span, diagnostic.Severity, diagnostic.GetMessage (), document.WithSyntaxRoot (newRoot)), diagnostic);
+			var constructor = root.FindToken(span.Start).Parent.AncestorsAndSelf().OfType<ConstructorDeclarationSyntax>().First();
+			context.RegisterCodeFix (CodeActionFactory.Create (span, diagnostic.Severity, "Make constructor protected",delegate {
+				var publicToken = constructor.Modifiers.First(m => m.IsKind(SyntaxKind.PublicKeyword));
+				var newConstructor = constructor.WithModifiers (constructor.Modifiers.Replace (publicToken,  SyntaxFactory.Token(publicToken.LeadingTrivia, SyntaxKind.ProtectedKeyword,
+				                                                                                                                 publicToken.TrailingTrivia)));
+				var newRoot = root.ReplaceNode(constructor, newConstructor);
+				return Task.FromResult (document.WithSyntaxRoot (newRoot));
+			}), diagnostic);
+			context.RegisterCodeFix (CodeActionFactory.Create (span, diagnostic.Severity, "Make constructor private",delegate {
+				var publicToken = constructor.Modifiers.First(m => m.IsKind(SyntaxKind.PublicKeyword));
+				var newConstructor = constructor.WithModifiers (constructor.Modifiers.Remove (publicToken));
+				var newRoot = root.ReplaceNode(constructor, newConstructor);
+				return Task.FromResult (document.WithSyntaxRoot (newRoot));
+			}), diagnostic);
 		}
 	}
 }
