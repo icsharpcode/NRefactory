@@ -29,68 +29,67 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class FieldCanBeMadeReadOnlyTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInitializedField ()
 		{
-			Test<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	object fooBar = new object ();
-	public static void Main (string[] args)
-	{
-		Console.WriteLine (fooBar);
-	}
+    object $fooBar$ = new object();
+    public static void Main(string[] args)
+    {
+        Console.WriteLine(fooBar);
+    }
 }", @"class Test
 {
-	readonly object fooBar = new object ();
-	public static void Main (string[] args)
-	{
-		Console.WriteLine (fooBar);
-	}
+    readonly object fooBar = new object();
+    public static void Main(string[] args)
+    {
+        Console.WriteLine(fooBar);
+    }
 }");
 		}
 
 		[Test]
 		public void TestFieldAssignedInConstructor ()
 		{
-			Test<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	object fooBar;
-	public Test ()
-	{
-		fooBar = new object ();
-	}
-	public static void Main (string[] args)
-	{
-		Console.WriteLine (fooBar);
-	}
+    object $fooBar$;
+    public Test()
+    {
+        fooBar = new object();
+    }
+    public static void Main(string[] args)
+    {
+        Console.WriteLine(fooBar);
+    }
 }", @"class Test
 {
-	readonly object fooBar;
-	public Test ()
-	{
-		fooBar = new object ();
-	}
-	public static void Main (string[] args)
-	{
-		Console.WriteLine (fooBar);
-	}
+    readonly object fooBar;
+    public Test()
+    {
+        fooBar = new object();
+    }
+    public static void Main(string[] args)
+    {
+        Console.WriteLine(fooBar);
+    }
 }");
 		}
-	
+
 		[Test]
 		public void TestDisable ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	// ReSharper disable once FieldCanBeMadeReadOnly.Local
-	object fooBar = new object ();
-	public static void Main (string[] args)
-	{
-		Console.WriteLine (fooBar);
-	}
+#pragma warning disable " + NRefactoryDiagnosticIDs.FieldCanBeMadeReadOnlyAnalyzerID + @"
+    object fooBar = new object();
+    public static void Main(string[] args)
+    {
+        Console.WriteLine(fooBar);
+    }
 }");
 		}
 
@@ -98,31 +97,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		[Test]
 		public void TestFactoryMethod ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	object fooBar;
-	
-	public static Test Create ()
-	{
-		var result = new Test ();
-		result.fooBar = new object ();
-		return result;
-	}
+    object fooBar;
+    
+    public static Test Create()
+    {
+        var result = new Test();
+        result.fooBar = new object();
+        return result;
+    }
 }");
 		}
 
 		[Test]
 		public void TestFactoryMethodCase2 ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	object fooBar;
-	
-	public static Test Create ()
-	{
-		var result = new Test {fooBar = new object () };
-		return result;
-	}
+    object fooBar;
+    
+    public static Test Create()
+    {
+        var result = new Test {fooBar = new object() };
+        return result;
+    }
 }");
 		}
 
@@ -130,20 +129,20 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		[Test]
 		public void TestUninitalizedValueTypeField ()
 		{
-			Test<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	int fooBar;
-	public Test ()
-	{
-		fooBar = 5;
-	}
+    int $fooBar$;
+    public Test()
+    {
+        fooBar = 5;
+    }
 }", @"class Test
 {
-	readonly int fooBar;
-	public Test ()
-	{
-		fooBar = 5;
-	}
+    readonly int fooBar;
+    public Test()
+    {
+        fooBar = 5;
+    }
 }");
 		}
 
@@ -151,13 +150,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public void TestInitalizedValueTypeField ()
 		{
 			// Is handled by the 'to const' issue.
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	int fooBar = 12;
-	public void FooBar ()
-	{
-		System.Console.WriteLine (fooBar);
-	}
+    int fooBar = 12;
+    public void FooBar()
+    {
+        System.Console.WriteLine(fooBar);
+    }
 }");
 		}
 
@@ -165,15 +164,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		[Test]
 		public void TestSpecializedFieldBug ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"
 using System;
 class Test<T> where T : IDisposable
 {
-	object fooBar = new object ();
-	public void Foo ()
-	{
-		fooBar = null;
-	}
+    object fooBar = new object();
+    public void Foo()
+    {
+        fooBar = null;
+    }
 }");
 		}
 
@@ -181,36 +180,36 @@ class Test<T> where T : IDisposable
 		[Test]
 		public void TestFieldAssignedInConstructorLambda ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"
 using System;
 
 class Test
 {
-	object fooBar;
-	public Action<object> act;
-	public Test ()
-	{
-		act = o => { fooBar = o; };
-	}
+    object fooBar;
+    public Action<object> act;
+    public Test()
+    {
+        act = o => { fooBar = o; };
+    }
 }");
 		}
 
 		[Test]
 		public void MutableStruct ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	MutableStruct m;
-	public static void Main (string[] args)
-	{
-		m.Increment();
-	}
+    MutableStruct m;
+    public static void Main(string[] args)
+    {
+        m.Increment();
+    }
 }
 struct MutableStruct {
-	int val;
-	public void Increment() {
-		val++;
-	}
+    int val;
+    public void Increment() {
+        val++;
+    }
 }
 ");
 		}
@@ -218,9 +217,30 @@ struct MutableStruct {
 		[Test]
 		public void TestUnassignedField ()
 		{
-			Analyze<FieldCanBeMadeReadOnlyAnalyzer>(@"class Test
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
 {
-	object fooBar;
+    object fooBar;
+}");
+		}
+
+		[Test]
+		public void TestMultiple ()
+		{
+			Analyze<FieldCanBeMadeReadOnlyAnalyzer> (@"class Test
+{
+    int $fooBar$, test = 5;
+    public Test()
+    {
+        fooBar = 5;
+    }
+}", @"class Test
+{
+    int test = 5;
+    readonly int fooBar;
+    public Test()
+    {
+        fooBar = 5;
+    }
 }");
 		}
 
