@@ -102,12 +102,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				diagnostic = Diagnostic.Create (descriptor, paramNode.GetLocation (), paramName);
 				return true;
 			}
-
-
 			return false;
 		}
 
-		static string GetArgumentParameterName(SyntaxNode expression)
+		internal static string GetArgumentParameterName(SyntaxNode expression)
 		{
 			var pExpr = expression as LiteralExpressionSyntax;
 			if (pExpr != null)

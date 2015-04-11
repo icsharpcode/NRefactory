@@ -573,6 +573,8 @@
     <Compile Include="Diagnostics\Custom\RedundantInternalCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Custom\RedundantPrivateCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Custom\XmlDocCodeFixProvider.cs" />
+    <Compile Include="Diagnostics\Custom\NameOfSuggestionAnalyzer.cs" />
+    <Compile Include="Diagnostics\Custom\NameOfSuggestionCodeFixProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

@@ -502,6 +502,7 @@
     <Compile Include="CSharp\CodeFixes\InvalidConversionTests.cs" />
     <Compile Include="CSharp\CodeFixes\CS0164LabelHasNotBeenReferencedTests.cs" />
     <Compile Include="CSharp\CodeFixes\UnreachableCodeTests.cs" />
+    <Compile Include="CSharp\Diagnostics\NameOfSuggestionTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

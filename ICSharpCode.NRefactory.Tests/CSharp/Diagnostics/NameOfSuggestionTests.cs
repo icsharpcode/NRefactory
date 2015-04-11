@@ -1,5 +1,5 @@
-//
-// LockThisCodeFixProvider.cs
+﻿//
+// NameOfSuggestionTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,41 +24,81 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Collections.Immutable;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CodeFixes;
+using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
-	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class LockThisCodeFixProvider : CodeFixProvider
+	[TestFixture]
+	public class NameOfSuggestionTests : InspectionActionTestBase
 	{
-		public override ImmutableArray<string> FixableDiagnosticIds {
-			get {
-				return ImmutableArray.Create (NRefactoryDiagnosticIDs.LockThisAnalyzerID);
-			}
+		[Test]
+		public void TestArgumentNullException()
+		{
+			Analyze<NameOfSuggestionAnalyzer>(@"
+using System;
+class A
+{
+	void F(int foo)
+	{
+		throw new ArgumentNullException($""foo""$, ""bar"");
+	}
+}",@"
+using System;
+class A
+{
+	void F(int foo)
+	{
+		throw new ArgumentNullException(nameof(foo), ""bar"");
+	}
+}");
 		}
 
-		public override FixAllProvider GetFixAllProvider()
+		[Test]
+		public void TestArgumentException()
 		{
-			return WellKnownFixAllProviders.BatchFixer;
+			Analyze<NameOfSuggestionAnalyzer>(@"
+using System;
+class A
+{
+	void F(object foo)
+	{
+		if(foo != null)
+			throw new ArgumentException(""bar"", $""foo""$);
+	}
+}", @"
+using System;
+class A
+{
+	void F(object foo)
+	{
+		if(foo != null)
+			throw new ArgumentException(""bar"", nameof(foo));
+	}
+}");
 		}
 
-		public async override Task RegisterCodeFixesAsync(CodeFixContext context)
+		[Test]
+		public void TestArgumentOutOfRangeExceptionSwap()
 		{
-			var document = context.Document;
-			var cancellationToken = context.CancellationToken;
-			var span = context.Span;
-			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+			Analyze<NameOfSuggestionAnalyzer>(@"
+using System;
+class A
+{
+	void F(int foo)
+	{
+		throw new ArgumentOutOfRangeException($""foo""$, ""foo"");
+	}
+}", @"
+using System;
+class A
+{
+	void F(int foo)
+	{
+		throw new ArgumentOutOfRangeException(nameof(foo), ""foo"");
+	}
+}", 0);
 		}
+
 	}
 }
+

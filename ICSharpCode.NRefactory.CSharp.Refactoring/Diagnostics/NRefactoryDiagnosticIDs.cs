@@ -191,5 +191,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string RewriteIfReturnToReturnAnalyzerID = "NR0160";
 		public const string ConvertToAutoPropertyAnalyzerID = "NR0161";
 		public const string NotResolvedInTextAnalyzer_SwapID = "NR0162";
+		public const string NameOfSuggestionAnalyzerID = "NR0163";
 	}
 }

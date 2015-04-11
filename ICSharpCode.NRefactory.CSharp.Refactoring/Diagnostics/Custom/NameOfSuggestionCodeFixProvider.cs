@@ -1,5 +1,5 @@
-//
-// LockThisCodeFixProvider.cs
+﻿//
+// NameOfSuggestionCodeFixProvider.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -24,20 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using System;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CodeFixes;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
-	public class LockThisCodeFixProvider : CodeFixProvider
+	public class NameOfSuggestionCodeFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {
 			get {
-				return ImmutableArray.Create (NRefactoryDiagnosticIDs.LockThisAnalyzerID);
+				return ImmutableArray.Create (NRefactoryDiagnosticIDs.NameOfSuggestionAnalyzerID);
 			}
 		}
 
@@ -54,11 +58,22 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+			var node = root.FindToken(context.Span.Start).Parent as LiteralExpressionSyntax;
+			if (node == null)
+				return;
+
+			context.RegisterCodeFix(
+				CodeActionFactory.Create(
+					node.Span, 
+					diagnostic.Severity, 
+					GettextCatalog.GetString ("To 'nameof({0})'"),
+					(token) =>  {
+						var newRoot = root.ReplaceNode(node, SyntaxFactory.ParseExpression ("nameof(" + node.Token.ValueText + ")").WithAdditionalAnnotations (Formatter.Annotation));
+						return Task.FromResult (document.WithSyntaxRoot (newRoot));
+					}
+				), 
+				diagnostic
+			);
 		}
 	}
 }
