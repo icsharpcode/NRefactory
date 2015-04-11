@@ -23,96 +23,93 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
+
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class NotResolvedInTextTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestBadExamples()
 		{
-			TestIssue<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	void F()
 	{
-		throw new ArgumentNullException (""The parameter 'blah' can not be null"", ""blah"");
-		throw new ArgumentException (""blah"", ""The parameter 'blah' can not be null"");
-		throw new ArgumentOutOfRangeException (""The parameter 'blah' can not be null"", ""blah"");
-		throw new DuplicateWaitObjectException (""The parameter 'blah' can not be null"", ""blah"");
+		throw new ArgumentNullException($""The parameter 'blah' can not be null""$, ""blah"");
+		throw new ArgumentException(""blah"", $""The parameter 'blah' can not be null""$);
+		throw new ArgumentOutOfRangeException($""The parameter 'blah' can not be null""$, ""blah"");
+		throw new DuplicateWaitObjectException($""The parameter 'blah' can not be null""$, ""blah"");
 	}
-}", 4);
+}");
 		}
 
 		[Test]
 		public void TestArgumentNullExceptionSwap()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentNullException (""bar"", ""foo"");
+		throw new ArgumentNullException(""bar"", $""foo""$);
 	}
-}", 2, @"
+}", @"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentNullException (""foo"", ""bar"");
+		throw new ArgumentNullException(""foo"", ""bar"");
 	}
-}", 0);
+}");
 		}
 
 		[Test]
 		public void TestArgumentExceptionSwap()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentException (""foo"", ""bar"");
+		throw new ArgumentException($""foo""$, ""bar"");
 	}
-}", 2, @"
+}", @"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentException (""bar"", ""foo"");
+		throw new ArgumentException(""bar"", ""foo"");
 	}
-}", 0);
+}", 0, 0);
 		}
 
 		[Test]
 		public void TestArgumentOutOfRangeExceptionSwap()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentOutOfRangeException (""bar"", ""foo"");
+		throw new ArgumentOutOfRangeException(""bar"", $""foo""$);
 	}
-}", 2, @"
+}", @"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentOutOfRangeException (""foo"", ""bar"");
+		throw new ArgumentOutOfRangeException(""foo"", ""bar"");
 	}
 }", 0);
 		}
@@ -120,43 +117,43 @@ class A
 		[Test]
 		public void TestArgumentOutOfRangeExceptionSwapCase2()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentOutOfRangeException (""bar"", 3, ""foo"");
+		throw new ArgumentOutOfRangeException(""bar"", 3, $""foo""$);
 	}
-}", 2, @"
+}", @"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new ArgumentOutOfRangeException (""foo"", 3, ""bar"");
+		throw new ArgumentOutOfRangeException(""foo"", 3, ""bar"");
 	}
-}", 0);
+}", 0, 0);
 		}
 
 		[Test]
 		public void TestDuplicateWaitObjectExceptionSwap()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new DuplicateWaitObjectException (""bar"", ""foo"");
+		throw new DuplicateWaitObjectException(""bar"", $""foo""$);
 	}
-}", 2, @"
+}", @"
 using System;
 class A
 {
 	void F(int foo)
 	{
-		throw new DuplicateWaitObjectException (""foo"", ""bar"");
+		throw new DuplicateWaitObjectException(""foo"", ""bar"");
 	}
 }", 0);
 		}
@@ -169,10 +166,10 @@ class A
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentException (""bar"");
+		if(foo != null)
+			throw new ArgumentException(""bar"");
 	}
 }");
 		}
@@ -180,23 +177,23 @@ class A
 		[Test]
 		public void TestArgumentExceptionGuessing()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentException (""bar"", ""bar"");
+		if(foo != null)
+			throw new ArgumentException(""bar"", $""bar""$);
 	}
 }", @"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentException (""bar"", ""foo"");
+		if(foo != null)
+			throw new ArgumentException(""bar"", ""foo"");
 	}
 }");
 		}
@@ -204,23 +201,23 @@ class A
 		[Test]
 		public void TestArgumentExceptionGuessingCase2()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentException (""bar"", ""bar"", new Exception ());
+		if(foo != null)
+			throw new ArgumentException(""bar"", $""bar""$, new Exception());
 	}
 }", @"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentException (""bar"", ""foo"", new Exception ());
+		if(foo != null)
+			throw new ArgumentException(""bar"", ""foo"", new Exception());
 	}
 }");
 		}
@@ -228,71 +225,69 @@ class A
 		[Test]
 		public void TestArgumentNullGuessing()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentNullException (""bar"");
+		if(foo != null)
+			throw new ArgumentNullException($""bar""$);
 	}
 }", @"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentNullException (""foo"");
+		if(foo != null)
+			throw new ArgumentNullException(""foo"");
 	}
-}", 0);
+}", 0, 1);
 		}
 
 		[Test]
 		public void TestArgumentNullGuessingResolve2()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
-using System;
+			Analyze<NotResolvedInTextAnalyzer>(@"
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentNullException (""bar"");
+		if(foo != null)
+			throw new System.ArgumentNullException($""bar""$);
 	}
 }", @"
-using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentNullException (""foo"", ""bar"");
+		if(foo != null)
+			throw new System.ArgumentNullException(""foo"", ""bar"");
 	}
-}", 1);
+}", 0, 0);
 		}
 
 		[Test]
 		public void TestArgumentNullGuessingCase2()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentNullException (""bar"", ""test"");
+		if(foo != null)
+			throw new ArgumentNullException($""bar""$, ""test"");
 	}
 }", @"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentNullException (""foo"", ""test"");
+		if(foo != null)
+			throw new ArgumentNullException(""foo"", ""test"");
 	}
 }");
 		}
@@ -300,23 +295,23 @@ class A
 		[Test]
 		public void TestArgumentOutOfRangeExceptionGuessing()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
-	void F (int foo, int bar)
+	void F(int foo, int bar)
 	{
-		if (foo < 0 || foo > 10)
-			throw new ArgumentOutOfRangeException (""foobar"", ""foobar"");
+		if(foo < 0 || foo > 10)
+			throw new ArgumentOutOfRangeException($""foobar""$, ""foobar"");
 	}
 }", @"
 using System;
 class A
 {
-	void F (int foo, int bar)
+	void F(int foo, int bar)
 	{
-		if (foo < 0 || foo > 10)
-			throw new ArgumentOutOfRangeException (""foo"", ""foobar"");
+		if(foo < 0 || foo > 10)
+			throw new ArgumentOutOfRangeException(""foo"", ""foobar"");
 	}
 }");
 		}
@@ -324,23 +319,23 @@ class A
 		[Test]
 		public void TestArgumentOutOfRangeExceptionGuessingCase2()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentOutOfRangeException (""bar"", null, ""bar"");
+		if(foo != null)
+			throw new ArgumentOutOfRangeException($""bar""$, null, ""bar"");
 	}
 }", @"
 using System;
 class A
 {
-	void F (object foo)
+	void F(object foo)
 	{
-		if (foo != null)
-			throw new ArgumentOutOfRangeException (""foo"", null, ""bar"");
+		if(foo != null)
+			throw new ArgumentOutOfRangeException(""foo"", null, ""bar"");
 	}
 }");
 		}
@@ -354,9 +349,9 @@ class A
 {
 	public A(BaseRefactoringContext context, Statement rootStatement, IEnumerable<ParameterDeclaration> parameters, CancellationToken cancellationToken)
 	{
-		if (rootStatement == null)
+		if(rootStatement == null)
 			throw new ArgumentNullException(""rootStatement"");
-		if (context == null)
+		if(context == null)
 			throw new ArgumentNullException(""context"");
 	}
 }");
@@ -375,7 +370,7 @@ class A
 	public string Foo {
 		get {}
 		set {
-			if (value == null)
+			if(value == null)
 				throw new ArgumentNullException(""value"");
 		}
 	}
@@ -385,15 +380,15 @@ class A
 		[Test]
 		public void TestValue()
 		{
-			Test<NotResolvedInTextAnalyzer>(@"
+			Analyze<NotResolvedInTextAnalyzer>(@"
 using System;
 class A
 {
 	public string Foo {
 		get {}
 		set {
-			if (value == null)
-				throw new ArgumentNullException (""val"");
+			if(value == null)
+				throw new ArgumentNullException($""val""$);
 		}
 	}
 }", @"
@@ -403,11 +398,11 @@ class A
 	public string Foo {
 		get {}
 		set {
-			if (value == null)
-				throw new ArgumentNullException (""value"");
+			if(value == null)
+				throw new ArgumentNullException(""value"");
 		}
 	}
-}", 0);
+}", 0, 1);
 		}
 	}
 }
