@@ -499,7 +499,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 	}
 
-	class CaseCorrector
+	public class CaseCorrector
 	{
 		readonly static Type typeInfo;
 		readonly static MethodInfo caseCorrectAsyncMethod;

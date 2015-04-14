@@ -33,7 +33,7 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	static class GeneratedCodeRecognition
+	public static class GeneratedCodeRecognition
 	{
 		public static bool IsFromGeneratedCode (this SemanticModel semanticModel, CancellationToken cancellationToken)
 		{

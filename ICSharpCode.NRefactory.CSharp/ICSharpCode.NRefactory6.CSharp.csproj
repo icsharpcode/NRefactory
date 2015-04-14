@@ -169,7 +169,6 @@
     <Compile Include="Util\CompilationExtensions.cs" />
     <Compile Include="Util\SyntaxExtensions.cs" />
     <Compile Include="Util\CSharpUtil.cs" />
-    <Compile Include="Refactoring\DocumentChangeAction.cs" />
     <Compile Include="Refactoring\NRefactoryCodeAction.cs" />
     <Compile Include="Util\SignatureComparer.cs" />
     <Compile Include="Refactoring\TypeGuessing.cs" />
