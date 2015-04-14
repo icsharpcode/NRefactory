@@ -141,10 +141,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		/// <returns>The all base classes.</returns>
 		/// <param name="type">Type.</param>
-		public static IEnumerable<INamedTypeSymbol> GetAllBaseClasses(this INamedTypeSymbol type)
+		public static IEnumerable<INamedTypeSymbol> GetAllBaseClasses(this INamedTypeSymbol type, bool includeSuperType = false)
 		{
-			for (type = type.BaseType; type != null; type = type.BaseType) {
+			if (!includeSuperType)
+				type = type.BaseType;
+			while (type != null) {
 				yield return type;
+				type = type.BaseType;
 			}
 		}
 
@@ -153,11 +156,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		/// <returns>All classes and interfaces.</returns>
 		/// <param name="type">Type.</param>
-		public static IEnumerable<INamedTypeSymbol> GetAllBaseClassesAndInterfaces(this INamedTypeSymbol type)
+		public static IEnumerable<INamedTypeSymbol> GetAllBaseClassesAndInterfaces(this INamedTypeSymbol type, bool includeSuperType = false)
 		{
-			for (type = type.BaseType; type != null; type = type.BaseType) {
+			if (!includeSuperType)
+				type = type.BaseType;
+
+			while (type != null) {
 				yield return type;
+				type = type.BaseType;
 			}
+
 			foreach (var inter in type.AllInterfaces) {
 				yield return inter;
 			}
