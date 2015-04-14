@@ -532,6 +532,7 @@
     <Compile Include="Util\CrefSyntaxExtensions.cs" />
     <Compile Include="Util\CastExpressionSyntaxExtensions.cs" />
     <Compile Include="Features\Completion\ContextHandler\PartialContextHandler.cs" />
+    <Compile Include="Features\Completion\ContextHandler\PreProcessorExpressionContextHandler.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>

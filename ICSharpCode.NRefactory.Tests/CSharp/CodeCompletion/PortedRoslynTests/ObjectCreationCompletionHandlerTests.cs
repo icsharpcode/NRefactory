@@ -9,10 +9,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.Roslyn
 	[TestFixture]
 	public class ObjectCreationCompletionProviderTests : CompletionTestBase
 	{
-//		internal override ICompletionProvider CreateCompletionProvider()
-//		{
-//			return new ObjectCreationCompletionProvider();
-//		}
+		internal override CompletionContextHandler CreateContextHandler ()
+		{
+			return (CompletionContextHandler)Activator.CreateInstance(typeof(CompletionEngine).Assembly.GetType ("ICSharpCode.NRefactory6.CSharp.Completion.ObjectCreationContextHandler"));
+		}
 
 		[Test]
 		public void InObjectCreation()
@@ -72,7 +72,7 @@ class Program
         yield return new $$
     }
 }";
-			VerifyItemExists(markup, "FieldAccessException");
+			VerifyItemExists(markup, "System.FieldAccessException");
 		}
 
 		[Test]
@@ -90,7 +90,7 @@ class Program
         return new $$
     }
 }";
-			VerifyItemExists(markup, "FieldAccessException");
+			VerifyItemExists(markup, "System.FieldAccessException");
 		}
 //
 //		[Fact, Trait(Traits.Feature, Traits.Features.Completion)]

@@ -6349,5 +6349,39 @@ class Program
 ");
 			AssertEmpty (provider);
 		}
+
+		[Test]
+		public void TestSpaceAfterSemicolon ()
+		{
+			var provider = CreateProvider(@"using System;
+
+class Program
+{
+	public void Hello()
+	{
+		Hello();$ $
 	}
+}
+
+");
+			AssertEmpty (provider);
+		}
+
+		[Test]
+		public void TestSpaceAfterParens ()
+		{
+			var provider = CreateProvider(@"using System;
+
+class Program
+{
+	public void Hello()
+	{
+		Hello($ $);
+	}
+}
+
+");
+			AssertEmpty (provider);
+		}
+			}
 }

@@ -196,7 +196,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		{
 			var ch = text [position];
 			return ch == '#' || 
-				IsTriggerAfterSpaceOrStartOfWordCharacter (text, position);
+				ch == ' ' && position >= 1 && !char.IsWhiteSpace (text [position - 1]) ||
+				IsStartingNewWord (text, position);
 		}
 
 		protected async override Task<IEnumerable<ICompletionData>> GetItemsWorkerAsync (CompletionResult completionResult, CompletionEngine engine, CompletionContext completionContext, CompletionTriggerInfo info, CancellationToken cancellationToken)
@@ -211,18 +212,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				return Enumerable.Empty<ICompletionData> ();
 
 			if (info.CompletionTriggerReason == CompletionTriggerReason.CharTyped && info.TriggerCharacter == ' ') {
-				if (ctx.CSharpSyntaxContext.IsIsOrAsContext)
+				if (!ctx.CSharpSyntaxContext.IsEnumBaseListContext && !ctx.LeftToken.IsKind (SyntaxKind.EqualsToken) && !ctx.LeftToken.IsKind (SyntaxKind.EqualsEqualsToken))
 					return Enumerable.Empty<ICompletionData> ();
-				completionResult.AutoCompleteEmptyMatch = false;
+//				completionResult.AutoCompleteEmptyMatch = false;
 			}
 
 			var result = new List<ICompletionData> ();
-			if (ctx.IsPreProcessorExpressionContext) {
-				var parseOptions = model.SyntaxTree.Options as CSharpParseOptions;
-				foreach (var define in parseOptions.PreprocessorSymbolNames) {
-					result.Add(engine.Factory.CreateGenericData (this, define, GenericDataType.PreprocessorSymbol));
-				}
-			}
 
 			foreach (var r in recommender) {
 				var recommended = r.RecommendKeywords (completionContext.Position, ctx.CSharpSyntaxContext, cancellationToken);

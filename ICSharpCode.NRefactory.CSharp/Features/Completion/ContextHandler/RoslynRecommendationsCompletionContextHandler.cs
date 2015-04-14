@@ -73,12 +73,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var ctx = await completionContext.GetSyntaxContextAsync (engine.Workspace, cancellationToken).ConfigureAwait (false);
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var result = new List<ICompletionData> ();
-			//if (info.TriggerCharacter == ' ') {
-			//	var newExpression = ObjectCreationContextHandler.GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
-			//	if (newExpression == null && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped)
-			//		return Enumerable.Empty<ICompletionData> ();
-			//}
+			if (info.TriggerCharacter == ' ') {
+				var newExpression = ObjectCreationContextHandler.GetObjectCreationNewExpression (ctx.SyntaxTree, completionContext.Position, cancellationToken);
+				if (newExpression == null && info.CompletionTriggerReason == CompletionTriggerReason.CharTyped  && !ctx.LeftToken.IsKind (SyntaxKind.EqualsToken) && !ctx.LeftToken.IsKind (SyntaxKind.EqualsEqualsToken))
+					return Enumerable.Empty<ICompletionData> ();
 
+				completionResult.AutoCompleteEmptyMatch = false;
+			}
 
 			var parent = ctx.TargetToken.Parent;
 			bool isInAttribute = ctx.CSharpSyntaxContext.IsAttributeNameContext;

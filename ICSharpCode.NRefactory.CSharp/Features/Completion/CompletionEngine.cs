@@ -57,7 +57,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			new DelegateCreationContextHandler(),
 			new ObjectCreationContextHandler(),
 			new SenderCompletionContextHandler(),
-			new CastCompletionContextHandler()
+			new CastCompletionContextHandler(),
+			new PreProcessorExpressionContextHandler()
 		};
 
 		static readonly ICompletionKeyHandler DefaultKeyHandler = new RoslynRecommendationsCompletionContextHandler ();
