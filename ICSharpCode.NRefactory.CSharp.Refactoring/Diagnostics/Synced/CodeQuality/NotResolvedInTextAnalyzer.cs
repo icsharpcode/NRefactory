@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					diagnostic = Diagnostic.Create (descriptor2, altParamNode.GetLocation ());
 					return true;
 				}
-				var guessName = GuessParameterName(nodeContext.SemanticModel, objectCreateExpression, validNames);
+				//var guessName = GuessParameterName(nodeContext.SemanticModel, objectCreateExpression, validNames);
 
 				// General case: mark only
 				diagnostic = Diagnostic.Create (descriptor, paramNode.GetLocation (), paramName);

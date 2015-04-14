@@ -576,6 +576,9 @@
     <Compile Include="Diagnostics\Custom\NameOfSuggestionCodeFixProvider.cs" />
     <Compile Include="Util\GeneratedCodeRecognition.cs" />
     <Compile Include="Diagnostics\DocumentChangeAction.cs" />
+    <Compile Include="Diagnostics\NRefactoryCodeAction.cs" />
+    <Compile Include="Diagnostics\InsertionAction.cs" />
+    <Compile Include="Diagnostics\InsertionResult.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>

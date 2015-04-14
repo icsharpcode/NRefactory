@@ -81,13 +81,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			readonly SyntaxNodeAnalysisContext nodeContext;
 			internal List<Diagnostic> Diagnostics = new List<Diagnostic> ();
-			ConstructorDeclarationSyntax node;
+			//ConstructorDeclarationSyntax node;
 			TypeDeclarationSyntax type;
 
 			public VirtualCallFinderVisitor (SyntaxNodeAnalysisContext nodeContext, ConstructorDeclarationSyntax node, TypeDeclarationSyntax type)
 			{
 				this.nodeContext = nodeContext;
-				this.node = node;
+				//this.node = node;
 				this.type = type;
 			}
 
