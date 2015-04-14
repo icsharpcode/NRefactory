@@ -447,6 +447,22 @@ class X
 	}
 }", defaultTextColor);
 		}
+
+		[Test]
+		public void TestNameOfExpression()
+		{
+			TestColor (@"
+class FooBar
+{
+	public void Foo(int foo)
+	{
+		Console.WriteLine ($nameof$(foo));
+		
+	}
+}
+", nameofKeywordColor);
+		}
+
 	}
 }
 

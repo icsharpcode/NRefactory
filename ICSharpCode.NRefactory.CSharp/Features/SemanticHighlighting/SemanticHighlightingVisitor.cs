@@ -64,6 +64,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		protected TColor valueKeywordColor;
 		protected TColor externAliasKeywordColor;
 		protected TColor varKeywordTypeColor;
+		protected TColor nameofKeywordColor;
 
 		/// <summary>
 		/// Used for 'in' modifiers on type parameters.
@@ -170,7 +171,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				Colorize(node.Span, inactiveCodeColor);
 				return;
 			}
-			
+			if (node.Expression.IsKind (SyntaxKind.IdentifierName)) {
+				var id = (IdentifierNameSyntax)node.Expression;
+				if (id.Identifier.ValueText == "nameof") {
+					Colorize(id.Span, nameofKeywordColor);
+				}
+			}
+
 			ExpressionSyntax fmtArgumets;
 			IList<ExpressionSyntax> args;
 			if (node.ArgumentList.Arguments.Count > 1 && FormatStringHelper.TryGetFormattingParameters(semanticModel, node, out fmtArgumets, out args, null, cancellationToken)) {
@@ -309,7 +316,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			base.VisitParameter(node);
 			Colorize(node.Identifier, parameterDeclarationColor);
 		}
-		
+
 		public override void VisitIdentifierName(Microsoft.CodeAnalysis.CSharp.Syntax.IdentifierNameSyntax node)
 		{
 			base.VisitIdentifierName(node);
