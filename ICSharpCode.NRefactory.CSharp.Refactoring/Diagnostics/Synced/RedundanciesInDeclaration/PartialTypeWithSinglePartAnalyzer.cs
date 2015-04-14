@@ -65,6 +65,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			var classDeclaration = nodeContext.Node as ClassDeclarationSyntax;
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			if (classDeclaration == null)
 				return false;
 			var modifier = 

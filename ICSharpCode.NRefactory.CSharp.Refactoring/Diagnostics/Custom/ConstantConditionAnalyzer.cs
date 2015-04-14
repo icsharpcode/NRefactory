@@ -87,6 +87,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		void Check (SyntaxNodeAnalysisContext nodeContext, ExpressionSyntax condition)
 		{
+			if (nodeContext.IsFromGeneratedCode ())
+				return;
+			
 			if (condition.IsKind (SyntaxKind.TrueLiteralExpression) || condition.IsKind (SyntaxKind.FalseLiteralExpression))
 				return;
 

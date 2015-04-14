@@ -66,6 +66,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 
 			var options = nodeContext.SemanticModel.SyntaxTree.Options as CSharpParseOptions;
 			if (options != null && options.LanguageVersion < LanguageVersion.CSharp6)

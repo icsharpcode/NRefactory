@@ -69,6 +69,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var cancellationToken = nodeContext.CancellationToken;
 
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			ITypeSymbol classType = semanticModel.GetDeclaredSymbol (node);
 			if (!node.Modifiers.Any () || node.Modifiers.Any (m => m.IsKind (SyntaxKind.PartialKeyword)) || classType.IsAbstract || classType.IsStatic)
 				return false;

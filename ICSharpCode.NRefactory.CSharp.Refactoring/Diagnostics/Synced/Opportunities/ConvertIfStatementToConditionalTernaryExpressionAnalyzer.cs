@@ -67,6 +67,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var cancellationToken = nodeContext.CancellationToken;
 
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			ExpressionSyntax condition, target;
 			AssignmentExpressionSyntax trueAssignment, falseAssignment;
 			if (!ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider.ParseIfStatement(node, out condition, out target, out trueAssignment, out falseAssignment))

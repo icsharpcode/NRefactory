@@ -80,6 +80,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		static void GetDiagnostics (SyntaxNodeAnalysisContext nodeContext, SeparatedSyntaxList<ArgumentSyntax>? arguments)
 		{
+			if (nodeContext.IsFromGeneratedCode ())
+				return;
+			
 			if (!arguments.HasValue)
 				return;
 
@@ -89,6 +92,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		static void GetDiagnostics (SyntaxNodeAnalysisContext nodeContext, SeparatedSyntaxList<AttributeArgumentSyntax>? arguments)
 		{
+			if (nodeContext.IsFromGeneratedCode ())
+				return;
+			
 			if (!arguments.HasValue)
 				return;
 

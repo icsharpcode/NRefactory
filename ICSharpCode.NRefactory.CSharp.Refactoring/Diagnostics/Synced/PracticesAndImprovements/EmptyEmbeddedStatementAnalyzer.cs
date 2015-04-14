@@ -89,6 +89,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnosticForWhile (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var node = nodeContext.Node as WhileStatementSyntax;
 
 			if (!Check(node.Statement))
@@ -104,6 +106,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnosticForForeach (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var node = nodeContext.Node as ForEachStatementSyntax;
 
 			if (!Check(node.Statement))
@@ -119,6 +123,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnosticForIf (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var node = nodeContext.Node as IfStatementSyntax;
 
 			if (Check (node.Statement)) {
@@ -143,6 +149,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnosticForFor (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var node = nodeContext.Node as ForStatementSyntax;
 
 			if (!Check(node.Statement))

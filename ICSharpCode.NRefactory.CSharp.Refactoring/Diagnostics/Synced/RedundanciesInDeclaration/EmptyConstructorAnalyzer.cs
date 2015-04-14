@@ -65,6 +65,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			var constructorDeclaration = nodeContext.Node as ConstructorDeclarationSyntax;
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 
 			if (!IsEmpty(constructorDeclaration) || !constructorDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PublicKeyword)))
 				return false;

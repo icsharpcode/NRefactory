@@ -62,6 +62,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var node = nodeContext.Node as InvocationExpressionSyntax;
 			var memberExpr = node.Expression as MemberAccessExpressionSyntax;
 			if (memberExpr == null || memberExpr.Name.Identifier.ValueText != "GetType")

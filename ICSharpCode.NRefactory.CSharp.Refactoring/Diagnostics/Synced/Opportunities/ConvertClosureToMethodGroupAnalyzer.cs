@@ -68,6 +68,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var parenLambda = nodeContext.Node as ParenthesizedLambdaExpressionSyntax;
 			var anoMethod = nodeContext.Node as AnonymousMethodExpressionSyntax;
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var body = simpleLambda?.Body ?? parenLambda?.Body ?? anoMethod?.Block;
 			if (body == null)
 				return false;

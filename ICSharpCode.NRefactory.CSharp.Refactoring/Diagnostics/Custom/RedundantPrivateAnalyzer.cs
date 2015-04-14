@@ -81,6 +81,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 
 			var methodDeclaration = nodeContext.Node as MethodDeclarationSyntax;
 			if (methodDeclaration != null && methodDeclaration.Modifiers.Any(m => m.IsKind(SyntaxKind.PrivateKeyword))) {

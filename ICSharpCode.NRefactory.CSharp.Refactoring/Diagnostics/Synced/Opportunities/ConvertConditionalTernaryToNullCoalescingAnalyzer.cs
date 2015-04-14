@@ -72,6 +72,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var cancellationToken = nodeContext.CancellationToken;
 
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			var obj = AnalyzeBinaryExpression(node.Condition);
 			if (obj == null)
 				return false;

@@ -60,6 +60,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		static void ScanDiagnostic (SyntaxNodeAnalysisContext nodeContext)
 		{
+			if (nodeContext.IsFromGeneratedCode ())
+				return;
 			var node1 = nodeContext.Node as IndexerDeclarationSyntax;
 			if (node1 != null) {
 				var rr = nodeContext.SemanticModel.GetDeclaredSymbol (node1);

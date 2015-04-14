@@ -63,6 +63,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			var destructorDeclaration = nodeContext.Node as DestructorDeclarationSyntax;
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 
 			if (!IsEmpty(destructorDeclaration.Body))
 				return false;

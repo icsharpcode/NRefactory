@@ -82,6 +82,8 @@
 //		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 //		{
 //			diagnostic = default(Diagnostic);
+			//if (nodeContext.IsFromGeneratedCode())
+			//	return false;
 //			//var node = nodeContext.Node as ;
 //			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
 //			//return true;

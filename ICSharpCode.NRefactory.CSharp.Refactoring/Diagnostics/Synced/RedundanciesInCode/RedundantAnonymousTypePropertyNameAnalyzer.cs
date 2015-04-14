@@ -60,6 +60,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		static void GetDiagnostics (SyntaxNodeAnalysisContext nodeContext)
 		{
+			if (nodeContext.IsFromGeneratedCode ())
+				return;
 			var node = nodeContext.Node as AnonymousObjectCreationExpressionSyntax;
 
 			foreach (var expr in node.Initializers) {

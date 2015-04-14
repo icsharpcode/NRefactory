@@ -64,6 +64,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			var namespaceDeclaration = nodeContext.Node as NamespaceDeclarationSyntax;
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 
 			if (!IsEmpty(namespaceDeclaration))
 				return false;

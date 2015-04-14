@@ -69,6 +69,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var cancellationToken = nodeContext.CancellationToken;
 
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 			if (node.Parent is IfStatementSyntax || node.Parent is ElseClauseSyntax)
 				return false;
 

@@ -62,6 +62,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		static void ScanDiagnostics (SyntaxNodeAnalysisContext nodeContext)
 		{
+			if (nodeContext.IsFromGeneratedCode ())
+				return;
 			var node = nodeContext.Node as SwitchSectionSyntax;
 			if (node.Labels.Count < 2)
 				return;

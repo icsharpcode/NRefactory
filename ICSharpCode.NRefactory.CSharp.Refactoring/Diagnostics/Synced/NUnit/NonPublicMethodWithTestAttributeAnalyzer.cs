@@ -65,6 +65,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			var methodDeclaration = nodeContext.Node as MethodDeclarationSyntax;
 			diagnostic = default(Diagnostic);
+			if (nodeContext.IsFromGeneratedCode())
+				return false;
 
 			var methodSymbol = nodeContext.SemanticModel.GetDeclaredSymbol (methodDeclaration);
 			if (methodSymbol == null || methodSymbol.IsOverride || methodSymbol.IsStatic || methodDeclaration.Modifiers.Any (m => m.IsKind (SyntaxKind.PublicKeyword)))

@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -34,7 +35,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public static bool IsFromGeneratedCode(this SemanticModel semanticModel)
 		{
 			return IsFileNameForGeneratedCode (semanticModel.SyntaxTree.FilePath);
-        }
+		}
+
+		public static bool IsFromGeneratedCode(this SyntaxNodeAnalysisContext context)
+		{
+			return IsFromGeneratedCode (context.SemanticModel);
+		}
 
 		public static bool IsFileNameForGeneratedCode (string fileName)
 		{
