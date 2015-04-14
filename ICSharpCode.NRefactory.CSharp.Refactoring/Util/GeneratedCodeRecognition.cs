@@ -45,6 +45,11 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return IsFromGeneratedCode (context.SemanticModel, context.CancellationToken);
 		}
 
+		public static bool IsFromGeneratedCode (this SemanticModelAnalysisContext context)
+		{
+			return IsFromGeneratedCode (context.SemanticModel, context.CancellationToken);
+		}
+
 		public static bool IsFileNameForGeneratedCode (string fileName)
 		{
 			if (fileName.StartsWith ("TemporaryGeneratedFile_", StringComparison.OrdinalIgnoreCase)) {
