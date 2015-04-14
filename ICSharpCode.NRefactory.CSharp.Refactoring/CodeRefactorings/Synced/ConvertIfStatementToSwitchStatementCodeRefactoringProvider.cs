@@ -55,7 +55,9 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			if (cancellationToken.IsCancellationRequested)
 				return;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
-			var model = await document.GetSemanticModelAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (model.IsFromGeneratedCode())
+				return;
 			var node = root.FindNode(span) as IfStatementSyntax;
 
 			if (node == null)

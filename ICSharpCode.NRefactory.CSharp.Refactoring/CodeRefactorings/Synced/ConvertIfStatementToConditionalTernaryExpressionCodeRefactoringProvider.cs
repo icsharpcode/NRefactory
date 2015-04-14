@@ -95,7 +95,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var cancellationToken = context.CancellationToken;
 			if (cancellationToken.IsCancellationRequested)
 				return;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (model.IsFromGeneratedCode())
+				return;
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			var node = root.FindNode(span) as IfStatementSyntax;
 
 			ExpressionSyntax condition, target;

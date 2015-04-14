@@ -69,9 +69,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 			var cancellationToken = context.CancellationToken;
 			if (cancellationToken.IsCancellationRequested)
 				return;
-			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait (false);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (model.IsFromGeneratedCode())
+				return;
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			var diagnostics = context.Diagnostics;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span) as ReturnStatementSyntax;
 			if (node == null)

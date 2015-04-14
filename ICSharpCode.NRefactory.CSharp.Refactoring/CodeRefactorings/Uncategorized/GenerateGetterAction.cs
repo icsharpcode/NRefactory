@@ -49,8 +49,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			//var document = context.Document;
 			//var span = context.Span;
 			//var cancellationToken = context.CancellationToken;
-			//var model = await document.GetSemanticModelAsync(cancellationToken);
-			//var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			//var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			//if (model.IsFromGeneratedCode())
+			//	return;
+			//var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			return Task.FromResult (0);
 		}
 //		public async Task ComputeRefactoringsAsync(Document document, TextSpan span, CancellationToken cancellationToken)

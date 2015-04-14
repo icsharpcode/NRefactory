@@ -55,8 +55,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var cancellationToken = context.CancellationToken;
 			if (cancellationToken.IsCancellationRequested)
 				return;
-			var model = await document.GetSemanticModelAsync(cancellationToken);
-			var root = await model.SyntaxTree.GetRootAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (model.IsFromGeneratedCode())
+				return;
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			var token = root.FindToken(span.Start);
 			var declarator = token.Parent as VariableDeclaratorSyntax;
 			if (declarator == null)

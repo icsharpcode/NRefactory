@@ -54,7 +54,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var cancellationToken = context.CancellationToken;
 			if (cancellationToken.IsCancellationRequested)
 				return;
-			var root = await document.GetSyntaxRootAsync (cancellationToken).ConfigureAwait (false);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (model.IsFromGeneratedCode())
+				return;
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			var token = root.FindToken (span.Start);
 			if (!token.IsKind (SyntaxKind.IdentifierToken))
 				return;
@@ -62,7 +65,6 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var node = token.Parent as VariableDeclaratorSyntax;
 			if (node == null)
 				return;
-			var model = await document.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var declaredSymbol = model.GetDeclaredSymbol (node, cancellationToken);
 			if (declaredSymbol == null || !declaredSymbol.IsKind (SymbolKind.Event))
 				return;
