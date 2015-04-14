@@ -135,7 +135,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string RedundantObjectCreationArgumentListAnalyzerID = "NR0104";
 		public const string CanBeReplacedWithTryCastAndCheckForNullAnalyzerID = "NR0105";
 		public const string RedundantToStringCallAnalyzerID = "NR0106";
-		public const string RedundantDelegateCreationAnalyzerID = "NR0107";
+		public const string RedundantToStringCallAnalyzer_ValueTypesID = "NR0107";
 		public const string StaticFieldInGenericTypeAnalyzerID = "NR0108";
 		public const string RedundantCatchClauseAnalyzerID = "NR0109";
 		public const string ConstantConditionAnalyzerID = "NR0110";
@@ -192,5 +192,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		public const string ConvertToAutoPropertyAnalyzerID = "NR0161";
 		public const string NotResolvedInTextAnalyzer_SwapID = "NR0162";
 		public const string NameOfSuggestionAnalyzerID = "NR0163";
+		public const string RedundantDelegateCreationAnalyzerID = "NR0164";
 	}
 }

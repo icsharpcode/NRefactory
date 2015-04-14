@@ -51,7 +51,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		public override bool IsTriggerCharacter (SourceText text, int position)
 		{
 			var ch = text [position];
-			return ch == '.' || ch == ' ' || // simple member access
+			return ch == '.' || 
+				ch == ' ' && position >= 1 && !char.IsWhiteSpace (text [position - 1]) ||
 				ch == '#' || // pre processor directives 
 				ch == '>' && position >= 1 && text [position - 1] == '-' || // pointer member access
 				ch == ':' && position >= 1 && text [position - 1] == ':' || // alias name

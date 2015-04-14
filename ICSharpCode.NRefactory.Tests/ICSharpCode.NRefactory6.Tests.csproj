@@ -370,7 +370,6 @@
     <Compile Include="CSharp\Diagnostics\RedundantParamsTests.cs" />
     <Compile Include="CSharp\Diagnostics\RedundantStringToCharArrayCallTests.cs" />
     <Compile Include="CSharp\Diagnostics\RedundantTernaryExpressionTests.cs" />
-    <Compile Include="CSharp\Diagnostics\RedundantToStringCallForValueTypesTests.cs" />
     <Compile Include="CSharp\Diagnostics\RedundantToStringCallTests.cs" />
     <Compile Include="CSharp\Diagnostics\RedundantUnsafeContextTests.cs" />
     <Compile Include="CSharp\Diagnostics\ReferenceEqualsWithValueTypeTests.cs" />

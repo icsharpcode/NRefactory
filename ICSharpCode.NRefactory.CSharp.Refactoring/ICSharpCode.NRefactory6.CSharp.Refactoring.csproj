@@ -358,7 +358,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantObjectOrCollectionInitializerAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantStringToCharArrayCallAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionAnalyzer.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextAnalyzer.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs" />
@@ -556,7 +555,6 @@
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantStringToCharArrayCallCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallCodeFixProvider.cs" />
-    <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantToStringCallForValueTypesCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RedundantUnsafeContextCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Synced\RedundanciesInCode\UnusedAnonymousMethodSignatureCodeFixProvider.cs" />

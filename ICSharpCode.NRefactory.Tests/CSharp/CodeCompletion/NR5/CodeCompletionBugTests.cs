@@ -6333,7 +6333,21 @@ class Foo<T1> where T1 : new()
 			});
 		}
 
+		[Test]
+		public void TestDoubleWhitespace ()
+		{
+			var provider = CreateProvider(@"using System;
 
+class Program
+{
+	public void Hello()
+	{
+	$	 $
+	}
+}
 
+");
+			AssertEmpty (provider);
+		}
 	}
 }

@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
 	public class RedundantToStringCallAnalyzer : DiagnosticAnalyzer
 	{
-		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
+		static readonly DiagnosticDescriptor descriptor1 = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantToStringCallAnalyzerID, 
 			GettextCatalog.GetString("Finds calls to ToString() which would be generated automatically by the compiler"),
 			GettextCatalog.GetString("Redundant 'ToString()' call"), 
@@ -56,7 +56,18 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			customTags: DiagnosticCustomTags.Unnecessary
 		);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+		static readonly DiagnosticDescriptor descriptor2 = new DiagnosticDescriptor (
+			NRefactoryDiagnosticIDs.RedundantToStringCallAnalyzer_ValueTypesID, 
+			GettextCatalog.GetString("Finds calls to ToString() which would be generated automatically by the compiler"),
+			GettextCatalog.GetString("Redundant 'ToString()' call"), 
+			DiagnosticAnalyzerCategories.RedundanciesInCode, 
+			DiagnosticSeverity.Warning, 
+			isEnabledByDefault: true,
+			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantToStringCallAnalyzerID),
+			customTags: DiagnosticCustomTags.Unnecessary
+		);
+
+		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor1, descriptor2);
 
 		public override void Initialize(AnalysisContext context)
 		{
