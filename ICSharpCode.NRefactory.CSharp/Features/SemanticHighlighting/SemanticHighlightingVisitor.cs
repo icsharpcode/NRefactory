@@ -171,7 +171,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				Colorize(node.Span, inactiveCodeColor);
 				return;
 			}
-			if (node.Expression.IsKind (SyntaxKind.IdentifierName)) {
+			if (node.Expression.IsKind (SyntaxKind.IdentifierName) && symbolInfo.Symbol == null) {
 				var id = (IdentifierNameSyntax)node.Expression;
 				if (id.Identifier.ValueText == "nameof") {
 					Colorize(id.Span, nameofKeywordColor);

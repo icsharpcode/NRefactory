@@ -463,6 +463,23 @@ class FooBar
 ", nameofKeywordColor);
 		}
 
+
+		[Test]
+		public void TestNameOfExpression_Case2()
+		{
+			TestColor (@"
+class FooBar
+{
+	int nameof(int i) { return 0; }
+	public void Foo(int foo)
+	{
+		Console.WriteLine ($nameof$(foo));
+		
+	}
+}
+", methodCallColor);
+		}
+
 	}
 }
 
