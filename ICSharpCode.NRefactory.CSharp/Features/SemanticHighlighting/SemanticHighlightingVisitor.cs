@@ -65,6 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 		protected TColor externAliasKeywordColor;
 		protected TColor varKeywordTypeColor;
 		protected TColor nameofKeywordColor;
+		protected TColor whenKeywordColor;
 
 		/// <summary>
 		/// Used for 'in' modifiers on type parameters.
@@ -522,6 +523,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			cancellationToken.ThrowIfCancellationRequested ();
 			base.VisitBlock(node);
 			blockDepth--;
+		}
+
+		public override void VisitCatchFilterClause (CatchFilterClauseSyntax node)
+		{
+			if (!node.WhenKeyword.IsMissing) {
+				Colorize(node.WhenKeyword, whenKeywordColor);
+			}
+			base.VisitCatchFilterClause (node);
 		}
 	}
 }

@@ -480,6 +480,28 @@ class FooBar
 ", methodCallColor);
 		}
 
+
+
+		[Test]
+		public void TestWhenCatchFilterKeyword()
+		{
+			TestColor (@"
+class FooBar
+{
+	int nameof(int i) { return 0; }
+	public void Foo(int foo)
+	{
+   		try {
+            System.Console.WriteLine (nameof (args));
+        } catch (Exception e) $when$ (true)
+        {
+            
+        }		
+	}
+}
+", whenKeywordColor);
+		}
+
 	}
 }
 
