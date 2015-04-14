@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (model.IsFromGeneratedCode())
+			if (model.IsFromGeneratedCode(cancellationToken))
 				return;
 
 			var node = root.FindNode(span) as BinaryExpressionSyntax;

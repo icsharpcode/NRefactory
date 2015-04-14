@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				var semanticModel = compilation.GetSemanticModel (context.Tree);
 				var root = await context.Tree.GetRootAsync (context.CancellationToken).ConfigureAwait (false);
 				var model = compilationContext.Compilation.GetSemanticModel (context.Tree);
-				if (model.IsFromGeneratedCode ())
+				if (model.IsFromGeneratedCode (compilationContext.CancellationToken))
 					return;
 				foreach (var type in root.DescendantNodesAndSelf (SkipMembers).OfType<ClassDeclarationSyntax> ()) {
 					var fieldDeclarations = type

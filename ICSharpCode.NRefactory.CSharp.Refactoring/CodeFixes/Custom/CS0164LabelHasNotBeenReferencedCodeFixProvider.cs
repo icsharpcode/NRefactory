@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeFixes
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
 			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (model.IsFromGeneratedCode())
+			if (model.IsFromGeneratedCode(cancellationToken))
 				return;
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 

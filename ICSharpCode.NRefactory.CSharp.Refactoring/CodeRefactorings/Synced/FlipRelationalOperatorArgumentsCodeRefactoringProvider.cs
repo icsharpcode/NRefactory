@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			if (cancellationToken.IsCancellationRequested)
 				return;
 			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			if (model.IsFromGeneratedCode())
+			if (model.IsFromGeneratedCode(cancellationToken))
 				return;
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			var binop = root.FindToken(span.Start).Parent as BinaryExpressionSyntax;

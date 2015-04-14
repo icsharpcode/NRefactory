@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			//var span = context.Span;
 			//var cancellationToken = context.CancellationToken;
 			//var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
-			//if (model.IsFromGeneratedCode())
+			//if (model.IsFromGeneratedCode(cancellationToken))
 			//	return;
 			//var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 			return Task.FromResult (0);

@@ -46,7 +46,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var document = context.Document;
 			var span = context.Span;
 			var cancellationToken = context.CancellationToken;
-			var root = await document.GetSyntaxRootAsync(cancellationToken);
+			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
+			if (model.IsFromGeneratedCode(cancellationToken))
+				return;
+			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 
 			var node = root.FindNode(span) as IfStatementSyntax;
 			if (node == null || !node.IfKeyword.Span.Contains(span))
