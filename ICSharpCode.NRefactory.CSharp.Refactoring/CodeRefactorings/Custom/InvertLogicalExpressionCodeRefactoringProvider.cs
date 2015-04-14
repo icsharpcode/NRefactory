@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Inverts a logical expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invert logical expression")]
 	public class InvertLogicalExpressionCodeRefactoringProvider : CodeRefactoringProvider
 	{

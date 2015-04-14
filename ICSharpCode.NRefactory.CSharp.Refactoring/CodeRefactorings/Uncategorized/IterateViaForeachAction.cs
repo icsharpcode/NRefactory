@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Iterates an IEnumerable with a foreach loop")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Iterate via 'foreach'")]
 	public class IterateViaForeachAction : CodeRefactoringProvider
 	{

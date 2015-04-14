@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Removes redundant braces around a statement.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add braces")]
 	public class AddBracesCodeRefactoringProvider : CodeRefactoringProvider
 	{

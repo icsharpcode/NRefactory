@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' statement to 'switch' statement")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'if' to 'switch'")]
 	public class ConvertIfStatementToSwitchStatementCodeRefactoringProvider : CodeRefactoringProvider
 	{

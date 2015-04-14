@@ -39,7 +39,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Flip an relational operator operands.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Flip an relational operator operands")]
 	public class FlipRelationalOperatorArgumentsCodeRefactoringProvider : CodeRefactoringProvider
 	{

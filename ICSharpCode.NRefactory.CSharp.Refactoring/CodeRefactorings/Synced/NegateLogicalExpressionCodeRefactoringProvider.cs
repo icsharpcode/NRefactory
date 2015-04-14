@@ -42,7 +42,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Negate a relational expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Negate a relational expression")]
 	public class NegateLogicalExpressionCodeRefactoringProvider : CodeRefactoringProvider
 	{

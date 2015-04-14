@@ -34,7 +34,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates a changed event for an property.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create changed event for property")]
 	public class CreateChangedEventCodeRefactoringProvider : CodeRefactoringProvider
 	{

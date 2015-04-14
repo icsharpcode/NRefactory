@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert method group to lambda expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert method group to lambda expression")]
 	public class ConvertMethodGroupToLambdaCodeRefactoringProvider : CodeRefactoringProvider
 	{

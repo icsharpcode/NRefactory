@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "put IDisposable inside 'using' construct")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="put inside 'using'")]
 	public class PutInsideUsingAction : SpecializedCodeRefactoringProvider <VariableDeclaratorSyntax>
 	{

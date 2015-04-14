@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Join string literals")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Join string literal")]
 	public class JoinStringCodeRefactoringProvider : CodeRefactoringProvider
 	{

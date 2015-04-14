@@ -38,7 +38,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Inverts an 'if ... else' expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Invert if")]
 	public class InvertIfCodeRefactoringProvider : CodeRefactoringProvider
 	{

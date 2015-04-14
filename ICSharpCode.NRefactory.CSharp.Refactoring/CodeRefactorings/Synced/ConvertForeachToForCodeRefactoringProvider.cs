@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	/// <summary>
 	/// Converts a foreach loop to for.
 	/// </summary>
-	[NRefactoryCodeRefactoringProvider(Description = "Works on 'foreach' loops that allow direct access to its elements")]
+
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'foreach' loop to 'for'")]
 	public class ConvertForeachToForCodeRefactoringProvider : CodeRefactoringProvider
 	{

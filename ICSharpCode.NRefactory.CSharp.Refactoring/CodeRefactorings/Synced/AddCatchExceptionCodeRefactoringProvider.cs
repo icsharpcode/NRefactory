@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts 'catch' clause to 'catch (Exception)'.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="'catch' to 'catch (Exception)'")]
 	public class AddCatchExceptionCodeRefactoringProvider : CodeRefactoringProvider
 	{

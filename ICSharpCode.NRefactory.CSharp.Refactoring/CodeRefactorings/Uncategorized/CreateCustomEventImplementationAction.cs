@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Create custom event implementation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create custom event implementation")]
 	public class CreateCustomEventImplementationAction : CodeRefactoringProvider
 	{

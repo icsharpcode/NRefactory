@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Replace assignment with operator assignment")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace assignment with operator assignment")]
 	public class ReplaceWithOperatorAssignmentCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -38,7 +38,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' to '?:'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'if' to '?:'")]
 	public class ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider : CodeRefactoringProvider
 	{

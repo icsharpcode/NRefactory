@@ -41,7 +41,6 @@ using System.Security.Principal;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts expression of lambda body to statement")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Converts expression of lambda body to statement")]
 	public class ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Sorts usings by their origin and then alphabetically")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Sort usings")]
 	public class SortUsingsAction: CodeRefactoringProvider
 	{

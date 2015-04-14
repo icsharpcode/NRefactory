@@ -37,7 +37,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Make abstract member virtual/non-abstract and vice-versa")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Make abstract member virtual")]
 	public class ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	/// <summary>
 	/// Converts a cast expression to an 'as' expression
 	/// </summary>
-	[NRefactoryCodeRefactoringProvider(Description = "Convert cast to 'as'.")]
+
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert cast to 'as'.")]
 	public class ReplaceDirectCastWithSafeCastCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates a standard OnXXX event method.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create event invocator")]
 	public class CreateEventInvocatorCodeRefactoringProvider : CodeRefactoringProvider
 	{

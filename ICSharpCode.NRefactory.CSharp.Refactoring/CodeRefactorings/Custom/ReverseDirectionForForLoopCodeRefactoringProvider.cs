@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Reverse the direction of a for loop")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Reverse the direction of a for ")]
 	public class ReverseDirectionForForLoopCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ForStatementSyntax>
 	{

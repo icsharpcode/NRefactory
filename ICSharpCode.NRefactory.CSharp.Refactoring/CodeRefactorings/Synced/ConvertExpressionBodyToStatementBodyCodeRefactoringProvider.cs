@@ -36,7 +36,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert expression body member to statement body")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert expression body member to statement body")]
 	public class ConvertExpressionBodyToStatementBodyCodeRefactoringProvider : CodeRefactoringProvider
 	{

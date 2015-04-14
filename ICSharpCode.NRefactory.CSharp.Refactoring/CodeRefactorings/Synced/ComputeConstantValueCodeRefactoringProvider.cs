@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Computes the value of the current expression and replaces it")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Compute constant value")]
 	public class ComputeConstantValueCodeRefactoringProvider : CodeRefactoringProvider
 	{

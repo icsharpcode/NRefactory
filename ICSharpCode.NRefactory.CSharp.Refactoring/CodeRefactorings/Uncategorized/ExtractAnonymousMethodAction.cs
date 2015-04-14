@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Extract anonymous method to method of the containing type")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Extract anonymous method")]
 	public class ExtractAnonymousMethodAction : CodeRefactoringProvider
 	{

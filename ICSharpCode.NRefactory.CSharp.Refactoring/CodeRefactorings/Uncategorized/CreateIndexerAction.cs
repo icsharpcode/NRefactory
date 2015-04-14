@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates an indexer declaration out of an indexer expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create indexer")]
 	public class CreateIndexerAction : CodeRefactoringProvider
 	{

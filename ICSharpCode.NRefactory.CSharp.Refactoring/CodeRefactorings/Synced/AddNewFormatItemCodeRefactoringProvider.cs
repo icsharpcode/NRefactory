@@ -45,7 +45,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	/// Introduce format item. Works on strings that contain selections.
 	/// "this is <some> string" => string.Format ("this is {0} string", <some>)
 	/// </summary>
-	[NRefactoryCodeRefactoringProvider(Description = "Creates a string.format call with the selection as parameter")]
+
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Introduce format item")]
 	public class AddNewFormatItemCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -35,7 +35,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Checks index values for StringBuilders")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Check StringBuilder index value")]
 	public class CheckStringBuilderIndexValueCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts a lambda to an anonymous method")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert lambda to anonymous method")]
 	public class ConvertLambdaToAnonymousMethodCodeRefactoringProvider : CodeRefactoringProvider
 	{

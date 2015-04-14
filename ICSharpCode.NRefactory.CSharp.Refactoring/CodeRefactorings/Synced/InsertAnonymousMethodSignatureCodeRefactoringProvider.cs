@@ -38,7 +38,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Inserts a signature to parameterless anonymous methods")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Insert anonymous method signature")]
 	public class InsertAnonymousMethodSignatureCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -35,7 +35,6 @@ using System.Threading;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Copies comments from base to overriding members/types")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Copy comments from base")]
 	public class CopyCommentsFromBaseCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -35,7 +35,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Checks key values for dictionaries")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Check dictionary key value")]
 	public class CheckDictionaryKeyValueCodeRefactoringProvider : CodeRefactoringProvider
 	{

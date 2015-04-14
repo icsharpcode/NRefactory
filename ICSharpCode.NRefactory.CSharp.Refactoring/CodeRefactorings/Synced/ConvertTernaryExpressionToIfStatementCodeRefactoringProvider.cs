@@ -33,7 +33,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert 'return' to 'if'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = "Convert 'return' to 'if'")]
 	public class ConvertTernaryExpressionToIfStatementCodeRefactoringProvider : CodeRefactoringProvider
 	{

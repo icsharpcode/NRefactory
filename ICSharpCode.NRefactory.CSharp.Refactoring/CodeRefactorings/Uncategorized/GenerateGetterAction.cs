@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Generates a getter for a field")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Generate getter")]
 	public class GenerateGetterAction : CodeRefactoringProvider
 	{

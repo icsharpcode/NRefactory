@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts 'catch (Exception)' clause to 'catch'.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name = "'catch (Exception)' to 'catch'")]
 	public class RemoveCatchExceptionCodeRefactoringProvider : CodeRefactoringProvider
 	{

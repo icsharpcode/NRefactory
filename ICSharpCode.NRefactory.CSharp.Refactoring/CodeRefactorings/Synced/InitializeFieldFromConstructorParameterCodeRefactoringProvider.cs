@@ -35,7 +35,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates and initializes a new field from constructor parameter")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Initialize field from constructor parameter")]
 	public class InitializeFieldFromConstructorParameterCodeRefactoringProvider : CodeRefactoringProvider
 	{

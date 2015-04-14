@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts '==' to call to 'object.Equals()'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '==' to 'object.Equals()'")]
 	/// <summary>
 	/// Convert do...while to while. For instance, { do x++; while (Foo(x)); } becomes { while(Foo(x)) x++; }.

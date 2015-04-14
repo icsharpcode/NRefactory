@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	/// Converts a while loop to a do...while loop.
 	/// For instance: while (foo) {} becomes do { } while (foo);
 	/// </summary>
-	[NRefactoryCodeRefactoringProvider(Description = "Convert while loop to do...while (changing semantics)")]
+
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert while loop to do...while")]
 	public class ConvertWhileToDoWhileLoopCodeRefactoringProvider : CodeRefactoringProvider
 	{

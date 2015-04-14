@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates switch lables for enumerations")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Generate switch labels")]
 	public class GenerateSwitchLabelsCodeRefactoringProvider : CodeRefactoringProvider
 	{

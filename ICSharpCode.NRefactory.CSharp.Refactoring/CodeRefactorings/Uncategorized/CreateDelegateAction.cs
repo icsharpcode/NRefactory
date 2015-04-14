@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates a delegate declaration out of an event declaration")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create delegate")]
 	public class CreateDelegateAction : CodeRefactoringProvider
 	{

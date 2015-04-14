@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts '==' to call to 'object.ReferenceEquals()'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert '==' to 'object.ReferenceEquals()'")]
 	public class ConvertEqualityOperatorToReferenceEqualsCodeRefactoringProvider : CodeRefactoringProvider
 	{

@@ -36,7 +36,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Checks index values for arrays")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Check array index value")]
 	public class CheckArrayIndexValueCodeRefactoringProvider : CodeRefactoringProvider
 	{

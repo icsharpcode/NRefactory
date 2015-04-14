@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert concatenation of strings and objects to string.Format()")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use string.Format()")]
 	public class UseStringFormatAction : CodeRefactoringProvider
 	{

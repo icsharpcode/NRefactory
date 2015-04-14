@@ -36,7 +36,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Checks index values for collections")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Check collection index value")]
 	public class CheckCollectionIndexValueCodeRefactoringProvider : CodeRefactoringProvider
 	{

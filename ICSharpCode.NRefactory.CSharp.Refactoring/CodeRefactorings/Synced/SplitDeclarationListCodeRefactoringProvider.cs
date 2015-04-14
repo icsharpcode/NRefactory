@@ -41,7 +41,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Split variable declaration with multiple variables into declarations with a single variable")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Split declaration list")]
 	public class SplitDeclarationListCodeRefactoringProvider : CodeRefactoringProvider
 	{

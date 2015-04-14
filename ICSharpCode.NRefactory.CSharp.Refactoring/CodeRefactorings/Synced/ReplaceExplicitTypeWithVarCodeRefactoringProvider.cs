@@ -38,7 +38,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Replaces explicit type specification with 'var'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace type with 'var'")]
 	public class ReplaceExplicitTypeWithVarCodeRefactoringProvider : CodeRefactoringProvider
 	{

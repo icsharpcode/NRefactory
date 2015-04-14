@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Negate an is expression")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Negate 'is' expression")]
 	public class NegateIsExpressionCodeRefactoringProvider : SpecializedCodeRefactoringProvider<BinaryExpressionSyntax>
 	{

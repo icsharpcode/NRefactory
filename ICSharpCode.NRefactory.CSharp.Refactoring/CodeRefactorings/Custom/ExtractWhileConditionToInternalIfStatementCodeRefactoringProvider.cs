@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Extracts a field from a local variable declaration")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Extract field")]
 	public class ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider : SpecializedCodeRefactoringProvider<WhileStatementSyntax>
 	{

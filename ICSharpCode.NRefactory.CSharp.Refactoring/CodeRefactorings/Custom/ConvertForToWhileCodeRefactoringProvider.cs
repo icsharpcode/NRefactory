@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Works on 'for' loops")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'for' loop to 'while'")]
 	public class ConvertForToWhileCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ForStatementSyntax>
 	{

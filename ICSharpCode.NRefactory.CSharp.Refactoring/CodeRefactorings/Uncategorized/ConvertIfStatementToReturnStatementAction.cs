@@ -38,7 +38,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert 'if' to 'return'")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert 'if' to 'return'")]
 	public class ConvertIfStatementToReturnStatementAction : CodeRefactoringProvider
 	{

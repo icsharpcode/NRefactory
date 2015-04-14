@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Changes the access level of an entity declaration")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Change the access level of an entity declaration")]
 	/// <summary>
 	/// Changes the access level of an entity declaration

@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Add an exception description to the xml documentation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add an exception description to the xml documentation")]
 	public class AddExceptionDescriptionCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ThrowStatementSyntax>
 	{

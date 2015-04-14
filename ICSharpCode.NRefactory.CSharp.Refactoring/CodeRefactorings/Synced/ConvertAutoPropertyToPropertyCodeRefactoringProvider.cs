@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert auto-property to computed property")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert auto-property to computed propertyy")]
 	public class ConvertAutoPropertyToPropertyCodeRefactoringProvider : CodeRefactoringProvider
 	{

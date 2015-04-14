@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	/// <summary>
 	///  Add name for argument
 	/// </summary>
-	[NRefactoryCodeRefactoringProvider(Description = "Add name for argument including method, indexer invocation and attibute usage")]
+
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Add name for argument")]
 	public class AddNameToArgumentCodeRefactoringProvider : SpecializedCodeRefactoringProvider<ExpressionSyntax>
 	{

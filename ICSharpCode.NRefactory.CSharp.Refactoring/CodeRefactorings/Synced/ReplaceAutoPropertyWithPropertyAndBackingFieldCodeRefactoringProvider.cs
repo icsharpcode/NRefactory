@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Replace auto-property with property that uses a backing field")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replace auto-property with property that uses a backing field")]
 	public class ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider : CodeRefactoringProvider
 	{

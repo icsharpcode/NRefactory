@@ -37,7 +37,6 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Converts local variable declaration to be explicit typed.")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Replaces 'var' with explicit type specification")]
 	public class ReplaceVarWithExplicitTypeCodeRefactoringProvider : CodeRefactoringProvider
 	{

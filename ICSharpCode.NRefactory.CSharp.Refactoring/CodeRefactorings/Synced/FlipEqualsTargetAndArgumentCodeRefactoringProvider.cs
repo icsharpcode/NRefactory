@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Swap 'Equals' target and argument")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Swap 'Equals' target and argument")]
 	public class FlipEqualsTargetAndArgumentCodeRefactoringProvider : CodeRefactoringProvider
 	{

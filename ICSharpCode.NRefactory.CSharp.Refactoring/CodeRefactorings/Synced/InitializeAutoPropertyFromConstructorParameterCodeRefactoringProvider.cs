@@ -36,7 +36,6 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Creates and initializes a new auto property from constructor parameter")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Initialize auto property from constructor parameter")]
 	public class InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider : CodeRefactoringProvider
 	{

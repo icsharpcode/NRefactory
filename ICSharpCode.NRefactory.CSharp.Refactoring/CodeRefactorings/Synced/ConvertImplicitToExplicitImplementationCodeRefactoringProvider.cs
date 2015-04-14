@@ -39,7 +39,6 @@ using Microsoft.CodeAnalysis.Simplification;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert implict implementation of an interface method to explicit implementation")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert implict to explicit implementation")]
 	public class ConvertImplicitToExplicitImplementationCodeRefactoringProvider : CodeRefactoringProvider
 	{

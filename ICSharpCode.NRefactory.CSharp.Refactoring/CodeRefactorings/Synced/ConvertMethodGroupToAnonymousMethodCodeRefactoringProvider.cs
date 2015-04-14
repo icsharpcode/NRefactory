@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Convert method group to anoymous method")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert method group to anoymous method")]
 	public class ConvertMethodGroupToAnonymousMethodCodeRefactoringProvider : CodeRefactoringProvider
 	{

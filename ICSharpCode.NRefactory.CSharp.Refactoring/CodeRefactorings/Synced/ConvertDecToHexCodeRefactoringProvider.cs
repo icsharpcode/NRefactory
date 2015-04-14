@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 	/// <summary>
 	/// Convert a dec numer to hex. For example: 16 -> 0x10
 	/// </summary>
-	[NRefactoryCodeRefactoringProvider(Description = "Convert dec to hex.")]
+
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Convert dec to hex.")]
 	public class ConvertDecToHexCodeRefactoringProvider : CodeRefactoringProvider
 	{

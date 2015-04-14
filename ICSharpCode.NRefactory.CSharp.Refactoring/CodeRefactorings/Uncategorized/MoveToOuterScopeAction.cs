@@ -40,7 +40,6 @@ using Microsoft.CodeAnalysis.Formatting;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	[NRefactoryCodeRefactoringProvider(Description = "Moves a declaration to the parent scope")]
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Move to outer scope")]
 	public class MoveToOuterScopeAction : CodeRefactoringProvider
 	{
