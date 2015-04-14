@@ -98,6 +98,21 @@ class Test
 ");
 		}
 
+		[Test]
+		public void TestDoNotShowOnResolveError()
+		{
+			Analyze<DelegateSubtractionAnalyzer>(@"
+using System;
+class Test
+{
+	void Bar (EventHandler bar)
+	{
+		NotDefined -= bar;
+	}
+}
+");
+		}
+
 	}
 }
 

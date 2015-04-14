@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				return false;
 			var assignment = nodeContext.Node as AssignmentExpressionSyntax;
 			if (assignment != null) {
-				if (!IsEvent(nodeContext.SemanticModel, assignment.Left) && IsDelegate(nodeContext.SemanticModel, assignment.Right)) {
+				if (IsDelegate(nodeContext.SemanticModel, assignment.Left) && IsDelegate(nodeContext.SemanticModel, assignment.Right)) {
 					diagnostic = Diagnostic.Create (
 						descriptor,
 						assignment.GetLocation ()
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 			var binex = nodeContext.Node as BinaryExpressionSyntax;
 			if (binex != null) {
-				if (!IsEvent(nodeContext.SemanticModel, binex.Left) && IsDelegate(nodeContext.SemanticModel, binex.Right)) {
+				if (IsDelegate(nodeContext.SemanticModel, binex.Left) && IsDelegate(nodeContext.SemanticModel, binex.Right)) {
 					diagnostic = Diagnostic.Create (
 						descriptor,
 						binex.GetLocation ()
@@ -87,16 +87,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			return false;
 		}
 
-		static bool IsEvent(SemanticModel semanticModel, SyntaxNode node)
-		{
-			var rr = semanticModel.GetSymbolInfo(node);
-			return rr.Symbol != null && rr.Symbol.Kind == SymbolKind.Event;
-		}
-
 		static bool IsDelegate(SemanticModel semanticModel, SyntaxNode node)
 		{
-			var rr = semanticModel.GetTypeInfo(node);
-			return rr.Type != null && rr.Type.TypeKind == TypeKind.Delegate;
+			var info = semanticModel.GetSymbolInfo (node);
+			if (info.Symbol == null || info.Symbol.IsKind (SymbolKind.Event))
+				return false;
+			var type = info.Symbol.GetReturnType ();
+			return type != null && type.TypeKind == TypeKind.Delegate;
 		}
 	}
 }
