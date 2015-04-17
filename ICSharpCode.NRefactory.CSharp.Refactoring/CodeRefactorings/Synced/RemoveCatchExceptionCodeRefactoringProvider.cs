@@ -61,7 +61,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var root = await model.SyntaxTree.GetRootAsync(cancellationToken).ConfigureAwait(false);
 
 			var catchClause = root.FindNode (span) as CatchClauseSyntax;
-			if (catchClause == null || catchClause.Declaration.IsMissing)
+			if (catchClause == null || catchClause.Declaration == null || catchClause.Declaration.IsMissing)
 				return;
 
 			if (!catchClause.Declaration.Identifier.IsMissing) {

@@ -125,6 +125,22 @@ class TestClass
     }
 }");
 		}
+
+		[Test]
+		public void TestNullReferenceExceptionBig ()
+		{
+			TestWrongContext<RemoveCatchExceptionCodeRefactoringProvider> (@"
+class TestClass
+{
+    public void F()
+    {    
+        try {
+        } $catch {
+            System.Console.WriteLine ();
+        }
+    }
+}");
+		}
 	}
 }
 
