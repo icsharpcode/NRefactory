@@ -31,6 +31,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
+using System;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -72,6 +73,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 						.Where (f => FieldFilter (model, f))
 						.SelectMany (fd => fd.Declaration.Variables.Select (v => new { Field = fd, Variable = v, Symbol = semanticModel.GetDeclaredSymbol (v, context.CancellationToken) }));
 					foreach (var candidateField in fieldDeclarations) {
+						context.CancellationToken.ThrowIfCancellationRequested ();
 						// handled by ConvertToConstantIssue
 						if (candidateField?.Variable?.Initializer != null && semanticModel.GetConstantValue (candidateField.Variable.Initializer.Value, context.CancellationToken).HasValue)
 							continue;
@@ -93,8 +95,12 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                                 break;
 							}
 						}
-						if (!wasAltered && wasUsed)
-							context.ReportDiagnostic (Diagnostic.Create (descriptor, candidateField.Variable.Identifier.GetLocation ()));
+						if (!wasAltered && wasUsed) {
+							context.CancellationToken.ThrowIfCancellationRequested ();
+							try {
+								context.ReportDiagnostic (Diagnostic.Create (descriptor, candidateField.Variable.Identifier.GetLocation ()));
+							} catch (InvalidOperationException) {}
+						}
 					}
 				}
 			});
