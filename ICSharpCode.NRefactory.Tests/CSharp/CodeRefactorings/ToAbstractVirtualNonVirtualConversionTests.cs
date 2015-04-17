@@ -283,5 +283,17 @@ abstract class Test
 			// only virtual -> non virtual should be provided - no abstract conversion
 			Assert.AreEqual(1, actions.Count); 
 		}
+
+
+		[Test]
+		public void TestNullReferenceException()
+		{
+			TestWrongContext<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
+				@"void $Foo()
+{
+    throw new System.NotImplementedException();
+}
+");
+		}
 	}
 }

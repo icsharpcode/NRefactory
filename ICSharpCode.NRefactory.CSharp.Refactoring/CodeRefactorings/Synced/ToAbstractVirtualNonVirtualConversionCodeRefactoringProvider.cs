@@ -74,6 +74,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 
 			var declarationParent = declaration.Parent as TypeDeclarationSyntax;
+			if (declarationParent == null)
+				return;
 
 			var explicitInterface = declaration.GetExplicitInterfaceSpecifierSyntax();
 			if (explicitInterface != null) {
@@ -428,4 +430,5 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			return abstractDeclaration;
 		}
 	}
-}
+}  
+                 
