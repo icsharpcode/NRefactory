@@ -59,50 +59,50 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		{
 			var compilation = compilationContext.Compilation;
 			compilationContext.RegisterSyntaxTreeAction (async delegate (SyntaxTreeAnalysisContext context) {
-				if (!compilation.SyntaxTrees.Contains (context.Tree))
-					return;
-				var semanticModel = compilation.GetSemanticModel (context.Tree);
-				var root = await context.Tree.GetRootAsync (context.CancellationToken).ConfigureAwait (false);
-				var model = compilationContext.Compilation.GetSemanticModel (context.Tree);
-				if (model.IsFromGeneratedCode (compilationContext.CancellationToken))
-					return;
-				foreach (var type in root.DescendantNodesAndSelf (SkipMembers).OfType<ClassDeclarationSyntax> ()) {
-					var fieldDeclarations = type
-						.ChildNodes ()
-						.OfType<FieldDeclarationSyntax> ()
-						.Where (f => FieldFilter (model, f))
-						.SelectMany (fd => fd.Declaration.Variables.Select (v => new { Field = fd, Variable = v, Symbol = semanticModel.GetDeclaredSymbol (v, context.CancellationToken) }));
-					foreach (var candidateField in fieldDeclarations) {
-						context.CancellationToken.ThrowIfCancellationRequested ();
-						// handled by ConvertToConstantIssue
-						if (candidateField?.Variable?.Initializer != null && semanticModel.GetConstantValue (candidateField.Variable.Initializer.Value, context.CancellationToken).HasValue)
-							continue;
-						
-						// user-defined value type -- might be mutable
-						var field = candidateField.Symbol;
-						if (field != null && !field.GetReturnType ().IsReferenceType) {
-							if (field.GetReturnType ().IsDefinedInSource ()) {
-								continue;
-							}
-						}
-						bool wasAltered = false;
-						bool wasUsed = false;
-						foreach (var member in type.Members) {
-							if (member == candidateField.Field)
-								continue;
-							if (IsAltered (model, member, candidateField.Symbol, context.CancellationToken, out wasUsed)) {
-								wasAltered = true;
-                                break;
-							}
-						}
-						if (!wasAltered && wasUsed) {
+				try {
+					if (!compilation.SyntaxTrees.Contains (context.Tree))
+						return;
+					var semanticModel = compilation.GetSemanticModel (context.Tree);
+					var root = await context.Tree.GetRootAsync (context.CancellationToken).ConfigureAwait (false);
+					var model = compilationContext.Compilation.GetSemanticModel (context.Tree);
+					if (model.IsFromGeneratedCode (compilationContext.CancellationToken))
+						return;
+					foreach (var type in root.DescendantNodesAndSelf (SkipMembers).OfType<ClassDeclarationSyntax> ()) {
+						var fieldDeclarations = type
+							.ChildNodes ()
+							.OfType<FieldDeclarationSyntax> ()
+							.Where (f => FieldFilter (model, f))
+							.SelectMany (fd => fd.Declaration.Variables.Select (v => new { Field = fd, Variable = v, Symbol = semanticModel.GetDeclaredSymbol (v, context.CancellationToken) }));
+						foreach (var candidateField in fieldDeclarations) {
 							context.CancellationToken.ThrowIfCancellationRequested ();
-							try {
+							// handled by ConvertToConstantIssue
+							if (candidateField?.Variable?.Initializer != null && semanticModel.GetConstantValue (candidateField.Variable.Initializer.Value, context.CancellationToken).HasValue)
+								continue;
+
+							// user-defined value type -- might be mutable
+							var field = candidateField.Symbol;
+							if (field != null && !field.GetReturnType ().IsReferenceType) {
+								if (field.GetReturnType ().IsDefinedInSource ()) {
+									continue;
+								}
+							}
+							bool wasAltered = false;
+							bool wasUsed = false;
+							foreach (var member in type.Members) {
+								if (member == candidateField.Field)
+									continue;
+								if (IsAltered (model, member, candidateField.Symbol, context.CancellationToken, out wasUsed)) {
+									wasAltered = true;
+									break;
+								}
+							}
+							if (!wasAltered && wasUsed) {
+								context.CancellationToken.ThrowIfCancellationRequested ();
 								context.ReportDiagnostic (Diagnostic.Create (descriptor, candidateField.Variable.Identifier.GetLocation ()));
-							} catch (InvalidOperationException) {}
+							}
 						}
 					}
-				}
+				} catch (Exception) { }
 			});
 		}
 
