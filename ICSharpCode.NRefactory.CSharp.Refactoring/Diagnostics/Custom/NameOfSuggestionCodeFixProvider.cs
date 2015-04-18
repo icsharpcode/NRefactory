@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 				CodeActionFactory.Create(
 					node.Span, 
 					diagnostic.Severity, 
-					GettextCatalog.GetString ("To 'nameof({0})'"),
+					string.Format (GettextCatalog.GetString ("To 'nameof({0})'"), node.Token.ValueText),
 					(token) =>  {
 						var newRoot = root.ReplaceNode(node, SyntaxFactory.ParseExpression ("nameof(" + node.Token.ValueText + ")").WithAdditionalAnnotations (Formatter.Annotation));
 						return Task.FromResult (document.WithSyntaxRoot (newRoot));
