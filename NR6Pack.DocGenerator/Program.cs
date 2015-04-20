@@ -16,52 +16,51 @@ namespace NR6Pack.DocGenerator
 	{
 		static void Main(string[] args)
 		{
-			var codeActions = typeof(ICSharpCode.NRefactory6.CSharp.NRefactoryCodeRefactoringProviderAttribute).Assembly.GetTypes()
+			var codeRefactorings = typeof(ICSharpCode.NRefactory6.CSharp.Diagnostics.NRefactoryDiagnosticIDs).Assembly.GetTypes()
 				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName))
 				.ToArray();
 
-			var codeIssues = typeof(ICSharpCode.NRefactory6.CSharp.NRefactoryCodeDiagnosticAnalyzerAttribute).Assembly.GetTypes()
+			var codeAnalyzers = typeof(ICSharpCode.NRefactory6.CSharp.Diagnostics.NRefactoryDiagnosticIDs).Assembly.GetTypes()
 				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(DiagnosticAnalyzerAttribute).FullName))
 				.ToArray();
 
-			XDocument codeActionsDocument = XDocument.Load(@"..\NR6Pack\CodeActions.html.template");
-			var codeActionsNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
-			var codeActionsCountNode = codeActionsDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
-			codeActionsCountNode.Value = string.Format("{0} code actions available!", codeActions.Length);
+			XDocument codeRefactoringsDocument = XDocument.Load(@"..\NR6Pack\CodeActions.html.template");
+			var codeRefactoringsNode = codeRefactoringsDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
+			var codeRefactoringsCountNode = codeRefactoringsDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
+			codeRefactoringsCountNode.Value = string.Format("{0} code refactorings available!", codeRefactorings.Length);
 
-			foreach (var codeAction in codeActions) {
-				codeActionsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetActionDescription(codeAction), codeAction.Name)));
+			foreach (var codeRefactoring in codeRefactorings) {
+				string description = GetRefactoringDescription(codeRefactoring);
+				string line = (description == null) ? string.Format("{0}", codeRefactoring.Name) : string.Format("{0}: {1}", codeRefactoring.Name, description);
+				codeRefactoringsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", line));
 			}
 
-			codeActionsDocument.Save(@"..\NR6Pack\CodeActions.html");
+			codeRefactoringsDocument.Save(@"..\NR6Pack\CodeActions.html");
 
-			XDocument codeIssuesDocument = XDocument.Load(@"..\NR6Pack\CodeIssues.html.template");
-			var codeIssuesNode = codeIssuesDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
-			var codeIssuesCountNode = codeIssuesDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
-			codeIssuesCountNode.Value = string.Format("{0} code issues available!", codeIssues.Length);
+			XDocument codeAnalyzersDocument = XDocument.Load(@"..\NR6Pack\CodeIssues.html.template");
+			var codeAnalyzersNode = codeAnalyzersDocument.Descendants("{http://www.w3.org/1999/xhtml}ul").First();
+			var codeAnalyzersCountNode = codeAnalyzersDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
+			codeAnalyzersCountNode.Value = string.Format("{0} code analyzers available!", codeAnalyzers.Length);
 
-			foreach (var codeIssue in codeIssues) {
-				codeIssuesNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0} ({1})", GetIssueDescription(codeIssue), codeIssue.Name)));
+			foreach (var codeAnalyzer in codeAnalyzers) {
+				string description = GetAnalyzerDescription(codeAnalyzer);
+				string line = (description == null) ? string.Format("{0}", codeAnalyzer.Name) : string.Format("{0}: {1}", codeAnalyzer.Name, description);
+                codeAnalyzersNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", line));
 			}
 
-			codeIssuesDocument.Save(@"..\NR6Pack\CodeIssues.html");
+			codeAnalyzersDocument.Save(@"..\NR6Pack\CodeIssues.html");
 		}
 
-		private static string GetActionDescription(Type t)
+		private static string GetRefactoringDescription(Type t)
 		{
-			var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.NRefactoryCodeRefactoringProviderAttribute>().FirstOrDefault();
-			if (description != null && description.Description.Length > 0)
-				return description.Description;
 			var exportAttribute = t.GetCustomAttributes(false).OfType<ExportCodeRefactoringProviderAttribute>().First();
 			return exportAttribute.Name;
 		}
 
-		private static string GetIssueDescription(Type t)
+		private static string GetAnalyzerDescription(Type t)
 		{
-			//var description = t.GetCustomAttributes(false).OfType<ICSharpCode.NRefactory6.CSharp.NRefactoryCodeDiagnosticAnalyzerAttribute>().FirstOrDefault();
-			//if (description != null && description.Description.Length > 0)
-			//	return description.Description;
-			return t.GetField("Description", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null)?.ToString() ?? "";
+			var descriptor = t.GetField("descriptor", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as Microsoft.CodeAnalysis.DiagnosticDescriptor;
+            return descriptor?.Description?.ToString();
 		}
 	}
 }

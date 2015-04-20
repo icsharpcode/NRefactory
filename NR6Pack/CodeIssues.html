@@ -15,79 +15,81 @@
 
     -->
     <h2>Supported Code Issue Fixes</h2>
-    <p>71 code issues available!</p>
+    <p>73 code analyzers available!</p>
     <ul>
-      <li>Parameter name differs in base declaration (BaseMethodParameterNameMismatchAnalyzer)</li>
-      <li>Finds potentially erroneous calls to Object.Equals. (CallToObjectEqualsViaBaseAnalyzer)</li>
-      <li>Condition is always 'true' or always 'false' (ConstantConditionAnalyzer)</li>
-      <li>Convert 'if' to '&amp;&amp;' expression (ConvertIfToAndExpressionAnalyzer)</li>
-      <li>Shows NotImplementedException throws in the quick task bar (NotImplementedExceptionAnalyzer)</li>
-      <li>Removes 'internal' modifiers that are not required (RedundantInternalAnalyzer)</li>
-      <li>Removes 'private' modifiers that are not required (RedundantPrivateAnalyzer)</li>
-      <li> (BaseMethodCallWithDefaultParameterAnalyzer)</li>
-      <li> (BitwiseOperatorOnEnumWithoutFlagsAnalyzer)</li>
-      <li> (CompareNonConstrainedGenericWithNullAnalyzer)</li>
-      <li> (CompareOfFloatsByEqualityOperatorAnalyzer)</li>
-      <li>'?:' expression has identical true and false branches (ConditionalTernaryEqualBranchAnalyzer)</li>
-      <li>Delegate subtraction has unpredictable result (DelegateSubtractionAnalyzer)</li>
-      <li>Warns about calls to virtual member functions occuring in the constructor. (DoNotCallOverridableMethodsInConstructorAnalyzer)</li>
-      <li>A catch clause that catches System.Exception and has an empty body (EmptyGeneralCatchClauseAnalyzer)</li>
-      <li>Event unsubscription via anonymous delegate is useless (EventUnsubscriptionViaAnonymousDelegateAnalyzer)</li>
-      <li>Lowercase 'l' is often confused with '1' (LongLiteralEndingLowerLAnalyzer)</li>
-      <li>Non-readonly field referenced in 'GetHashCode()' (NonReadonlyReferencedInGetHashCodeAnalyzer)</li>
-      <li>Possible unassigned object created by 'new' (ObjectCreationAsStatementAnalyzer)</li>
-      <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedAnalyzer)</li>
-      <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutAnalyzer)</li>
-      <li>Warns about property or indexer setters and event adders or removers that do not use the value parameter. (ValueParameterNotUsedAnalyzer)</li>
-      <li> (NonPublicMethodWithTestAttributeAnalyzer)</li>
-      <li> (ConvertClosureToMethodGroupAnalyzer)</li>
-      <li> (ConvertConditionalTernaryToNullCoalescingAnalyzer)</li>
-      <li> (ConvertIfStatementToConditionalTernaryExpressionAnalyzer)</li>
-      <li> (ConvertIfStatementToSwitchStatementAnalyzer)</li>
-      <li> (ConvertNullableToShortFormAnalyzer)</li>
-      <li> (ConvertToStaticTypeAnalyzer)</li>
-      <li> (InvokeAsExtensionMethodAnalyzer)</li>
-      <li>Suggests using the class declaring a static function when calling it. (AccessToStaticMemberViaDerivedTypeAnalyzer)</li>
-      <li>Base parameter has 'params' modifier, but missing in overrider (BaseMemberHasParamsAnalyzer)</li>
-      <li>Convert 'if-do-while' to 'while' statement (ConvertIfDoToWhileAnalyzer)</li>
-      <li>Convert 'if' to '||' expression (ConvertIfToOrExpressionAnalyzer)</li>
-      <li>Empty control statement body (EmptyEmbeddedStatementAnalyzer)</li>
-      <li>Possible mistaken call to 'object.GetType()' (PossibleMistakenCallToGetTypeAnalyzer)</li>
-      <li>Replace with call to FirstOrDefault&lt;T&gt;() (ReplaceWithFirstOrDefaultAnalyzer)</li>
-      <li>Replace with call to LastOrDefault&lt;T&gt;() (ReplaceWithLastOrDefaultAnalyzer)</li>
-      <li>Replace with simple assignment (ReplaceWithSimpleAssignmentAnalyzer)</li>
-      <li>Replace with single call to Any(...) (ReplaceWithSingleCallToAnyAnalyzer)</li>
-      <li>Replace with single call to Count(...) (ReplaceWithSingleCallToCountAnalyzer)</li>
-      <li>Replace with single call to First(...) (ReplaceWithSingleCallToFirstAnalyzer)</li>
-      <li>Replace with single call to FirstOrDefault(...) (ReplaceWithSingleCallToFirstOrDefaultAnalyzer)</li>
-      <li>Replace with single call to Last(...) (ReplaceWithSingleCallToLastAnalyzer)</li>
-      <li>Replace with single call to LastOrDefault(...) (ReplaceWithSingleCallToLastOrDefaultAnalyzer)</li>
-      <li>Replace with single call to LongCount(...) (ReplaceWithSingleCallToLongCountAnalyzer)</li>
-      <li>Replace with single call to Single(...) (ReplaceWithSingleCallToSingleAnalyzer)</li>
-      <li>Replace with single call to SingleOrDefault(...) (ReplaceWithSingleCallToSingleOrDefaultAnalyzer)</li>
-      <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionAnalyzer)</li>
-      <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificAnalyzer)</li>
-      <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificAnalyzer)</li>
-      <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificAnalyzer)</li>
-      <li>Warns when a culture-aware 'StartsWith' call is used by default. (StringStartsWithIsCultureSpecificAnalyzer)</li>
-      <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer)</li>
-      <li> (ConditionIsAlwaysTrueOrFalseAnalyzer)</li>
-      <li> (DoubleNegationOperatorAnalyzer)</li>
-      <li> (EmptyStatementAnalyzer)</li>
-      <li> (ForStatementConditionIsTrueAnalyzer)</li>
-      <li> (RedundantAnonymousTypePropertyNameAnalyzer)</li>
-      <li> (RedundantArgumentNameAnalyzer)</li>
-      <li> (RedundantAttributeParenthesesAnalyzer)</li>
-      <li> (RedundantBaseQualifierAnalyzer)</li>
-      <li> (RedundantCaseLabelAnalyzer)</li>
-      <li>Redundant empty 'default' switch branch (RedundantEmptyDefaultSwitchBranchAnalyzer)</li>
-      <li>Redundant conditional expression (RedundantTernaryExpressionAnalyzer)</li>
-      <li>Remove redundant statement (RemoveRedundantOrStatementAnalyzer)</li>
-      <li> (EmptyConstructorAnalyzer)</li>
-      <li> (EmptyDestructorAnalyzer)</li>
-      <li> (EmptyNamespaceAnalyzer)</li>
-      <li> (EnumUnderlyingTypeIsIntAnalyzer)</li>
-      <li> (SealedMemberInSealedClassAnalyzer)</li>
+      <li>BaseMethodParameterNameMismatchAnalyzer</li>
+      <li>CallToObjectEqualsViaBaseAnalyzer</li>
+      <li>ConstantConditionAnalyzer</li>
+      <li>ConvertIfToAndExpressionAnalyzer</li>
+      <li>NotImplementedExceptionAnalyzer</li>
+      <li>RedundantInternalAnalyzer</li>
+      <li>RedundantPrivateAnalyzer</li>
+      <li>BaseMethodCallWithDefaultParameterAnalyzer</li>
+      <li>BitwiseOperatorOnEnumWithoutFlagsAnalyzer</li>
+      <li>CompareNonConstrainedGenericWithNullAnalyzer</li>
+      <li>CompareOfFloatsByEqualityOperatorAnalyzer</li>
+      <li>ConditionalTernaryEqualBranchAnalyzer</li>
+      <li>DelegateSubtractionAnalyzer</li>
+      <li>DoNotCallOverridableMethodsInConstructorAnalyzer</li>
+      <li>EmptyGeneralCatchClauseAnalyzer</li>
+      <li>EventUnsubscriptionViaAnonymousDelegateAnalyzer</li>
+      <li>LongLiteralEndingLowerLAnalyzer</li>
+      <li>NonReadonlyReferencedInGetHashCodeAnalyzer</li>
+      <li>ObjectCreationAsStatementAnalyzer</li>
+      <li>OperatorIsCanBeUsedAnalyzer</li>
+      <li>OptionalParameterRefOutAnalyzer</li>
+      <li>PolymorphicFieldLikeEventInvocationAnalyzer</li>
+      <li>ValueParameterNotUsedAnalyzer</li>
+      <li>NonPublicMethodWithTestAttributeAnalyzer</li>
+      <li>ConvertClosureToMethodGroupAnalyzer</li>
+      <li>ConvertConditionalTernaryToNullCoalescingAnalyzer</li>
+      <li>ConvertIfStatementToConditionalTernaryExpressionAnalyzer</li>
+      <li>ConvertIfStatementToSwitchStatementAnalyzer</li>
+      <li>ConvertNullableToShortFormAnalyzer</li>
+      <li>ConvertToStaticTypeAnalyzer</li>
+      <li>InvokeAsExtensionMethodAnalyzer</li>
+      <li>AccessToStaticMemberViaDerivedTypeAnalyzer</li>
+      <li>BaseMemberHasParamsAnalyzer</li>
+      <li>ConvertIfDoToWhileAnalyzer</li>
+      <li>ConvertIfToOrExpressionAnalyzer</li>
+      <li>EmptyEmbeddedStatementAnalyzer</li>
+      <li>PossibleMistakenCallToGetTypeAnalyzer</li>
+      <li>ReplaceWithFirstOrDefaultAnalyzer</li>
+      <li>ReplaceWithLastOrDefaultAnalyzer</li>
+      <li>ReplaceWithSimpleAssignmentAnalyzer</li>
+      <li>ReplaceWithSingleCallToAnyAnalyzer</li>
+      <li>ReplaceWithSingleCallToCountAnalyzer</li>
+      <li>ReplaceWithSingleCallToFirstAnalyzer</li>
+      <li>ReplaceWithSingleCallToFirstOrDefaultAnalyzer</li>
+      <li>ReplaceWithSingleCallToLastAnalyzer</li>
+      <li>ReplaceWithSingleCallToLastOrDefaultAnalyzer</li>
+      <li>ReplaceWithSingleCallToLongCountAnalyzer</li>
+      <li>ReplaceWithSingleCallToSingleAnalyzer</li>
+      <li>ReplaceWithSingleCallToSingleOrDefaultAnalyzer</li>
+      <li>SimplifyConditionalTernaryExpressionAnalyzer</li>
+      <li>StringEndsWithIsCultureSpecificAnalyzer</li>
+      <li>StringIndexOfIsCultureSpecificAnalyzer</li>
+      <li>StringLastIndexOfIsCultureSpecificAnalyzer</li>
+      <li>StringStartsWithIsCultureSpecificAnalyzer</li>
+      <li>ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer</li>
+      <li>ConditionIsAlwaysTrueOrFalseAnalyzer</li>
+      <li>DoubleNegationOperatorAnalyzer</li>
+      <li>EmptyStatementAnalyzer</li>
+      <li>ForStatementConditionIsTrueAnalyzer</li>
+      <li>RedundantAnonymousTypePropertyNameAnalyzer</li>
+      <li>RedundantArgumentNameAnalyzer</li>
+      <li>RedundantAttributeParenthesesAnalyzer</li>
+      <li>RedundantBaseQualifierAnalyzer</li>
+      <li>RedundantCaseLabelAnalyzer</li>
+      <li>RedundantEmptyDefaultSwitchBranchAnalyzer</li>
+      <li>RedundantTernaryExpressionAnalyzer</li>
+      <li>RemoveRedundantOrStatementAnalyzer</li>
+      <li>EmptyConstructorAnalyzer</li>
+      <li>EmptyDestructorAnalyzer</li>
+      <li>EmptyNamespaceAnalyzer</li>
+      <li>EnumUnderlyingTypeIsIntAnalyzer</li>
+      <li>PartialTypeWithSinglePartAnalyzer</li>
+      <li>SealedMemberInSealedClassAnalyzer</li>
     </ul>
   </body>
 </html>

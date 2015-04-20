@@ -367,14 +367,17 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\DiagnosticFactory.cs">
       <Link>Common\DiagnosticFactory.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\GatherVisitorBase.cs">
-      <Link>Common\GatherVisitorBase.cs</Link>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\DocumentChangeAction.cs">
+      <Link>Common\DocumentChangeAction.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\GatherVisitorDiagnosticAnalyzer.cs">
-      <Link>Common\GatherVisitorDiagnosticAnalyzer.cs</Link>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\InsertionAction.cs">
+      <Link>Common\InsertionAction.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\NRefactoryCodeFixProvider.cs">
-      <Link>Common\NRefactoryCodeFixProvider.cs</Link>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\InsertionResult.cs">
+      <Link>Common\InsertionResult.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\NRefactoryCodeAction.cs">
+      <Link>Common\NRefactoryCodeAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\NRefactoryDiagnosticIDs.cs">
       <Link>Common\NRefactoryDiagnosticIDs.cs</Link>
@@ -388,11 +391,20 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\CompareNonConstrainedGenericWithNullAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\CompareNonConstrainedGenericWithNullAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\CompareNonConstrainedGenericWithNullCodeFixProvider.cs">
+      <Link>Diagnostics\CodeQuality\CompareNonConstrainedGenericWithNullCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\CompareOfFloatsByEqualityOperatorAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\CompareOfFloatsByEqualityOperatorCodeFixProvider.cs">
+      <Link>Diagnostics\CodeQuality\CompareOfFloatsByEqualityOperatorCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\ConditionalTernaryEqualBranchAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\ConditionalTernaryEqualBranchAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\ConditionalTernaryEqualBranchCodeFixProvider.cs">
+      <Link>Diagnostics\CodeQuality\ConditionalTernaryEqualBranchCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\DelegateSubtractionAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\DelegateSubtractionAnalyzer.cs</Link>
@@ -409,6 +421,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\LongLiteralEndingLowerLAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\LongLiteralEndingLowerLAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\LongLiteralEndingLowerLCodeFixProvider.cs">
+      <Link>Diagnostics\CodeQuality\LongLiteralEndingLowerLCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\NonReadonlyReferencedInGetHashCodeAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\NonReadonlyReferencedInGetHashCodeAnalyzer.cs</Link>
     </Compile>
@@ -418,8 +433,14 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\OperatorIsCanBeUsedAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\OperatorIsCanBeUsedAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\OperatorIsCanBeUsedIssueCodeFixProvider.cs">
+      <Link>Diagnostics\CodeQuality\OperatorIsCanBeUsedIssueCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\OptionalParameterRefOutAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\OptionalParameterRefOutAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\PolymorphicFieldLikeEventInvocationAnalyzer.cs">
+      <Link>Diagnostics\CodeQuality\PolymorphicFieldLikeEventInvocationAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\ValueParameterNotUsedAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\ValueParameterNotUsedAnalyzer.cs</Link>
@@ -508,6 +529,9 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\SimplifyConditionalTernaryExpressionAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionCodeFixProvider.cs">
+      <Link>CodeRefactoringProviders\Synced\SimplifyConditionalTernaryExpressionCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\StringEndsWithIsCultureSpecificAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\StringEndsWithIsCultureSpecificAnalyzer.cs</Link>
     </Compile>
@@ -562,17 +586,41 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyConstructorAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\EmptyConstructorAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyConstructorCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\EmptyConstructorCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyDestructorAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\EmptyDestructorAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyDestructorCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\EmptyDestructorCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyNamespaceAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\EmptyNamespaceAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyNamespaceCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\EmptyNamespaceCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\EnumUnderlyingTypeIsIntCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartAnalyzer.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\PartialTypeWithSinglePartAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\PartialTypeWithSinglePartCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\PartialTypeWithSinglePartCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\SealedMemberInSealedClassAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\SealedMemberInSealedClassCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInDeclaration\SealedMemberInSealedClassCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\GeneratedCodeRecognition.cs">
+      <Link>Common\GeneratedCodeRecognition.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\GettextCatalog.cs">
       <Link>Common\GettextCatalog.cs</Link>
@@ -583,12 +631,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\NRefactory6Host.cs">
       <Link>Common\NRefactory6Host.cs</Link>
     </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\NRefactoryCodeDiagnosticAnalyzerAttribute.cs">
-      <Link>Common\NRefactoryCodeDiagnosticAnalyzerAttribute.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\NRefactoryCodeRefactoringProviderAttribute.cs">
-      <Link>Common\NRefactoryCodeRefactoringProviderAttribute.cs</Link>
-    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Util\RefactoringHelpers.cs">
       <Link>Common\RefactoringHelpers.cs</Link>
     </Compile>
@@ -597,18 +639,6 @@
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\CodeRefactoring.cs">
       <Link>Common\CodeRefactoring.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\DocumentChangeAction.cs">
-      <Link>Common\DocumentChangeAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\InsertionAction.cs">
-      <Link>Common\InsertionAction.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\InsertionResult.cs">
-      <Link>Common\InsertionResult.cs</Link>
-    </Compile>
-    <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\NRefactoryCodeAction.cs">
-      <Link>Common\NRefactoryCodeAction.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Refactoring\TypeGuessing.cs">
       <Link>Common\TypeGuessing.cs</Link>
@@ -833,7 +863,6 @@
       <Link>Common\ValueTuple`2.cs</Link>
     </Compile>
     <Compile Include="Common\ReflectionCompatibilityExtensions.cs" />
-    <Compile Include="Diagnostics\RedundanciesInDeclaration\PartialTypeWithSinglePartFixProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
