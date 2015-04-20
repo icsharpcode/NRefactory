@@ -66,6 +66,16 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				GettextCatalog.GetString ("Add null check for parameter"),
 				t2 => {
 					var paramName = node.Identifier.ToString();
+
+					ExpressionSyntax parameterExpr;
+
+					var parseOptions = root.SyntaxTree.Options as CSharpParseOptions;
+					if (parseOptions != null && parseOptions.LanguageVersion < LanguageVersion.CSharp6) {
+						parameterExpr = SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(paramName));
+					} else {
+						parameterExpr = SyntaxFactory.ParseExpression ("nameof(" + paramName + ")");
+                    }
+
 					var ifStatement = SyntaxFactory.IfStatement(
 						SyntaxFactory.BinaryExpression(SyntaxKind.EqualsExpression, SyntaxFactory.IdentifierName(paramName), SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)), 
 						SyntaxFactory.ThrowStatement(
@@ -74,7 +84,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 								SyntaxFactory.ArgumentList(
 									SyntaxFactory.SeparatedList(new [] {
 										SyntaxFactory.Argument(
-											SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(paramName))
+											parameterExpr
 										)}
 									)
 								),

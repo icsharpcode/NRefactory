@@ -27,6 +27,9 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis;
+using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
@@ -55,7 +58,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				"    void Test (string param)" + Environment.NewLine +
 				"    {" + Environment.NewLine +
 				"        if (param == null)" + Environment.NewLine +
-				"            throw new ArgumentNullException(\"param\");" + Environment.NewLine +
+				"            throw new ArgumentNullException(nameof(param));" + Environment.NewLine +
 				"        Console.WriteLine (param);" + Environment.NewLine +
 				"    }" + Environment.NewLine +
 				"}", result);
@@ -108,7 +111,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
     {
         var lambda = (sender, e) => {
             if (sender == null)
-                throw new System.ArgumentNullException(""sender"");
+                throw new System.ArgumentNullException(nameof(sender));
         };
     }
 }");
@@ -130,14 +133,14 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
     {
         var lambda = delegate(object sender, object e) {
             if (sender == null)
-                throw new System.ArgumentNullException(""sender"");
+                throw new System.ArgumentNullException(nameof(sender));
         };
     }
 }");
 		}
 
 		[Test]
-		public void TestNullCheckAlreadyThere()
+		public void TestNullCheckAlreadyThere_StringName()
 		{
 			TestWrongContext<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
 {
@@ -146,6 +149,21 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
         var lambda = ($sender, e) => {
             if (sender == null)
                 throw new System.ArgumentNullException(""sender"");
+        };
+    }
+}");
+		}
+
+		[Test]
+		public void TestNullCheckAlreadyThere_NameOf()
+		{
+			TestWrongContext<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
+{
+    void Test ()
+    {
+        var lambda = ($sender, e) => {
+            if (sender == null)
+                throw new System.ArgumentNullException(nameof(sender));
         };
     }
 }");
@@ -163,5 +181,29 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		}
 
 
+		[Test]
+		public void Test_OldCSharp()
+		{
+			var parseOptions = new CSharpParseOptions (
+				LanguageVersion.CSharp5,
+				DocumentationMode.Diagnose | DocumentationMode.Parse,
+				SourceCodeKind.Regular,
+				ImmutableArray.Create ("DEBUG", "TEST")
+			);
+
+			Test<CheckIfParameterIsNullCodeRefactoringProvider>(@"class Foo
+{
+    void Test (string $test)
+    {
+    }
+}", @"class Foo
+{
+    void Test (string test)
+    {
+        if (test == null)
+            throw new System.ArgumentNullException(""test"");
+    }
+}", parseOptions: parseOptions);
+		}
 	}
 }
