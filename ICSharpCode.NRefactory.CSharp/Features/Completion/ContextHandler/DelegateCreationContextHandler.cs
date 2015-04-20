@@ -33,6 +33,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using System.Text;
 using Microsoft.CodeAnalysis.Text;
+using ICSharpCode.NRefactory6.CSharp.ExtractMethod;
 
 namespace ICSharpCode.NRefactory6.CSharp.Completion
 {
@@ -85,7 +86,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			foreach (var type in ctx.InferredTypes) {
 				if (type.TypeKind != TypeKind.Delegate)
 					continue;
-				AddDelegateHandlers (list, model, engine, result, type, position, null, cancellationToken);
+				string delegateName = null;
+
+				if (ctx.TargetToken.IsKind (SyntaxKind.PlusEqualsToken)) {
+					delegateName = GuessEventHandlerBaseName (ctx.LeftToken.Parent, ctx.ContainingTypeDeclaration);
+				}
+
+				AddDelegateHandlers (list, ctx.TargetToken.Parent, model, engine, result, type, position, delegateName, cancellationToken);
 			}
 			if (list.Count > 0) {
 				result.AutoSelect = false;
@@ -93,7 +100,57 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			return list;
 		}
 
-		void AddDelegateHandlers (List<ICompletionData> completionList, SemanticModel semanticModel, CompletionEngine engine, CompletionResult result, ITypeSymbol delegateType, int position, string optDelegateName, CancellationToken cancellationToken)
+
+		static string GuessEventHandlerBaseName (SyntaxNode node, TypeDeclarationSyntax containingTypeDeclaration)
+		{
+			var addAssign = node as AssignmentExpressionSyntax;
+			if (addAssign == null)
+				return null;
+
+			var ident = addAssign.Left as IdentifierNameSyntax;
+			if (ident != null)
+				return ToPascalCase (containingTypeDeclaration.Identifier + "_" + ident);
+
+			var memberAccess = addAssign.Left as MemberAccessExpressionSyntax;
+			if (memberAccess != null)
+				return ToPascalCase (GetMemberAccessBaseName(memberAccess) + "_" + memberAccess.Name);
+
+			return null;
+		}
+
+		static string GetMemberAccessBaseName (MemberAccessExpressionSyntax memberAccess)
+		{
+			var ident = memberAccess.Expression as IdentifierNameSyntax;
+			if (ident != null)
+				return ident.ToString ();
+
+			var ma = memberAccess.Expression as MemberAccessExpressionSyntax;
+			if (ma != null)
+				return ma.Name.ToString ();
+
+			return "Handle";
+		}
+
+		static string ToPascalCase (string str)
+		{
+			var result = new StringBuilder ();
+			result.Append (char.ToUpper (str[0]));
+			bool nextUpper = false;
+			for (int i = 1; i < str.Length; i++) {
+				var ch = str [i];
+				if (nextUpper && char.IsLetter (ch)) {
+					ch = char.ToUpper (ch);
+                    nextUpper = false;
+				}
+				result.Append (ch);
+				if (ch == '_')
+					nextUpper = true;
+			}
+
+			return result.ToString ();
+		}
+
+		void AddDelegateHandlers (List<ICompletionData> completionList, SyntaxNode parent, SemanticModel semanticModel, CompletionEngine engine, CompletionResult result, ITypeSymbol delegateType, int position, string optDelegateName, CancellationToken cancellationToken)
 		{
 			var delegateMethod = delegateType.GetDelegateInvokeMethod ();
 			result.PossibleDelegates.Add (delegateMethod);
@@ -197,8 +254,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				}
 			}
 			string varName = optDelegateName ?? "Handle" + delegateType.Name;
+
+            
 			var curType = semanticModel.GetEnclosingSymbol<INamedTypeSymbol> (position, cancellationToken);
-			item = engine.Factory.CreateNewMethodDelegate (this, delegateType, varName, curType);
+			var uniqueName = new UniqueNameGenerator (semanticModel).CreateUniqueMethodName (parent, varName);
+			item = engine.Factory.CreateNewMethodDelegate (this, delegateType, uniqueName, curType);
 			if (!completionList.Any (i => i.DisplayText == item.DisplayText))
 				completionList.Add (item);
 		}

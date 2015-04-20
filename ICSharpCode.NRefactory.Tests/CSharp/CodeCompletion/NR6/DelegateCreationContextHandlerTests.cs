@@ -33,7 +33,75 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeCompletion.NR6
 	[TestFixture]
 	public class DelegateCreationContextHandlerTests: CompletionTestBase
 	{
-		// handled mostly by DelegateContextTests
+		internal override CompletionContextHandler CreateContextHandler ()
+		{
+			return (CompletionContextHandler)Activator.CreateInstance(typeof(CompletionEngine).Assembly.GetType ("ICSharpCode.NRefactory6.CSharp.Completion.DelegateCreationContextHandler"));
+		}
+
+		[Test]
+		public void TestNameGenerationMember()
+		{
+			VerifyItemExists(@"
+using System;
+
+public class A
+{
+    public event EventHandler FooBar;
+}
+
+public class B
+{
+	A test;
+
+	void TestMe()
+	{
+		test.FooBar += $$
+	}
+}", "Test_FooBar");
+		}
+
+		[Test]
+		public void TestNameGeneration()
+		{
+			VerifyItemExists(@"
+using System;
+
+public class A
+{
+    public event EventHandler FooBar;
+
+	void TestMe()
+	{
+		FooBar += $$
+	}
+}", "A_FooBar");
+		}
+
+		[Test]
+		public void TestNameClash()
+		{
+			VerifyItemExists(@"
+using System;
+
+public class A
+{
+    public event EventHandler FooBar;
+}
+
+public class B
+{
+	A test;
+
+	void TestMe()
+	{
+		test.FooBar += $$
+	}
+
+	void Test_FooBar()
+	{
+	}
+}", "Test_FooBar1");
+		}
 	}
 }
 
