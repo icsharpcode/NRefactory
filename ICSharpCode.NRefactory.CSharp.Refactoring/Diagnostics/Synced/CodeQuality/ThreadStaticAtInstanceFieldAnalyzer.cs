@@ -23,22 +23,13 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Collections.Generic;
+
+using System.Collections.Immutable;
+using System.Linq;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
-using System.Collections.Immutable;
-using Microsoft.CodeAnalysis.CodeFixes;
-using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System.Linq;
-using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
+using Microsoft.CodeAnalysis.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -59,15 +50,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override void Initialize(AnalysisContext context)
 		{
-			//context.RegisterSyntaxNodeAction(
-			//	(nodeContext) => {
-			//		Diagnostic diagnostic;
-			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
-			//			nodeContext.ReportDiagnostic(diagnostic);
-			//		}
-			//	}, 
-			//	new SyntaxKind[] { SyntaxKind.None }
-			//);
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] { SyntaxKind.FieldDeclaration }
+			);
 		}
 
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
@@ -75,72 +66,25 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			diagnostic = default(Diagnostic);
 			if (nodeContext.IsFromGeneratedCode())
 				return false;
-			//var node = nodeContext.Node as ;
-			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
-			//return true;
+			var node = nodeContext.Node as FieldDeclarationSyntax;
+			if (node.Modifiers.Any (m => m.IsKind (SyntaxKind.StaticKeyword)))
+				return false;
+			
+			foreach (var attributeLists in node.AttributeLists) {
+				foreach (var attribute in attributeLists.Attributes) {
+					var attrSymbol = nodeContext.SemanticModel.GetTypeInfo(attribute).Type;
+					if (attrSymbol == null)
+						continue;
+					if (attrSymbol.Name == "ThreadStaticAttribute" && attrSymbol.ContainingNamespace.Name == "System") {
+						diagnostic = Diagnostic.Create (
+							descriptor,
+							attribute.GetLocation ()
+						);
+						return true;
+					}
+				}
+			}
 			return false;
 		}
-
-//		class GatherVisitor : GatherVisitorBase<ThreadStaticAtInstanceFieldAnalyzer>
-//		{
-//			//IType threadStaticAttribute;
-
-//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-//				: base (semanticModel, addDiagnostic, cancellationToken)
-//			{
-//				//threadStaticAttribute = ctx.Compilation.FindType(typeof(ThreadStaticAttribute));
-//			}
-
-////			public override void VisitBlockStatement(BlockStatement blockStatement)
-////			{
-////			}
-////			
-////			public override void VisitFieldDeclaration(FieldDeclaration fieldDeclaration)
-////			{
-////                if (fieldDeclaration.HasModifier(Modifiers.Static))
-////                    return;
-////
-////                foreach (var attributeSection in fieldDeclaration.Attributes) {
-////					int attributeCount = attributeSection.Attributes.Count;
-////					foreach (var attribute in attributeSection.Attributes) {
-////						var resolvedAttribute = ctx.Resolve(attribute.Type) as TypeResolveResult;
-////						if (resolvedAttribute == null)
-////							continue;
-////						if (threadStaticAttribute.Equals(resolvedAttribute.Type)) {
-//			//							string title = ctx.TranslateString("ThreadStatic does nothing on instance fields");
-////							if (attributeCount == 1)
-////								AddDiagnosticAnalyzer(new CodeIssue(attributeSection, title, GetActions(attribute, attributeSection, fieldDeclaration)));
-////							else
-////								AddDiagnosticAnalyzer(new CodeIssue(attribute, title, GetActions(attribute, attributeSection, fieldDeclaration)));
-////						}
-////					}
-////				}
-////			}
-////
-////			IEnumerable<CodeAction> GetActions(Attribute attribute, AttributeSection attributeSection, FieldDeclaration fieldDeclaration)
-////			{
-////				string removeAttributeMessage = ctx.TranslateString("Remove attribute");
-////				yield return new CodeAction(removeAttributeMessage, script => {
-////					if (attributeSection.Attributes.Count > 1) {
-////						var newSection = new AttributeSection();
-////						newSection.AttributeTarget = attributeSection.AttributeTarget;
-////						foreach (var attr in attributeSection.Attributes) {
-////							if (attr != attribute)
-////								newSection.Attributes.Add((Attribute)attr.Clone());
-////						}
-////						script.Replace(attributeSection, newSection);
-////					} else {
-////						script.Remove(attributeSection);
-////					}
-////				}, attribute);
-////
-////				var makeStaticMessage = ctx.TranslateString("Make the field static");
-////				yield return new CodeAction(makeStaticMessage, script => {
-////					var newDeclaration = (FieldDeclaration)fieldDeclaration.Clone();
-////					newDeclaration.Modifiers |= Modifiers.Static;
-////					script.Replace(fieldDeclaration, newDeclaration);
-////				}, fieldDeclaration.NameToken);
-////			}
-//		}
 	}
 }

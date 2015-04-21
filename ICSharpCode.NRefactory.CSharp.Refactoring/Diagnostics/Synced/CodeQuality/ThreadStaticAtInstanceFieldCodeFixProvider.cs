@@ -24,22 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
 using Microsoft.CodeAnalysis.CodeFixes;
 using System.Threading.Tasks;
-using Microsoft.CodeAnalysis.CodeActions;
-using Microsoft.CodeAnalysis.Text;
-using System.Threading;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
-using Microsoft.CodeAnalysis.FindSymbols;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -66,11 +58,40 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var diagnostics = context.Diagnostics;
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+			var node = root.FindToken(context.Span.Start).Parent.AncestorsAndSelf ().OfType<AttributeSyntax> ().FirstOrDefault ();
+			if (node == null)
+				return;
+			context.RegisterCodeFix(
+				CodeActionFactory.Create(
+					node.Span, 
+					diagnostic.Severity, 
+					GettextCatalog.GetString ("Remove attribute"),
+					(arg) => {
+						var list = node.Parent as AttributeListSyntax;
+						if (list.Attributes.Count == 1) {
+							var newRoot = root.RemoveNode (list, SyntaxRemoveOptions.KeepNoTrivia);
+							return Task.FromResult (document.WithSyntaxRoot (newRoot));
+						}
+						var newRoot2 = root.RemoveNode (node, SyntaxRemoveOptions.KeepNoTrivia);
+						return Task.FromResult (document.WithSyntaxRoot (newRoot2));
+					}
+				), 
+				diagnostic
+			);
+
+			context.RegisterCodeFix(
+				CodeActionFactory.Create(
+					node.Span, 
+					diagnostic.Severity,
+					GettextCatalog.GetString ("Make the field static"),
+					(arg) => {
+						var field = node.Parent.Parent as FieldDeclarationSyntax;
+						var newRoot = root.ReplaceNode (field, field.AddModifiers (SyntaxFactory.Token (SyntaxKind.StaticKeyword)).WithAdditionalAnnotations (Formatter.Annotation));
+						return Task.FromResult (document.WithSyntaxRoot (newRoot));
+					}
+				), 
+				diagnostic
+			);
 		}
 	}
 }

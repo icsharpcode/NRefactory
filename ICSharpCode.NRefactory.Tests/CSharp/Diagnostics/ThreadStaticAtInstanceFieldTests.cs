@@ -31,16 +31,15 @@ using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class ThreadStaticAtInstanceFieldTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestInspectorCase1()
 		{
-			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
 class Foo
 {
-	[ThreadStatic]
+	[$ThreadStatic$]
 	int bar;
 }", @"using System;
 class Foo
@@ -52,10 +51,10 @@ class Foo
 		[Test]
 		public void TestInspectorCase2()
 		{
-			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
 class Foo
 {
-	[Serializable, ThreadStatic]
+	[Serializable, $ThreadStatic$]
 	int bar;
 }", @"using System;
 class Foo
@@ -68,9 +67,9 @@ class Foo
 		[Test]
 		public void TestInspectorCase3()
 		{
-			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"class Foo
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"class Foo
 {
-	[System.ThreadStatic, System.Serializable]
+	[$System.ThreadStatic$, System.Serializable]
 	int bar;
 }", @"class Foo
 {
@@ -82,12 +81,13 @@ class Foo
 
 
 		[Test]
-		public void TestResharperSuppression()
+		public void TestDisable()
 		{
 			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"using System;
 class Foo
 {
-// ReSharper disable once ThreadStaticAtInstanceField
+#pragma warning disable " + NRefactoryDiagnosticIDs.ThreadStaticAtInstanceFieldAnalyzerID + @"
+
 	[ThreadStatic]
 	int bar;
 }");
@@ -98,11 +98,11 @@ class Foo
 		[Test]
 		public void InstanceField()
 		{
-			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"
 using System;
 class TestClass
 {
-	[ThreadStatic]
+	[$ThreadStatic$]
 	string field;
 }", @"
 using System;
@@ -115,11 +115,11 @@ class TestClass
 		[Test]
 		public void InstanceFieldWithMultiAttributeSection()
 		{
-			Test<ThreadStaticAtInstanceFieldAnalyzer>(@"
+			Analyze<ThreadStaticAtInstanceFieldAnalyzer>(@"
 using System;
 class TestClass
 {
-	[field: ThreadStatic, ContextStatic]
+	[field: $ThreadStatic$, ContextStatic]
 	string field;
 }", @"
 using System;
