@@ -337,14 +337,26 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\BaseMethodParameterNameMismatchAnalyzer.cs">
       <Link>Diagnostics\Custom\BaseMethodParameterNameMismatchAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\BaseMethodParameterNameMismatchCodeFixProvider.cs">
+      <Link>Diagnostics\Custom\BaseMethodParameterNameMismatchCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\CallToObjectEqualsViaBaseAnalyzer.cs">
       <Link>Diagnostics\Custom\CallToObjectEqualsViaBaseAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\CallToObjectEqualsViaBaseCodeFixProvider.cs">
+      <Link>Diagnostics\Custom\CallToObjectEqualsViaBaseCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\ConstantConditionAnalyzer.cs">
       <Link>Diagnostics\Custom\ConstantConditionAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\ConstantConditionCodeFixProvider.cs">
+      <Link>Diagnostics\Custom\ConstantConditionCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\ConvertIfToAndExpressionAnalyzer.cs">
       <Link>Diagnostics\Custom\ConvertIfToAndExpressionAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\ConvertIfToAndExpressionCodeFixProvider.cs">
+      <Link>Diagnostics\Custom\ConvertIfToAndExpressionCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\NotImplementedExceptionAnalyzer.cs">
       <Link>Diagnostics\Custom\NotImplementedExceptionAnalyzer.cs</Link>
@@ -352,8 +364,14 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\RedundantInternalAnalyzer.cs">
       <Link>Diagnostics\Custom\RedundantInternalAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\RedundantInternalCodeFixProvider.cs">
+      <Link>Diagnostics\Custom\RedundantInternalCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\RedundantPrivateAnalyzer.cs">
       <Link>Diagnostics\Custom\RedundantPrivateAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Custom\RedundantPrivateCodeFixProvider.cs">
+      <Link>Diagnostics\Custom\RedundantPrivateCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\DiagnosticAnalyzerCategories.cs">
       <Link>Common\DiagnosticAnalyzerCategories.cs</Link>
@@ -442,14 +460,26 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\PolymorphicFieldLikeEventInvocationAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\PolymorphicFieldLikeEventInvocationAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\ThreadStaticAtInstanceFieldAnalyzer.cs">
+      <Link>Diagnostics\CodeQuality\ThreadStaticAtInstanceFieldAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\ThreadStaticAtInstanceFieldCodeFixProvider.cs">
+      <Link>Diagnostics\CodeQuality\ThreadStaticAtInstanceFieldCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\CodeQuality\ValueParameterNotUsedAnalyzer.cs">
       <Link>Diagnostics\CodeQuality\ValueParameterNotUsedAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\NUnit\NonPublicMethodWithTestAttributeAnalyzer.cs">
       <Link>Diagnostics\NUnit\NonPublicMethodWithTestAttributeAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\NUnit\NonPublicMethodWithTestAttributeCodeFixProvider.cs">
+      <Link>Diagnostics\NUnit\NonPublicMethodWithTestAttributeCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertClosureToMethodGroupAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertClosureToMethodGroupAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertClosureToMethodGroupCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\ConvertClosureToMethodGroupCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertConditionalTernaryToNullCoalescingAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertConditionalTernaryToNullCoalescingAnalyzer.cs</Link>
@@ -460,71 +490,218 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertIfStatementToConditionalTernaryExpressionAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertIfStatementToConditionalTernaryExpressionCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\ConvertIfStatementToConditionalTernaryExpressionCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertIfStatementToSwitchStatementAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertIfStatementToSwitchStatementAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertIfStatementToSwitchStatementCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\ConvertIfStatementToSwitchStatementCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertNullableToShortFormAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertNullableToShortFormAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertNullableToShortFormCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\ConvertNullableToShortFormCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertToStaticTypeAnalyzer.cs">
       <Link>Diagnostics\Opportunities\ConvertToStaticTypeAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\ConvertToStaticTypeCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\ConvertToStaticTypeCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\InvokeAsExtensionMethodAnalyzer.cs">
       <Link>Diagnostics\Opportunities\InvokeAsExtensionMethodAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\Opportunities\InvokeAsExtensionMethodCodeFixProvider.cs">
+      <Link>Diagnostics\Opportunities\InvokeAsExtensionMethodCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\AccessToStaticMemberViaDerivedTypeCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\BaseMemberHasParamsAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\BaseMemberHasParamsAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\BaseMemberHasParamsCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\BaseMemberHasParamsCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ConvertIfDoToWhileAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ConvertIfDoToWhileAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ConvertIfDoToWhileCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ConvertIfDoToWhileCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ConvertIfToOrExpressionAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ConvertIfToOrExpressionAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ConvertIfToOrExpressionCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ConvertIfToOrExpressionCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\EmptyEmbeddedStatementAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\EmptyEmbeddedStatementAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\EmptyEmbeddedStatementCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\EmptyEmbeddedStatementCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\FieldCanBeMadeReadOnlyAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\FieldCanBeMadeReadOnlyCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\FieldCanBeMadeReadOnlyCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\PossibleMistakenCallToGetTypeAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\PossibleMistakenCallToGetTypeAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\PossibleMistakenCallToGetTypeCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\PossibleMistakenCallToGetTypeCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs">
+      <Link>Diagnostics\PracticesAndImprovements\PublicConstructorInAbstractClass.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\PublicConstructorInAbstractClassCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\PublicConstructorInAbstractClassCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithFirstOrDefaultAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithFirstOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithFirstOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithFirstOrDefaultCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithLastOrDefaultAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithLastOrDefaultAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithLastOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithLastOrDefaultCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeAny.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeAnyCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeAnyCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeCountAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeCountAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeCountCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeCountCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeFirstAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeFirstCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeFirstOrDefaultCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeLastAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeLastCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeLastOrDefaultCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeLongCountAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeLongCountAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeLongCountCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeLongCountCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeSingleAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeSingleCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeSingleOrDefaultCodeFixProvider.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereAnalyzer.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeWhereAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeWhereCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithOfTypeWhereCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSimpleAssignmentAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSimpleAssignmentCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSimpleAssignmentCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToAnyAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToAnyAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToAnyCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToAnyCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToCountAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToCountAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToCountFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToCountFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToFirstAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToFirstCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToFirstOrDefaultCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLastAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToLastAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLastCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToLastCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLastOrDefaultAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToLastOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLastOrDefaultCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToLastOrDefaultCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLongCountAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToLongCountAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToLongCountCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToLongCountCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToSingleAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToSingleCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\ReplaceWithSingleCallToSingleOrDefaultFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\SimplifyConditionalTernaryExpressionAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\SimplifyConditionalTernaryExpressionAnalyzer.cs</Link>
@@ -541,47 +718,89 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\StringLastIndexOfIsCultureSpecificAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\StringLastIndexOfIsCultureSpecificAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\StringMethodIsCultureSpecificCodeFixProvider.cs">
+      <Link>Diagnostics\PracticesAndImprovements\StringMethodIsCultureSpecificCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\PracticesAndImprovements\StringStartsWithIsCultureSpecificAnalyzer.cs">
       <Link>Diagnostics\PracticesAndImprovements\StringStartsWithIsCultureSpecificAnalyzer.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\ArrayCreationCanBeReplacedWithArrayInitializerCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\ConditionIsAlwaysTrueOrFalseCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\DoubleNegationOperatorAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\DoubleNegationOperatorAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\DoubleNegationOperatorCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\DoubleNegationOperatorCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\EmptyStatementAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\EmptyStatementAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\EmptyStatementCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\EmptyStatementCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\ForStatementConditionIsTrueAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\ForStatementConditionIsTrueAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\ForStatementConditionIsTrueCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\ForStatementConditionIsTrueCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantAnonymousTypePropertyNameAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantAnonymousTypePropertyNameCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantAnonymousTypePropertyNameCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantArgumentNameAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantArgumentNameAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantArgumentNameCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantArgumentNameCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantAttributeParenthesesAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantAttributeParenthesesAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantAttributeParenthesesCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantAttributeParenthesesCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantBaseQualifierAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantBaseQualifierAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantBaseQualifierCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantBaseQualifierCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantCaseLabelAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantCaseLabelAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantCaseLabelCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantCaseLabelCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantEmptyDefaultSwitchBranchCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RedundantTernaryExpressionAnalyzer.cs</Link>
     </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RedundantTernaryExpressionCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RedundantTernaryExpressionCodeFixProvider.cs</Link>
+    </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInCode\RemoveRedundantOrStatementAnalyzer.cs</Link>
+    </Compile>
+    <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInCode\RemoveRedundantOrStatementCodeFixProvider.cs">
+      <Link>Diagnostics\RedundanciesInCode\RemoveRedundantOrStatementCodeFixProvider.cs</Link>
     </Compile>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp.Refactoring\Diagnostics\Synced\RedundanciesInDeclaration\EmptyConstructorAnalyzer.cs">
       <Link>Diagnostics\RedundanciesInDeclaration\EmptyConstructorAnalyzer.cs</Link>

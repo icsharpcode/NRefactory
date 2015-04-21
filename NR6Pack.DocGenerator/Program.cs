@@ -29,9 +29,10 @@ namespace NR6Pack.DocGenerator
 			var codeRefactoringsCountNode = codeRefactoringsDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
 			codeRefactoringsCountNode.Value = string.Format("{0} code refactorings available!", codeRefactorings.Length);
 
-			foreach (var codeRefactoring in codeRefactorings) {
+			foreach (var codeRefactoring in codeRefactorings)
+			{
 				string description = GetRefactoringDescription(codeRefactoring);
-				string line = (description == null) ? string.Format("{0}", codeRefactoring.Name) : string.Format("{0}: {1}", codeRefactoring.Name, description);
+				string line = (description == null) ? string.Format("{0}", codeRefactoring.Name) : string.Format("{0} ({1})", description, codeRefactoring.Name);
 				codeRefactoringsNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", line));
 			}
 
@@ -42,10 +43,11 @@ namespace NR6Pack.DocGenerator
 			var codeAnalyzersCountNode = codeAnalyzersDocument.Descendants("{http://www.w3.org/1999/xhtml}p").First();
 			codeAnalyzersCountNode.Value = string.Format("{0} code analyzers available!", codeAnalyzers.Length);
 
-			foreach (var codeAnalyzer in codeAnalyzers) {
+			foreach (var codeAnalyzer in codeAnalyzers)
+			{
 				string description = GetAnalyzerDescription(codeAnalyzer);
-				string line = (description == null) ? string.Format("{0}", codeAnalyzer.Name) : string.Format("{0}: {1}", codeAnalyzer.Name, description);
-                codeAnalyzersNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", line));
+				string line = (description == null) ? string.Format("{0}", codeAnalyzer.Name) : string.Format("{0} ({1})", description, codeAnalyzer.Name);
+				codeAnalyzersNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", line));
 			}
 
 			codeAnalyzersDocument.Save(@"..\NR6Pack\CodeIssues.html");
@@ -60,7 +62,7 @@ namespace NR6Pack.DocGenerator
 		private static string GetAnalyzerDescription(Type t)
 		{
 			var descriptor = t.GetField("descriptor", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as Microsoft.CodeAnalysis.DiagnosticDescriptor;
-            return descriptor?.Description?.ToString();
+			return descriptor?.Title.ToString();
 		}
 	}
 }
