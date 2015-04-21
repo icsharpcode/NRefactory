@@ -595,7 +595,6 @@ void TestMethod ()
 		/// Bug 399695 - Code completion not working with an enum in a different namespace
 		/// </summary>
 		[Test]
-		[Ignore]
 		public void TestBug399695 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -2269,7 +2268,6 @@ namespace Foo
 		/// Bug 350862 - Autocomplete bug with enums
 		/// </summary>
 		[Test]
-		[Ignore]
 		public void TestBug350862 ()
 		{
 			CompletionResult provider = CreateProvider (
@@ -3424,7 +3422,6 @@ class MainClass
 		/// <summary>
 		/// Bug 614045 - Types hidden by members are not formatted properly by ambience
 		/// </summary>
-		[Ignore("Roslyn bug - type inference")]
 		[Test]
 		public void TestBug614045 ()
 		{
@@ -3461,7 +3458,6 @@ namespace B
 			Assert.IsNotNull (provider.Find ("A.Foo"), "enum 'A.Foo' not found.");
 		}
 
-		[Ignore("Roslyn bug - type inference")]
 		[Test]
 		public void TestBug614045_IndexerCase ()
 		{
@@ -3921,7 +3917,7 @@ class Foo
 		/// <summary>
 		/// Bug 675436 - Completion is trying to complete symbol names in declarations
 		/// </summary>
-		[Ignore("Roslyn bug")]
+		[Ignore("test is valid there.")]
 		[Test]
 		public void TestBug675436_LocalVar ()
 		{
@@ -6146,6 +6142,7 @@ class Test
 			Assert.AreEqual(1, provider.Count(cd => cd.DisplayText == "() =>"));
 			Assert.AreEqual(1, provider.Count(cd => cd.DisplayText == "async () =>"));
 		}
+
 		[Ignore]
 		[Test]
 		public void TestBasicIntersectionProblem ()

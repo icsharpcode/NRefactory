@@ -976,7 +976,6 @@ namespace X
 		}
 
 		[Test]
-		[Ignore]
 		public void TestEnumInnerClass ()
 		{
 			CompletionResult provider = CodeCompletionBugTests.CreateProvider (
