@@ -19,7 +19,7 @@ How to compile:
 Features:
 	- C# Parser
 	- Abstract Syntax Tree with pattern-matching support
-	- Semantic Analysis for C# (supports C# 4.0 + async/await)
+	- Semantic Analysis for C# (supports C# 5.0)
 	- Code Completion for C#
 	- Pretty Printer for C#
 	- Lots of C# refactorings

@@ -42,4 +42,4 @@ using System.Runtime.InteropServices;
 // [AssemblyFileVersion] is the version of the NuGet package,
 // Versions with breaking changes / new features should increment the 'minor' (2nd) number.
 // Bugfix releases should increment the 'build' (3rd) number.
-[assembly: AssemblyFileVersion("5.5.0")]
+[assembly: AssemblyFileVersion("5.5.1")]
