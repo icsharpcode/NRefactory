@@ -1509,7 +1509,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			WriteEmbeddedStatement(ifElseStatement.TrueStatement);
 			if (!ifElseStatement.FalseStatement.IsNull) {
 				WriteKeyword(IfElseStatement.ElseKeywordRole);
-				WriteEmbeddedStatement(ifElseStatement.FalseStatement);
+				if (ifElseStatement.FalseStatement is IfElseStatement) {
+					// don't put newline between 'else' and 'if'
+					ifElseStatement.FalseStatement.AcceptVisitor(this);
+				} else {
+					WriteEmbeddedStatement(ifElseStatement.FalseStatement);
+				}
 			}
 			EndNode(ifElseStatement);
 		}
