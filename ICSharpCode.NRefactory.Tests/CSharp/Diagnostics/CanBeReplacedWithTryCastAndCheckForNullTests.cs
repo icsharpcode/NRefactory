@@ -30,7 +30,6 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
-	[Ignore("TODO: port action first.")]
 	[TestFixture]
 	public class CanBeReplacedWithTryCastAndCheckForNullTests : InspectionActionTestBase
 	{
@@ -195,7 +194,7 @@ class Bar
 {
 	public Bar Baz (object foo)
 	{
-		// ReSharper disable once CanBeReplacedWithTryCastAndCheckForNull
+#pragma warning disable " + NRefactoryDiagnosticIDs.CanBeReplacedWithTryCastAndCheckForNullAnalyzerID + @"
 		if (foo is Bar) {
 			Baz ((Bar)foo);
 			return (Bar)foo;

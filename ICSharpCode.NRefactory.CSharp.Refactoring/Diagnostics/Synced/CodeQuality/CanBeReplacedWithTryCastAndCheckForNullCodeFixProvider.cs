@@ -30,6 +30,8 @@ using Microsoft.CodeAnalysis.CodeFixes;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Collections.Immutable;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
+using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -54,13 +56,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var cancellationToken = context.CancellationToken;
 			var span = context.Span;
 			var diagnostics = context.Diagnostics;
+			var model = await document.GetSemanticModelAsync(cancellationToken);
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var diagnostic = diagnostics.First ();
-			var node = root.FindNode(context.Span);
-			//if (!node.IsKind(SyntaxKind.BaseList))
-			//	continue;
-			var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
+			var node = root.FindNode(context.Span) as IfStatementSyntax;
+			if (node == null)
+				return;
+
+			int foundCasts;
+			foreach (var fix in UseAsAndNullCheckCodeRefactoringProvider.ScanIfElse (model, document, root, node, node.Condition.SkipParens () as BinaryExpressionSyntax, out foundCasts)) {
+				context.RegisterCodeFix(fix, diagnostic);
+			}
 		}
 	}
 }

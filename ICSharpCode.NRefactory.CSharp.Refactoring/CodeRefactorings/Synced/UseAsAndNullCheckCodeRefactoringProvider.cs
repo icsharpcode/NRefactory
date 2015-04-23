@@ -79,7 +79,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				context.RegisterRefactoring(action);
 		}
 
-		static bool IsCast(SemanticModel model, SyntaxNode n, ITypeSymbol type)
+		internal static bool IsCast(SemanticModel model, SyntaxNode n, ITypeSymbol type)
 		{
 			var expr = n as ExpressionSyntax;
 			if (expr == null)
@@ -115,7 +115,8 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var rr = ctx.GetTypeInfo(castToType);
 			if (rr.Type == null || !rr.Type.IsReferenceType)
 				return Enumerable.Empty<CodeAction>();
-			var foundCasts = embeddedStatment.DescendantNodesAndSelf(n => !IsCast(ctx, n, rr.Type)).Where(arg => IsCast(ctx, arg, rr.Type)).ToList();
+			List<SyntaxNode> foundCasts;
+			foundCasts = embeddedStatment.DescendantNodesAndSelf (n => !IsCast (ctx, n, rr.Type)).Where (arg => IsCast (ctx, arg, rr.Type)).ToList ();
 			foundCasts.AddRange(ifElseStatement.Condition.DescendantNodesAndSelf(n => !IsCast(ctx, n, rr.Type)).Where(arg => arg.SpanStart > isExpression.Span.End && IsCast(ctx, arg, rr.Type)));
 			foundCastCount = foundCasts.Count;
 
@@ -175,6 +176,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			return !(stmt.Parent is BlockSyntax);
 		}
 
+	
 		internal static IEnumerable<CodeAction> HandleNegatedCase (SemanticModel ctx, Document document, SyntaxNode root, IfStatementSyntax ifElseStatement, ExpressionSyntax c2, BinaryExpressionSyntax isExpression, out int foundCastCount)
 		{
 			foundCastCount = 0;
@@ -249,7 +251,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			};
 		}
 
-		static bool IsControlFlowChangingStatement(SyntaxNode searchStmt)
+		internal static bool IsControlFlowChangingStatement(SyntaxNode searchStmt)
 		{
 			if (searchStmt is ReturnStatementSyntax || searchStmt is BreakStatementSyntax || searchStmt is ContinueStatementSyntax || searchStmt is GotoStatementSyntax)
 				return true;
