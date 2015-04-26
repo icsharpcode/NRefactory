@@ -105,7 +105,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			}
 			if (type.Name == typeof(ArgumentNullException).Name ||
 			    type.Name == typeof(ArgumentOutOfRangeException).Name ||
-			    type.Name == typeof(DuplicateWaitObjectException).Name) {
+			    type.Name == "DuplicateWaitObjectException") {
 				if (objectCreateExpression.ArgumentList.Arguments.Count >= 1) {
 					paramNode = objectCreateExpression.ArgumentList.Arguments[0].Expression;
 				}
