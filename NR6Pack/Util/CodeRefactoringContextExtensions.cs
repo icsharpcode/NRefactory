@@ -1,10 +1,10 @@
-//
-// AssemblyInfo.cs
+﻿//
+// CodeRefactoringContextExtensions.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,21 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Reflection;
-using System.Runtime.CompilerServices;
+using System;
+using Microsoft.CodeAnalysis.CodeRefactorings;
+using System.Collections.Generic;
+using Microsoft.CodeAnalysis.CodeActions;
 
-[assembly: AssemblyTitle ("ICSharpCode.NRefactory6.CSharp.Refactoring")]
-[assembly: AssemblyDescription("C# refactorings")]
+namespace ICSharpCode.NRefactory6.CSharp
+{
+	public static class CodeRefactoringContextExtensions
+	{
+		public static void RegisterRefactorings(this CodeRefactoringContext context, IEnumerable<CodeAction> actions)
+		{
+			foreach (var action in actions) {
+				context.RegisterRefactoring(action);
+			}
+		}
+	}
+}
+

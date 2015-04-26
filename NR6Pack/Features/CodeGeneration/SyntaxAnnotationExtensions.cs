@@ -1,10 +1,10 @@
-//
-// AssemblyInfo.cs
+﻿//
+// SyntaxAnnotationExtensions.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
 //
-// Copyright (c) 2013 Xamarin Inc. (http://xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,30 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using System;
+using Microsoft.CodeAnalysis;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle ("ICSharpCode.NRefactory6.CSharp.Refactoring")]
-[assembly: AssemblyDescription("C# refactorings")]
+namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
+{
+	public static class SyntaxAnnotationExtensions
+	{
+		readonly static Type typeInfo;
+
+		static SyntaxAnnotationExtensions ()
+		{
+			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CodeGeneration.SyntaxAnnotationExtensions" + ReflectionNamespaces.WorkspacesAsmName, true);
+			addAnnotationToSymbolMethod = typeInfo.GetMethod ("AddAnnotationToSymbol", BindingFlags.Public | BindingFlags.Static);
+		}
+
+		readonly static MethodInfo addAnnotationToSymbolMethod;
+
+		public static TSymbol AddAnnotationToSymbol<TSymbol>(
+			this SyntaxAnnotation annotation,
+			TSymbol symbol)
+			where TSymbol : ISymbol
+		{
+			return (TSymbol)addAnnotationToSymbolMethod.MakeGenericMethod (typeof(TSymbol)).Invoke (null, new object[] { annotation, symbol });
+		}
+	}
+}

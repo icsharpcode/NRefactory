@@ -10,7 +10,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.Tests", "ICSharpCode.NRefactory.Tests\ICSharpCode.NRefactory6.Tests.csproj", "{A28CDF69-C23E-44D0-87C3-CE72A3E61762}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.CSharp.Refactoring", "ICSharpCode.NRefactory.CSharp.Refactoring\ICSharpCode.NRefactory6.CSharp.Refactoring.csproj", "{C465A5DC-AD28-49A2-89C0-F81838814A7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack", "NR6Pack\NR6Pack.csproj", "{C465A5DC-AD28-49A2-89C0-F81838814A7E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.CSharp", "ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj", "{7E891659-45F3-42B5-B940-A728780CCAE9}"
 EndProject

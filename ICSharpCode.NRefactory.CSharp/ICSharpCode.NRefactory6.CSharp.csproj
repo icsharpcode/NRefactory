@@ -130,9 +130,6 @@
   <ItemGroup>
     <Compile Include="Properties\GlobalAssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Reflection\CSharpSyntaxContext.cs" />
-    <Compile Include="Util\CloneableStack.cs" />
-    <Compile Include="Util\TypeExtensions.cs" />
     <Compile Include="Features\Completion\CompletionResult.cs" />
     <Compile Include="Features\Completion\DisplayFlags.cs" />
     <Compile Include="Features\Completion\ICompletionData.cs" />
@@ -149,33 +146,18 @@
     <Compile Include="Features\Formatter\FormattingOptionsFactory.cs" />
     <Compile Include="Features\Formatter\Indent.cs" />
     <Compile Include="Features\SemanticHighlighting\SemanticHighlightingVisitor.cs" />
-    <Compile Include="Util\FormatStringHelper.cs" />
-    <Compile Include="Util\UnicodeNewline.cs" />
-    <Compile Include="Util\WordParser.cs" />
     <Compile Include="Features\Completion\EditorBrowsableBehavior.cs" />
     <Compile Include="Features\Completion\ContextHandler\CompletionContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\EnumMemberContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\KeywordContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\RoslynRecommendationsCompletionContextHandler.cs" />
     <Compile Include="Features\Completion\CompletionEngine.cs" />
-    <Compile Include="Util\SyntaxContext.cs" />
     <Compile Include="Features\ParameterHinting\ParameterHintingEngine.cs" />
     <Compile Include="Features\ParameterHinting\ParameterHintingResult.cs" />
     <Compile Include="Features\ParameterHinting\IParameterHintingData.cs" />
     <Compile Include="Features\ParameterHinting\IParameterHintingDataFactory.cs" />
     <Compile Include="Features\ParameterHinting\ParameterUtil.cs" />
-    <Compile Include="Util\SymbolExtensions.cs" />
-    <Compile Include="Util\NamespaceExtensions.cs" />
-    <Compile Include="Util\CompilationExtensions.cs" />
-    <Compile Include="Util\SyntaxExtensions.cs" />
-    <Compile Include="Util\CSharpUtil.cs" />
-    <Compile Include="Util\SignatureComparer.cs" />
-    <Compile Include="Refactoring\TypeGuessing.cs" />
-    <Compile Include="Util\FastSerializer.cs" />
-    <Compile Include="Util\ReferenceComparer.cs" />
-    <Compile Include="Util\7BitEncodedInts.cs" />
     <Compile Include="Features\Completion\ICompletionCategory.cs" />
-    <Compile Include="Util\ITypeSymbolExtensions.cs" />
     <Compile Include="Features\Completion\CompletionTriggerReason.cs" />
     <Compile Include="Features\Completion\CompletionTriggerInfo.cs" />
     <Compile Include="Features\Completion\CompletionContext.cs" />
@@ -309,37 +291,9 @@
     <Compile Include="Features\Completion\KeywordRecommender\WhereKeywordRecommender.cs" />
     <Compile Include="Features\Completion\KeywordRecommender\WhileKeywordRecommender.cs" />
     <Compile Include="Features\Completion\KeywordRecommender\YieldKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\SyntaxKindSet.cs" />
-    <Compile Include="Util\SyntaxTokenExtensions.cs" />
-    <Compile Include="Util\SyntaxTreeExtensions.cs" />
-    <Compile Include="Util\SpecializedCollections.cs" />
-    <Compile Include="Util\SyntaxNodeExtensions.cs" />
-    <Compile Include="Util\LinkedListExtension.cs" />
-    <Compile Include="Util\ObjectExtensions.cs" />
-    <Compile Include="Util\TypeSyntaxExtensions.cs" />
-    <Compile Include="Util\SyntaxTriviaExtensions.cs" />
-    <Compile Include="Util\SymbolInfoExtensions.cs" />
-    <Compile Include="Util\SemanticModelExtensions.cs" />
-    <Compile Include="Util\MemberDeclarationSyntaxExtensions.cs" />
-    <Compile Include="Util\SourceTextExtensions.cs" />
-    <Compile Include="Util\TextLineExtension.cs" />
-    <Compile Include="Util\EnumerableExtensions.cs" />
-    <Compile Include="Util\Matcher.cs" />
-    <Compile Include="Util\NameSyntaxExtensions.cs" />
-    <Compile Include="Util\StringExtensions.cs" />
-    <Compile Include="Util\ExpressionSyntaxExtensions.cs" />
-    <Compile Include="Util\INamespaceOrTypeSymbolExtensions.cs" />
-    <Compile Include="Util\NameGenerator.cs" />
-    <Compile Include="Util\FindTokenHelper.cs" />
     <Compile Include="Features\Completion\ContextHandler\XmlDocCommentContextHandler.cs" />
-    <Compile Include="Util\DocumentExtensions.cs" />
-    <Compile Include="Util\IDocumentExtensions.cs" />
     <Compile Include="Features\Completion\ContextHandler\ExplicitInterfaceContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\AttributeNamedParameterContextHandler.cs" />
-    <Compile Include="Util\ISymbolExtensions.cs" />
-    <Compile Include="Util\IAssemblySymbolExtensions.cs" />
-    <Compile Include="Util\INamedTypeSymbolExtensions.cs" />
-    <Compile Include="Util\ICompilationExtensions.cs" />
     <Compile Include="Features\Completion\ICompletionKeyHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\NamedParameterContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SpeculativeTContextHandler.cs" />
@@ -352,9 +306,6 @@
     <Compile Include="Features\Completion\ContextHandler\CastCompletionContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\SenderCompletionContextHandler.cs" />
     <Compile Include="Features\Formatter\FormattingRangeHelper.cs" />
-    <Compile Include="Util\ValueTuple.cs" />
-    <Compile Include="Util\ValueTuple`2.cs" />
-    <Compile Include="Util\Hash.cs" />
     <Compile Include="Features\Formatter\FormattingHelpers.cs" />
     <Compile Include="Features\Formatter\CommonFormattingHelpers.cs" />
     <Compile Include="Features\Formatter\CSharpEditorFormattingService.cs" />
@@ -392,16 +343,6 @@
     <Compile Include="Features\ExtractMethod\SimpleExtractMethodResult.cs" />
     <Compile Include="Features\ExtractMethod\UniqueNameGenerator.cs" />
     <Compile Include="Features\ExtractMethod\VariableStyle.cs" />
-    <Compile Include="Util\SyntacticDocument.cs" />
-    <Compile Include="Util\SemanticDocument.cs" />
-    <Compile Include="Util\IDictionaryExtensions.cs" />
-    <Compile Include="Util\SymbolKeyExtensions.cs" />
-    <Compile Include="Util\SymbolKeyResolutionExtensions.cs" />
-    <Compile Include="Util\CSharpSyntaxFactsService.cs" />
-    <Compile Include="Util\CodeGenerationSymbolFactory.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationOptions.cs" />
-    <Compile Include="Features\CodeGeneration\CSharpCodeGenerationService.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationDestination.cs" />
     <Compile Include="Features\ExtractMethod\CSharp\CSharpExtractMethodService.cs" />
     <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.Analyzer.cs" />
     <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.cs" />
@@ -421,31 +362,12 @@
     <Compile Include="Features\ExtractMethod\CSharp\CSharpSyntaxTriviaService.cs" />
     <Compile Include="Features\ExtractMethod\CSharp\CSharpSyntaxTriviaServiceFactory.cs" />
     <Compile Include="Features\ExtractMethod\CSharp\Extensions.cs" />
-    <Compile Include="Util\AnnotationTable.cs" />
-    <Compile Include="Util\SyntaxListExtension.cs" />
-    <Compile Include="Features\CodeGeneration\SyntaxAnnotationExtensions.cs" />
-    <Compile Include="Util\SimpleNameSyntaxExtensions.cs" />
-    <Compile Include="Util\DeclaredSymbolInfo.cs" />
-    <Compile Include="Util\CompilationUnitSyntaxExtensions.cs" />
-    <Compile Include="Util\UsingsAndExternAliasesDirectiveComparer.cs" />
-    <Compile Include="Util\TokenComparer.cs" />
-    <Compile Include="Util\NameSyntaxComparer.cs" />
-    <Compile Include="Util\TypeSyntaxComparer.cs" />
-    <Compile Include="Util\NamespaceDeclarationSyntaxExtensions.cs" />
-    <Compile Include="Util\SymbolEquivalenceComparer.cs" />
-    <Compile Include="Util\IParameterSymbolExtensions.cs" />
-    <Compile Include="Util\PredefinedOperator.cs" />
-    <Compile Include="Util\SpeculationAnalyzer.cs" />
     <Compile Include="Features\GotoDefinition\GotoDefinitionHelpers.cs" />
     <Compile Include="Features\GotoDefinition\GotoDefinitionService.cs" />
-    <Compile Include="Util\GeneratedCodeRecognitionService.cs" />
-    <Compile Include="Util\CommonLocationExtensions.cs" />
     <Compile Include="Features\GenerateFromMembers\GenerateConstructor\GenerateConstructorResult.cs" />
     <Compile Include="Features\GenerateFromMembers\GenerateConstructor\AbstractGenerateConstructorService.cs" />
     <Compile Include="Features\GenerateFromMembers\AbstractGenerateFromMembersService.cs" />
     <Compile Include="Features\GenerateFromMembers\AbstractCodeRefactoringResult.cs" />
-    <Compile Include="Refactoring\CodeRefactoring.cs" />
-    <Compile Include="Util\ICodeDefinitionFactoryExtensions.cs" />
     <Compile Include="Features\GenerateFromMembers\GenerateConstructor\CSharpGenerateConstructorService.cs" />
     <Compile Include="Features\GenerateFromMembers\GenerateFromMembersHelpers.cs" />
     <Compile Include="Features\GenerateMember\GenerateConstructor\AbstractGenerateConstructorService.cs" />
@@ -462,28 +384,17 @@
     <Compile Include="Features\GenerateMember\GenerateVariable\AbstractGenerateVariableService.cs" />
     <Compile Include="Features\GenerateMember\AbstractGenerateMemberService.cs" />
     <Compile Include="Features\GenerateMember\AbstractCodeRefactoringResult.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerator.cs" />
-    <Compile Include="Util\EnumValueUtilities.cs" />
     <Compile Include="Resources.cs" />
-    <Compile Include="Util\IMethodSymbolExtensions.cs" />
-    <Compile Include="Util\CommonAccessibilityUtilities.cs" />
-    <Compile Include="Util\ITypeParameterSymbolExtensions.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationHelpers.cs" />
-    <Compile Include="Util\TypeGenerator.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationTypeParameterSymbol.cs" />
     <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\CSharpGenerateDefaultConstructorsService.cs" />
     <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpCommonGenerationServiceMethods.cs" />
     <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateConversionService.cs" />
     <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateMethodService.cs" />
     <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateParameterizedMemberService.cs" />
     <Compile Include="Features\GenerateMember\GenerateVariable\CSharpGenerateVariableService.cs" />
-    <Compile Include="Util\ArgumentSyntaxExtensions.cs" />
     <Compile Include="Features\GenerateType\TypeKindOptions.cs" />
     <Compile Include="Features\GenerateType\GenerateTypeOptionsResult.cs" />
     <Compile Include="Features\GenerateType\AbstractGenerateTypeService.cs" />
     <Compile Include="Features\GenerateType\GenerateTypeDialogOptions.cs" />
-    <Compile Include="Util\TaskExtensions.cs" />
-    <Compile Include="Util\CSharpSemanticFactsService.cs" />
     <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.cs" />
     <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.Editor.cs" />
     <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.State.cs" />
@@ -494,14 +405,8 @@
     <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.DisposePatternCodeAction.cs" />
     <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.State.cs" />
     <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Conflicts.cs" />
-    <Compile Include="Util\IPropertySymbolExtensions.cs" />
     <Compile Include="Features\ImplementAbstractClass\CSharpImplementAbstractClassService.cs" />
     <Compile Include="Features\ImplementInterface\CSharpImplementInterfaceService.cs" />
-    <Compile Include="Util\TypeDeclarationSyntaxExtensions.cs" />
-    <Compile Include="Util\CodeRefactoringContextExtensions.cs" />
-    <Compile Include="Util\ImmutableArrayExtensions.cs" />
-    <Compile Include="Util\SyntaxTriviaListExtensions.cs" />
-    <Compile Include="Util\CodeFixContextExtensions.cs" />
     <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.cs" />
     <Compile Include="Features\IntroduceVariable\IntroduceVariableResult.cs" />
     <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.AbstractIntroduceVariableCodeAction.cs" />
@@ -514,25 +419,33 @@
     <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State.cs" />
     <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.IntroduceVariableAllOccurrenceCodeAction.cs" />
     <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.CodeAction.cs" />
-    <Compile Include="Util\SemanticMap.cs" />
-    <Compile Include="Util\SemanticEquivalence.cs" />
     <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService.cs" />
     <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService.Rewriter.cs" />
     <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceField.cs" />
     <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceLocal.cs" />
     <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceQueryLocal.cs" />
-    <Compile Include="Util\CommonSyntaxNodeOrTokenExtensions.cs" />
-    <Compile Include="Util\QueryExpressionSyntaxExtensions.cs" />
     <Compile Include="Features\GenerateType\CSharpGenerateTypeService.cs" />
     <Compile Include="Features\OrganizeImports\CSharpOrganizeImportsService.cs" />
     <Compile Include="Features\OrganizeImports\CSharpOrganizeImportsService.Rewriter.cs" />
-    <Compile Include="Util\UsingsAndExternAliasesOrganizer.cs" />
     <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.cs" />
     <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.Rewriter.cs" />
-    <Compile Include="Util\CrefSyntaxExtensions.cs" />
-    <Compile Include="Util\CastExpressionSyntaxExtensions.cs" />
     <Compile Include="Features\Completion\ContextHandler\PartialContextHandler.cs" />
     <Compile Include="Features\Completion\ContextHandler\PreProcessorExpressionContextHandler.cs" />
+    <Compile Include="Util\7BitEncodedInts.cs" />
+    <Compile Include="Util\CloneableStack.cs" />
+    <Compile Include="Util\CSharpSemanticFactsService.cs" />
+    <Compile Include="Util\CSharpSyntaxFactsService.cs" />
+    <Compile Include="Util\DeclaredSymbolInfo.cs" />
+    <Compile Include="Util\EnumValueUtilities.cs" />
+    <Compile Include="Util\FastSerializer.cs" />
+    <Compile Include="Util\FormatStringHelper.cs" />
+    <Compile Include="Util\GeneratedCodeRecognitionService.cs" />
+    <Compile Include="Util\CodeRefactoringContextExtensions.cs" />
+    <Compile Include="Util\ReferenceComparer.cs" />
+    <Compile Include="Util\SemanticEquivalence.cs" />
+    <Compile Include="Util\SymbolEquivalenceComparer.cs" />
+    <Compile Include="Util\SyntaxContext.cs" />
+    <Compile Include="Util\UsingsAndExternAliasesOrganizer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
@@ -549,24 +462,6 @@
   </ProjectExtensions>
   <ItemGroup>
     <Folder Include="Util\ContextQuery\" />
-    <Folder Include="Features\ExtractMethod\" />
-    <Folder Include="Features\ExtractMethod\CSharp\" />
-    <Folder Include="Features\CodeGeneration\" />
-    <Folder Include="Features\GotoDefinition\" />
-    <Folder Include="Features\GenerateFromMembers\" />
-    <Folder Include="Features\GenerateFromMembers\GenerateConstructor\" />
-    <Folder Include="Features\GenerateMember\" />
-    <Folder Include="Features\GenerateMember\GenerateConstructor\" />
-    <Folder Include="Features\GenerateMember\GenerateEnumMember\" />
-    <Folder Include="Features\GenerateMember\GenerateDefaultConstructors\" />
-    <Folder Include="Features\GenerateMember\GenerateParameterizedMember\" />
-    <Folder Include="Features\GenerateMember\GenerateVariable\" />
-    <Folder Include="Features\GenerateType\" />
-    <Folder Include="Features\ImplementInterface\" />
-    <Folder Include="Features\ImplementAbstractClass\" />
-    <Folder Include="Features\IntroduceVariable\" />
-    <Folder Include="Features\OrganizeImports\" />
-    <Folder Include="Features\RemoveUnnecessaryImports\" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
@@ -600,5 +495,11 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\tools\analyzers\Microsoft.CodeAnalysis.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NR6Pack\NR6Pack.csproj">
+      <Project>{c465a5dc-ad28-49a2-89c0-f81838814a7e}</Project>
+      <Name>NR6Pack</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

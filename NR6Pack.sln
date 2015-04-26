@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack", "NR6Pack\NR6Pack.csproj", "{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack.Vsix", "NR6Pack.Vsix\NR6Pack.Vsix.csproj", "{99498EF8-C9E0-433B-8D7B-EA8E9E66F0C7}"
 	ProjectSection(ProjectDependencies) = postProject
 		{7FB64621-DF93-48DE-995D-8CB0804F6003} = {7FB64621-DF93-48DE-995D-8CB0804F6003}
@@ -13,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack.Vsix", "NR6Pack.Vsi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.CSharp", "ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj", "{7E891659-45F3-42B5-B940-A728780CCAE9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.CSharp.Refactoring", "ICSharpCode.NRefactory.CSharp.Refactoring\ICSharpCode.NRefactory6.CSharp.Refactoring.csproj", "{C465A5DC-AD28-49A2-89C0-F81838814A7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack", "NR6Pack\NR6Pack.csproj", "{C465A5DC-AD28-49A2-89C0-F81838814A7E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{CF2B2ADB-325E-49D2-8718-2FBEFE973476}"
 	ProjectSection(SolutionItems) = preProject
@@ -40,22 +38,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Debug|x86.Build.0 = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Debug|Any CPU.Build.0 = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Debug|x86.ActiveCfg = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Debug|x86.Build.0 = Debug|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Release|Any CPU.Build.0 = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Release|x86.ActiveCfg = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.net_4_5_Release|x86.Build.0 = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Release|Any CPU.Build.0 = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Release|x86.ActiveCfg = Release|Any CPU
-		{9B591CDB-4085-4BFF-BC05-6537C6AA7D87}.Release|x86.Build.0 = Release|Any CPU
 		{99498EF8-C9E0-433B-8D7B-EA8E9E66F0C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{99498EF8-C9E0-433B-8D7B-EA8E9E66F0C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{99498EF8-C9E0-433B-8D7B-EA8E9E66F0C7}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -92,14 +74,14 @@ Global
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Debug|x86.ActiveCfg = Debug|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Debug|x86.Build.0 = Debug|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|Any CPU.ActiveCfg = net_4_5_Debug|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|Any CPU.Build.0 = net_4_5_Debug|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|x86.ActiveCfg = net_4_5_Debug|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|x86.Build.0 = net_4_5_Debug|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|Any CPU.ActiveCfg = net_4_5_Release|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|Any CPU.Build.0 = net_4_5_Release|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|x86.ActiveCfg = net_4_5_Release|Any CPU
-		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|x86.Build.0 = net_4_5_Release|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|x86.ActiveCfg = Debug|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Debug|x86.Build.0 = Debug|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|Any CPU.Build.0 = Release|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|x86.ActiveCfg = Release|Any CPU
+		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.net_4_5_Release|x86.Build.0 = Release|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Release|x86.ActiveCfg = Release|Any CPU
