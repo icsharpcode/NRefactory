@@ -18,10 +18,12 @@ namespace NR6Pack.DocGenerator
 		{
 			var codeRefactorings = typeof(ICSharpCode.NRefactory6.CSharp.Diagnostics.NRefactoryDiagnosticIDs).Assembly.GetTypes()
 				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName))
+				.Where(t => !t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ICSharpCode.NRefactory6.CSharp.NotPortedYetAttribute).FullName))
 				.ToArray();
 
 			var codeAnalyzers = typeof(ICSharpCode.NRefactory6.CSharp.Diagnostics.NRefactoryDiagnosticIDs).Assembly.GetTypes()
 				.Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(DiagnosticAnalyzerAttribute).FullName))
+				.Where(t => !t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ICSharpCode.NRefactory6.CSharp.NotPortedYetAttribute).FullName))
 				.ToArray();
 
 			XDocument codeRefactoringsDocument = XDocument.Load(@"..\NR6Pack\CodeActions.html.template");
