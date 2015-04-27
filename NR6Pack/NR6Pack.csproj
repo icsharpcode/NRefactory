@@ -40,7 +40,7 @@
     <SignAssembly>true</SignAssembly>
   </PropertyGroup>
   <PropertyGroup>
-    <AssemblyOriginatorKeyFile>ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Properties\GlobalAssemblyInfo.cs">
@@ -622,7 +622,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <None Include="ICSharpCode.NRefactory.snk" />
     <None Include="NR6Pack.nuspec">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

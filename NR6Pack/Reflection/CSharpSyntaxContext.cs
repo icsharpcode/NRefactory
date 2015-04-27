@@ -21,7 +21,8 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 	public class CSharpSyntaxContext
 	{
-		readonly static Type typeInfo;
+		readonly static Type typeInfoCSharpSyntaxContext;
+		readonly static Type typeInfoAbstractSyntaxContext;
 		readonly static MethodInfo createContextMethod;
 		readonly static PropertyInfo leftTokenProperty;
 		readonly static PropertyInfo targetTokenProperty;
@@ -333,47 +334,48 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		static CSharpSyntaxContext ()
 		{
-			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext" + ReflectionNamespaces.CSWorkspacesAsmName, true);
+			typeInfoAbstractSyntaxContext = Type.GetType("Microsoft.CodeAnalysis.Shared.Extensions.ContextQuery.AbstractSyntaxContext" + ReflectionNamespaces.WorkspacesAsmName, true);
+			typeInfoCSharpSyntaxContext = Type.GetType ("Microsoft.CodeAnalysis.CSharp.Extensions.ContextQuery.CSharpSyntaxContext" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 
-			createContextMethod = typeInfo.GetMethod ("CreateContext", BindingFlags.Static | BindingFlags.Public);
-			leftTokenProperty = typeInfo.GetProperty ("LeftToken");
-			targetTokenProperty = typeInfo.GetProperty ("TargetToken");
-			isIsOrAsTypeContextField = typeInfo.GetField ("IsIsOrAsTypeContext");
-			isInstanceContextField = typeInfo.GetField ("IsInstanceContext");
-			isNonAttributeExpressionContextField = typeInfo.GetField ("IsNonAttributeExpressionContext");
-			isPreProcessorKeywordContextField = typeInfo.GetField ("IsPreProcessorKeywordContext");
-			isPreProcessorExpressionContextField = typeInfo.GetField ("IsPreProcessorExpressionContext");
-			containingTypeDeclarationField = typeInfo.GetField ("ContainingTypeDeclaration");
-			isGlobalStatementContextField = typeInfo.GetField ("IsGlobalStatementContext");
-			isParameterTypeContextField = typeInfo.GetField ("IsParameterTypeContext");
-			isMemberDeclarationContextMethod = typeInfo.GetMethod ("IsMemberDeclarationContext", BindingFlags.Instance | BindingFlags.Public);
-			isTypeDeclarationContextMethod = typeInfo.GetMethod ("IsTypeDeclarationContext", BindingFlags.Instance | BindingFlags.Public);
-			syntaxTreeProperty = typeInfo.GetProperty ("SyntaxTree");
-			isPreProcessorDirectiveContextProperty = typeInfo.GetProperty ("IsPreProcessorDirectiveContext");
-			isInNonUserCodeField = typeInfo.GetField ("IsInNonUserCode");
-			isIsOrAsContextField = typeInfo.GetField ("IsIsOrAsContext");
-			isTypeAttributeContextMethod = typeInfo.GetMethod ("IsTypeAttributeContext", BindingFlags.Instance | BindingFlags.Public);
-			isAnyExpressionContextProperty = typeInfo.GetProperty ("IsAnyExpressionContext");
-			isStatementContextProperty = typeInfo.GetProperty ("IsStatementContext");
-			isDefiniteCastTypeContextField = typeInfo.GetField ("IsDefiniteCastTypeContext");
-			isObjectCreationTypeContextField = typeInfo.GetField ("IsObjectCreationTypeContext");
-			isGenericTypeArgumentContextField = typeInfo.GetField ("IsGenericTypeArgumentContext");
-			isLocalVariableDeclarationContextField = typeInfo.GetField ("IsLocalVariableDeclarationContext");
-			isFixedVariableDeclarationContextField = typeInfo.GetField ("IsFixedVariableDeclarationContext");
-			isPossibleLambdaOrAnonymousMethodParameterTypeContextField = typeInfo.GetField ("IsPossibleLambdaOrAnonymousMethodParameterTypeContext");
-			isImplicitOrExplicitOperatorTypeContextField = typeInfo.GetField ("IsImplicitOrExplicitOperatorTypeContext");
-			isPrimaryFunctionExpressionContextField = typeInfo.GetField ("IsPrimaryFunctionExpressionContext");
-			isCrefContextField = typeInfo.GetField ("IsCrefContext");
-			isDelegateReturnTypeContextField = typeInfo.GetField ("IsDelegateReturnTypeContext");
-			isEnumBaseListContextField = typeInfo.GetField ("IsEnumBaseListContext");
-			isConstantExpressionContextField = typeInfo.GetField ("IsConstantExpressionContext");
-			isMemberAttributeContextMethod = typeInfo.GetMethod ("IsMemberAttributeContext", BindingFlags.Instance | BindingFlags.Public);
-			precedingModifiersField = typeInfo.GetField ("PrecedingModifiers");
-			isTypeOfExpressionContextField = typeInfo.GetField ("IsTypeOfExpressionContext");
-			containingTypeOrEnumDeclarationField = typeInfo.GetField ("ContainingTypeOrEnumDeclaration");
+			createContextMethod = typeInfoCSharpSyntaxContext.GetMethod ("CreateContext", BindingFlags.Static | BindingFlags.Public);
+			leftTokenProperty = typeInfoAbstractSyntaxContext.GetProperty ("LeftToken");
+			targetTokenProperty = typeInfoAbstractSyntaxContext.GetProperty ("TargetToken");
+			isIsOrAsTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsIsOrAsTypeContext");
+			isInstanceContextField = typeInfoCSharpSyntaxContext.GetField ("IsInstanceContext");
+			isNonAttributeExpressionContextField = typeInfoCSharpSyntaxContext.GetField ("IsNonAttributeExpressionContext");
+			isPreProcessorKeywordContextField = typeInfoCSharpSyntaxContext.GetField ("IsPreProcessorKeywordContext");
+			isPreProcessorExpressionContextField = typeInfoCSharpSyntaxContext.GetField ("IsPreProcessorExpressionContext");
+			containingTypeDeclarationField = typeInfoCSharpSyntaxContext.GetField ("ContainingTypeDeclaration");
+			isGlobalStatementContextField = typeInfoCSharpSyntaxContext.GetField ("IsGlobalStatementContext");
+			isParameterTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsParameterTypeContext");
+			isMemberDeclarationContextMethod = typeInfoCSharpSyntaxContext.GetMethod ("IsMemberDeclarationContext", BindingFlags.Instance | BindingFlags.Public);
+			isTypeDeclarationContextMethod = typeInfoCSharpSyntaxContext.GetMethod ("IsTypeDeclarationContext", BindingFlags.Instance | BindingFlags.Public);
+			syntaxTreeProperty = typeInfoAbstractSyntaxContext.GetProperty ("SyntaxTree");
+			isPreProcessorDirectiveContextProperty = typeInfoAbstractSyntaxContext.GetProperty ("IsPreProcessorDirectiveContext");
+			isInNonUserCodeField = typeInfoCSharpSyntaxContext.GetField ("IsInNonUserCode");
+			isIsOrAsContextField = typeInfoCSharpSyntaxContext.GetField ("IsIsOrAsContext");
+			isTypeAttributeContextMethod = typeInfoCSharpSyntaxContext.GetMethod ("IsTypeAttributeContext", BindingFlags.Instance | BindingFlags.Public);
+			isAnyExpressionContextProperty = typeInfoAbstractSyntaxContext.GetProperty ("IsAnyExpressionContext");
+			isStatementContextProperty = typeInfoAbstractSyntaxContext.GetProperty ("IsStatementContext");
+			isDefiniteCastTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsDefiniteCastTypeContext");
+			isObjectCreationTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsObjectCreationTypeContext");
+			isGenericTypeArgumentContextField = typeInfoCSharpSyntaxContext.GetField ("IsGenericTypeArgumentContext");
+			isLocalVariableDeclarationContextField = typeInfoCSharpSyntaxContext.GetField ("IsLocalVariableDeclarationContext");
+			isFixedVariableDeclarationContextField = typeInfoCSharpSyntaxContext.GetField ("IsFixedVariableDeclarationContext");
+			isPossibleLambdaOrAnonymousMethodParameterTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsPossibleLambdaOrAnonymousMethodParameterTypeContext");
+			isImplicitOrExplicitOperatorTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsImplicitOrExplicitOperatorTypeContext");
+			isPrimaryFunctionExpressionContextField = typeInfoCSharpSyntaxContext.GetField ("IsPrimaryFunctionExpressionContext");
+			isCrefContextField = typeInfoCSharpSyntaxContext.GetField ("IsCrefContext");
+			isDelegateReturnTypeContextField = typeInfoCSharpSyntaxContext.GetField ("IsDelegateReturnTypeContext");
+			isEnumBaseListContextField = typeInfoCSharpSyntaxContext.GetField ("IsEnumBaseListContext");
+			isConstantExpressionContextField = typeInfoCSharpSyntaxContext.GetField ("IsConstantExpressionContext");
+			isMemberAttributeContextMethod = typeInfoCSharpSyntaxContext.GetMethod ("IsMemberAttributeContext", BindingFlags.Instance | BindingFlags.Public);
+			precedingModifiersField = typeInfoCSharpSyntaxContext.GetField ("PrecedingModifiers");
+			isTypeOfExpressionContextField = typeInfoCSharpSyntaxContext.GetField ("IsTypeOfExpressionContext");
+			containingTypeOrEnumDeclarationField = typeInfoCSharpSyntaxContext.GetField ("ContainingTypeOrEnumDeclaration");
 
-			isAttributeNameContextProperty = typeInfo.GetProperty ("IsAttributeNameContext");
-			isInQueryProperty = typeInfo.GetProperty ("IsInQuery");
+			isAttributeNameContextProperty = typeInfoAbstractSyntaxContext.GetProperty ("IsAttributeNameContext");
+			isInQueryProperty = typeInfoAbstractSyntaxContext.GetProperty ("IsInQuery");
 		}
 
 		public SemanticModel SemanticModel {
