@@ -440,13 +440,13 @@
     <Compile Include="Util\FastSerializer.cs" />
     <Compile Include="Util\FormatStringHelper.cs" />
     <Compile Include="Util\GeneratedCodeRecognitionService.cs" />
-    <Compile Include="Util\CodeRefactoringContextExtensions.cs" />
     <Compile Include="Util\ReferenceComparer.cs" />
     <Compile Include="Util\SemanticEquivalence.cs" />
     <Compile Include="Util\SymbolEquivalenceComparer.cs" />
     <Compile Include="Util\SyntaxContext.cs" />
     <Compile Include="Util\UsingsAndExternAliasesOrganizer.cs" />
   </ItemGroup>
+  <Import Project="..\ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems" Label="Shared" Condition="Exists('..\ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems')" />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ProjectExtensions>
     <MonoDevelop>
@@ -495,11 +495,5 @@
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\tools\analyzers\Microsoft.CodeAnalysis.Analyzers.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NR6Pack\NR6Pack.csproj">
-      <Project>{c465a5dc-ad28-49a2-89c0-f81838814a7e}</Project>
-      <Name>NR6Pack</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

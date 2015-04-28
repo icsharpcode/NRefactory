@@ -32,7 +32,6 @@ using System.Collections.Generic;
 using Microsoft.CodeAnalysis.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
-using ICSharpCode.NRefactory6.CSharp.Diagnostics;
 using System.Diagnostics;
 
 namespace ICSharpCode.NRefactory6.CSharp.Analysis

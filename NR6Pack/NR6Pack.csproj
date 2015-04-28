@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="..\ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems" Label="Shared" Condition="Exists('..\ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
@@ -16,6 +17,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
     <RestorePackages>true</RestorePackages>
+    <ProductVersion>8.0.30703</ProductVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -46,13 +48,6 @@
     <Compile Include="..\ICSharpCode.NRefactory.CSharp\Properties\GlobalAssemblyInfo.cs">
       <Link>Properties\GlobalAssemblyInfo.cs</Link>
     </Compile>
-    <Compile Include="Features\CodeGeneration\CodeGenerationDestination.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationHelpers.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationOptions.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerationTypeParameterSymbol.cs" />
-    <Compile Include="Features\CodeGeneration\CodeGenerator.cs" />
-    <Compile Include="Features\CodeGeneration\CSharpCodeGenerationService.cs" />
-    <Compile Include="Features\CodeGeneration\SyntaxAnnotationExtensions.cs" />
     <Compile Include="NotPortedYetAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="CodeRefactorings\Synced\AddAnotherAccessorCodeRefactoringProvider.cs" />
@@ -152,53 +147,6 @@
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\PublicConstructorInAbstractClass.cs" />
     <Compile Include="Diagnostics\Synced\PracticesAndImprovements\ReplaceWithOfTypeAny.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0659OverrideEqualWithoutGetHashCode.cs" />
-    <Compile Include="Refactoring\CodeRefactoring.cs" />
-    <Compile Include="Refactoring\TypeGuessing.cs" />
-    <Compile Include="Reflection\CSharpSyntaxContext.cs" />
-    <Compile Include="Util\AnnotationTable.cs" />
-    <Compile Include="Util\ArgumentSyntaxExtensions.cs" />
-    <Compile Include="Util\CastExpressionSyntaxExtensions.cs" />
-    <Compile Include="Util\CodeFixContextExtensions.cs" />
-    <Compile Include="Util\CodeGenerationSymbolFactory.cs" />
-    <Compile Include="Util\CodeRefactoringContextExtensions.cs" />
-    <Compile Include="Util\CommonAccessibilityUtilities.cs" />
-    <Compile Include="Util\CommonLocationExtensions.cs" />
-    <Compile Include="Util\CommonSyntaxNodeOrTokenExtensions.cs" />
-    <Compile Include="Util\CompilationExtensions.cs" />
-    <Compile Include="Util\CompilationUnitSyntaxExtensions.cs" />
-    <Compile Include="Util\CrefSyntaxExtensions.cs" />
-    <Compile Include="Util\CSharpUtil.cs" />
-    <Compile Include="Util\DocumentExtensions.cs" />
-    <Compile Include="Util\EnumerableExtensions.cs" />
-    <Compile Include="Util\ExpressionSyntaxExtensions.cs" />
-    <Compile Include="Util\FindTokenHelper.cs" />
-    <Compile Include="Util\Hash.cs" />
-    <Compile Include="Util\IAssemblySymbolExtensions.cs" />
-    <Compile Include="Util\ICodeDefinitionFactoryExtensions.cs" />
-    <Compile Include="Util\ICompilationExtensions.cs" />
-    <Compile Include="Util\IDictionaryExtensions.cs" />
-    <Compile Include="Util\IDocumentExtensions.cs" />
-    <Compile Include="Util\IMethodSymbolExtensions.cs" />
-    <Compile Include="Util\ImmutableArrayExtensions.cs" />
-    <Compile Include="Util\INamedTypeSymbolExtensions.cs" />
-    <Compile Include="Util\INamespaceOrTypeSymbolExtensions.cs" />
-    <Compile Include="Util\IParameterSymbolExtensions.cs" />
-    <Compile Include="Util\IPropertySymbolExtensions.cs" />
-    <Compile Include="Util\ISymbolExtensions.cs" />
-    <Compile Include="Util\ITypeParameterSymbolExtensions.cs" />
-    <Compile Include="Util\ITypeSymbolExtensions.cs" />
-    <Compile Include="Util\LinkedListExtension.cs" />
-    <Compile Include="Util\Matcher.cs" />
-    <Compile Include="Util\MemberDeclarationSyntaxExtensions.cs" />
-    <Compile Include="Util\NameGenerator.cs" />
-    <Compile Include="Util\NamespaceDeclarationSyntaxExtensions.cs" />
-    <Compile Include="Util\NamespaceExtensions.cs" />
-    <Compile Include="Util\NameSyntaxComparer.cs" />
-    <Compile Include="Util\NameSyntaxExtensions.cs" />
-    <Compile Include="Util\ObjectExtensions.cs" />
-    <Compile Include="Util\PredefinedOperator.cs" />
-    <Compile Include="Util\QueryExpressionSyntaxExtensions.cs" />
-    <Compile Include="Util\RefactoringHelpers.cs" />
     <Compile Include="Diagnostics\DiagnosticAnalyzerCategories.cs" />
     <Compile Include="Diagnostics\DiagnosticAnalyzerMarker.cs" />
     <Compile Include="Diagnostics\Custom\CompilerErrors\CS0126ReturnMustBeFollowedByAnyExpression.cs" />
@@ -391,9 +339,6 @@
     <Compile Include="CodeRefactorings\Custom\ReverseDirectionForForLoopCodeRefactoringProvider.cs" />
     <Compile Include="Diagnostics\NRefactoryDiagnosticIDs.cs" />
     <Compile Include="Diagnostics\DiagnosticCustomTags.cs" />
-    <Compile Include="Util\HelpLink.cs" />
-    <Compile Include="Util\GettextCatalog.cs" />
-    <Compile Include="Util\NRefactory6Host.cs" />
     <Compile Include="CodeFixes\Custom\CS1105ExtensionMethodMustBeDeclaredStaticCodeFixProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\InitializeFieldFromConstructorParameterCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider.cs" />
@@ -542,48 +487,10 @@
     <Compile Include="Diagnostics\Custom\XmlDocCodeFixProvider.cs" />
     <Compile Include="Diagnostics\Custom\NameOfSuggestionAnalyzer.cs" />
     <Compile Include="Diagnostics\Custom\NameOfSuggestionCodeFixProvider.cs" />
-    <Compile Include="Util\GeneratedCodeRecognition.cs" />
     <Compile Include="Diagnostics\DocumentChangeAction.cs" />
     <Compile Include="Diagnostics\NRefactoryCodeAction.cs" />
     <Compile Include="Diagnostics\InsertionAction.cs" />
     <Compile Include="Diagnostics\InsertionResult.cs" />
-    <Compile Include="Util\ReflectionCompatibilityExtensions.cs" />
-    <Compile Include="Util\SemanticDocument.cs" />
-    <Compile Include="Util\SemanticMap.cs" />
-    <Compile Include="Util\SemanticModelExtensions.cs" />
-    <Compile Include="Util\SignatureComparer.cs" />
-    <Compile Include="Util\SimpleNameSyntaxExtensions.cs" />
-    <Compile Include="Util\SourceTextExtensions.cs" />
-    <Compile Include="Util\SpecializedCollections.cs" />
-    <Compile Include="Util\SpeculationAnalyzer.cs" />
-    <Compile Include="Util\StringExtensions.cs" />
-    <Compile Include="Util\StringPclExtensions.cs" />
-    <Compile Include="Util\SymbolExtensions.cs" />
-    <Compile Include="Util\SymbolInfoExtensions.cs" />
-    <Compile Include="Util\SymbolKeyExtensions.cs" />
-    <Compile Include="Util\SymbolKeyResolutionExtensions.cs" />
-    <Compile Include="Util\SyntacticDocument.cs" />
-    <Compile Include="Util\SyntaxExtensions.cs" />
-    <Compile Include="Util\SyntaxKindSet.cs" />
-    <Compile Include="Util\SyntaxListExtension.cs" />
-    <Compile Include="Util\SyntaxNodeExtensions.cs" />
-    <Compile Include="Util\SyntaxTokenExtensions.cs" />
-    <Compile Include="Util\SyntaxTreeExtensions.cs" />
-    <Compile Include="Util\SyntaxTriviaExtensions.cs" />
-    <Compile Include="Util\SyntaxTriviaListExtensions.cs" />
-    <Compile Include="Util\TaskExtensions.cs" />
-    <Compile Include="Util\TextLineExtension.cs" />
-    <Compile Include="Util\TokenComparer.cs" />
-    <Compile Include="Util\TypeDeclarationSyntaxExtensions.cs" />
-    <Compile Include="Util\TypeExtensions.cs" />
-    <Compile Include="Util\TypeGenerator.cs" />
-    <Compile Include="Util\TypeSyntaxComparer.cs" />
-    <Compile Include="Util\TypeSyntaxExtensions.cs" />
-    <Compile Include="Util\UnicodeNewline.cs" />
-    <Compile Include="Util\UsingsAndExternAliasesDirectiveComparer.cs" />
-    <Compile Include="Util\ValueTuple.cs" />
-    <Compile Include="Util\ValueTuple`2.cs" />
-    <Compile Include="Util\WordParser.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis">
@@ -600,7 +507,6 @@
     </Reference>
     <Reference Include="System.Collections.Immutable">
       <HintPath>..\packages\System.Collections.Immutable.1.1.33-beta\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
-      <Private>True</Private>
     </Reference>
     <Reference Include="System.Composition.AttributedModel">
       <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.AttributedModel.dll</HintPath>

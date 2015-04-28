@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects>$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>{5AD3093F-F79D-4014-B197-27D09492C3E3}</SharedGUID>
+  </PropertyGroup>
+  <PropertyGroup Label="Configuration">
+    <Import_RootNamespace>ICSharpCode.NRefactory6.Shared</Import_RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)Util\AnnotationTable.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ArgumentSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CastExpressionSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CodeFixContextExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CodeGenerationSymbolFactory.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CodeRefactoringContextExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CommonAccessibilityUtilities.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CommonLocationExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CommonSyntaxNodeOrTokenExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CompilationExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CompilationUnitSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CrefSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\CSharpUtil.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\DocumentExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\EnumerableExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ExpressionSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\FindTokenHelper.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\GeneratedCodeRecognition.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\GettextCatalog.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\Hash.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\HelpLink.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\IAssemblySymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ICodeDefinitionFactoryExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ICompilationExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\IDictionaryExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\IDocumentExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\IMethodSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ImmutableArrayExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\INamedTypeSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\INamespaceOrTypeSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\IParameterSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\IPropertySymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ISymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ITypeParameterSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ITypeSymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\LinkedListExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\Matcher.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\MemberDeclarationSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\NameGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\NamespaceDeclarationSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\NamespaceExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\NameSyntaxComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\NameSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\NRefactory6Host.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ObjectExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\PredefinedOperator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\QueryExpressionSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\RefactoringHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ReflectionCompatibilityExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SemanticDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SemanticMap.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SemanticModelExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SignatureComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SimpleNameSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SourceTextExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SpecializedCollections.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SpeculationAnalyzer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\StringExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\StringPclExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SymbolExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SymbolInfoExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SymbolKeyExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SymbolKeyResolutionExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntacticDocument.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxKindSet.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxListExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxNodeExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxTokenExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxTreeExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxTriviaExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\SyntaxTriviaListExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TaskExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TextLineExtension.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TokenComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TypeDeclarationSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TypeExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TypeGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TypeSyntaxComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\TypeSyntaxExtensions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\UnicodeNewline.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\UsingsAndExternAliasesDirectiveComparer.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ValueTuple.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\ValueTuple`2.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Util\WordParser.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Refactoring\CodeRefactoring.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Refactoring\TypeGuessing.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Reflection\CSharpSyntaxContext.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\CodeGenerationDestination.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\CodeGenerationHelpers.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\CodeGenerationOptions.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\CodeGenerationTypeParameterSymbol.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\CodeGenerator.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\CSharpCodeGenerationService.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Features\CodeGeneration\SyntaxAnnotationExtensions.cs" />
+  </ItemGroup>
+</Project>
