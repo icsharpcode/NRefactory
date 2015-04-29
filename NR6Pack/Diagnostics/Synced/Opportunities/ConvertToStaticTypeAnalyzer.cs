@@ -35,7 +35,7 @@ using System.Collections.Generic;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ConvertToStaticTypeAnalyzer : DiagnosticAnalyzer
+    public class ConvertToStaticTypeAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.ConvertToStaticTypeAnalyzerID,

@@ -44,7 +44,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CS1717AssignmentMadeToSameVariableAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class CS1717AssignmentMadeToSameVariableAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS1717AssignmentMadeToSameVariableAnalyzer";
 		const string Description            = "CS1717:Assignment made to same variable";

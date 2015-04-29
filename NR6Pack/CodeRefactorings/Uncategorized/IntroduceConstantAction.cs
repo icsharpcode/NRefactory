@@ -42,7 +42,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Introduce constant")]
-	public class IntroduceConstantAction : CodeRefactoringProvider
+    [NotPortedYet]
+    public class IntroduceConstantAction : CodeRefactoringProvider
 	{
 		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

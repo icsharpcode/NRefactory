@@ -15,7 +15,7 @@
 
     -->
     <h2>Supported Code Analyzers</h2>
-    <p>172 code analyzers available!</p>
+    <p>94 code analyzers available!</p>
     <ul>
       <li>Constructor in abstract class should not be public (PublicConstructorInAbstractClassAnalyzer)</li>
       <li>Replace with call to OfType&lt;T&gt;().Any() (ReplaceWithOfTypeAnyAnalyzer)</li>
@@ -25,21 +25,12 @@
       <li>CS1729TypeHasNoConstructorWithNArgumentsAnalyzer</li>
       <li>ExpressionIsNeverOfProvidedTypeAnalyzer</li>
       <li>MissingInterfaceMemberImplementationAnalyzer</li>
-      <li>Replace with call to OfType&lt;T&gt; (extended cases) (AdditionalOfTypeAnalyzer)</li>
       <li>Parameter name differs in base declaration (BaseMethodParameterNameMismatchAnalyzer)</li>
       <li>Finds potentially erroneous calls to Object.Equals (CallToObjectEqualsViaBaseAnalyzer)</li>
-      <li>Check if a namespace corresponds to a file location (CheckNamespaceAnalyzer)</li>
       <li>Condition is always 'true' or always 'false' (ConstantConditionAnalyzer)</li>
       <li>Convert 'if' to '&amp;&amp;' expression (ConvertIfToAndExpressionAnalyzer)</li>
-      <li>Warns about using lock (this) or MethodImplOptions.Synchronized (LockThisAnalyzer)</li>
-      <li>Simplify negative relational expression (NegativeRelationalExpressionAnalyzer)</li>
       <li>Shows NotImplementedException throws in the quick task bar (NotImplementedExceptionAnalyzer)</li>
-      <li>Parameter is assigned but its value is never used (ParameterOnlyAssignedAnalyzer)</li>
-      <li>Value assigned to a variable or parameter is not used in all execution path (RedundantAssignmentAnalyzer)</li>
-      <li>Removes 'internal' modifiers that are not required (RedundantInternalAnalyzer)</li>
       <li>Removes 'private' modifiers that are not required (RedundantPrivateAnalyzer)</li>
-      <li>Checks if static events are removed (StaticEventSubscriptionAnalyzer)</li>
-      <li>Validate Xml docs (XmlDocAnalyzer)</li>
       <li>Call to base member with implicit default parameters (BaseMethodCallWithDefaultParameterAnalyzer)</li>
       <li>Bitwise operation on enum which has no [Flags] attribute (BitwiseOperatorOnEnumWithoutFlagsAnalyzer)</li>
       <li>Type check and casts can be replaced with 'as' and null check (CanBeReplacedWithTryCastAndCheckForNullAnalyzer)</li>
@@ -49,112 +40,47 @@
       <li>Delegate subtraction has unpredictable result (DelegateSubtractionAnalyzer)</li>
       <li>Warns about calls to virtual member functions occuring in the constructor (DoNotCallOverridableMethodsInConstructorAnalyzer)</li>
       <li>A catch clause that catches System.Exception and has an empty body (EmptyGeneralCatchClauseAnalyzer)</li>
-      <li>Comparing equal expression for equality is usually useless (EqualExpressionComparisonAnalyzer)</li>
       <li>Event unsubscription via anonymous delegate is useless (EventUnsubscriptionViaAnonymousDelegateAnalyzer)</li>
-      <li>'for' loop control variable is never modified (ForControlVariableIsNeverModifiedAnalyzer)</li>
-      <li>The string format index is out of bounds of the passed arguments (FormatStringProblemAnalyzer)</li>
-      <li>Function does not reach its end or a 'return' statement by any of possible execution paths (FunctionNeverReturnsAnalyzer)</li>
-      <li>Local variable has the same name as a member and hides it (LocalVariableHidesMemberAnalyzer)</li>
       <li>Lowercase 'l' is often confused with '1' (LongLiteralEndingLowerLAnalyzer)</li>
       <li>Member hides static member from outer class (MemberHidesStaticFromOuterClassAnalyzer)</li>
-      <li>Method with optional parameter is hidden by overload (MethodOverloadWithOptionalParameterAnalyzer)</li>
-      <li>Non-readonly field referenced in 'GetHashCode()' (NonReadonlyReferencedInGetHashCodeAnalyzer)</li>
       <li>Cannot resolve symbol in text argument (NotResolvedInTextAnalyzer)</li>
       <li>Possible unassigned object created by 'new' (ObjectCreationAsStatementAnalyzer)</li>
       <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedAnalyzer)</li>
-      <li>The value of an optional parameter in a method does not match the base method (OptionalParameterHierarchyMismatchAnalyzer)</li>
       <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutAnalyzer)</li>
-      <li>Parameter has the same name as a member and hides it (ParameterHidesMemberAnalyzer)</li>
-      <li>Parameter name differs in partial method declaration (PartialMethodParameterNameMismatchAnalyzer)</li>
-      <li>Invocation of polymorphic field event leads to unpredictable result since invocation lists are not virtual (PolymorphicFieldLikeEventInvocationAnalyzer)</li>
-      <li>Check if a readonly field is used as assignment target (PossibleAssignmentToReadonlyFieldAnalyzer)</li>
-      <li>Possible multiple enumeration of IEnumerable (PossibleMultipleEnumerationAnalyzer)</li>
-      <li>Warns about static fields in generic types (StaticFieldInGenericTypeAnalyzer)</li>
       <li>[ThreadStatic] doesn't work with instance fields (ThreadStaticAtInstanceFieldAnalyzer)</li>
       <li>Warns about property or indexer setters and event adders or removers that do not use the value parameter (ValueParameterNotUsedAnalyzer)</li>
-      <li>ProhibitedModifiersAnalyzer</li>
-      <li>CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer</li>
-      <li>CS1573ParameterHasNoMatchingParamTagAnalyzer</li>
-      <li>CS1717AssignmentMadeToSameVariableAnalyzer</li>
-      <li>Unassigned readonly field (UnassignedReadonlyFieldAnalyzer)</li>
-      <li>InconsistentNamingAnalyzer</li>
       <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeAnalyzer)</li>
       <li>Convert anonymous method to method group (ConvertClosureToMethodGroupAnalyzer)</li>
       <li>'?:' expression can be converted to '??' expression (ConvertConditionalTernaryToNullCoalescingAnalyzer)</li>
       <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionAnalyzer)</li>
-      <li>Convert 'if' to '??' (ConvertIfStatementToNullCoalescingExpressionAnalyzer)</li>
       <li>'if' statement can be re-written as 'switch' statement (ConvertIfStatementToSwitchStatementAnalyzer)</li>
       <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormAnalyzer)</li>
-      <li>Convert property to auto property (ConvertToAutoPropertyAnalyzer)</li>
-      <li>Convert to lambda with expression (ConvertToLambdaExpressionAnalyzer)</li>
       <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeAnalyzer)</li>
-      <li>Foreach loops are more efficient (ForCanBeConvertedToForeachAnalyzer)</li>
       <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodAnalyzer)</li>
-      <li>Convert 'if...return' to 'return' (RewriteIfReturnToReturnAnalyzer)</li>
-      <li>Use 'var' keyword when possible (SuggestUseVarKeywordEvidentAnalyzer)</li>
       <li>An empty public constructor without paramaters is redundant. (EmptyConstructorAnalyzer)</li>
       <li>Empty destructor is redundant (EmptyDestructorAnalyzer)</li>
       <li>Empty namespace declaration is redundant (EmptyNamespaceAnalyzer)</li>
       <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntAnalyzer)</li>
-      <li>Local variable is never used (LocalVariableNotUsedAnalyzer)</li>
       <li>Class is declared partial but has only one part (PartialTypeWithSinglePartAnalyzer)</li>
-      <li>This is generated by the compiler and can be safely removed (RedundantBaseConstructorCallAnalyzer)</li>
-      <li>Initializing field with default value is redundant (RedundantDefaultFieldInitializerAnalyzer)</li>
-      <li>The override of a virtual member is redundant because it consists of only a call to the base (RedundantOverriddenMemberAnalyzer)</li>
-      <li>'params' is ignored on overrides (RedundantParamsAnalyzer)</li>
       <li>'sealed' modifier is redundant in sealed classes (SealedMemberInSealedClassAnalyzer)</li>
-      <li>Parameter is never used (UnusedParameterAnalyzer)</li>
-      <li>Type parameter is never used (UnusedTypeParameterAnalyzer)</li>
       <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer)</li>
       <li>Expression is always 'true' or always 'false' (ConditionIsAlwaysTrueOrFalseAnalyzer)</li>
-      <li>Finds redundant null coalescing expressions such as expr ?? expr (ConstantNullCoalescingConditionAnalyzer)</li>
       <li>Double negation is redundant (DoubleNegationOperatorAnalyzer)</li>
       <li>Empty statement is redundant (EmptyStatementAnalyzer)</li>
       <li>'true' is redundant as for statement condition (ForStatementConditionIsTrueAnalyzer)</li>
       <li>Redundant explicit property name (RedundantAnonymousTypePropertyNameAnalyzer)</li>
-      <li>Default argument value is redundant (RedundantArgumentDefaultValueAnalyzer)</li>
       <li>Redundant explicit argument name specification (RedundantArgumentNameAnalyzer)</li>
       <li>Parentheses are redundant if attribute has no arguments (RedundantAttributeParenthesesAnalyzer)</li>
       <li>'base.' is redundant and can safely be removed (RedundantBaseQualifierAnalyzer)</li>
-      <li>Comparison of a boolean value with 'true' or 'false' constant (RedundantBoolCompareAnalyzer)</li>
       <li>Redundant case label (RedundantCaseLabelAnalyzer)</li>
-      <li>Catch clause with a single 'throw' statement is redundant (RedundantCatchClauseAnalyzer)</li>
-      <li>Check for inequality before assignment is redundant if (x != value) x = value; (RedundantCheckBeforeAssignmentAnalyzer)</li>
-      <li>Redundant comma in array initializer (RedundantCommaInArrayInitializerAnalyzer)</li>
-      <li>When 'is' keyword is used, which implicitly check null (RedundantComparisonWithNullAnalyzer)</li>
-      <li>Explicit delegate creation expression is redundant (RedundantDelegateCreationAnalyzer)</li>
       <li>Redundant empty 'default' switch branch (RedundantEmptyDefaultSwitchBranchAnalyzer)</li>
-      <li>Redundant empty finally block (RedundantEmptyFinallyBlockAnalyzer)</li>
-      <li>Redundant 'IEnumerable.Cast&lt;T&gt;' or 'IEnumerable.OfType&lt;T&gt;' call (RedundantEnumerableCastCallAnalyzer)</li>
-      <li>Redundant explicit type in array creation (RedundantExplicitArrayCreationAnalyzer)</li>
-      <li>Redundant explicit size in array creation (RedundantExplicitArraySizeAnalyzer)</li>
-      <li>Value types are implicitly convertible to nullables (RedundantExplicitNullableCreationAnalyzer)</li>
-      <li>Type is either mentioned in the base type list of another part or in another base type (RedundantExtendsListEntryAnalyzer)</li>
-      <li>Redundant 'else' keyword (RedundantIfElseBlockAnalyzer)</li>
-      <li>Explicit type specification can be removed as it can be implicitly inferred (RedundantLambdaParameterTypeAnalyzer)</li>
-      <li>Redundant lambda signature parentheses (RedundantLambdaSignatureParenthesesAnalyzer)</li>
-      <li>Redundant operand in logical conditional expression (RedundantLogicalConditionalExpressionOperandAnalyzer)</li>
-      <li>When object creation uses object or collection initializer, empty argument list is redundant (RedundantObjectCreationArgumentListAnalyzer)</li>
-      <li>Redundant empty object or collection initializer (RedundantObjectOrCollectionInitializerAnalyzer)</li>
-      <li>Redundant 'string.ToCharArray()' call (RedundantStringToCharArrayCallAnalyzer)</li>
       <li>Redundant conditional expression (RedundantTernaryExpressionAnalyzer)</li>
-      <li>RedundantToStringCallAnalyzer</li>
-      <li>Unsafe modifier in redundant in unsafe context or when no unsafe constructs are used (RedundantUnsafeContextAnalyzer)</li>
       <li>Remove redundant statement (RemoveRedundantOrStatementAnalyzer)</li>
-      <li>Detects when no delegate parameter is used in the anonymous method body (UnusedAnonymousMethodSignatureAnalyzer)</li>
-      <li>Use method IsInstanceOfType (UseMethodIsInstanceOfTypeAnalyzer)</li>
-      <li>Replace usages of 'Count()' with call to 'Any()' (UseMethodAnyAnalyzer)</li>
-      <li>'is' operator can be used (UseIsOperatorAnalyzer)</li>
-      <li>Use array creation expression (UseArrayCreationExpressionAnalyzer)</li>
       <li>Warns when a culture-aware 'StartsWith' call is used by default. (StringStartsWithIsCultureSpecificAnalyzer)</li>
       <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificAnalyzer)</li>
       <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificAnalyzer)</li>
       <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificAnalyzer)</li>
-      <li>Warns when a culture-aware 'string.CompareTo' call is used by default (StringCompareToIsCultureSpecificAnalyzer)</li>
-      <li>Warns when a culture-aware 'Compare' call is used by default (StringCompareIsCultureSpecificAnalyzer)</li>
-      <li>Simplify LINQ expression (SimplifyLinqExpressionAnalyzer)</li>
       <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionAnalyzer)</li>
-      <li>Uses shorter string.IsNullOrEmpty call instead of a longer condition (ReplaceWithStringIsNullOrEmptyAnalyzer)</li>
       <li>Redundant Where() call with predicate followed by SingleOrDefault() (ReplaceWithSingleCallToSingleOrDefaultAnalyzer)</li>
       <li>Redundant Where() call with predicate followed by Single() (ReplaceWithSingleCallToSingleAnalyzer)</li>
       <li>Redundant Where() call with predicate followed by LongCount() (ReplaceWithSingleCallToLongCountAnalyzer)</li>
@@ -177,13 +103,9 @@
       <li>Replace with call to OfType&lt;T&gt;().Count() (ReplaceWithOfTypeCountAnalyzer)</li>
       <li>Replace with call to LastOrDefault&lt;T&gt;() (ReplaceWithLastOrDefaultAnalyzer)</li>
       <li>Replace with call to FirstOrDefault&lt;T&gt;() (ReplaceWithFirstOrDefaultAnalyzer)</li>
-      <li>Check for reference equality instead (ReferenceEqualsWithValueTypeAnalyzer)</li>
       <li>Possible mistaken call to 'object.GetType()' (PossibleMistakenCallToGetTypeAnalyzer)</li>
-      <li>Finds parameters that can be demoted to a base class (ParameterCanBeDeclaredWithBaseTypeAnalyzer)</li>
-      <li>A member doesn't use 'this' object neither explicit nor implicit. It can be made static (MemberCanBeMadeStaticAnalyzer)</li>
       <li>Convert field to readonly (FieldCanBeMadeReadOnlyAnalyzer)</li>
       <li>Empty control statement body (EmptyEmbeddedStatementAnalyzer)</li>
-      <li>Convert local variable or field to constant (ConvertToConstantAnalyzer)</li>
       <li>Convert 'if' to '||' expression (ConvertIfToOrExpressionAnalyzer)</li>
       <li>Convert 'if-do-while' to 'while' statement (ConvertIfDoToWhileAnalyzer)</li>
       <li>Base parameter has 'params' modifier, but missing in overrider (BaseMemberHasParamsAnalyzer)</li>

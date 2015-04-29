@@ -44,7 +44,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class PartialMethodParameterNameMismatchAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class PartialMethodParameterNameMismatchAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.PartialMethodParameterNameMismatchAnalyzerID, 

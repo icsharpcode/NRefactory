@@ -43,7 +43,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CS1573ParameterHasNoMatchingParamTagAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class CS1573ParameterHasNoMatchingParamTagAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS1573ParameterHasNoMatchingParamTagAnalyzer";
 		const string Description            = "Parameter has no matching param tag in the XML comment";

@@ -41,7 +41,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Use string.Format()")]
-	public class UseStringFormatAction : CodeRefactoringProvider
+    [NotPortedYet]
+    public class UseStringFormatAction : CodeRefactoringProvider
 	{
 		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

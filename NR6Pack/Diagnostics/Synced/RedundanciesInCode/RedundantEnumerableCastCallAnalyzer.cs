@@ -44,7 +44,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	// OfType -> Underline (+suggest to compare to null)
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantEnumerableCastCallAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class RedundantEnumerableCastCallAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantEnumerableCastCallAnalyzerID, 

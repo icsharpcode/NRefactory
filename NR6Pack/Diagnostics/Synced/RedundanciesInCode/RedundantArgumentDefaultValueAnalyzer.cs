@@ -40,7 +40,8 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantArgumentDefaultValueAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class RedundantArgumentDefaultValueAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantArgumentDefaultValueAnalyzerID, 

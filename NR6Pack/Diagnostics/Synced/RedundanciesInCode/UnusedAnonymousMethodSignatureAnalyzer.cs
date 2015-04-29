@@ -46,7 +46,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UnusedAnonymousMethodSignatureAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class UnusedAnonymousMethodSignatureAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UnusedAnonymousMethodSignatureAnalyzerID, 

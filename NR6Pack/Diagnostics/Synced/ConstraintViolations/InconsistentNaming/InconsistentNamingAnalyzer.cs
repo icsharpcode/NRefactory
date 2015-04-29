@@ -43,7 +43,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class InconsistentNamingAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class InconsistentNamingAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "InconsistentNaming";
 		const string Description            = "Inconsistent Naming";

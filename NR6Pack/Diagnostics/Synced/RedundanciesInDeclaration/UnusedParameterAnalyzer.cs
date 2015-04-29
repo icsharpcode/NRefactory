@@ -34,7 +34,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class UnusedParameterAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class UnusedParameterAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.UnusedParameterAnalyzerID, 

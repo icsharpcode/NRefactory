@@ -41,7 +41,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Iterate via 'foreach'")]
-	public class IterateViaForeachAction : CodeRefactoringProvider
+    [NotPortedYet]
+    public class IterateViaForeachAction : CodeRefactoringProvider
 	{
 		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

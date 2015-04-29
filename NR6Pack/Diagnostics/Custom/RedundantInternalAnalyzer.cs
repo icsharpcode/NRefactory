@@ -34,10 +34,11 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	/// <summary>
-	/// Finds redundant internal modifiers.
-	/// </summary>
-	public class RedundantInternalAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    /// <summary>
+    /// Finds redundant internal modifiers.
+    /// </summary>
+    public class RedundantInternalAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantInternalAnalyzerID, 

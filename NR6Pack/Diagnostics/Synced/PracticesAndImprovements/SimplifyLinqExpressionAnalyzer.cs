@@ -43,7 +43,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class SimplifyLinqExpressionAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class SimplifyLinqExpressionAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.SimplifyLinqExpressionAnalyzerID, 

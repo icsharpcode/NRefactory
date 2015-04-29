@@ -47,7 +47,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	/// Converts to: string.IsNullOrEmpty (str)
 	/// </summary>
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ReplaceWithStringIsNullOrEmptyAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class ReplaceWithStringIsNullOrEmptyAnalyzer : DiagnosticAnalyzer
 	{
 //		static readonly Pattern pattern = new Choice {
 //			// str == null || str == ""

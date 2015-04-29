@@ -43,7 +43,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantLogicalConditionalExpressionOperandAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class RedundantLogicalConditionalExpressionOperandAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantLogicalConditionalExpressionOperandAnalyzerID, 

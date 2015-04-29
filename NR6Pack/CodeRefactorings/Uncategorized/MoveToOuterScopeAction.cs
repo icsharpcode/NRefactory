@@ -41,7 +41,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Move to outer scope")]
-	public class MoveToOuterScopeAction : CodeRefactoringProvider
+    [NotPortedYet]
+    public class MoveToOuterScopeAction : CodeRefactoringProvider
 	{
 		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

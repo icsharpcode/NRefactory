@@ -35,7 +35,8 @@ using Microsoft.CodeAnalysis.Diagnostics;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class NonReadonlyReferencedInGetHashCodeAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class NonReadonlyReferencedInGetHashCodeAnalyzer : DiagnosticAnalyzer
 	{	
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.NonReadonlyReferencedInGetHashCodeAnalyzerID, 

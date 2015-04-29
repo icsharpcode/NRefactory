@@ -42,7 +42,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Generate getter")]
-	public class GenerateGetterAction : CodeRefactoringProvider
+    [NotPortedYet]
+    public class GenerateGetterAction : CodeRefactoringProvider
 	{
 		public override Task ComputeRefactoringsAsync(CodeRefactoringContext context)
 		{

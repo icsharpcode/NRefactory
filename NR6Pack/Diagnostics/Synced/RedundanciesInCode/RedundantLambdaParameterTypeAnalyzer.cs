@@ -46,7 +46,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantLambdaParameterTypeAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class RedundantLambdaParameterTypeAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantLambdaParameterTypeAnalyzerID, 

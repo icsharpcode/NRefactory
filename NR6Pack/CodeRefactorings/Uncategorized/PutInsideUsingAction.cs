@@ -42,7 +42,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="put inside 'using'")]
-	public class PutInsideUsingAction : SpecializedCodeRefactoringProvider <VariableDeclaratorSyntax>
+    [NotPortedYet]
+    public class PutInsideUsingAction : SpecializedCodeRefactoringProvider <VariableDeclaratorSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, VariableDeclaratorSyntax node, CancellationToken cancellationToken)
 		{

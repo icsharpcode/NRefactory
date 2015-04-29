@@ -44,7 +44,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class MemberCanBeMadeStaticAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class MemberCanBeMadeStaticAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.MemberCanBeMadeStaticAnalyzerID, 

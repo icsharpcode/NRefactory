@@ -43,6 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+    [NotPortedYet]
 	public class AdditionalOfTypeAnalyzer : DiagnosticAnalyzer
 	{
 //		static readonly AstNode whereSimpleCase =

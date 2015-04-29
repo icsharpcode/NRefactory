@@ -44,7 +44,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class ProhibitedModifiersAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class ProhibitedModifiersAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "ProhibitedModifiersAnalyzer";
 		const string Description            = "Checks for prohibited modifiers";

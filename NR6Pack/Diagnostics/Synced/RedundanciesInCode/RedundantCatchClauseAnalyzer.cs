@@ -39,7 +39,8 @@ using System.Linq;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantCatchClauseAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class RedundantCatchClauseAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantCatchClauseAnalyzerID, 

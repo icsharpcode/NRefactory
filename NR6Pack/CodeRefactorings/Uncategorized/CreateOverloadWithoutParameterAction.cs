@@ -42,7 +42,8 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Create overload without parameter")]
-	public class CreateOverloadWithoutParameterAction : SpecializedCodeRefactoringProvider<ParameterSyntax>
+    [NotPortedYet]
+    public class CreateOverloadWithoutParameterAction : SpecializedCodeRefactoringProvider<ParameterSyntax>
 	{
 		protected override IEnumerable<CodeAction> GetActions(Document document, SemanticModel semanticModel, SyntaxNode root, TextSpan span, ParameterSyntax node, CancellationToken cancellationToken)
 		{

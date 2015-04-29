@@ -43,7 +43,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class RedundantToStringCallAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class RedundantToStringCallAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor1 = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.RedundantToStringCallAnalyzerID, 

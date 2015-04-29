@@ -44,7 +44,8 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-	public class CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer : DiagnosticAnalyzer
+    [NotPortedYet]
+    public class CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer";
 		const string Description            = "CS0183:Given expression is always of the provided type";

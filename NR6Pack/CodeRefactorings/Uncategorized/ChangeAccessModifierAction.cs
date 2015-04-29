@@ -41,10 +41,11 @@ using Microsoft.CodeAnalysis.Formatting;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[ExportCodeRefactoringProvider(LanguageNames.CSharp, Name="Change the access level of an entity declaration")]
-	/// <summary>
-	/// Changes the access level of an entity declaration
-	/// </summary>
-	public class ChangeAccessModifierAction : CodeRefactoringProvider
+    [NotPortedYet]
+    /// <summary>
+    /// Changes the access level of an entity declaration
+    /// </summary>
+    public class ChangeAccessModifierAction : CodeRefactoringProvider
 	{
 //		Dictionary<string, Modifiers> accessibilityLevels = new Dictionary<string, Modifiers> {
 //			{ "private", Modifiers.Private },
