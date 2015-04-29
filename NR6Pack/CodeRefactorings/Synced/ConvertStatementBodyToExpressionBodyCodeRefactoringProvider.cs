@@ -132,7 +132,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 							property
 							.WithAccessorList (null)
 							.WithExpressionBody (SyntaxFactory.ArrowExpressionClause (expr))
-							.WithSemicolon (SyntaxFactory.Token (SyntaxKind.SemicolonToken))
+							.WithSemicolonToken (SyntaxFactory.Token (SyntaxKind.SemicolonToken))
 							.WithAdditionalAnnotations(Formatter.Annotation)
 						);
 						return Task.FromResult(context.Document.WithSyntaxRoot(newRoot));

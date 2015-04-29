@@ -140,7 +140,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 							property
 							.WithAccessorList (SyntaxFactory.AccessorList (accessorDeclList))
 							.WithExpressionBody (null)
-							.WithSemicolon (SyntaxFactory.MissingToken (SyntaxKind.SemicolonToken))
+							.WithSemicolonToken (SyntaxFactory.MissingToken (SyntaxKind.SemicolonToken))
 							.WithAdditionalAnnotations(Formatter.Annotation)
 							.WithTrailingTrivia (property.GetTrailingTrivia ())
 

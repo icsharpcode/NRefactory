@@ -26,5 +26,5 @@
 using System.Reflection;
 using System.Runtime.CompilerServices;
 
-[assembly: AssemblyTitle ("ICSharpCode.NRefactory6.CSharp.Refactoring")]
+[assembly: AssemblyTitle ("NR6Pack")]
 [assembly: AssemblyDescription("C# refactorings")]
