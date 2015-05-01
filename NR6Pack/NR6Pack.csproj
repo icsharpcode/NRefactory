@@ -532,6 +532,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="CodeFixes.html.template" />
     <None Include="NR6Pack.nuspec">
       <SubType>Designer</SubType>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -549,8 +550,8 @@
     <Folder Include="Diagnostics\Synced\ConstraintViolations\InconsistentNamingIssue\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="CodeActions.html.template" />
-    <None Include="CodeIssues.html.template" />
+    <Content Include="CodeRefactorings.html.template" />
+    <None Include="CodeAnalyzers.html.template" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
