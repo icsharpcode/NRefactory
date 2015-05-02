@@ -14,19 +14,26 @@ namespace NR6Pack.Demonstration
 			CompareFloats();
 
 			// Compare exactly the same constant value -> suggestion to convert to 'true'
-			// Also other CodeActions: Convert to Equals() call, invert and negate condition etc.
+			// Also other Refactorings: Convert to Equals() call, invert and negate condition etc.
 			bool fiveIsFive = (5 == 5);
 
-            // CodeAction: Conversion of operator assignment ("|=") to assignment with or operator and vice versa
+            // Refactoring: Conversion of operator assignment ("|=") to assignment with or operator and vice versa
             bool hasArgs = false;
             hasArgs |= (args.Length > 0);
 
-			// CodeAction: Use explicit type instead of 'var'
+			// Refactoring: Use explicit type instead of 'var'
 			var commandLineSwitchParser = new CommandLineSwitchParser();
 			commandLineSwitchParser.Parameters = args;
 			commandLineSwitchParser.Parse();
 
 			Console.WriteLine("Selected switches: {0}", commandLineSwitchParser.Switches);
+
+            // Warning about unassigned created object
+            new object();
+
+            // 1. Analyzer + CodeFix to replace Nullable<T> by T?
+            // 2. Refactoring: Replace type by 'var'
+            Nullable<float> nullableFloat = 5;
 		}
 
 		static void CompareFloats()

@@ -21,7 +21,7 @@ namespace NR6Pack.Demonstration
 		private CommandLineSwitches switches;
 		private string[] parameters;
 
-		// Info: Empty default constructor is optional and can be removed
+		// Warning: Empty default constructor is optional and can be removed
 		public CommandLineSwitchParser()
 		{
 
@@ -33,7 +33,7 @@ namespace NR6Pack.Demonstration
 		//	this.parameters = parameters;
 		//}
 
-		// Info: Empty destructor can be removed, too.
+		// Warning: Empty destructor can be removed, too.
 		~CommandLineSwitchParser()
 		{
 
@@ -52,8 +52,8 @@ namespace NR6Pack.Demonstration
 			}
 		}
 
-		// CodeAction: Add another accessor (means 'set { ... }' here)
-		public CommandLineSwitches Switches
+        // Refactoring: Add another accessor (means 'set { ... }' here)
+        public CommandLineSwitches Switches
 		{
             get
 			{
@@ -61,24 +61,25 @@ namespace NR6Pack.Demonstration
 			}
 		}
 
-		// CodeAction: Method can be converted to non-virtual
-		public virtual void Parse()
+        // Refactoring: Method can be converted to non-virtual
+        public virtual void Parse()
 		{
-			// CodeAction: Remove braces from 'if' and vice versa
-			if (Parameters == null)
+            // Refactoring: Remove braces from 'if' and vice versa
+            if (Parameters == null)
 			{
 				return;
 			}
 
-			// CodeAction: Use 'var' instead of 'string' on param
-			// CodeAction: Conversion of foreach to for loop
-			switches = 0;
+            // Refactoring: Use 'var' instead of 'string' on param
+            // Refactoring: Conversion of foreach to for loop
+            switches = 0;
 			foreach (string param in Parameters)
 			{
 				switch (param)
 				{
 					case "-a":
-						// CodeIssue should warn here about bit operation on enum, which is not annotated with [Flags]
+						// 1. Analyzer should warn here about bit operation on enum, which is not annotated with [Flags]
+                        // 2. Analyzer + CodeFix: Replace 'x |= y' by 'x = x | y'
 						switches |= CommandLineSwitches.A;
 						break;
 					case "-b":
