@@ -5,89 +5,103 @@
 
 <div class="container">
 
-    <h2>Supported Code Issue Fixes</h2>
-    <p>80 code issues available!</p>
+    <h2>Supported Code Analyzers</h2>
+    <p>94 code analyzers available!</p>
     <ul>
-      <li>If two objects are equal then they must both have the same hash code (CS0659ClassOverrideEqualsWithoutGetHashCode)</li>
-      <li>Static constructor should be parameterless (StaticConstructorParameterIssue)</li>
-      <li>Convert 'if' to '&amp;&amp;' expression (ConvertIfToAndExpressionIssue)</li>
-      <li>Removes 'internal' modifiers that are not required (RedundantInternalIssue)</li>
-      <li>Removes 'private' modifiers that are not required (RedundantPrivateIssue)</li>
-      <li>Call to base member with implicit default parameters (BaseMethodCallWithDefaultParameterIssue)</li>
-      <li>Bitwise operation on enum which has no [Flags] attribute (BitwiseOperatorOnEnumWithoutFlagsIssue)</li>
-      <li>Possible compare of value type with 'null' (CompareNonConstrainedGenericWithNullIssue)</li>
-      <li>Comparison of floating point numbers with equality operator (CompareOfFloatsByEqualityOperatorIssue)</li>
-      <li>'?:' expression has identical true and false branches (ConditionalTernaryEqualBranchIssue)</li>
-      <li>Delegate subtraction has unpredictable result (DelegateSubtractionIssue)</li>
-      <li>Warns about calls to virtual member functions occuring in the constructor. (DoNotCallOverridableMethodsInConstructorIssue)</li>
-      <li>A catch clause that catches System.Exception and has an empty body (EmptyGeneralCatchClauseIssue)</li>
-      <li>Event unsubscription via anonymous delegate is useless (EventUnsubscriptionViaAnonymousDelegateIssue)</li>
-      <li>Function does not reach its end or a 'return' statement by any of possible execution paths. (FunctionNeverReturnsIssue)</li>
-      <li>Lowercase 'l' is often confused with '1' (LongLiteralEndingLowerLIssue)</li>
-      <li>Non-readonly field referenced in 'GetHashCode()' (NonReadonlyReferencedInGetHashCodeIssue)</li>
-      <li>Possible unassigned object created by 'new' (ObjectCreationAsStatementIssue)</li>
-      <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedIssue)</li>
-      <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutIssue)</li>
-      <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeIssue)</li>
-      <li>'?:' expression can be converted to '??' expression. (ConvertConditionalTernaryToNullCoalescingIssue)</li>
-      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionIssue)</li>
-      <li>'if' statement can be re-written as 'switch' statement (ConvertIfStatementToSwitchStatementIssue)</li>
-      <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormIssue)</li>
-      <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeIssue)</li>
-      <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodIssue)</li>
-      <li>Suggests using the class declaring a static function when calling it. (AccessToStaticMemberViaDerivedTypeIssue)</li>
-      <li>Base parameter has 'params' modifier, but missing in overrider (BaseMemberHasParamsIssue)</li>
-      <li>Convert 'if' to '||' expression (ConvertIfToOrExpressionIssue)</li>
-      <li>Empty control statement body (EmptyEmbeddedStatementIssue)</li>
-      <li>Possible mistaken call to 'object.GetType()' (PossibleMistakenCallToGetTypeIssue)</li>
-      <li>Replace with call to FirstOrDefault&lt;T&gt;() (ReplaceWithFirstOrDefaultIssue)</li>
-      <li>Replace with call to LastOrDefault&lt;T&gt;() (ReplaceWithLastOrDefaultIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().Any() (ReplaceWithOfTypeAnyIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().Count() (ReplaceWithOfTypeCountIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().First() (ReplaceWithOfTypeFirstIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().FirstOrDefault() (ReplaceWithOfTypeFirstOrDefaultIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt; (ReplaceWithOfTypeIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().Last() (ReplaceWithOfTypeLastIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().LastOrDefault() (ReplaceWithOfTypeLastOrDefaultIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().LongCount() (ReplaceWithOfTypeLongCountIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().Single() (ReplaceWithOfTypeSingleIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().SingleOrDefault() (ReplaceWithOfTypeSingleOrDefaultIssue)</li>
-      <li>Replace with call to OfType&lt;T&gt;().Where() (ReplaceWithOfTypeWhereIssue)</li>
-      <li>Replace with simple assignment (ReplaceWithSimpleAssignmentIssue)</li>
-      <li>Replace with single call to Any(...) (ReplaceWithSingleCallToAnyIssue)</li>
-      <li>Replace with single call to Count(...) (ReplaceWithSingleCallToCountIssue)</li>
-      <li>Replace with single call to First(...) (ReplaceWithSingleCallToFirstIssue)</li>
-      <li>Replace with single call to FirstOrDefault(...) (ReplaceWithSingleCallToFirstOrDefaultIssue)</li>
-      <li>Replace with single call to Last(...) (ReplaceWithSingleCallToLastIssue)</li>
-      <li>Replace with single call to LastOrDefault(...) (ReplaceWithSingleCallToLastOrDefaultIssue)</li>
-      <li>Replace with single call to LongCount(...) (ReplaceWithSingleCallToLongCountIssue)</li>
-      <li>Replace with single call to Single(...) (ReplaceWithSingleCallToSingleIssue)</li>
-      <li>Replace with single call to SingleOrDefault(...) (ReplaceWithSingleCallToSingleOrDefaultIssue)</li>
-      <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionIssue)</li>
-      <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificIssue)</li>
-      <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificIssue)</li>
-      <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificIssue)</li>
-      <li>Warns when a culture-aware 'StartsWith' call is used by default. (StringStartsWithIsCultureSpecificIssue)</li>
-      <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerIssue)</li>
-      <li>Condition is always true or false (ConditionIsAlwaysTrueOrFalseIssue)</li>
-      <li>Double negation is redundant (DoubleNegationOperatorIssue)</li>
-      <li>Empty statement is redundant (EmptyStatementIssue)</li>
-      <li>'true' is redundant as for statement condition (ForStatementConditionIsTrueIssue)</li>
-      <li>Redundant explicit property name (RedundantAnonymousTypePropertyNameIssue)</li>
-      <li>Redundant explicit argument name specification (RedundantArgumentNameIssue)</li>
-      <li>Parentheses are redundant if attribute has no arguments. (RedundantAttributeParenthesesIssue)</li>
-      <li>'base.' is redundant and can safely be removed. (RedundantBaseQualifierIssue)</li>
-      <li>Redundant case label (RedundantCaseLabelIssue)</li>
-      <li>Type cast is redundant (RedundantCastIssue)</li>
-      <li>Redundant empty 'default' switch branch (RedundantEmptyDefaultSwitchBranchIssue)</li>
-      <li>Removes namespace usages that are obsolete. (RedundantNameQualifierIssue)</li>
-      <li>Redundant conditional expression (RedundantTernaryExpressionIssue)</li>
-      <li>Remove redundant statement (RemoveRedundantOrStatementIssue)</li>
-      <li>An empty public constructor without paramaters is redundant. (EmptyConstructorIssue)</li>
-      <li>Empty destructor is redundant (EmptyDestructorIssue)</li>
-      <li>Empty namespace declaration is redundant (EmptyNamespaceIssue)</li>
-      <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntIssue)</li>
-      <li>'sealed' modifier is redundant in sealed classes (SealedMemberInSealedClassIssue)</li>
+      <li>Constructor in abstract class should not be public (PublicConstructorInAbstractClassAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Any() (ReplaceWithOfTypeAnyAnalyzer)</li>
+      <li>CS0126ReturnMustBeFollowedByAnyExpression</li>
+      <li>CS0169FieldIsNeverUsedAnalyzer</li>
+      <li>CS0618UsageOfObsoleteMemberAnalyzer</li>
+      <li>CS1729TypeHasNoConstructorWithNArgumentsAnalyzer</li>
+      <li>ExpressionIsNeverOfProvidedTypeAnalyzer</li>
+      <li>MissingInterfaceMemberImplementationAnalyzer</li>
+      <li>Parameter name differs in base declaration (BaseMethodParameterNameMismatchAnalyzer)</li>
+      <li>Finds potentially erroneous calls to Object.Equals (CallToObjectEqualsViaBaseAnalyzer)</li>
+      <li>Condition is always 'true' or always 'false' (ConstantConditionAnalyzer)</li>
+      <li>Convert 'if' to '&amp;&amp;' expression (ConvertIfToAndExpressionAnalyzer)</li>
+      <li>Shows NotImplementedException throws in the quick task bar (NotImplementedExceptionAnalyzer)</li>
+      <li>Removes 'private' modifiers that are not required (RedundantPrivateAnalyzer)</li>
+      <li>Call to base member with implicit default parameters (BaseMethodCallWithDefaultParameterAnalyzer)</li>
+      <li>Bitwise operation on enum which has no [Flags] attribute (BitwiseOperatorOnEnumWithoutFlagsAnalyzer)</li>
+      <li>Type check and casts can be replaced with 'as' and null check (CanBeReplacedWithTryCastAndCheckForNullAnalyzer)</li>
+      <li>Possible compare of value type with 'null' (CompareNonConstrainedGenericWithNullAnalyzer)</li>
+      <li>Comparison of floating point numbers with equality operator (CompareOfFloatsByEqualityOperatorAnalyzer)</li>
+      <li>'?:' expression has identical true and false branches (ConditionalTernaryEqualBranchAnalyzer)</li>
+      <li>Delegate subtraction has unpredictable result (DelegateSubtractionAnalyzer)</li>
+      <li>Warns about calls to virtual member functions occuring in the constructor (DoNotCallOverridableMethodsInConstructorAnalyzer)</li>
+      <li>A catch clause that catches System.Exception and has an empty body (EmptyGeneralCatchClauseAnalyzer)</li>
+      <li>Event unsubscription via anonymous delegate is useless (EventUnsubscriptionViaAnonymousDelegateAnalyzer)</li>
+      <li>Lowercase 'l' is often confused with '1' (LongLiteralEndingLowerLAnalyzer)</li>
+      <li>Member hides static member from outer class (MemberHidesStaticFromOuterClassAnalyzer)</li>
+      <li>Cannot resolve symbol in text argument (NotResolvedInTextAnalyzer)</li>
+      <li>Possible unassigned object created by 'new' (ObjectCreationAsStatementAnalyzer)</li>
+      <li>Operator Is can be used instead of comparing object GetType() and instances of System.Type object (OperatorIsCanBeUsedAnalyzer)</li>
+      <li>C# doesn't support optional 'ref' or 'out' parameters (OptionalParameterRefOutAnalyzer)</li>
+      <li>[ThreadStatic] doesn't work with instance fields (ThreadStaticAtInstanceFieldAnalyzer)</li>
+      <li>Warns about property or indexer setters and event adders or removers that do not use the value parameter (ValueParameterNotUsedAnalyzer)</li>
+      <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeAnalyzer)</li>
+      <li>Convert anonymous method to method group (ConvertClosureToMethodGroupAnalyzer)</li>
+      <li>'?:' expression can be converted to '??' expression (ConvertConditionalTernaryToNullCoalescingAnalyzer)</li>
+      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionAnalyzer)</li>
+      <li>'if' statement can be re-written as 'switch' statement (ConvertIfStatementToSwitchStatementAnalyzer)</li>
+      <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormAnalyzer)</li>
+      <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeAnalyzer)</li>
+      <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodAnalyzer)</li>
+      <li>An empty public constructor without paramaters is redundant. (EmptyConstructorAnalyzer)</li>
+      <li>Empty destructor is redundant (EmptyDestructorAnalyzer)</li>
+      <li>Empty namespace declaration is redundant (EmptyNamespaceAnalyzer)</li>
+      <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntAnalyzer)</li>
+      <li>Class is declared partial but has only one part (PartialTypeWithSinglePartAnalyzer)</li>
+      <li>'sealed' modifier is redundant in sealed classes (SealedMemberInSealedClassAnalyzer)</li>
+      <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer)</li>
+      <li>Expression is always 'true' or always 'false' (ConditionIsAlwaysTrueOrFalseAnalyzer)</li>
+      <li>Double negation is redundant (DoubleNegationOperatorAnalyzer)</li>
+      <li>Empty statement is redundant (EmptyStatementAnalyzer)</li>
+      <li>'true' is redundant as for statement condition (ForStatementConditionIsTrueAnalyzer)</li>
+      <li>Redundant explicit property name (RedundantAnonymousTypePropertyNameAnalyzer)</li>
+      <li>Redundant explicit argument name specification (RedundantArgumentNameAnalyzer)</li>
+      <li>Parentheses are redundant if attribute has no arguments (RedundantAttributeParenthesesAnalyzer)</li>
+      <li>'base.' is redundant and can safely be removed (RedundantBaseQualifierAnalyzer)</li>
+      <li>Redundant case label (RedundantCaseLabelAnalyzer)</li>
+      <li>Redundant empty 'default' switch branch (RedundantEmptyDefaultSwitchBranchAnalyzer)</li>
+      <li>Redundant conditional expression (RedundantTernaryExpressionAnalyzer)</li>
+      <li>Remove redundant statement (RemoveRedundantOrStatementAnalyzer)</li>
+      <li>Warns when a culture-aware 'StartsWith' call is used by default. (StringStartsWithIsCultureSpecificAnalyzer)</li>
+      <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificAnalyzer)</li>
+      <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificAnalyzer)</li>
+      <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificAnalyzer)</li>
+      <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by SingleOrDefault() (ReplaceWithSingleCallToSingleOrDefaultAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by Single() (ReplaceWithSingleCallToSingleAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by LongCount() (ReplaceWithSingleCallToLongCountAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by LastOrDefault() (ReplaceWithSingleCallToLastOrDefaultAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by Last() (ReplaceWithSingleCallToLastAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by FirstOrDefault() (ReplaceWithSingleCallToFirstOrDefaultAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by First() (ReplaceWithSingleCallToFirstAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by Count() (ReplaceWithSingleCallToCountAnalyzer)</li>
+      <li>Redundant Where() call with predicate followed by Any() (ReplaceWithSingleCallToAnyAnalyzer)</li>
+      <li>Replace with simple assignment (ReplaceWithSimpleAssignmentAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Where() (ReplaceWithOfTypeWhereAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().SingleOrDefault() (ReplaceWithOfTypeSingleOrDefaultAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Single() (ReplaceWithOfTypeSingleAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().LongCount() (ReplaceWithOfTypeLongCountAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().LastOrDefault() (ReplaceWithOfTypeLastOrDefaultAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Last() (ReplaceWithOfTypeLastAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt; (ReplaceWithOfTypeAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().FirstOrDefault() (ReplaceWithOfTypeFirstOrDefaultAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().First() (ReplaceWithOfTypeFirstAnalyzer)</li>
+      <li>Replace with call to OfType&lt;T&gt;().Count() (ReplaceWithOfTypeCountAnalyzer)</li>
+      <li>Replace with call to LastOrDefault&lt;T&gt;() (ReplaceWithLastOrDefaultAnalyzer)</li>
+      <li>Replace with call to FirstOrDefault&lt;T&gt;() (ReplaceWithFirstOrDefaultAnalyzer)</li>
+      <li>Possible mistaken call to 'object.GetType()' (PossibleMistakenCallToGetTypeAnalyzer)</li>
+      <li>Convert field to readonly (FieldCanBeMadeReadOnlyAnalyzer)</li>
+      <li>Empty control statement body (EmptyEmbeddedStatementAnalyzer)</li>
+      <li>Convert 'if' to '||' expression (ConvertIfToOrExpressionAnalyzer)</li>
+      <li>Convert 'if-do-while' to 'while' statement (ConvertIfDoToWhileAnalyzer)</li>
+      <li>Base parameter has 'params' modifier, but missing in overrider (BaseMemberHasParamsAnalyzer)</li>
+      <li>Suggests using the class declaring a static function when calling it (AccessToStaticMemberViaDerivedTypeAnalyzer)</li>
+      <li>Suggest the usage of the nameof operator (NameOfSuggestionAnalyzer)</li>
     </ul>
 
 

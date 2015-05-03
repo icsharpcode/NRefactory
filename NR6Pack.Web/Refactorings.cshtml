@@ -6,80 +6,97 @@
 <div class="container">
 
     <h2>Supported Refactorings</h2>
-    <p>72 code actions available!</p>
+    <p>89 code refactorings available!</p>
     <ul>
-      <li>Make abstract member virtual/non-abstract and vice-versa (AbstractAndVirtualConversionAction)</li>
-      <li>Add another accessor (AddAnotherAccessorAction)</li>
-      <li>Add name for argument (AddArgumentNameAction)</li>
-      <li>Add braces (AddBracesAction)</li>
-      <li>Add type to general catch clause (AddCatchTypeAction)</li>
-      <li>Add one or more optional parameters to an invocation, using their default values (AddOptionalParameterToInvocationAction)</li>
-      <li>Check if parameter is null (CheckIfParameterIsNullAction)</li>
-      <li>Compute constant value (ComputeConstantValueAction)</li>
-      <li>Convert anonymous delegate to lambda (ConvertAnonymousDelegateToLambdaAction)</li>
-      <li>Convert assignment to 'if' (ConvertAssignmentToIfAction)</li>
-      <li>Convert 'as' to cast. (ConvertAsToCastAction)</li>
-      <li>Replace bitwise flag comparison with call to 'Enum.HasFlag' (ConvertBitwiseFlagComparisonToHasFlagsAction)</li>
-      <li>Convert cast to 'as'. (ConvertCastToAsAction)</li>
-      <li>Convert dec to hex. (ConvertDecToHexAction)</li>
-      <li>Convert do...while to while (ConvertDoWhileToWhileLoopAction)</li>
-      <li>Convert '==' to 'Equals' (ConvertEqualityOperatorToEqualsAction)</li>
-      <li>Convert 'Equals' to '==' (ConvertEqualsToEqualityOperatorAction)</li>
-      <li>Convert explicit to implict implementation (ConvertExplicitToImplicitImplementationAction)</li>
-      <li>Convert 'foreach' loop to 'for' (ConvertForeachToForAction)</li>
-      <li>Convert 'for' loop to 'while' (ConvertForToWhileAction)</li>
-      <li>Replace 'Enum.HasFlag' call with bitwise flag comparison (ConvertHasFlagsToBitwiseFlagComparisonAction)</li>
-      <li>Convert hex to dec. (ConvertHexToDecAction)</li>
-      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionAction)</li>
+      <li>Adds another accessor (AddAnotherAccessorCodeRefactoringProvider)</li>
+      <li>'catch' to 'catch (Exception)' (AddCatchExceptionCodeRefactoringProvider)</li>
+      <li>Add an exception description to the xml documentation (AddExceptionDescriptionCodeRefactoringProvider)</li>
+      <li>Add name for argument (AddNameToArgumentCodeRefactoringProvider)</li>
+      <li>Introduce format item (AddNewFormatItemCodeRefactoringProvider)</li>
+      <li>Check if parameter is null (CheckIfParameterIsNullCodeRefactoringProvider)</li>
+      <li>Compute constant value (ComputeConstantValueCodeRefactoringProvider)</li>
+      <li>Convert anonymous method to lambda expression (ConvertAnonymousMethodToLambdaCodeRefactoringProvider)</li>
+      <li>Convert '??' to '?:' (ConvertCoalescingToConditionalExpressionCodeRefactoringProvider)</li>
+      <li>Convert dec to hex. (ConvertDecToHexCodeRefactoringProvider)</li>
+      <li>Convert '==' to 'object.Equals()' (ConvertEqualityOperatorToEqualsCodeRefactoringProvider)</li>
+      <li>Convert '==' to 'object.ReferenceEquals()' (ConvertEqualityOperatorToReferenceEqualsCodeRefactoringProvider)</li>
+      <li>Convert 'Equals' call to '==' or '!=' (ConvertEqualsToEqualityOperatorCodeRefactoringProvider)</li>
+      <li>Convert explicit to implict implementation (ConvertExplicitToImplicitImplementationCodeRefactoringProvider)</li>
+      <li>Convert 'foreach' loop to 'for' (ConvertForeachToForCodeRefactoringProvider)</li>
+      <li>Convert hex to dec. (ConvertHexToDecCodeRefactoringProvider)</li>
+      <li>Convert 'if' to '?:' (ConvertIfStatementToConditionalTernaryExpressionCodeRefactoringProvider)</li>
+      <li>Convert 'if' to 'switch' (ConvertIfStatementToSwitchStatementCodeRefactoringProvider)</li>
+      <li>Convert implict to explicit implementation (ConvertImplicitToExplicitImplementationCodeRefactoringProvider)</li>
+      <li>Converts expression of lambda body to statement (ConvertLambdaBodyExpressionToStatementCodeRefactoringProvider)</li>
+      <li>Converts statement of lambda body to expression (ConvertLambdaStatementToExpressionCodeRefactoringProvider)</li>
+      <li>Convert lambda to anonymous method (ConvertLambdaToAnonymousMethodCodeRefactoringProvider)</li>
+      <li>Convert method group to anoymous method (ConvertMethodGroupToAnonymousMethodCodeRefactoringProvider)</li>
+      <li>Convert method group to lambda expression (ConvertMethodGroupToLambdaCodeRefactoringProvider)</li>
+      <li>Convert 'ReferenceEquals' call to '==' or '!=' (ConvertReferenceEqualsToEqualityOperatorCodeRefactoringProvider)</li>
+      <li>Convert 'switch' to 'if' (ConvertSwitchToIfCodeRefactoringProvider)</li>
+      <li>Create event invocator (CreateEventInvocatorCodeRefactoringProvider)</li>
+      <li>Swap 'Equals' target and argument (FlipEqualsTargetAndArgumentCodeRefactoringProvider)</li>
+      <li>Flip an operator operands (FlipOperatorArgumentsCodeRefactoringProvider)</li>
+      <li>Flip an relational operator operands (FlipRelationalOperatorArgumentsCodeRefactoringProvider)</li>
+      <li>Insert anonymous method signature (InsertAnonymousMethodSignatureCodeRefactoringProvider)</li>
+      <li>Invert conditional operator (InvertConditionalOperatorCodeRefactoringProvider)</li>
+      <li>Invert if (InvertIfCodeRefactoringProvider)</li>
+      <li>'catch (Exception)' to 'catch' (RemoveCatchExceptionCodeRefactoringProvider)</li>
+      <li>Invoke as static method (InvokeAsStaticMethodCodeRefactoringProvider)</li>
+      <li>Join local variable declaration and assignment (JoinLocalVariableDeclarationAndAssignmentCodeRefactoringProvider)</li>
+      <li>Join string literal (JoinStringCodeRefactoringProvider)</li>
+      <li>Negate a relational expression (NegateLogicalExpressionCodeRefactoringProvider)</li>
+      <li>Remove #region/#endregion directives (RemoveRegionEndRegionDirectivesCodeRefactoringProvider)</li>
+      <li>Add braces (AddBracesCodeRefactoringProvider)</li>
+      <li>Remove braces (RemoveBracesCodeRefactoringProvider)</li>
+      <li>Replace auto-property with property that uses a backing field (ReplaceAutoPropertyWithPropertyAndBackingFieldCodeRefactoringProvider)</li>
+      <li>Convert auto-property to computed propertyy (ConvertAutoPropertyToPropertyCodeRefactoringProvider)</li>
+      <li>Convert cast to 'as'. (ReplaceDirectCastWithSafeCastCodeRefactoringProvider)</li>
+      <li>Replace property that uses a backing field with auto-property (ReplacePropertyWithBackingFieldWithAutoPropertyCodeRefactoringProvider)</li>
+      <li>Convert 'as' to cast. (ReplaceSafeCastWithDirectCastCodeRefactoringProvider)</li>
+      <li>Replace type with 'var' (ReplaceExplicitTypeWithVarCodeRefactoringProvider)</li>
+      <li>Replaces 'var' with explicit type specification (ReplaceVarWithExplicitTypeCodeRefactoringProvider)</li>
+      <li>Split 'if' with '&amp;&amp;' condition in two nested 'if' statements (SplitIfWithAndConditionInTwoCodeRefactoringProvider)</li>
+      <li>Split 'if' with '||' condition in two 'if' statements (SplitIfWithOrConditionInTwoCodeRefactoringProvider)</li>
+      <li>Split local variable declaration and assignment (SplitLocalVariableDeclarationAndAssignmentCodeRefactoringProvider)</li>
+      <li>Replace 'Enum.HasFlag' call with bitwise flag comparison (ConvertHasFlagsToBitwiseFlagComparisonCodeRefactoringProvider)</li>
+      <li>Replace bitwise flag comparison with call to 'Enum.HasFlag' (ConvertBitwiseFlagComparisonToHasFlagsCodeRefactoringProvider)</li>
+      <li>Use 'as' and check for null (UseAsAndNullCheckCodeRefactoringProvider)</li>
+      <li>Use string.Empty (UseSystemStringEmptyCodeRefactoringProvider)</li>
+      <li>Use System.Environment.NewLine (UseSystemEnvironmentNewLineCodeRefactoringProvider)</li>
+      <li>Convert 'for' loop to 'while' (ConvertForToWhileCodeRefactoringProvider)</li>
+      <li>Convert do...while to while (ConvertDoWhileToWhileLoopCodeRefactoringProvider)</li>
+      <li>Negate 'is' expression (NegateIsExpressionCodeRefactoringProvider)</li>
+      <li>Invert logical expression (InvertLogicalExpressionCodeRefactoringProvider)</li>
+      <li>Generate switch labels (GenerateSwitchLabelsCodeRefactoringProvider)</li>
+      <li>Replace postfix expression with assignment (ReplacePostfixExpressionWithAssignmentCodeRefactoringProvider)</li>
+      <li>Replace assignment with operator assignment (ReplaceWithOperatorAssignmentCodeRefactoringProvider)</li>
+      <li>Replace assignment with postfix expression (ReplaceAssignmentWithPostfixExpressionCodeRefactoringProvider)</li>
+      <li>Convert '&lt;&lt;'/'&gt;&gt;' to '*'/'/' (ConvertShiftToMultiplyCodeRefactoringProvider)</li>
+      <li>Replace operator assignment with assignment (ReplaceOperatorAssignmentWithAssignmentCodeRefactoringProvider)</li>
+      <li>Convert '*'/'/' to '&lt;&lt;'/'&gt;&gt;' (ConvertMultiplyToShiftCodeRefactoringProvider)</li>
+      <li>Extract field (ExtractWhileConditionToInternalIfStatementCodeRefactoringProvider)</li>
+      <li>Convert while loop to do...while (ConvertWhileToDoWhileLoopCodeRefactoringProvider)</li>
+      <li>Make abstract member virtual (ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider)</li>
       <li>Convert 'if' to '??' expression (ConvertIfStatementToNullCoalescingExpressionAction)</li>
       <li>Convert 'if' to 'return' (ConvertIfStatementToReturnStatementAction)</li>
-      <li>Convert 'if' to 'switch' (ConvertIfStatementToSwitchStatementAction)</li>
-      <li>Convert implict to explicit implementation (ConvertImplicitToExplicitImplementationAction)</li>
-      <li>Converts expression of lambda body to statement (ConvertLambdaBodyExpressionToStatementAction)</li>
-      <li>Converts statement of lambda body to expression (ConvertLambdaBodyStatementToExpressionAction)</li>
-      <li>Convert lambda to anonymous delegate (ConvertLambdaToAnonymousDelegateAction)</li>
-      <li>Convert method group to anoymous method (ConvertMethodGroupToAnonymousMethodAction)</li>
-      <li>Convert method group to lambda expression (ConvertMethodGroupToLambdaAction)</li>
-      <li>Convert '*'/'/' to '&lt;&lt;'/'&gt;&gt;' (ConvertMultiplyToShiftAction)</li>
-      <li>Convert '??' to '?:' (ConvertNullCoalescingToConditionalExpressionAction)</li>
-      <li>Convert 'return' to 'if' (ConvertReturnStatementToIfAction)</li>
-      <li>Convert '&lt;&lt;'/'&gt;&gt;' to '*'/'/' (ConvertShiftToMultiplyAction)</li>
-      <li>Convert 'switch' to 'if' (ConvertSwitchToIfAction)</li>
-      <li>Convert while loop to do...while (ConvertWhileToDoWhileLoopAction)</li>
-      <li>Create backing store for auto property (CreateBackingStoreAction)</li>
-      <li>Create changed event for property (CreateChangedEventAction)</li>
       <li>Create custom event implementation (CreateCustomEventImplementationAction)</li>
-      <li>Extension methods must be declared static (CS1105ExtensionMethodMustBeDeclaredStaticAction)</li>
-      <li>Invoke using static method syntax (ExtensionMethodInvocationToStaticMethodInvocationAction)</li>
-      <li>Extract anonymous method (ExtractAnonymousMethodAction)</li>
-      <li>Extract field (ExtractWhileConditionToInternalIfStatementAction)</li>
-      <li>Swap 'Equals' target and argument (FlipEqualsTargetAndArgumentAction)</li>
-      <li>Swap left and right arguments (FlipOperatorArgumentsAction)</li>
-      <li>Generate switch labels (GenerateSwitchLabelsAction)</li>
-      <li>Create a backing field for a not implemented property (ImplementNotImplementedProperty)</li>
-      <li>Invert conditional operator (InvertConditionalOperatorAction)</li>
-      <li>Invert if (InvertIfAction)</li>
-      <li>Invert If and Simplify (InvertIfAndSimplify)</li>
-      <li>Invert logical expression (InvertLogicalExpressionAction)</li>
-      <li>Join local variable declaration and assignment (JoinDeclarationAndAssignmentAction)</li>
-      <li>Join string literal (JoinStringAction)</li>
-      <li>Negate 'is' expression (NegateIsExpressionAction)</li>
-      <li>Negate a relational expression (NegateRelationalExpressionAction)</li>
-      <li>Remove backing store for property (RemoveBackingStoreAction)</li>
-      <li>Remove braces (RemoveBracesAction)</li>
-      <li>Remove region (RemoveRegionAction)</li>
-      <li>Replace assignment with postfix expression (ReplaceAssignmentWithPostfixExpressionAction)</li>
-      <li>Use string.Empty (ReplaceEmptyStringAction)</li>
-      <li>Replace operator assignment with assignment (ReplaceOperatorAssignmentWithAssignmentAction)</li>
-      <li>Replace postfix expression with assignment (ReplacePostfixExpressionWithAssignmentAction)</li>
-      <li>Replace assignment with operator assignment (ReplaceWithOperatorAssignmentAction)</li>
-      <li>Simplify if flow (SimplifyIfFlowAction)</li>
-      <li>Simplify if flow in loops (SimplifyIfInLoopsFlowAction)</li>
-      <li>Split local variable declaration and assignment (SplitDeclarationAndAssignmentAction)</li>
-      <li>Split 'if' statement (SplitIfAction)</li>
-      <li>Use 'as' and null check (UseAsAndNullCheckAction)</li>
-      <li>Use explicit type (UseExplicitTypeAction)</li>
-      <li>Use 'var' keyword (UseVarKeywordAction)</li>
+      <li>Sort usings (SortUsingsAction)</li>
+      <li>Convert statement body member to expression body (ConvertStatementBodyToExpressionBodyCodeRefactoringProvider)</li>
+      <li>Convert expression body member to statement body (ConvertExpressionBodyToStatementBodyCodeRefactoringProvider)</li>
+      <li>Check array index value (CheckArrayIndexValueCodeRefactoringProvider)</li>
+      <li>Check collection index value (CheckCollectionIndexValueCodeRefactoringProvider)</li>
+      <li>Check string index value (CheckStringIndexValueCodeRefactoringProvider)</li>
+      <li>Check StringBuilder index value (CheckStringBuilderIndexValueCodeRefactoringProvider)</li>
+      <li>Check dictionary key value (CheckDictionaryKeyValueCodeRefactoringProvider)</li>
+      <li>Create changed event for property (CreateChangedEventCodeRefactoringProvider)</li>
+      <li>Add one or more optional parameters to an invocation, using their default values (AddOptionalParameterToInvocationCodeRefactoringProvider)</li>
+      <li>Split string literal (SplitStringCodeRefactoringProvider)</li>
+      <li>Reverse the direction of a for  (ReverseDirectionForForLoopCodeRefactoringProvider)</li>
+      <li>Initialize field from constructor parameter (InitializeFieldFromConstructorParameterCodeRefactoringProvider)</li>
+      <li>Initialize auto property from constructor parameter (InitializeAutoPropertyFromConstructorParameterCodeRefactoringProvider)</li>
+      <li>Convert 'return' to 'if' (ConvertTernaryExpressionToIfStatementCodeRefactoringProvider)</li>
+      <li>Split declaration list (SplitDeclarationListCodeRefactoringProvider)</li>
     </ul>
 
 </div>
