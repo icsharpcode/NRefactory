@@ -29,7 +29,10 @@ using System.Text;
 
 namespace ICSharpCode.NRefactory6
 {
-	public enum UnicodeNewline {
+	#if NR6
+	public
+	#endif
+	 enum UnicodeNewline {
 		Unknown,
 
 		/// <summary>
@@ -76,7 +79,10 @@ namespace ICSharpCode.NRefactory6
 	/// Defines unicode new lines according to  Unicode Technical Report #13
 	/// http://www.unicode.org/standard/reports/tr13/tr13-5.html
 	/// </summary>
-	public static class NewLine
+	#if NR6
+	public
+	#endif
+	static class NewLine
 	{
 		/// <summary>
 		/// Carriage Return, U+000D

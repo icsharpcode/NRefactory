@@ -9,8 +9,11 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
-                     {
-	public static class QueryExpressionSyntaxExtensions
+{
+	#if NR6
+	public
+	#endif
+	static class QueryExpressionSyntaxExtensions
 	{
 		public static IList<SyntaxNode> GetAllClauses(this QueryExpressionSyntax query)
 		{

@@ -37,7 +37,10 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public class SpeculationAnalyzer
+	#if NR6
+	public
+	#endif
+	class SpeculationAnalyzer
 	{
 		readonly static Type typeInfo;
 		readonly static MethodInfo symbolsForOriginalAndReplacedNodesAreCompatibleMethod;

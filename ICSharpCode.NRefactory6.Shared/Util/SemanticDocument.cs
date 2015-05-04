@@ -9,7 +9,10 @@ using Roslyn.Utilities;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public class SemanticDocument : SyntacticDocument
+	#if NR6
+	public
+	#endif
+	class SemanticDocument : SyntacticDocument
 	{
 		public readonly SemanticModel SemanticModel;
 

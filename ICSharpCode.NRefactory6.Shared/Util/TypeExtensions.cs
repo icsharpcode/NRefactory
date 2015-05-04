@@ -38,7 +38,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class TypeExtensions
+	#if NR6
+	public
+	#endif
+	static class TypeExtensions
 	{
 		readonly static MethodInfo generateTypeSyntaxMethod;
 		readonly static MethodInfo findDerivedClassesAsyncMethod;

@@ -15,7 +15,10 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class TypeDeclarationSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class TypeDeclarationSyntaxExtensions
 	{
 		public static TypeDeclarationSyntax AddMembers(
 			this TypeDeclarationSyntax node, params MemberDeclarationSyntax[] members)

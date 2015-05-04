@@ -6,7 +6,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6
 {
-	public static partial class ObjectExtensions
+	#if NR6
+	public
+	#endif
+	static partial class ObjectExtensions
 	{
 		
 

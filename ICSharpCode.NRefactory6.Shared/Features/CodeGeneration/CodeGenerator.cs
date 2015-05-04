@@ -33,7 +33,10 @@ using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CodeGenerator
+	#if NR6
+	public
+	#endif
+	static class CodeGenerator
 	{
 		readonly static Type typeInfo;
 

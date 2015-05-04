@@ -9,7 +9,10 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static partial class EnumerableExtensions
+	#if NR6
+	public
+	#endif
+	static partial class EnumerableExtensions
 	{
 		public static IEnumerable<T> Do<T>(this IEnumerable<T> source, Action<T> action)
 		{

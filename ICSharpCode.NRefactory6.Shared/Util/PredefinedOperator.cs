@@ -2,7 +2,10 @@
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public enum PredefinedOperator
+	#if NR6
+	public
+	#endif
+	enum PredefinedOperator
 	{
 		None = 0,
 		Addition = 1,

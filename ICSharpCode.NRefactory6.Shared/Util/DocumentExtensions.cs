@@ -15,7 +15,10 @@ using System;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static partial class DocumentExtensions
+	#if NR6
+	public
+	#endif
+	static partial class DocumentExtensions
 	{
 		public static TLanguageService GetLanguageService<TLanguageService>(this Document document) where TLanguageService : class, ILanguageService
 		{

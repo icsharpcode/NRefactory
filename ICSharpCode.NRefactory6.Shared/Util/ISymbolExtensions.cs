@@ -31,7 +31,10 @@ using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class ISymbolExtensions
+	#if NR6
+	public
+	#endif
+	static class ISymbolExtensions
 	{
 		/// <summary>
 		/// Checks if 'symbol' is accessible from within 'within'.

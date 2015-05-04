@@ -12,7 +12,10 @@ using Microsoft.CodeAnalysis.Simplification;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class StringExtensions
+	#if NR6
+	public
+	#endif
+	static class StringExtensions
 	{
 		public static int? GetFirstNonWhitespaceOffset(this string line)
 		{

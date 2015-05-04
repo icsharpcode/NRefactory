@@ -10,7 +10,10 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class ICodeDefinitionFactoryExtensions
+	#if NR6
+	public
+	#endif
+	static class ICodeDefinitionFactoryExtensions
 	{
 		readonly static Type typeInfo;
 

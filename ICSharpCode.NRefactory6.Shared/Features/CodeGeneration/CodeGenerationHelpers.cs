@@ -11,7 +11,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
-	public static class CodeGenerationHelpers
+	#if NR6
+	public
+	#endif
+	static class CodeGenerationHelpers
 	{
 		public static SyntaxNode GenerateThrowStatement(
 			SyntaxGenerator factory,

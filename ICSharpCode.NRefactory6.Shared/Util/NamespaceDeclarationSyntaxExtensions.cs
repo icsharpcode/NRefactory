@@ -14,7 +14,10 @@ using Roslyn.Utilities;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class NamespaceDeclarationSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class NamespaceDeclarationSyntaxExtensions
 	{
 		public static NamespaceDeclarationSyntax AddUsingDirectives(
 			this NamespaceDeclarationSyntax namespaceDeclaration,

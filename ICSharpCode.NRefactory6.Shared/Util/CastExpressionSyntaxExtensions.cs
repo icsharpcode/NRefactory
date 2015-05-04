@@ -8,7 +8,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CastExpressionSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class CastExpressionSyntaxExtensions
 	{
 		readonly static MethodInfo isUnnecessaryCastMethod;
 

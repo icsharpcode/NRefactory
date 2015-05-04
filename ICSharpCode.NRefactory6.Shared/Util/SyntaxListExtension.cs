@@ -11,7 +11,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SyntaxListExtensions
+	#if NR6
+	public
+	#endif
+	static class SyntaxListExtensions
 	{
 		public static SyntaxList<T> RemoveRange<T>(this SyntaxList<T> syntaxList, int index, int count) where T : SyntaxNode
 		{

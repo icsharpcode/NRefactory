@@ -8,7 +8,10 @@ using Microsoft.CodeAnalysis.CodeActions;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CodeFixContextExtensions
+	#if NR6
+	public
+	#endif
+	static class CodeFixContextExtensions
 	{
 		/// <summary>
 		/// Use this helper to register multiple fixes (<paramref name="actions"/>) each of which addresses / fixes the same supplied <paramref name="diagnostic"/>.

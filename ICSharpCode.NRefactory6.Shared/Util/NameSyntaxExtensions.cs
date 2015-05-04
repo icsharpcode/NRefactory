@@ -13,7 +13,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class NameSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class NameSyntaxExtensions
 	{
 		public static IList<NameSyntax> GetNameParts(this NameSyntax nameSyntax)
 		{

@@ -30,7 +30,10 @@ using System.Threading;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class NamespaceExtensions
+	#if NR6
+	public
+	#endif
+	static class NamespaceExtensions
 	{
 		public static IEnumerable<INamedTypeSymbol> GetAllTypes(this INamespaceSymbol namespaceSymbol, CancellationToken cancellationToken = default(CancellationToken))
 		{

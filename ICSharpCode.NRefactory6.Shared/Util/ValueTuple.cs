@@ -3,7 +3,10 @@
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	// tuple factory
-	public static class ValueTuple
+	#if NR6
+	public
+	#endif
+	static class ValueTuple
 	{
 		public static ValueTuple<T1, T2> Create<T1, T2>(T1 item1, T2 item2)
 		{

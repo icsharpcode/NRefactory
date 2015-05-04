@@ -14,7 +14,10 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static partial class INamedTypeSymbolExtensions
+	#if NR6
+	public
+	#endif
+	static partial class INamedTypeSymbolExtensions
 	{
 		public static IEnumerable<INamedTypeSymbol> GetBaseTypesAndThis(this INamedTypeSymbol namedType)
 		{

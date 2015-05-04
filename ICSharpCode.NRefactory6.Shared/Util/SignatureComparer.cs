@@ -5,7 +5,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SignatureComparer
+	#if NR6
+	public
+	#endif
+	static class SignatureComparer
 	{
 		readonly static Type typeInfo;
 		readonly static object instance;

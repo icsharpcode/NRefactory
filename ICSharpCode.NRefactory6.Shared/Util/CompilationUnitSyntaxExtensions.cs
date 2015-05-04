@@ -15,7 +15,10 @@ using Microsoft.CodeAnalysis.CSharp.Extensions;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CompilationUnitSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class CompilationUnitSyntaxExtensions
 	{
 		public static bool CanAddUsingDirectives(this SyntaxNode contextNode, CancellationToken cancellationToken)
 		{

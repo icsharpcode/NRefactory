@@ -30,7 +30,10 @@ using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public class CodeGenerationTypeParameterSymbol
+	#if NR6
+	public
+	#endif
+	class CodeGenerationTypeParameterSymbol
 	{
 		readonly static Type typeInfo;
 		readonly object instance;

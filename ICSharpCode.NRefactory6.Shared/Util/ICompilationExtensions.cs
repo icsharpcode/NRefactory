@@ -28,7 +28,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class ICompilationExtensions
+	#if NR6
+	public
+	#endif
+	static class ICompilationExtensions
 	{
 		public static INamedTypeSymbol AttributeType(this Compilation compilation)
 		{

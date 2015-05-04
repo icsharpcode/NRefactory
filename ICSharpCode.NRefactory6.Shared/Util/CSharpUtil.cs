@@ -31,7 +31,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CSharpUtil
+	#if NR6
+	public
+	#endif
+	static class CSharpUtil
 	{
 		/// <summary>
 		/// Inverts a boolean condition. Note: The condition object can be frozen (from AST) it's cloned internally.

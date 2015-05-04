@@ -38,7 +38,10 @@ using System.Threading.Tasks;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CommonAccessibilityUtilities
+	#if NR6
+	public
+	#endif
+	static class CommonAccessibilityUtilities
 	{
 		public static Accessibility Minimum(Accessibility accessibility1, Accessibility accessibility2)
 		{

@@ -32,8 +32,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
-
-	public enum CodeGenerationDestination
+	#if NR6
+	public
+	#endif
+	enum CodeGenerationDestination
 	{
 		Unspecified = 0,
 		CompilationUnit = 1,

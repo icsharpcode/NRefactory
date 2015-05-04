@@ -22,8 +22,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	
-	public static partial class ExpressionSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static partial class ExpressionSyntaxExtensions
 	{
 		static MethodInfo castIfPossibleMethod;
 

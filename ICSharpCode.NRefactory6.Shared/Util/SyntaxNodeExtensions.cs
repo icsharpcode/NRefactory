@@ -43,7 +43,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static partial class SyntaxNodeExtensions
+	#if NR6
+	public
+	#endif
+	static partial class SyntaxNodeExtensions
 	{
 		public static IEnumerable<SyntaxNodeOrToken> DepthFirstTraversal(this SyntaxNode node)
 		{

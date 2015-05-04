@@ -34,7 +34,10 @@ using System.Threading;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class TypeGuessing
+	#if NR6
+	public
+	#endif
+	static class TypeGuessing
 	{
 		static int GetArgumentIndex(IEnumerable<ArgumentSyntax> arguments, SyntaxNode parameter)
 		{

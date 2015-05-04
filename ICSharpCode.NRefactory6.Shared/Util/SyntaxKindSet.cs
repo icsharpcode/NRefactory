@@ -29,7 +29,10 @@ using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SyntaxKindSet
+	#if NR6
+	public
+	#endif
+	static class SyntaxKindSet
 	{
 		public static readonly ISet<SyntaxKind> AllTypeModifiers = new HashSet<SyntaxKind>(SyntaxFacts.EqualityComparer)
 		{

@@ -39,7 +39,10 @@ using System.Threading.Tasks;
 namespace ICSharpCode.NRefactory6.CSharp
 {
 	[EditorBrowsableAttribute (EditorBrowsableState.Never)]
-	public static class ITypeSymbolExtensions
+	#if NR6
+	public
+	#endif
+	static class ITypeSymbolExtensions
 	{
 		readonly static MethodInfo generateTypeSyntax;
 		readonly static MethodInfo inheritsFromOrEqualsIgnoringConstructionMethod;

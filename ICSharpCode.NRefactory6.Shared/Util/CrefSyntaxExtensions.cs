@@ -46,7 +46,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CrefSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class CrefSyntaxExtensions
 	{
 		public static bool TryReduceOrSimplifyExplicitName(
 			this CrefSyntax crefSyntax,

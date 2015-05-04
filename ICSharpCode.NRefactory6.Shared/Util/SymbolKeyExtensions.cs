@@ -8,7 +8,10 @@ using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public class SymbolKey
+	#if NR6
+	public
+	#endif
+	class SymbolKey
 	{
 		readonly static Type typeInfo;
 
@@ -121,7 +124,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 	}
 
-	public static class SymbolKeyExtensions
+	#if NR6
+	public
+	#endif
+	static class SymbolKeyExtensions
 	{
 		public static SymbolKey GetSymbolKey(this ISymbol symbol)
 		{

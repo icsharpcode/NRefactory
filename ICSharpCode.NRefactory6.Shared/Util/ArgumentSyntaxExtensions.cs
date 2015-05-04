@@ -11,7 +11,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class ArgumentSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class ArgumentSyntaxExtensions
 	{
 		public static SyntaxTokenList GenerateParameterModifiers(this ArgumentSyntax argument)
 		{

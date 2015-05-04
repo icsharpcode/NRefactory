@@ -6,7 +6,10 @@ using System.Collections.Generic;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public abstract class Matcher<T>
+	#if NR6
+	public
+	#endif
+	abstract class Matcher<T>
 	{
 		// Tries to match this matcher against the provided sequence at the given index.  If the
 		// match succeeds, 'true' is returned, and 'index' points to the location after the match
@@ -143,7 +146,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 	}
 
-	public class Matcher
+	#if NR6
+	public
+	#endif
+	class Matcher
 	{
 		/// <summary>
 		/// Matcher equivalent to (m*)

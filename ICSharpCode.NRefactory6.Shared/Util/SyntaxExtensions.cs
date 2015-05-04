@@ -46,7 +46,10 @@ using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class SyntaxExtensions
 	{
 		readonly static MethodInfo canRemoveParenthesesMethod;
 //		readonly static MethodInfo isLeftSideOfDotMethod;

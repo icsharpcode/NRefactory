@@ -34,7 +34,10 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SemanticModelExtensions
+	#if NR6
+	public
+	#endif
+	static class SemanticModelExtensions
 	{
 		public static IEnumerable<ITypeSymbol> LookupTypeRegardlessOfArity(
 			this SemanticModel semanticModel,

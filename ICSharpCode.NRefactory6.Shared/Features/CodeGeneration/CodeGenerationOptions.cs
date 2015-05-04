@@ -8,7 +8,10 @@ using Roslyn.Utilities;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
-	public class CodeGenerationOptions
+	#if NR6
+	public
+	#endif
+	class CodeGenerationOptions
 	{
 		internal readonly static Type typeInfo;
 		readonly object instance;

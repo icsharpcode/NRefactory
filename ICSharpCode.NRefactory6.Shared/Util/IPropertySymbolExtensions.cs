@@ -7,7 +7,10 @@ using Microsoft.CodeAnalysis.CodeGeneration;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class IPropertySymbolExtensions
+	#if NR6
+	public
+	#endif
+	static class IPropertySymbolExtensions
 	{
 		public static IPropertySymbol RenameParameters(this IPropertySymbol property, IList<string> parameterNames)
 		{

@@ -32,7 +32,10 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class TypeSyntaxExtensions
+	#if NR6
+	public
+	#endif
+	static class TypeSyntaxExtensions
 	{
 		public static bool IsPartial(this TypeSyntax typeSyntax)
 		{

@@ -38,7 +38,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public class TypeGenerator 
+	#if NR6
+	public
+	#endif
+	class TypeGenerator 
 	{
 		readonly static Type typeInfo;
 

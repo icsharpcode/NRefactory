@@ -35,7 +35,10 @@ using System.ComponentModel;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SymbolExtensions
+	#if NR6
+	public
+	#endif
+	static class SymbolExtensions
 	{
 		//		public static string GetDocumentationId (this ISymbol symbol)
 		//		{

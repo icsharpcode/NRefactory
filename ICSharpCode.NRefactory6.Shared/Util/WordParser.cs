@@ -29,7 +29,10 @@ using System.Globalization;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class WordParser
+	#if NR6
+	public
+	#endif
+	static class WordParser
 	{
 		public static List<string> BreakWords (string identifier)
 		{

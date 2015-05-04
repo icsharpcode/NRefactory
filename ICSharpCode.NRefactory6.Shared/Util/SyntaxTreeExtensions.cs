@@ -34,7 +34,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class SyntaxTreeExtensions
+	#if NR6
+	public
+	#endif
+	static class SyntaxTreeExtensions
 	{
 //		/// <summary>
 //		/// Returns the identifier, keyword, contextual keyword or preprocessor keyword touching this

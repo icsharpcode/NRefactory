@@ -9,7 +9,10 @@ using Microsoft.CodeAnalysis;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class IDocumentExtensions
+	#if NR6
+	public
+	#endif
+	static class IDocumentExtensions
 	{
 		public static async Task<CompilationUnitSyntax> GetCSharpSyntaxRootAsync(this Document document, CancellationToken cancellationToken = default(CancellationToken))
 		{

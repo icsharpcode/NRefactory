@@ -7,7 +7,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class NameGenerator
+	#if NR6
+	public
+	#endif
+	static class NameGenerator
 	{
 		public static IList<string> EnsureUniqueness(
 			IList<string> names,

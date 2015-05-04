@@ -11,7 +11,10 @@ using Microsoft.CodeAnalysis.CSharp;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public class ReflectionNamespaces
+	#if NR6
+	public
+	#endif
+	class ReflectionNamespaces
 	{
 		public const string WorkspacesAsmName = ", Microsoft.CodeAnalysis.Workspaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
 		public const string CSWorkspacesAsmName = ", Microsoft.CodeAnalysis.CSharp.Workspaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
@@ -19,7 +22,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public const string CACSharpAsmName = ", Microsoft.CodeAnalysis.CSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35";
 	}
 
-	public class CSharpSyntaxContext
+	#if NR6
+	public
+	#endif
+	class CSharpSyntaxContext
 	{
 		readonly static Type typeInfoCSharpSyntaxContext;
 		readonly static Type typeInfoAbstractSyntaxContext;
@@ -407,7 +413,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 	}
 
-	public class CSharpTypeInferenceService
+	#if NR6
+	public
+	#endif
+	class CSharpTypeInferenceService
 	{
 		readonly static Type typeInfo;
 		readonly static MethodInfo inferTypesMethod;
@@ -501,7 +510,10 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 	}
 
-	public class CaseCorrector
+	#if NR6
+	public
+	#endif
+	class CaseCorrector
 	{
 		readonly static Type typeInfo;
 		readonly static MethodInfo caseCorrectAsyncMethod;

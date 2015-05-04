@@ -31,7 +31,10 @@ using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class CompilationExtensions
+	#if NR6
+	public
+	#endif
+	static class CompilationExtensions
 	{
 		public static IEnumerable<INamedTypeSymbol> GetAllTypesInMainAssembly(this Compilation compilation, CancellationToken cancellationToken = default(CancellationToken))
 		{

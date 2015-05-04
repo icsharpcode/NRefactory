@@ -7,7 +7,10 @@ using Microsoft.CodeAnalysis.Text;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	public static class IParameterSymbolExtensions
+	#if NR6
+	public
+	#endif
+	static class IParameterSymbolExtensions
 	{
 		public static bool IsRefOrOut(this IParameterSymbol symbol)
 		{

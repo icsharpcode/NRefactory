@@ -29,7 +29,10 @@ using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
-	public static class SyntaxAnnotationExtensions
+	#if NR6
+	public
+	#endif
+	static class SyntaxAnnotationExtensions
 	{
 		readonly static Type typeInfo;
 

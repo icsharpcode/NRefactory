@@ -12,7 +12,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Refactoring
 	/// <summary>
 	/// Represents a set of transformations that can be applied to a piece of code.
 	/// </summary>
-	public class CodeRefactoring  //: ICodeRefactoring
+	#if NR6
+	public
+	#endif
+	class CodeRefactoring  //: ICodeRefactoring
 	{
 		private readonly CodeRefactoringProvider _provider;
 		private readonly IReadOnlyList<CodeAction> _actions;
