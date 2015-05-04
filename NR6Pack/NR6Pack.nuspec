@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>NR6Pack</id>
-		<version>0.9.0-rc</version>
+		<version>0.9.0</version>
 		<title>NR6Pack</title>
 		<authors>IC#Code</authors>
 		<owners>IC#Code</owners>
@@ -16,15 +16,6 @@
 		<frameworkAssemblies>
 			<frameworkAssembly assemblyName="System" targetFramework="" />
 		</frameworkAssemblies>
-		<dependencies>
-			<dependency id="Microsoft.CodeAnalysis.Common" version="1.0.0-rc2" />
-			<dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0-rc2" />
-			<dependency id="Microsoft.CodeAnalysis.CSharp.Workspaces" version="1.0.0-rc2" />
-			<dependency id="Microsoft.CodeAnalysis.Workspaces.Common" version="1.0.0-rc2" />
-			<dependency id="Microsoft.Composition" version="1.0.27" />
-			<dependency id="System.Collections.Immutable" version="1.1.33-beta" />
-			<dependency id="System.Reflection.Metadata" version="1.0.18-beta" />
-		</dependencies>
 	</metadata>
 	<files>
 		<file src="NR6Pack.dll" target="tools\analyzers\" />
