@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			createMethodSymbolMethod = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.Public);
 			createMethodSymbolMethod2 = typeInfo.GetMethod ("CreateMethodSymbol", BindingFlags.Static | BindingFlags.NonPublic, null, new [] { typeof(INamedTypeSymbol), typeof(IList<AttributeData>), typeof(Accessibility), typeof(DeclarationModifiers), typeof(ITypeSymbol), typeof(IMethodSymbol) , typeof(string), typeof(IList<ITypeParameterSymbol>), typeof(IList<IParameterSymbol>), typeof(IList<SyntaxNode>), typeof(IList<SyntaxNode>), typeof(IList<AttributeData>), typeof(MethodKind) }, null);
 			createConstructorSymbolMethod = typeInfo.GetMethod ("CreateConstructorSymbol", BindingFlags.Static | BindingFlags.Public);
-			createAccessorSymbolMethod = typeInfo.GetMethod ("CreateAccessorSymbol", BindingFlags.Static | BindingFlags.Public);
+			createAccessorSymbolMethod = typeInfo.GetMethod ("CreateAccessorSymbol", BindingFlags.Static | BindingFlags.Public, null, new [] { typeof(IList<AttributeData>), typeof(Accessibility), typeof(IList<SyntaxNode>) }, null);
 			createPropertySymbolMethod = typeInfo.GetMethod ("CreatePropertySymbol", BindingFlags.Static | BindingFlags.Public);
 			createFieldSymbolMethod = typeInfo.GetMethod ("CreateFieldSymbol", BindingFlags.Static | BindingFlags.Public);
 			createPointerTypeSymbolMethod = typeInfo.GetMethod ("CreatePointerTypeSymbol", BindingFlags.Static | BindingFlags.Public);
