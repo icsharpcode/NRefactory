@@ -54,21 +54,61 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 
 		static CSharpCodeGenerationService ()
 		{
+			var abstractServiceType = Type.GetType ("Microsoft.CodeAnalysis.CodeGeneration.AbstractCodeGenerationService" + ReflectionNamespaces.WorkspacesAsmName, true);
+
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.CodeGeneration.CSharpCodeGenerationService" + ReflectionNamespaces.CSWorkspacesAsmName, true);
 			addMethod = typeInfo.GetMethod ("AddMethod", BindingFlags.Instance | BindingFlags.Public);
-			createEventDeclarationMethod = typeInfo.GetMethod ("CreateEventDeclaration", BindingFlags.Instance | BindingFlags.Public);
-			createFieldDeclaration = typeInfo.GetMethod ("CreateFieldDeclaration", BindingFlags.Instance | BindingFlags.Public);
-			createMethodDeclaration = typeInfo.GetMethod ("CreateMethodDeclaration", BindingFlags.Instance | BindingFlags.Public);
-			createPropertyDeclaration = typeInfo.GetMethod ("CreatePropertyDeclaration", BindingFlags.Instance | BindingFlags.Public);
-			createNamedTypeDeclaration = typeInfo.GetMethod ("CreateNamedTypeDeclaration", BindingFlags.Instance | BindingFlags.Public);
-			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public);
-			addMethodAsync = typeInfo.GetMethod ("AddMethodAsync", BindingFlags.Instance | BindingFlags.Public);
-			addMembersAsync = typeInfo.GetMethod ("AddMembersAsync", BindingFlags.Instance | BindingFlags.Public);
-			canAddTo1 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(ISymbol), typeof(Solution), typeof(CancellationToken) });
-			canAddTo2 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(SyntaxNode), typeof(Solution), typeof(CancellationToken) });
+			if (addMethod == null)
+				throw new InvalidOperationException ("AddMethod not found.");
 
-			addFieldAsync = typeInfo.GetMethod ("AddFieldAsync", BindingFlags.Instance | BindingFlags.Public);
+			createEventDeclarationMethod = typeInfo.GetMethod ("CreateEventDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			if (createEventDeclarationMethod == null)
+				throw new InvalidOperationException ("CreateEventDeclaration not found.");
+
+			createFieldDeclaration = typeInfo.GetMethod ("CreateFieldDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			if (createFieldDeclaration == null)
+				throw new InvalidOperationException ("CreateFieldDeclaration not found.");
+
+			createMethodDeclaration = typeInfo.GetMethod ("CreateMethodDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			if (createMethodDeclaration == null)
+				throw new InvalidOperationException ("CreateMethodDeclaration not found.");
+
+			createPropertyDeclaration = typeInfo.GetMethod ("CreatePropertyDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			if (createPropertyDeclaration == null)
+				throw new InvalidOperationException ("CreatePropertyDeclaration not found.");
+
+			createNamedTypeDeclaration = typeInfo.GetMethod ("CreateNamedTypeDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			if (createNamedTypeDeclaration == null)
+				throw new InvalidOperationException ("CreateNamedTypeDeclaration not found.");
+
+			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			if (createNamespaceDeclaration == null)
+				throw new InvalidOperationException ("CreateNamespaceDeclaration not found.");
+
+			addMethodAsync = abstractServiceType.GetMethod ("AddMethodAsync", BindingFlags.Instance | BindingFlags.Public);
+			if (addMethodAsync == null)
+				throw new InvalidOperationException ("AddMethodAsync not found.");
+
+			addMembersAsync = abstractServiceType.GetMethod ("AddMembersAsync", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(Solution), typeof(INamedTypeSymbol), typeof(IEnumerable<ISymbol>), CodeGenerationOptions.typeInfo, typeof(CancellationToken) }, null);
+			if (addMembersAsync == null)
+				throw new InvalidOperationException ("AddMembersAsync not found.");
+
+			canAddTo1 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(ISymbol), typeof(Solution), typeof(CancellationToken) });
+			if (canAddTo1 == null)
+				throw new InvalidOperationException ("CanAddTo1 not found.");
+
+			canAddTo2 = typeInfo.GetMethod ("CanAddTo", new [] {typeof(SyntaxNode), typeof(Solution), typeof(CancellationToken) });
+			if (canAddTo2 == null)
+				throw new InvalidOperationException ("CanAddTo1 not found.");
+
+			addFieldAsync = abstractServiceType.GetMethod ("AddFieldAsync", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(Solution), typeof(INamedTypeSymbol), typeof(IFieldSymbol), CodeGenerationOptions.typeInfo, typeof(CancellationToken) }, null);
+			if (addFieldAsync == null)
+				throw new InvalidOperationException ("AddFieldAsync not found.");
+
 			addStatements = typeInfo.GetMethod ("AddStatements", BindingFlags.Instance | BindingFlags.Public);
+			if (addStatements == null)
+				throw new InvalidOperationException ("AddStatements not found.");
+
 		}
 
 		public CSharpCodeGenerationService(HostLanguageServices languageServices)
