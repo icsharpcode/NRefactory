@@ -27,7 +27,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Util\ExpressionSyntaxExtensions.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util\FindTokenHelper.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util\GeneratedCodeRecognition.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Util\GettextCatalog.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util\Hash.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util\HelpLink.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Util\IAssemblySymbolExtensions.cs" />
