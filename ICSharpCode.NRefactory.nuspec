@@ -32,6 +32,6 @@
 		<file src="bin\Release\ICSharpCode.NRefactory6.CSharp.dll" target="lib\Net45" />
 		<file src="bin\Release\ICSharpCode.NRefactory6.CSharp.xml" target="lib\Net45" />
 		<file src="ICSharpCode.NRefactory.CSharp\**\*.cs" target="src\ICSharpCode.NRefactory.CSharp" />
-		<file src="ICSharpCode.NRefactory.CSharp\**\*.jay" target="src\ICSharpCode.NRefactory.CSharp" />
+		<file src="ICSharpCode.NRefactory6.Shared\**\*.cs" target="src\ICSharpCode.NRefactory6.Shared" />
 	</files>
 </package>
