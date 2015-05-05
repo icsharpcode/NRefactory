@@ -9,6 +9,7 @@ using System.Xml.Linq;
 using Microsoft.CodeAnalysis.CodeRefactorings;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Reflection;
+using Microsoft.CodeAnalysis.CodeFixes;
 
 namespace NR6Pack.DocGenerator
 {
@@ -24,14 +25,17 @@ namespace NR6Pack.DocGenerator
 
                 var codeRefactorings = typeof(ICSharpCode.NRefactory6.CSharp.NotPortedYetAttribute).Assembly.GetTypes()
                     .Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName))
+                    .OrderBy(t => t.Name)
                     .ToArray();
 
                 var codeAnalyzers = typeof(ICSharpCode.NRefactory6.CSharp.NotPortedYetAttribute).Assembly.GetTypes()
                     .Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(DiagnosticAnalyzerAttribute).FullName))
+                    .OrderBy(t => t.Name)
                     .ToArray();
 
                 var codeFixes = typeof(ICSharpCode.NRefactory6.CSharp.NotPortedYetAttribute).Assembly.GetTypes()
-                    .Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeRefactoringProviderAttribute).FullName))
+                    .Where(t => t.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ExportCodeFixProviderAttribute).FullName))
+                    .OrderBy(t => t.Name)
                     .ToArray();
 
                 missingMDWriter.WriteLine("*Refactorings*");
@@ -99,8 +103,11 @@ namespace NR6Pack.DocGenerator
                 {
                     if (!codeFix.CustomAttributes.Any(a => a.AttributeType.FullName == typeof(ICSharpCode.NRefactory6.CSharp.NotPortedYetAttribute).FullName))
                     {
-                        codeFixesNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0}", codeFix.Name)));
-                        codeFixesCount++;
+                        if (CodeFixRelatesToNRAnalyzer(codeFix))
+                        {
+                            codeFixesNode.Add(new XElement("{http://www.w3.org/1999/xhtml}li", string.Format("{0}", codeFix.Name)));
+                            codeFixesCount++;
+                        }
                     }
                 }
 
@@ -110,16 +117,33 @@ namespace NR6Pack.DocGenerator
             }
         }
 
-        private static string GetRefactoringDescription(Type t)
+        static string GetRefactoringDescription(Type t)
         {
             var exportAttribute = t.GetCustomAttributes(false).OfType<ExportCodeRefactoringProviderAttribute>().First();
             return exportAttribute.Name;
         }
 
-        private static string GetAnalyzerDescription(Type t)
+        static string GetAnalyzerDescription(Type t)
         {
             var descriptor = t.GetField("descriptor", BindingFlags.NonPublic | BindingFlags.Static)?.GetValue(null) as Microsoft.CodeAnalysis.DiagnosticDescriptor;
             return descriptor?.Title.ToString();
+        }
+
+        static bool CodeFixRelatesToNRAnalyzer(Type codeFixType)
+        {
+            var codeFixInstance = Activator.CreateInstance(codeFixType) as CodeFixProvider;
+            if (codeFixInstance != null)
+            {
+                if (!codeFixInstance.FixableDiagnosticIds.Any(id => id.StartsWith("NR")))
+                {
+                    // Try to find an appropriate analyzer class in NR6Pack
+                    string analyzerClassName = codeFixType.FullName.Replace("CodeFixProvider", "Analyzer");
+                    var analyzerClass = codeFixType.Assembly.GetType(analyzerClassName, false);
+                    return analyzerClass == null;
+                }
+            }
+
+            return false;
         }
     }
 }
