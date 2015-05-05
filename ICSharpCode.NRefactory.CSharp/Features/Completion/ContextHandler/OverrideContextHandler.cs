@@ -51,6 +51,9 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var document = completionContext.Document;
 			var semanticModel = await completionContext.GetSemanticModelAsync (cancellationToken).ConfigureAwait (false);
 			var tree = await document.GetSyntaxTreeAsync (cancellationToken).ConfigureAwait (false);
+			if (tree.IsInNonUserCode(completionContext.Position, cancellationToken))
+				return Enumerable.Empty<ICompletionData> ();
+
 			var text = await document.GetTextAsync (cancellationToken).ConfigureAwait (false);
 
 			var startLineNumber = text.Lines.IndexOf (completionContext.Position);

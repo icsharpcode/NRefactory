@@ -65,5 +65,21 @@ public class b : a
     	override $$
 }", "foo");
 		}
+
+
+		[Test]
+		public void DontShowUpInComments()
+		{
+			VerifyNoItemsExist(@"
+public class a
+{
+    public virtual void foo() { }
+}
+
+public class b : a
+{
+	// $$
+}");
+		}
 	}
 }
