@@ -326,6 +326,19 @@ class MyClass {
 		}
 
 		[Test]
+		public void TestStringFormatItemColor_End ()
+		{
+			TestColor (@"using System;
+class MyClass {
+			public static void Main ()
+			{
+				string str = string.Format ("" {0}$ {1}$ {2}$ "", 1, 2, 3);
+			}
+		}
+", stringFormatItemColor);
+		}
+
+		[Test]
 		public void TestStringFormatItemInVerbatimStringColor()
 		{
 			TestColor ("using System;\nclass MyClass {\n\npublic static void Main () { Console.WriteLine (@\" ${0}\n ${1} \n\n ${2} \", 1, 2, 3); } }", stringFormatItemColor);
@@ -442,7 +455,7 @@ class X
 {
 	public static void Main ()
 	{
-		var l = string.Format(""{{{0:d}$}$}"", 100);
+		var l = string.Format(""{{{0:d}}$}$"", 100);
 	}
 }", defaultTextColor);
 		}

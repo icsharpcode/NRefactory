@@ -157,7 +157,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 				}
 				
 				if (ch == '}' && start >= 0) {
-					Colorize(new TextSpan (expr.SpanStart + start, i - start), stringFormatItemColor);
+					Colorize(new TextSpan (expr.SpanStart + start, i - start + 1), stringFormatItemColor);
 					start = -1;
 				}
 			}
