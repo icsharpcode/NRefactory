@@ -100,7 +100,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			int upper = input.Length - 1;
 			for (int i = 0; i < upper; i++) {
 				var ch = input [i];
-				if (ch == '$') {
+				if (ch == '$' && (i + 1 >= upper || input [i+ 1] != '"') || ch == '…') {
 					start = end = i;
 					continue;
 				}

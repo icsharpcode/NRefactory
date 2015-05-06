@@ -1,5 +1,5 @@
 ﻿//
-// UseSystemEnvironmentNewLineTests.cs
+// ConvertInterpolatedStringToStringFormatTests.cs
 //
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
@@ -23,74 +23,78 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
 using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture]
-	public class UseSystemEnvironmentNewLineTests : ContextActionTestBase
+	public class ConvertInterpolatedStringToStringFormatTests : ContextActionTestBase
 	{
 		[Test]
-		public void TestLFString ()
+		public void TestSimpleStringFormat ()
 		{
-			Test<UseSystemEnvironmentNewLineCodeRefactoringProvider> (@"
+			Test<ConvertInterpolatedStringToStringFormatCodeRefactoringProvider> (@"
 class TestClass
 {
-    void TestMethod()
+    void Foo ()
     {
-        string str = …""\n"";
+        var world = ""World"";
+        var str = $""Hel$lo {world}"";
     }
 }", @"
 class TestClass
 {
-    void TestMethod()
+    void Foo ()
     {
-        string str = System.Environment.NewLine;
+        var world = ""World"";
+        var str = string.Format(""Hello {0}"", world);
     }
 }");
 		}
 
 		[Test]
-		public void TestCRString ()
+		public void TestComplexStringFormat ()
 		{
-			Test<UseSystemEnvironmentNewLineCodeRefactoringProvider> (@"
+			Test<ConvertInterpolatedStringToStringFormatCodeRefactoringProvider> (@"
 class TestClass
 {
-    void TestMethod()
+    void Foo ()
     {
-        string str = …""\r"";
+        var str = $""Hell$o {0.5d:0.0} {2134:0X}"";
     }
 }", @"
 class TestClass
 {
-    void TestMethod()
+    void Foo ()
     {
-        string str = System.Environment.NewLine;
+        var str = string.Format(""Hello {0:0.0} {1:0X}"", 0.5d, 2134);
     }
 }");
 		}
 
 
 		[Test]
-		public void TestCRLFString ()
+		public void TestRepeats ()
 		{
-			Test<UseSystemEnvironmentNewLineCodeRefactoringProvider> (@"
+			Test<ConvertInterpolatedStringToStringFormatCodeRefactoringProvider> (@"
 class TestClass
 {
-    void TestMethod()
+    void Foo ()
     {
-        string str = …""\r\n"";
+        var world = ""World"";
+        var str = $""Hel$lo {world} {world}"";
     }
 }", @"
 class TestClass
 {
-    void TestMethod()
+    void Foo ()
     {
-        string str = System.Environment.NewLine;
+        var world = ""World"";
+        var str = string.Format(""Hello {0} {0}"", world);
     }
 }");
 		}
-	}
+			}
 }
+

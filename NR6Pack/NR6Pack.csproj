@@ -490,6 +490,8 @@
     <Compile Include="Diagnostics\InsertionAction.cs" />
     <Compile Include="Diagnostics\InsertionResult.cs" />
     <Compile Include="Util\GettextCatalog.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertInterpolatedStringToStringFormatCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Custom\ConvertStringFormatToInterpolatedStringCodeRefactoringProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Collections.Immutable">

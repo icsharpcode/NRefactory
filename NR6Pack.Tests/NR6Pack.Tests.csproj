@@ -377,6 +377,8 @@
     <Compile Include="CSharp\CodeRefactorings\FlipOperatorArguments.cs" />
     <Compile Include="CSharp\CodeRefactorings\FlipRelationalOperatorArgumentsTests.cs" />
     <Compile Include="CSharp\CodeRefactorings\GenerateGetterTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ConvertStringFormatToInterpolatedStringTests.cs" />
+    <Compile Include="CSharp\CodeRefactorings\ConvertInterpolatedStringToStringFormatTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>

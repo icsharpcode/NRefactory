@@ -106,7 +106,7 @@ class TestClass
 using System;
 public class AnyClass
 {
-    [Obsolete($"" "", error: true)]
+    [Obsolete(…"" "", error: true)]
     static void Old() { }
 }", @"
 using System;
@@ -125,7 +125,7 @@ using System;
 public class AnyClass
 {
     // Some comment
-    [Obsolete($"" "", error: true)]
+    [Obsolete(…"" "", error: true)]
     static void Old() { }
 }", @"
 using System;
