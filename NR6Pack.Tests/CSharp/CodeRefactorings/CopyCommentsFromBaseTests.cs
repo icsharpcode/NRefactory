@@ -30,7 +30,6 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
 	[TestFixture]
-	[Ignore("To be ported to PCL.")]
 	public class CopyCommentsFromBaseTest : ContextActionTestBase
 	{
 		[Test]

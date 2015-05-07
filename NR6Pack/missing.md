@@ -5,7 +5,6 @@
 
 * AutoLinqSumAction
 * ChangeAccessModifierAction
-* CopyCommentsFromBaseCodeRefactoringProvider
 * CreateDelegateAction
 * CreateIndexerAction
 * CreateOverloadWithoutParameterAction
