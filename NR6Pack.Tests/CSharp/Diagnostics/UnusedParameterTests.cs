@@ -204,7 +204,6 @@ class TestClass {
 			Test<UnusedParameterAnalyzer> (input, 0);
 		}
 
-		
 		[Test]
 		public void TestUnusedParameterInPartialMethod ()
 		{
@@ -227,6 +226,23 @@ class TestClass : ISerializable {
 	protected TestClass(SerializationInfo info, StreamingContext context)
 	{
 		this.text = info.GetString(""Text"");
+	}
+}";
+			Analyze<UnusedParameterAnalyzer> (input);
+		}
+
+		[Test]
+		public void TestBug_29572 ()
+		{
+			// https://bugzilla.xamarin.com/show_bug.cgi?id=29572
+			var input = @"using System;
+using System.Runtime.Serialization;
+class TestClass : ISerializable {
+	
+	[Export (""run:"")]
+	public void Run (NSObject dummy)
+	{
+	    // something
 	}
 }";
 			Analyze<UnusedParameterAnalyzer> (input);
