@@ -85,7 +85,10 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 		async Task<Document> ImportStaticClassWithUsing (Document document, SemanticModel model, SyntaxNode root, SyntaxNode node, SymbolInfo info, CancellationToken cancellationToken)
 		{
 			var cu = root as CompilationUnitSyntax;
-			var staticUsing = SyntaxFactory.UsingDirective (SyntaxFactory.ParseName (info.Symbol.ToDisplayString (SymbolDisplayFormat.CSharpErrorMessageFormat))).WithAdditionalAnnotations (Formatter.Annotation);
+			var staticUsing = SyntaxFactory
+				.UsingDirective (SyntaxFactory.ParseName (info.Symbol.ToDisplayString (SymbolDisplayFormat.CSharpErrorMessageFormat)))
+				.WithStaticKeyword (SyntaxFactory.Token (SyntaxKind.StaticKeyword))
+				.WithAdditionalAnnotations (Formatter.Annotation);
 			cu = cu.AddUsingDirective (staticUsing, node, true);
 			var newDoc = document.WithSyntaxRoot (cu);
 

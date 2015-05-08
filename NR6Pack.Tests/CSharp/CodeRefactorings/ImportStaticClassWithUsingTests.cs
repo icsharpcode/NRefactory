@@ -46,7 +46,7 @@ class Foo
     }
 }", @"
 using System;
-using System.Math;
+using static System.Math;
 
 class Foo
 {
@@ -75,7 +75,7 @@ class Foo
     }
 }", @"
 using System;
-using System.Math;
+using static System.Math;
 
 class Foo
 {
@@ -106,7 +106,7 @@ class Foo
     }
 }", @"
 using System;
-using System.Math;
+using static System.Math;
 
 class Foo
 {
