@@ -54,6 +54,11 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			var cancellationToken = context.CancellationToken;
 			if (cancellationToken.IsCancellationRequested)
 				return;
+
+			var options = document.Project.ParseOptions as CSharpParseOptions;
+			if (options != null && options.LanguageVersion < LanguageVersion.CSharp6)
+				return;
+			
 			var model = await document.GetSemanticModelAsync(cancellationToken).ConfigureAwait(false);
 			if (model.IsFromGeneratedCode(cancellationToken))
 				return;
@@ -67,7 +72,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
-					span, 
+					node.Span, 
 					DiagnosticSeverity.Info, 
 					GettextCatalog.GetString ("Import static class with using"), 
 					t2 => {
