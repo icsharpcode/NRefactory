@@ -492,6 +492,7 @@
     <Compile Include="Util\GettextCatalog.cs" />
     <Compile Include="CodeRefactorings\Custom\ConvertInterpolatedStringToStringFormatCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\ConvertStringFormatToInterpolatedStringCodeRefactoringProvider.cs" />
+    <Compile Include="CodeRefactorings\Synced\ImportStaticClassWithUsingCodeRefactoringProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Collections.Immutable">

@@ -24,14 +24,100 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using NUnit.Framework;
+using ICSharpCode.NRefactory6.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 {
-	public class ImportStaticClassWithUsingTests
+	[TestFixture]
+	public class ImportStaticClassWithUsingTests : ContextActionTestBase
 	{
-		public ImportStaticClassWithUsingTests ()
+		[Test]
+		public void TestSimple()
 		{
+			Test<ImportStaticClassWithUsingCodeRefactoringProvider>(@"
+using System;
+
+class Foo
+{
+    public void Test()
+    {
+        $Math.Sin(0);
+    }
+}", @"
+using System;
+using System.Math;
+
+class Foo
+{
+    public void Test()
+    {
+        Sin(0);
+    }
+}");
 		}
+
+		[Test]
+		public void TestMemberConflict()
+		{
+			Test<ImportStaticClassWithUsingCodeRefactoringProvider>(@"
+using System;
+
+class Foo
+{
+    public void Test()
+    {
+        $Math.Sin(0);
+        Math.Tan(0);
+    }
+    public void Tan(int i)
+    {
+    }
+}", @"
+using System;
+using System.Math;
+
+class Foo
+{
+    public void Test()
+    {
+        Sin(0);
+        Math.Tan(0);
+    }
+    public void Tan(int i)
+    {
+    }
+}");
+		}
+
+		[Test]
+		public void TestLocalConflict()
+		{
+			Test<ImportStaticClassWithUsingCodeRefactoringProvider>(@"
+using System;
+
+class Foo
+{
+    public void Test()
+    {
+        $Math.Sin(0);
+        Action<int> Tan = i => i;
+        Math.Tan(0);
+    }
+}", @"
+using System;
+using System.Math;
+
+class Foo
+{
+    public void Test()
+    {
+        Sin(0);
+        Action<int> Tan = i => i;
+        Math.Tan(0);
+    }
+}");
+		}
+
 	}
 }
-
