@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
 using Microsoft.CodeAnalysis.Host;
 using Microsoft.CodeAnalysis;
 using System.Threading;
@@ -55,33 +56,44 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		static CSharpCodeGenerationService ()
 		{
 			var abstractServiceType = Type.GetType ("Microsoft.CodeAnalysis.CodeGeneration.AbstractCodeGenerationService" + ReflectionNamespaces.WorkspacesAsmName, true);
+			var codeGenerationDestinationType = Type.GetType ("Microsoft.CodeAnalysis.CodeGeneration.CodeGenerationDestination" + ReflectionNamespaces.WorkspacesAsmName, true);
+			var codeGenerationOptionsType = Type.GetType ("Microsoft.CodeAnalysis.CodeGeneration.CodeGenerationOptions" + ReflectionNamespaces.WorkspacesAsmName, true);
+
+
+
 
 			typeInfo = Type.GetType ("Microsoft.CodeAnalysis.CSharp.CodeGeneration.CSharpCodeGenerationService" + ReflectionNamespaces.CSWorkspacesAsmName, true);
-			addMethod = typeInfo.GetMethod ("AddMethod", BindingFlags.Instance | BindingFlags.Public);
+			//TDeclarationNode destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken)
+
+
+			addMethod = typeInfo.GetMethods ().Single (m => 
+			                                           m.Name == "AddMethod" &&
+			                                           m.GetParameters ().Count () == 4);
 			if (addMethod == null)
 				throw new InvalidOperationException ("AddMethod not found.");
 
-			createEventDeclarationMethod = typeInfo.GetMethod ("CreateEventDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			createEventDeclarationMethod = typeInfo.GetMethod ("CreateEventDeclaration", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(IEventSymbol), codeGenerationDestinationType, codeGenerationOptionsType }, null);
 			if (createEventDeclarationMethod == null)
 				throw new InvalidOperationException ("CreateEventDeclaration not found.");
 
-			createFieldDeclaration = typeInfo.GetMethod ("CreateFieldDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			createFieldDeclaration = typeInfo.GetMethod ("CreateFieldDeclaration", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(IFieldSymbol), codeGenerationDestinationType, codeGenerationOptionsType }, null);
 			if (createFieldDeclaration == null)
 				throw new InvalidOperationException ("CreateFieldDeclaration not found.");
 
-			createMethodDeclaration = typeInfo.GetMethod ("CreateMethodDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			createMethodDeclaration = typeInfo.GetMethod ("CreateMethodDeclaration", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(IMethodSymbol), codeGenerationDestinationType, codeGenerationOptionsType }, null);
 			if (createMethodDeclaration == null)
 				throw new InvalidOperationException ("CreateMethodDeclaration not found.");
 
-			createPropertyDeclaration = typeInfo.GetMethod ("CreatePropertyDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			createPropertyDeclaration = typeInfo.GetMethod ("CreatePropertyDeclaration", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(IPropertySymbol), codeGenerationDestinationType, codeGenerationOptionsType }, null);
 			if (createPropertyDeclaration == null)
 				throw new InvalidOperationException ("CreatePropertyDeclaration not found.");
 
-			createNamedTypeDeclaration = typeInfo.GetMethod ("CreateNamedTypeDeclaration", BindingFlags.Instance | BindingFlags.Public);
+
+			createNamedTypeDeclaration = typeInfo.GetMethod ("CreateNamedTypeDeclaration", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(INamedTypeSymbol), codeGenerationDestinationType, codeGenerationOptionsType }, null);
 			if (createNamedTypeDeclaration == null)
 				throw new InvalidOperationException ("CreateNamedTypeDeclaration not found.");
 
-			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public);
+			createNamespaceDeclaration = typeInfo.GetMethod ("CreateNamespaceDeclaration", BindingFlags.Instance | BindingFlags.Public, null, new [] { typeof(INamespaceSymbol), codeGenerationDestinationType, codeGenerationOptionsType }, null);
 			if (createNamespaceDeclaration == null)
 				throw new InvalidOperationException ("CreateNamespaceDeclaration not found.");
 
