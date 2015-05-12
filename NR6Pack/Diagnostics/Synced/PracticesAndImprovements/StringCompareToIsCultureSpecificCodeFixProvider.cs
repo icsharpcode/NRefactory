@@ -66,11 +66,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var root = await document.GetSyntaxRootAsync(cancellationToken);
 			var diagnostic = diagnostics.First ();
 			var node = root.FindNode(context.Span).SkipArgument () as InvocationExpressionSyntax;
-			RegisterFix(context, root, diagnostic, node, "Ordinal", cancellationToken);
-			RegisterFix(context, root, diagnostic, node, "CurrentCulture", cancellationToken);
+			if (node == null)
+				return;
+			RegisterFix(context, root, diagnostic, node, "Ordinal", GettextCatalog.GetString ("Use ordinal comparison"), cancellationToken);
+			RegisterFix(context, root, diagnostic, node, "CurrentCulture", GettextCatalog.GetString ("Use culture-aware comparison"), cancellationToken);
 		}
 
-		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, CancellationToken cancellationToken = default(CancellationToken))
+		internal static void RegisterFix(CodeFixContext context, SyntaxNode root, Diagnostic diagnostic, InvocationExpressionSyntax invocationExpression, string stringComparison, string message, CancellationToken cancellationToken = default(CancellationToken))
 		{
 			var stringComparisonType = SyntaxFactory.ParseTypeName("System.StringComparison").WithAdditionalAnnotations(Microsoft.CodeAnalysis.Simplification.Simplifier.Annotation);
 			var stringComparisonArgument = SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, stringComparisonType, (SimpleNameSyntax)SyntaxFactory.ParseName(stringComparison));
@@ -84,7 +86,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var newInvocation = SyntaxFactory.InvocationExpression(SyntaxFactory.ParseExpression ("string.Compare"), newArguments);
 			var newRoot = root.ReplaceNode(invocationExpression, newInvocation.WithAdditionalAnnotations(Formatter.Annotation));
 
-			context.RegisterCodeFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, string.Format ("Use 'StringComparison.{0}'", stringComparison), context.Document.WithSyntaxRoot(newRoot)), diagnostic);
+			context.RegisterCodeFix(CodeActionFactory.Create(invocationExpression.Span, diagnostic.Severity, message, context.Document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }

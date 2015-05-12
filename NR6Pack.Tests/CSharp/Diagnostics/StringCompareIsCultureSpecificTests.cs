@@ -30,25 +30,24 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class StringCompareIsCultureSpecificTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestCase1()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar""));
+		Console.WriteLine ($string.Compare(""Foo"", ""Bar"")$);
 	}
 }", @"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", ""Bar"", System.StringComparison.Ordinal));
 	}
 }");
 		}
@@ -61,7 +60,7 @@ class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", ""Bar"", System.StringComparison.Ordinal));
 	}
 }");
 		}
@@ -69,19 +68,19 @@ class Test
 		[Test]
 		public void TestCase2()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (System.String.Compare (""Foo"", ""Bar"", true));
+		Console.WriteLine ($System.String.Compare(""Foo"", ""Bar"", true)$);
 	}
 }", @"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (System.String.Compare (""Foo"", ""Bar"", System.StringComparison.OrdinalIgnoreCase));
+		Console.WriteLine (System.String.Compare(""Foo"", ""Bar"", System.StringComparison.OrdinalIgnoreCase));
 	}
 }");
 		}
@@ -94,7 +93,7 @@ class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", System.StringComparison.OrdinalIgnoreCase));
+		Console.WriteLine (string.Compare(""Foo"", ""Bar"", System.StringComparison.OrdinalIgnoreCase));
 	}
 }");
 		}
@@ -102,19 +101,19 @@ class Test
 		[Test]
 		public void TestCase3()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", false));
+		Console.WriteLine ($string.Compare(""Foo"", ""Bar"", false)$);
 	}
 }", @"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", ""Bar"", System.StringComparison.Ordinal));
 	}
 }");
 		}
@@ -122,19 +121,19 @@ class Test
 		[Test]
 		public void TestCase4()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1));
+		Console.WriteLine ($string.Compare(""Foo"", 0, ""Bar"", 1, 1)$);
 	}
 }", @"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.Ordinal));
 	}
 }");
 		}
@@ -147,7 +146,7 @@ class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.Ordinal));
 	}
 }");
 		}
@@ -155,19 +154,19 @@ class Test
 		[Test]
 		public void TestCase5()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1, true));
+		Console.WriteLine ($string.Compare(""Foo"", 0, ""Bar"", 1, 1, true)$);
 	}
 }", @"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.OrdinalIgnoreCase));
+		Console.WriteLine (string.Compare(""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.OrdinalIgnoreCase));
 	}
 }");
 		}
@@ -175,19 +174,19 @@ class Test
 		[Test]
 		public void TestCase6()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1, false));
+		Console.WriteLine ($string.Compare(""Foo"", 0, ""Bar"", 1, 1, false)$);
 	}
 }", @"
 class Test
 {
 	void Foo ()
 	{
-		Console.WriteLine (string.Compare (""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", 0, ""Bar"", 1, 1, System.StringComparison.Ordinal));
 	}
 }");
 		}
@@ -208,23 +207,22 @@ class Test
 		[Test]
 		public void TestComplex()
 		{
-			Test<StringCompareIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareIsCultureSpecificAnalyzer>(@"
 class Test
 {
 	void Foo (bool b)
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", b));
+		Console.WriteLine ($string.Compare(""Foo"", ""Bar"", b)$);
 	}
 }", @"
 class Test
 {
 	void Foo (bool b)
 	{
-		Console.WriteLine (string.Compare (""Foo"", ""Bar"", b ? System.StringComparison.OrdinalIgnoreCase : System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", ""Bar"", b ? System.StringComparison.OrdinalIgnoreCase : System.StringComparison.Ordinal));
 	}
 }");
 		}
-
 
 		[Test]
 		public void TestDisable()
@@ -234,7 +232,7 @@ class Test
 {
 	void Foo()
 	{
-		// ReSharper disable once StringCompareIsCultureSpecific
+#pragma warning disable " + NRefactoryDiagnosticIDs.StringCompareIsCultureSpecificAnalyzerID + @"
 		Console.WriteLine(string.Compare(""Foo"", ""Bar""));
 	}
 }");
