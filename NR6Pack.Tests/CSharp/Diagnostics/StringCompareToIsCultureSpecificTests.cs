@@ -30,18 +30,17 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class StringCompareToIsCultureSpecificTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestSimpleCase()
 		{
-			Test<StringCompareToIsCultureSpecificAnalyzer>(@"
+			Analyze<StringCompareToIsCultureSpecificAnalyzer>(@"
 public class Test
 {
 	void Foo (string b)
 	{
-		Console.WriteLine (""Foo"".CompareTo(b));
+		Console.WriteLine ($""Foo"".CompareTo(b)$);
 	}
 }
 ", @"
@@ -49,7 +48,7 @@ public class Test
 {
 	void Foo (string b)
 	{
-		Console.WriteLine (string.Compare (""Foo"", b, System.StringComparison.Ordinal));
+		Console.WriteLine (string.Compare(""Foo"", b, System.StringComparison.Ordinal));
 	}
 }
 ");
@@ -78,7 +77,7 @@ public class Test
 {
 	void Foo (string b)
 	{
-		// ReSharper disable once StringCompareToIsCultureSpecific
+#pragma warning disable " + NRefactoryDiagnosticIDs.StringCompareToIsCultureSpecificAnalyzerID + @"
 		Console.WriteLine (""Foo"".CompareTo(b));
 	}
 }

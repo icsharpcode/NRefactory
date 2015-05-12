@@ -44,8 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-    [NotPortedYet]
-    public class StringCompareToIsCultureSpecificAnalyzer : DiagnosticAnalyzer
+	public class StringCompareToIsCultureSpecificAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.StringCompareToIsCultureSpecificAnalyzerID, 
@@ -61,15 +60,15 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override void Initialize(AnalysisContext context)
 		{
-			//context.RegisterSyntaxNodeAction(
-			//	(nodeContext) => {
-			//		Diagnostic diagnostic;
-			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
-			//			nodeContext.ReportDiagnostic(diagnostic);
-			//		}
-			//	}, 
-			//	new SyntaxKind[] { SyntaxKind.None }
-			//);
+			context.RegisterSyntaxNodeAction(
+				(nodeContext) => {
+					Diagnostic diagnostic;
+					if (TryGetDiagnostic (nodeContext, out diagnostic)) {
+						nodeContext.ReportDiagnostic(diagnostic);
+					}
+				}, 
+				new SyntaxKind[] { SyntaxKind.InvocationExpression }
+			);
 		}
 
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
@@ -77,59 +76,30 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			diagnostic = default(Diagnostic);
 			if (nodeContext.IsFromGeneratedCode())
 				return false;
-			//var node = nodeContext.Node as ;
-			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
-			//return true;
-			return false;
+			var node = nodeContext.Node as InvocationExpressionSyntax;
+			MemberAccessExpressionSyntax mre = node.Expression as MemberAccessExpressionSyntax;
+			if (mre == null)
+				return false;
+			if (mre.Name.Identifier.ValueText != "CompareTo")
+				return false;
+			if (node.ArgumentList.Arguments.Count != 1)
+				return false;
+
+			var rr = nodeContext.SemanticModel.GetSymbolInfo (node, nodeContext.CancellationToken);
+			if (rr.Symbol == null)
+				return false;
+			var symbol = rr.Symbol;
+			if (!(symbol.ContainingType != null && symbol.ContainingType.SpecialType == SpecialType.System_String))
+				return false;
+			var parameters = symbol.GetParameters ();
+			var firstParameter = parameters.FirstOrDefault ();
+			if (firstParameter == null || firstParameter.Type.SpecialType != SpecialType.System_String)
+				return false;   // First parameter not a string
+			diagnostic = Diagnostic.Create (
+				descriptor,
+				node.GetLocation ()
+			);
+			return true;
 		}
-
-//		class GatherVisitor : GatherVisitorBase<StringCompareToIsCultureSpecificAnalyzer>
-//		{
-//			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-//				: base (semanticModel, addDiagnostic, cancellationToken)
-//			{
-//			}
-
-////			public override void VisitInvocationExpression(InvocationExpression invocationExpression)
-////			{
-////				base.VisitInvocationExpression(invocationExpression);
-////
-////				var rr = ctx.Resolve(invocationExpression) as CSharpInvocationResolveResult;
-////				if (rr == null || rr.IsError)
-////					return;
-////
-////				if (rr.Member.Name != "CompareTo" || 
-////				    !rr.Member.DeclaringType.IsKnownType (KnownTypeCode.String) ||
-////				    rr.Member.Parameters.Count != 1 ||
-////				    !rr.Member.Parameters[0].Type.IsKnownType(KnownTypeCode.String)) {
-////					return;
-////				}
-////				AddDiagnosticAnalyzer(new CodeIssue(
-////					invocationExpression,
-////					ctx.TranslateString(""), 
-////					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "Ordinal"), invocationExpression),
-////					new CodeAction(ctx.TranslateString(), script => AddArgument(script, invocationExpression, "CurrentCulture"), invocationExpression)
-////				));
-////
-////			}
-////
-////			void AddArgument(Script script, InvocationExpression invocationExpression, string ordinal)
-////			{
-////				var mr = invocationExpression.Target as MemberReferenceExpression;
-////				if (mr == null)
-////					return;
-////
-////				var astBuilder = ctx.CreateTypeSystemAstBuilder(invocationExpression);
-////				var newArgument = astBuilder.ConvertType(new TopLevelTypeName("System", "StringComparison")).Member(ordinal);
-////
-////				var newInvocation = new PrimitiveType("string").Invoke(
-////					"Compare",
-////					mr.Target.Clone(),
-////					invocationExpression.Arguments.First().Clone(),
-////					newArgument
-////				);
-////				script.Replace(invocationExpression, newInvocation);
-////			}
-//		}
 	}
 }
