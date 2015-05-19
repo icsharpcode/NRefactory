@@ -348,10 +348,12 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			Predicate<ITypeDefinition> nestedTypeFilter = delegate(ITypeDefinition entity) {
 				return entity.Name == name && IsAccessible(entity, allowProtectedAccess);
 			};
+		    bool isStaticContext = targetResolveResult is TypeResolveResult;
 			Predicate<IUnresolvedMember> memberFilter = delegate(IUnresolvedMember entity) {
 				// NOTE: Atm destructors can be looked up with 'Finalize'
 				return entity.SymbolKind != SymbolKind.Indexer &&
-				       entity.SymbolKind != SymbolKind.Operator && 
+				       entity.SymbolKind != SymbolKind.Operator &&
+                       (!isStaticContext || entity.IsStatic) &&
 				       entity.Name == name;
 			};
 			

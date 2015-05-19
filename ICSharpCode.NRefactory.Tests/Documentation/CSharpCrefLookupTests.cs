@@ -138,6 +138,7 @@ class Impl<T> : IGeneric<List<string>[,], T> {
 		}
 		
 		[Test]
+        [Ignore("Test should be method with no associated instance expression. C# 5.0 spec §7.6.4")]
 		public void MethodInGenericInterface()
 		{
 			Assert.AreEqual("M:IGeneric`2.Test``1(``0[0:,0:]@)",

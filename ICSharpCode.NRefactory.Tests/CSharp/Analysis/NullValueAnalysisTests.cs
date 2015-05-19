@@ -945,7 +945,6 @@ class TestClass
 	int M() { return 0; }
 	string TestMethod()
 	{
-		object o = TestClass.i;
 		object p = i;
 		object q = M();
 		object m = this[0];
@@ -959,7 +958,6 @@ class TestClass
 			
 			var lastStatement = method.Body.Statements.Last();
 			
-			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "o"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "p"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "q"));
 			Assert.AreEqual(NullValueStatus.DefinitelyNotNull, analysis.GetVariableStatusAfterStatement(lastStatement, "m"));
