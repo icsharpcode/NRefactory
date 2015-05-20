@@ -74,7 +74,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 			if (name == null) // very unlikely, but just in case ...
 				return;
 			context.RegisterRefactoring(CodeActionFactory.Create(
-				span, 
+				foreachStatement.ForEachKeyword.Span, 
 				DiagnosticSeverity.Info, 
 				GettextCatalog.GetString ("To 'for'"), 
 				t2 => {
@@ -331,7 +331,13 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 
 		static ForEachStatementSyntax GetForeachStatement (SemanticModel context, SyntaxNode root, TextSpan span, out bool hasIndexAccess)
 		{
-			var result = root.FindNode (span) as ForEachStatementSyntax;
+			var token = root.FindToken (span.Start, false);
+			if (!token.IsKind (SyntaxKind.ForEachKeyword) || !token.Span.Contains (span)) {
+				hasIndexAccess = false;
+				return null;
+			}
+
+			var result = token.Parent as ForEachStatementSyntax;
 			if (result == null) {
 				hasIndexAccess = false;
 				return null;

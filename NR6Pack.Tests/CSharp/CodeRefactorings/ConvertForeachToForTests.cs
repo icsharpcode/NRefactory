@@ -245,5 +245,25 @@ class Test
     }
 }");
 		}
+
+		/// <summary>
+		/// Bug 30238 - [Roslyn Migration] Smart tag follows cursor while typing comment
+		/// </summary>
+		[Test]
+		public void TestBug30238()
+		{
+			TestWrongContext<ConvertForeachToForCodeRefactoringProvider>(@"
+class Test
+{
+    void Foo (object[] o)
+    {
+        $// Some comment
+        foreach (var p in o) {
+            System.Console.WriteLine (p);
+        }
+    }
+}");
+		}
+
 	}
 }
