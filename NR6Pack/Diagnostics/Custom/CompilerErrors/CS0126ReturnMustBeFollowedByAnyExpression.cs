@@ -43,6 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	[NotPortedYet]
 	public class CS0126ReturnMustBeFollowedByAnyExpression : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS0126ReturnMustBeFollowedByAnyExpression";
@@ -239,6 +240,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	[NotPortedYet]
 	public class CS0126ReturnMustBeFollowedByAnyExpressionFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {
