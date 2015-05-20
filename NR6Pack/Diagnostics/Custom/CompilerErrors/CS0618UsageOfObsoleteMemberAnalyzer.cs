@@ -44,6 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	[NotPortedYet]
 	public class CS0618UsageOfObsoleteMemberAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS0618UsageOfObsoleteMemberAnalyzer";
@@ -227,6 +228,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	[NotPortedYet]
 	public class CS0618UsageOfObsoleteMemberFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {

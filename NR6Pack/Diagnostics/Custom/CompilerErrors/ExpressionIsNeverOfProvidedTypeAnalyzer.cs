@@ -44,6 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	[NotPortedYet]
 	public class ExpressionIsNeverOfProvidedTypeAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "ExpressionIsNeverOfProvidedTypeAnalyzer";
@@ -130,6 +131,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	[NotPortedYet]
 	public class ExpressionIsNeverOfProvidedTypeFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {

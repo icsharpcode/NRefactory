@@ -44,6 +44,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	[NotPortedYet]
 	public class CS1729TypeHasNoConstructorWithNArgumentsAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS1729TypeHasNoConstructorWithNArgumentsAnalyzer";
@@ -177,6 +178,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	[NotPortedYet]
 	public class CS1729TypeHasNoConstructorWithNArgumentsFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {

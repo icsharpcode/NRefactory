@@ -43,6 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	[NotPortedYet]
 	public class CS0169FieldIsNeverUsedAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "CS0169FieldIsNeverUsedAnalyzer";
@@ -156,6 +157,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	[NotPortedYet]
 	public class CS0169FieldIsNeverUsedFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {

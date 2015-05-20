@@ -43,6 +43,7 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
+	[NotPortedYet]
 	public class MissingInterfaceMemberImplementationAnalyzer : DiagnosticAnalyzer
 	{
 		internal const string DiagnosticId  = "MissingInterfaceMemberImplementationAnalyzer";
@@ -113,6 +114,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 	}
 
 	[ExportCodeFixProvider(LanguageNames.CSharp), System.Composition.Shared]
+	[NotPortedYet]
 	public class MissingInterfaceMemberImplementationFixProvider : CodeFixProvider
 	{
 		public override ImmutableArray<string> FixableDiagnosticIds {
