@@ -67,7 +67,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 				return;
 			context.RegisterRefactoring(
 				CodeActionFactory.Create(
-					span, 
+					node.Span, 
 					DiagnosticSeverity.Info, 
 					GettextCatalog.GetString ("To format string"), 
 					t => {
