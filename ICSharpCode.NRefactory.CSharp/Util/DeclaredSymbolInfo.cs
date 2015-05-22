@@ -28,9 +28,9 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 	public struct DeclaredSymbolInfo
 	{
-		public SyntaxNode Node { get; }
+		public string FilePath { get; }
 		public string Name { get; }
-		public string ContainerDisplayName { get; }
+//		public string ContainerDisplayName { get; }
 		public string FullyQualifiedContainerName { get; }
 		public DeclaredSymbolInfoKind Kind { get; }
 		public TextSpan Span { get; }
@@ -38,12 +38,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		public ushort TypeParameterCount { get; }
 
 
-		public DeclaredSymbolInfo(SyntaxNode node, string name, string containerDisplayName, string fullyQualifiedContainerName, DeclaredSymbolInfoKind kind, TextSpan span, ushort parameterCount = 0, ushort typeParameterCount = 0)
+		public DeclaredSymbolInfo(SyntaxNode node, string name, string fullyQualifiedContainerName, DeclaredSymbolInfoKind kind, TextSpan span, ushort parameterCount = 0, ushort typeParameterCount = 0)
 			: this()
 		{
-			Node = node;
-			Name = name;
-			ContainerDisplayName = containerDisplayName;
+			FilePath = node.SyntaxTree.FilePath;
+			Name = string.Intern (name);
+//			ContainerDisplayName = string.Intern (containerDisplayName);
 			FullyQualifiedContainerName = fullyQualifiedContainerName;
 			Kind = kind;
 			Span = span;

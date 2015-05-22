@@ -755,7 +755,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var classDecl = (ClassDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					classDecl.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Class, classDecl.Identifier.Span);
 				return true;
@@ -764,7 +764,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				declaredSymbolInfo = new DeclaredSymbolInfo(
 					node,
 					ctorDecl.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Constructor,
 					ctorDecl.Identifier.Span,
@@ -774,7 +774,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var delegateDecl = (DelegateDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					delegateDecl.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Delegate, delegateDecl.Identifier.Span);
 				return true;
@@ -782,7 +782,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var enumDecl = (EnumDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					enumDecl.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Enum, enumDecl.Identifier.Span);
 				return true;
@@ -790,7 +790,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var enumMember = (EnumMemberDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					enumMember.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.EnumMember, enumMember.Identifier.Span);
 				return true;
@@ -798,7 +798,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var eventDecl = (EventDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					ExpandExplicitInterfaceName(eventDecl.Identifier.ValueText, eventDecl.ExplicitInterfaceSpecifier),
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Event, eventDecl.Identifier.Span);
 				return true;
@@ -806,7 +806,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var indexerDecl = (IndexerDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					WellKnownMemberNames.Indexer,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Indexer, indexerDecl.ThisKeyword.Span);
 				return true;
@@ -814,7 +814,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var interfaceDecl = (InterfaceDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					interfaceDecl.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Interface, interfaceDecl.Identifier.Span);
 				return true;
@@ -822,7 +822,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var method = (MethodDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					ExpandExplicitInterfaceName(method.Identifier.ValueText, method.ExplicitInterfaceSpecifier),
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Method,
 					method.Identifier.Span,
@@ -833,7 +833,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var property = (PropertyDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					ExpandExplicitInterfaceName(property.Identifier.ValueText, property.ExplicitInterfaceSpecifier),
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Property, property.Identifier.Span);
 				return true;
@@ -841,7 +841,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 				var structDecl = (StructDeclarationSyntax)node;
 				declaredSymbolInfo = new DeclaredSymbolInfo(node,
 					structDecl.Identifier.ValueText,
-					GetContainerDisplayName(node.Parent),
+					// GetContainerDisplayName(node.Parent),
 					GetFullyQualifiedContainerName(node.Parent),
 					DeclaredSymbolInfoKind.Struct, structDecl.Identifier.Span);
 				return true;
@@ -860,7 +860,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 					declaredSymbolInfo = new DeclaredSymbolInfo(node,
 						variableDeclarator.Identifier.ValueText,
-						GetContainerDisplayName(fieldDeclaration.Parent),
+						// GetContainerDisplayName(fieldDeclaration.Parent),
 						GetFullyQualifiedContainerName(fieldDeclaration.Parent),
 						kind, variableDeclarator.Identifier.Span);
 					return true;
