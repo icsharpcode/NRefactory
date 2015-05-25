@@ -15,7 +15,7 @@
 
     -->
     <h2>Supported Code Analyzers</h2>
-    <p>94 code analyzers available!</p>
+    <p>88 code analyzers available!</p>
     <ul>
       <li>Suggests using the class declaring a static function when calling it (AccessToStaticMemberViaDerivedTypeAnalyzer)</li>
       <li>When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer. (ArrayCreationCanBeReplacedWithArrayInitializerAnalyzer)</li>
@@ -39,10 +39,6 @@
       <li>Convert 'if' to '||' expression (ConvertIfToOrExpressionAnalyzer)</li>
       <li>Convert 'Nullable&lt;T&gt;' to the short form 'T?' (ConvertNullableToShortFormAnalyzer)</li>
       <li>If all fields, properties and methods members are static, the class can be made static. (ConvertToStaticTypeAnalyzer)</li>
-      <li>CS0126ReturnMustBeFollowedByAnyExpression</li>
-      <li>CS0169FieldIsNeverUsedAnalyzer</li>
-      <li>CS0618UsageOfObsoleteMemberAnalyzer</li>
-      <li>CS1729TypeHasNoConstructorWithNArgumentsAnalyzer</li>
       <li>Delegate subtraction has unpredictable result (DelegateSubtractionAnalyzer)</li>
       <li>Warns about calls to virtual member functions occuring in the constructor (DoNotCallOverridableMethodsInConstructorAnalyzer)</li>
       <li>Double negation is redundant (DoubleNegationOperatorAnalyzer)</li>
@@ -54,13 +50,10 @@
       <li>Empty statement is redundant (EmptyStatementAnalyzer)</li>
       <li>The default underlying type of enums is int, so defining it explicitly is redundant. (EnumUnderlyingTypeIsIntAnalyzer)</li>
       <li>Event unsubscription via anonymous delegate is useless (EventUnsubscriptionViaAnonymousDelegateAnalyzer)</li>
-      <li>ExpressionIsNeverOfProvidedTypeAnalyzer</li>
       <li>Convert field to readonly (FieldCanBeMadeReadOnlyAnalyzer)</li>
       <li>'true' is redundant as for statement condition (ForStatementConditionIsTrueAnalyzer)</li>
       <li>If an extension method is called as static method convert it to method syntax (InvokeAsExtensionMethodAnalyzer)</li>
       <li>Lowercase 'l' is often confused with '1' (LongLiteralEndingLowerLAnalyzer)</li>
-      <li>Member hides static member from outer class (MemberHidesStaticFromOuterClassAnalyzer)</li>
-      <li>MissingInterfaceMemberImplementationAnalyzer</li>
       <li>Suggest the usage of the nameof operator (NameOfSuggestionAnalyzer)</li>
       <li>Non public methods are not found by NUnit (NonPublicMethodWithTestAttributeAnalyzer)</li>
       <li>Shows NotImplementedException throws in the quick task bar (NotImplementedExceptionAnalyzer)</li>
@@ -105,6 +98,7 @@
       <li>Redundant Where() call with predicate followed by SingleOrDefault() (ReplaceWithSingleCallToSingleOrDefaultAnalyzer)</li>
       <li>'sealed' modifier is redundant in sealed classes (SealedMemberInSealedClassAnalyzer)</li>
       <li>Conditional expression can be simplified (SimplifyConditionalTernaryExpressionAnalyzer)</li>
+      <li>Warns when a culture-aware 'string.CompareTo' call is used by default (StringCompareToIsCultureSpecificAnalyzer)</li>
       <li>Warns when a culture-aware 'EndsWith' call is used by default. (StringEndsWithIsCultureSpecificAnalyzer)</li>
       <li>Warns when a culture-aware 'IndexOf' call is used by default. (StringIndexOfIsCultureSpecificAnalyzer)</li>
       <li>Warns when a culture-aware 'LastIndexOf' call is used by default. (StringLastIndexOfIsCultureSpecificAnalyzer)</li>

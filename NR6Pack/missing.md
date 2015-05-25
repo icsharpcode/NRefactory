@@ -5,6 +5,7 @@
 
 * AutoLinqSumAction
 * ChangeAccessModifierAction
+* ConvertStatementBodyToExpressionBodyCodeRefactoringProvider
 * CreateDelegateAction
 * CreateIndexerAction
 * CreateOverloadWithoutParameterAction
@@ -29,10 +30,15 @@
 * ConvertToAutoPropertyAnalyzer
 * ConvertToConstantAnalyzer
 * ConvertToLambdaExpressionAnalyzer
+* CS0126ReturnMustBeFollowedByAnyExpression
+* CS0169FieldIsNeverUsedAnalyzer
 * CS0183ExpressionIsAlwaysOfProvidedTypeAnalyzer
+* CS0618UsageOfObsoleteMemberAnalyzer
 * CS1573ParameterHasNoMatchingParamTagAnalyzer
 * CS1717AssignmentMadeToSameVariableAnalyzer
+* CS1729TypeHasNoConstructorWithNArgumentsAnalyzer
 * EqualExpressionComparisonAnalyzer
+* ExpressionIsNeverOfProvidedTypeAnalyzer
 * ForCanBeConvertedToForeachAnalyzer
 * ForControlVariableIsNeverModifiedAnalyzer
 * FormatStringProblemAnalyzer
@@ -42,7 +48,9 @@
 * LocalVariableNotUsedAnalyzer
 * LockThisAnalyzer
 * MemberCanBeMadeStaticAnalyzer
+* MemberHidesStaticFromOuterClassAnalyzer
 * MethodOverloadWithOptionalParameterAnalyzer
+* MissingInterfaceMemberImplementationAnalyzer
 * NegativeRelationalExpressionAnalyzer
 * NonReadonlyReferencedInGetHashCodeAnalyzer
 * OptionalParameterHierarchyMismatchAnalyzer
@@ -89,7 +97,6 @@
 * StaticEventSubscriptionAnalyzer
 * StaticFieldInGenericTypeAnalyzer
 * StringCompareIsCultureSpecificAnalyzer
-* StringCompareToIsCultureSpecificAnalyzer
 * SuggestUseVarKeywordEvidentAnalyzer
 * UnassignedReadonlyFieldAnalyzer
 * UnusedAnonymousMethodSignatureAnalyzer
