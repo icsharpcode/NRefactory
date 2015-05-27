@@ -35,6 +35,7 @@ using System.Threading;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -442,7 +443,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			Compilation compilation,
 			IEnumerable<ITypeParameterSymbol> availableTypeParameters)
 		{
-			return (ITypeSymbol)removeUnavailableTypeParametersMethod.Invoke (null, new object[] { type, compilation, availableTypeParameters });
+			try {
+				return (ITypeSymbol)removeUnavailableTypeParametersMethod.Invoke (null, new object[] { type, compilation, availableTypeParameters });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -525,7 +531,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			Solution solution,
 			CancellationToken cancellationToken)
 		{
-			return (ITypeSymbol)replaceTypeParametersBasedOnTypeConstraintsMethod.Invoke (null, new object[] { type, compilation, availableTypeParameters, solution, cancellationToken});
+			try {
+				return (ITypeSymbol)replaceTypeParametersBasedOnTypeConstraintsMethod.Invoke (null, new object[] { type, compilation, availableTypeParameters, solution, cancellationToken});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		readonly static MethodInfo removeUnnamedErrorTypesMethod;
@@ -533,7 +544,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			this ITypeSymbol type,
 			Compilation compilation)
 		{
-			return (ITypeSymbol)removeUnnamedErrorTypesMethod.Invoke (null, new object[] { type, compilation });
+			try {
+				return (ITypeSymbol)removeUnnamedErrorTypesMethod.Invoke (null, new object[] { type, compilation });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -637,7 +653,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		{
 			if (type == null)
 				throw new ArgumentNullException ("type");
-			return (ITypeSymbol)substituteTypesMethod.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, compilation });
+			try {
+				return (ITypeSymbol)substituteTypesMethod.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, compilation });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		readonly static MethodInfo substituteTypesMethod2;
@@ -648,7 +669,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			where TType1 : ITypeSymbol
 			where TType2 : ITypeSymbol
 		{
-			return (ITypeSymbol)substituteTypesMethod2.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, typeGenerator.Instance });
+			try {
+				return (ITypeSymbol)substituteTypesMethod2.MakeGenericMethod (typeof(TType1), typeof(TType2)).Invoke (null, new object[] { type, mapping, typeGenerator.Instance });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 

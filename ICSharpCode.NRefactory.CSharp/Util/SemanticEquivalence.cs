@@ -26,6 +26,8 @@
 using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using System.Runtime.ExceptionServices;
+using System.ComponentModel.Design;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -48,13 +50,18 @@ namespace ICSharpCode.NRefactory6.CSharp
 			SyntaxNode node2,
 			Func<SyntaxNode, bool> predicate = null)
         {
-			return (bool)areSemanticallyEquivalentMethod.Invoke (null, new object[] { 
-				semanticModel1,
-				semanticModel2,
-				node1,
-				node2,
-				predicate
-			});
+			try {
+				return (bool)areSemanticallyEquivalentMethod.Invoke (null, new object[] { 
+					semanticModel1,
+					semanticModel2,
+					node1,
+					node2,
+					predicate
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
         }
 
 	}

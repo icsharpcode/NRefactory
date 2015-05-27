@@ -5,6 +5,7 @@ using System;
 using Microsoft.CodeAnalysis;
 using System.Reflection;
 using System.Collections.Immutable;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -69,15 +70,25 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		internal static SymbolKey Create(ISymbol symbol, Compilation compilation = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			var instance = createMethod.Invoke (null, new object[] { symbol, compilation, cancellationToken });
-			return new SymbolKey (instance);
+			try {
+				var instance = createMethod.Invoke (null, new object [] { symbol, compilation, cancellationToken });
+				return new SymbolKey (instance);
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo resolveMethod;
 
 		public SymbolKeyResolution Resolve(Compilation compilation, bool ignoreAssemblyKey = false, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return new SymbolKeyResolution (resolveMethod.Invoke (instance, new object[] { compilation, ignoreAssemblyKey, cancellationToken }));
+			try {
+				return new SymbolKeyResolution (resolveMethod.Invoke (instance, new object[] { compilation, ignoreAssemblyKey, cancellationToken }));
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 	}
 

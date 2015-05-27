@@ -31,6 +31,7 @@ using System.Threading;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
@@ -148,7 +149,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 			CodeGenerationOptions options,
 			CancellationToken cancellationToken)
 		{
-			return (TDeclarationNode)addStatements.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destinationMember, statements, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (TDeclarationNode)addStatements.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destinationMember, statements, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return default(TDeclarationNode);
+			}
 		}
 
 		static MethodInfo addMethod;
@@ -158,7 +164,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public TDeclarationNode AddMethod<TDeclarationNode>(TDeclarationNode destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken)) where TDeclarationNode : SyntaxNode
 		{
-			return (TDeclarationNode)addMethod.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destination, method, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (TDeclarationNode)addMethod.MakeGenericMethod (typeof (TDeclarationNode)).Invoke (instance, new object[] { destination, method, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return default (TDeclarationNode);
+			}
 		}
 
 
@@ -167,7 +178,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary
 		public SyntaxNode CreateEventDeclaration(IEventSymbol @event, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createEventDeclarationMethod.Invoke (instance, new object[] { @event, (int)destination, null });
+			try {
+				return (SyntaxNode)createEventDeclarationMethod.Invoke (instance, new object[] { @event, (int)destination, null });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -175,7 +191,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateFieldDeclaration(IFieldSymbol field, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createFieldDeclaration.Invoke (instance, new object[] { @field, (int)destination, null });
+			try {
+				return (SyntaxNode)createFieldDeclaration.Invoke (instance, new object[] { @field, (int)destination, null });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -183,7 +204,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateMethodDeclaration(IMethodSymbol method, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createMethodDeclaration.Invoke (instance, new object[] { @method, (int)destination, null });
+			try {
+				return (SyntaxNode)createMethodDeclaration.Invoke (instance, new object[] { @method, (int)destination, null });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -191,7 +217,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreatePropertyDeclaration(IPropertySymbol property, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createPropertyDeclaration.Invoke (instance, new object[] { @property, (int)destination, null });
+			try {
+				return (SyntaxNode)createPropertyDeclaration.Invoke (instance, new object[] { @property, (int)destination, null });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -199,7 +230,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateNamedTypeDeclaration(INamedTypeSymbol namedType, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createNamedTypeDeclaration.Invoke (instance, new object[] { @namedType, (int)destination, null });
+			try {
+				return (SyntaxNode)createNamedTypeDeclaration.Invoke (instance, new object[] { @namedType, (int)destination, null });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -207,12 +243,22 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public SyntaxNode CreateNamespaceDeclaration(INamespaceSymbol @namespace, CodeGenerationDestination destination = CodeGenerationDestination.Unspecified)
 		{
-			return (SyntaxNode)createNamespaceDeclaration.Invoke (instance, new object[] { @namespace, (int)destination, null });
+			try {
+				return (SyntaxNode)createNamespaceDeclaration.Invoke (instance, new object[] { @namespace, (int)destination, null });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public Task<Document> AddMethodAsync(Solution solution, INamedTypeSymbol destination, IMethodSymbol method, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addMethodAsync.Invoke (instance, new object[] { solution, destination, method, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addMethodAsync.Invoke (instance, new object[] { solution, destination, method, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -220,14 +266,24 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public Task<Document> AddMembersAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = null, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addMembersAsync.Invoke (instance, new object[] { solution, destination, members, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo addFieldAsync;
 
 		public Task<Document> AddFieldAsync(Solution solution, INamedTypeSymbol destination, IFieldSymbol field, CodeGenerationOptions options, CancellationToken cancellationToken)
 		{
-			return (Task<Document>)addFieldAsync.Invoke (instance, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addFieldAsync.Invoke (instance, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -236,7 +292,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public bool CanAddTo(ISymbol destination, Solution solution, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (bool)canAddTo1.Invoke (instance, new object[] { destination, solution, cancellationToken });
+			try {
+				return (bool)canAddTo1.Invoke (instance, new object[] { destination, solution, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		/// <summary>
@@ -244,7 +305,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 		/// </summary>
 		public bool CanAddTo(SyntaxNode destination, Solution solution, CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (bool)canAddTo2.Invoke (instance, new object[] { destination, solution, cancellationToken });
+			try {
+				return (bool)canAddTo2.Invoke (instance, new object[] { destination, solution, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 	}

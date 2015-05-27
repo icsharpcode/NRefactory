@@ -27,6 +27,7 @@ using System;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 using System.Threading;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -44,10 +45,13 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static object GetNextEnumValue(INamedTypeSymbol enumType, CancellationToken cancellationToken)
 		{
-			return getNextEnumValueMethod.Invoke (null, new object[] { enumType, cancellationToken });
+			try {
+				return getNextEnumValueMethod.Invoke (null, new object[] { enumType, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
-
-
 	}
 }
 

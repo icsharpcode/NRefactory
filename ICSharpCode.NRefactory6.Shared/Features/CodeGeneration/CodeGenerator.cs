@@ -30,6 +30,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeGeneration;
 using System.Reflection;
 using System.Threading;
 using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -55,20 +56,35 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static Task<Document> AddNamedTypeDeclarationAsync(Solution solution, INamedTypeSymbol destination, INamedTypeSymbol namedType, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addNamedTypeDeclarationAsyncMethod1.Invoke (null, new object[] { solution, destination, namedType, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addNamedTypeDeclarationAsyncMethod1.Invoke (null, new object[] { solution, destination, namedType, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo addNamedTypeDeclarationAsyncMethod2;
 		public static Task<Document> AddNamedTypeDeclarationAsync(Solution solution, INamespaceSymbol destination, INamedTypeSymbol namedType, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addNamedTypeDeclarationAsyncMethod2.Invoke (null, new object[] { solution, destination, namedType, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addNamedTypeDeclarationAsyncMethod2.Invoke (null, new object[] { solution, destination, namedType, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo addNamespaceOrTypeDeclarationAsyncMethod;
 
 		public static Task<Document> AddNamespaceOrTypeDeclarationAsync(Solution solution, INamespaceSymbol destination, INamespaceOrTypeSymbol namespaceOrType, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addNamespaceOrTypeDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, namespaceOrType, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addNamespaceOrTypeDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, namespaceOrType, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -76,20 +92,35 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static Task<Document> AddFieldDeclarationAsync(Solution solution, INamedTypeSymbol destination, IFieldSymbol field, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addFieldDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addFieldDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, field, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
 		readonly static MethodInfo addPropertyDeclarationAsyncMethod;
 		public static Task<Document> AddPropertyDeclarationAsync(Solution solution, INamedTypeSymbol destination, IPropertySymbol property, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, property, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addPropertyDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, property, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		readonly static MethodInfo addMethodDeclarationAsyncMethod;
 		public static Task<Document> AddMethodDeclarationAsync(Solution solution, INamedTypeSymbol destination, IMethodSymbol method, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (Task<Document>)addMethodDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, method, options != null ? options.Instance : null, cancellationToken });
+			try {
+				return (Task<Document>)addMethodDeclarationAsyncMethod.Invoke (null, new object[] { solution, destination, method, options != null ? options.Instance : null, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public static Task<Document> AddMemberDeclarationsAsync(Solution solution, INamedTypeSymbol destination, IEnumerable<ISymbol> members, CodeGenerationOptions options = default(CodeGenerationOptions), CancellationToken cancellationToken = default(CancellationToken))

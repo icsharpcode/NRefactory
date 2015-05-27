@@ -19,6 +19,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -48,10 +49,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 			SemanticModel semanticModel,
 			out bool wasCastAdded)
 		{
-			var args = new object [] { expression, targetType, position, semanticModel, false };
-			var result = (ExpressionSyntax)castIfPossibleMethod.Invoke (null, args);
-			wasCastAdded = (bool)args [4];
-			return result;
+			try {
+				var args = new object [] { expression, targetType, position, semanticModel, false };
+				var result = (ExpressionSyntax)castIfPossibleMethod.Invoke (null, args);
+				wasCastAdded = (bool)args [4];
+				return result;
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				throw ex;
+			}
         }
 
 		public static ExpressionSyntax WalkUpParentheses(this ExpressionSyntax expression)
@@ -594,11 +600,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 			OptionSet optionSet,
 			CancellationToken cancellationToken)
 		{
-			var args = new object[] { expression, semanticModel, default(ExpressionSyntax), default(TextSpan), optionSet, cancellationToken };
-			var result = (bool)tryReduceOrSimplifyExplicitNameMethod.Invoke (null, args);
-			replacementNode = (ExpressionSyntax)args [2];
-			issueSpan = (TextSpan)args [3];
-			return result;
+			try {
+				var args = new object[] { expression, semanticModel, default(ExpressionSyntax), default(TextSpan), optionSet, cancellationToken };
+				var result = (bool)tryReduceOrSimplifyExplicitNameMethod.Invoke (null, args);
+				replacementNode = (ExpressionSyntax)args [2];
+				issueSpan = (TextSpan)args [3];
+				return result;
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				throw ex;
+			}
 		}
 
 //		public static bool TryReduceExplicitName(

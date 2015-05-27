@@ -30,6 +30,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using Microsoft.CodeAnalysis.Editing;
+using System.Runtime.ExceptionServices;
 
 
 namespace ICSharpCode.NRefactory6.CSharp
@@ -150,19 +151,24 @@ namespace ICSharpCode.NRefactory6.CSharp
 			bool isIndexer = false,
 			SyntaxNode initializer = null)
 		{
-			return (IPropertySymbol)createPropertySymbolMethod2.Invoke (null, new object[] { containingType,
-				attributes,
-				accessibility,
-				modifiers,
-				type,
-				explicitInterfaceSymbol,
-				name,
-				parameters,
-				getMethod,
-				setMethod,
-				isIndexer,
-				initializer 
-			});	
+			try {
+				return (IPropertySymbol)createPropertySymbolMethod2.Invoke (null, new object[] { containingType,
+					attributes,
+					accessibility,
+					modifiers,
+					type,
+					explicitInterfaceSymbol,
+					name,
+					parameters,
+					getMethod,
+					setMethod,
+					isIndexer,
+					initializer 
+				});	
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -170,7 +176,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static IEventSymbol CreateEventSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol type, IEventSymbol explicitInterfaceSymbol, string name, IMethodSymbol addMethod = null, IMethodSymbol removeMethod = null, IMethodSymbol raiseMethod = null, IList<IParameterSymbol> parameterList = null)
 		{
-			return (IEventSymbol)createEventSymbol.Invoke (null, new object[] { attributes, accessibility, modifiers, type, explicitInterfaceSymbol, name, addMethod, removeMethod, raiseMethod, parameterList });
+			try {
+				return (IEventSymbol)createEventSymbol.Invoke (null, new object[] { attributes, accessibility, modifiers, type, explicitInterfaceSymbol, name, addMethod, removeMethod, raiseMethod, parameterList });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public static IEventSymbol CreateEventSymbol(
@@ -268,26 +279,46 @@ namespace ICSharpCode.NRefactory6.CSharp
 			ImmutableArray<TypedConstant> constructorArguments = default(ImmutableArray<TypedConstant>),
 			ImmutableArray<KeyValuePair<string, TypedConstant>> namedArguments = default(ImmutableArray<KeyValuePair<string, TypedConstant>>))
 		{
-			return (AttributeData)createAttributeDataMethod.Invoke (null, new object[] { attributeClass, constructorArguments, namedArguments });
+			try {
+				return (AttributeData)createAttributeDataMethod.Invoke (null, new object[] { attributeClass, constructorArguments, namedArguments });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createNamedTypeSymbolMethod;
 		public static INamedTypeSymbol CreateNamedTypeSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, TypeKind typeKind, string name, IList<ITypeParameterSymbol> typeParameters = null, INamedTypeSymbol baseType = null, IList<INamedTypeSymbol> interfaces = null, SpecialType specialType = SpecialType.None, IList<ISymbol> members = null)
 		{
-			return (INamedTypeSymbol)createNamedTypeSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeKind, name, typeParameters, baseType, interfaces,  specialType, members });
+			try {
+				return (INamedTypeSymbol)createNamedTypeSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeKind, name, typeParameters, baseType, interfaces,  specialType, members });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createDelegateTypeSymbolMethod;
 		public static INamedTypeSymbol CreateDelegateTypeSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, string name, IList<ITypeParameterSymbol> typeParameters = null, IList<IParameterSymbol> parameters = null)
 		{
-			return (INamedTypeSymbol)createDelegateTypeSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, name, typeParameters, parameters });
+			try {
+				return (INamedTypeSymbol)createDelegateTypeSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, name, typeParameters, parameters });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createNamespaceSymbolMethod;
 
 		public static INamespaceSymbol CreateNamespaceSymbol(string name, IList<ISymbol> imports = null, IList<INamespaceOrTypeSymbol> members = null)
 		{
-			return (INamespaceSymbol)createNamespaceSymbolMethod.Invoke (null, new object[] { name, imports, members });
+			try {
+				return (INamespaceSymbol)createNamespaceSymbolMethod.Invoke (null, new object[] { name, imports, members });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static readonly MethodInfo isCodeGenerationSymbolMethod;
@@ -296,7 +327,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static bool IsCodeGenerationSymbol(this ISymbol symbol)
 		{
-			return (bool)isCodeGenerationSymbolMethod.Invoke (null, new object[] { symbol });
+			try {
+				return (bool)isCodeGenerationSymbolMethod.Invoke (null, new object[] { symbol });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		static readonly MethodInfo createParameterSymbolMethod;
@@ -307,55 +343,100 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static IParameterSymbol CreateParameterSymbol(IList<AttributeData> attributes, RefKind refKind, bool isParams, ITypeSymbol type, string name, bool isOptional = false, bool hasDefaultValue = false, object defaultValue = null)
 		{
-			return (IParameterSymbol)createParameterSymbolMethod.Invoke (null, new object[] { attributes, refKind, isParams, type, name, isOptional, hasDefaultValue, defaultValue });
+			try {
+				return (IParameterSymbol)createParameterSymbolMethod.Invoke (null, new object[] { attributes, refKind, isParams, type, name, isOptional, hasDefaultValue, defaultValue });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static readonly MethodInfo createTypeParameterSymbolMethod;
 		public static ITypeParameterSymbol CreateTypeParameterSymbol(string name, int ordinal = 0)
 		{
-			return (ITypeParameterSymbol)createTypeParameterSymbolMethod.Invoke (null, new object[] { name, ordinal });
+			try {
+				return (ITypeParameterSymbol)createTypeParameterSymbolMethod.Invoke (null, new object[] { name, ordinal });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createTypeParameterMethod;
 		public static ITypeParameterSymbol CreateTypeParameter(IList<AttributeData> attributes, VarianceKind varianceKind, string name, ImmutableArray<ITypeSymbol> constraintTypes, bool hasConstructorConstraint = false, bool hasReferenceConstraint = false, bool hasValueConstraint = false, int ordinal = 0)
 		{
-			return (ITypeParameterSymbol)createTypeParameterMethod.Invoke (null, new object[] { attributes, varianceKind, name, constraintTypes, hasConstructorConstraint, hasReferenceConstraint, hasValueConstraint, ordinal});
+			try {
+				return (ITypeParameterSymbol)createTypeParameterMethod.Invoke (null, new object[] { attributes, varianceKind, name, constraintTypes, hasConstructorConstraint, hasReferenceConstraint, hasValueConstraint, ordinal});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createMethodSymbolMethod;
 		public static IMethodSymbol CreateMethodSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, IMethodSymbol explicitInterfaceSymbol, string name, IList<ITypeParameterSymbol> typeParameters, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> handlesExpressions = null, IList<AttributeData> returnTypeAttributes = null, MethodKind methodKind = MethodKind.Ordinary)
 		{
-			return (IMethodSymbol)createMethodSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, handlesExpressions, returnTypeAttributes, methodKind });
+			try {
+				return (IMethodSymbol)createMethodSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, handlesExpressions, returnTypeAttributes, methodKind });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createMethodSymbolMethod2;
 		public static IMethodSymbol CreateMethodSymbol(INamedTypeSymbol containingType, IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol returnType, IMethodSymbol explicitInterfaceSymbol, string name, IList<ITypeParameterSymbol> typeParameters, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> handlesExpressions = null, IList<AttributeData> returnTypeAttributes = null, MethodKind methodKind = MethodKind.Ordinary)
 		{
-			return (IMethodSymbol)createMethodSymbolMethod2.Invoke (null, new object[] { containingType, attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, null, returnTypeAttributes, methodKind });
+			try {
+				return (IMethodSymbol)createMethodSymbolMethod2.Invoke (null, new object[] { containingType, attributes, accessibility, modifiers, returnType, explicitInterfaceSymbol, name, typeParameters, parameters, statements, null, returnTypeAttributes, methodKind });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createPointerTypeSymbolMethod;
 		public static IPointerTypeSymbol CreatePointerTypeSymbol(ITypeSymbol pointedAtType)
 		{
-			return (IPointerTypeSymbol)createPointerTypeSymbolMethod.Invoke (null, new object[] { pointedAtType });
+			try {
+				return (IPointerTypeSymbol)createPointerTypeSymbolMethod.Invoke (null, new object[] { pointedAtType });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createArrayTypeSymbolMethod;
 		public static IArrayTypeSymbol CreateArrayTypeSymbol(ITypeSymbol elementType, int rank = 1)
 		{
-			return (IArrayTypeSymbol)createArrayTypeSymbolMethod.Invoke (null, new object[] { elementType, rank });
+			try {
+				return (IArrayTypeSymbol)createArrayTypeSymbolMethod.Invoke (null, new object[] { elementType, rank });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createConstructorSymbolMethod;
 		public static IMethodSymbol CreateConstructorSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, string typeName, IList<IParameterSymbol> parameters, IList<SyntaxNode> statements = null, IList<SyntaxNode> baseConstructorArguments = null, IList<SyntaxNode> thisConstructorArguments = null)
 		{
-			return (IMethodSymbol)createConstructorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeName, parameters, statements, baseConstructorArguments, thisConstructorArguments });	
+			try {
+				return (IMethodSymbol)createConstructorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, typeName, parameters, statements, baseConstructorArguments, thisConstructorArguments });	
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createAccessorSymbolMethod;
 		public static IMethodSymbol CreateAccessorSymbol(IList<AttributeData> attributes, Accessibility accessibility, IList<SyntaxNode> statements)
 		{
-			return (IMethodSymbol)createAccessorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, statements });	
+			try {
+				return (IMethodSymbol)createAccessorSymbolMethod.Invoke (null, new object[] { attributes, accessibility, statements });	
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createPropertySymbolMethod;
@@ -365,14 +446,24 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		public static IPropertySymbol CreatePropertySymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol type, IPropertySymbol explicitInterfaceSymbol, string name, IList<IParameterSymbol> parameters, IMethodSymbol getMethod, IMethodSymbol setMethod, bool isIndexer = false)
 		{
-			return (IPropertySymbol)createPropertySymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, type, explicitInterfaceSymbol, name, parameters, getMethod, setMethod, isIndexer });	
+			try {
+				return (IPropertySymbol)createPropertySymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, type, explicitInterfaceSymbol, name, parameters, getMethod, setMethod, isIndexer });	
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		static MethodInfo createFieldSymbolMethod;
 
 		public static IFieldSymbol CreateFieldSymbol(IList<AttributeData> attributes, Accessibility accessibility, DeclarationModifiers modifiers, ITypeSymbol type, string name, bool hasConstantValue = false, object constantValue = null, SyntaxNode initializer = null)
 		{
-			return (IFieldSymbol)createFieldSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, type, name, hasConstantValue, constantValue, initializer });	
+			try {
+				return (IFieldSymbol)createFieldSymbolMethod.Invoke (null, new object[] { attributes, accessibility, modifiers, type, name, hasConstantValue, constantValue, initializer });	
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 	}
 }

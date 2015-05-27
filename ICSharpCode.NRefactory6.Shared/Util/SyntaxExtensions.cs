@@ -43,6 +43,7 @@ using Microsoft.CodeAnalysis.CSharp.Extensions;
 using System;
 using System.Reflection;
 using System.Collections.Immutable;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -138,13 +139,23 @@ namespace ICSharpCode.NRefactory6.CSharp
 //
 		static ImmutableArray<SyntaxToken> GetLocalDeclarationMap(this MemberDeclarationSyntax member, string localName)
 		{
-			object map = getLocalDeclarationMapMethod.Invoke(null, new object[] { member });
-			return (ImmutableArray<SyntaxToken>)localDeclarationMapIndexer.GetValue(map, new object[] { localName });
+			try {
+				object map = getLocalDeclarationMapMethod.Invoke(null, new object[] { member });
+				return (ImmutableArray<SyntaxToken>)localDeclarationMapIndexer.GetValue(map, new object[] { localName });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return ImmutableArray<SyntaxToken>.Empty;
+			}
 		}
 
 		static IEnumerable<T> GetAncestors<T>(this SyntaxToken token) where T : SyntaxNode
 		{
-			return (IEnumerable<T>)getAncestorsMethod.MakeGenericMethod(typeof(T)).Invoke(null, new object[] { token });
+			try {
+				return (IEnumerable<T>)getAncestorsMethod.MakeGenericMethod(typeof(T)).Invoke(null, new object[] { token });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public static ExpressionSyntax SkipParens(this ExpressionSyntax expression)
@@ -166,7 +177,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool CanRemoveParentheses(this ParenthesizedExpressionSyntax node)
 		{
-			return (bool)canRemoveParenthesesMethod.Invoke(null, new object[] { node }); 
+			try {
+				return (bool)canRemoveParenthesesMethod.Invoke(null, new object[] { node }); 
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		public static bool IsParentKind(this SyntaxNode node, SyntaxKind kind)

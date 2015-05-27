@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.Editing;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Runtime.ExceptionServices;
 
 
 namespace ICSharpCode.NRefactory6.CSharp
@@ -40,7 +41,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 			this SyntaxGenerator codeDefinitionFactory,
 			Compilation compilation)
 		{
-			return (SyntaxNode)createThrowNotImplementStatementMethod.Invoke (null, new object[] { codeDefinitionFactory, compilation });
+			try {
+				return (SyntaxNode)createThrowNotImplementStatementMethod.Invoke (null, new object[] { codeDefinitionFactory, compilation });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -55,15 +61,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 			IDictionary<string, string> parameterToNewFieldMap,
 			CancellationToken cancellationToken)
 		{
-			return (IEnumerable<ISymbol>)createFieldDelegatingConstructorMethod.Invoke (null, new object[] {
-				factory,
-				typeName,
-				containingTypeOpt,
-				parameters,
-				parameterToExistingFieldMap,
-				parameterToNewFieldMap,
-				cancellationToken 
-			});
+			try {
+				return (IEnumerable<ISymbol>)createFieldDelegatingConstructorMethod.Invoke (null, new object[] {
+					factory,
+					typeName,
+					containingTypeOpt,
+					parameters,
+					parameterToExistingFieldMap,
+					parameterToNewFieldMap,
+					cancellationToken 
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		readonly static MethodInfo createFieldsForParametersMethod;
@@ -73,11 +84,16 @@ namespace ICSharpCode.NRefactory6.CSharp
 			IList<IParameterSymbol> parameters,
 			IDictionary<string, string> parameterToNewFieldMap)
 		{
-			return (IEnumerable<IFieldSymbol>)createFieldsForParametersMethod.Invoke (null, new object[] {
-				factory,
-				parameters,
-				parameterToNewFieldMap 
-			});
+			try {
+				return (IEnumerable<IFieldSymbol>)createFieldsForParametersMethod.Invoke (null, new object[] {
+					factory,
+					parameters,
+					parameterToNewFieldMap 
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		readonly static MethodInfo createAssignmentStatementMethod;
@@ -88,12 +104,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 			IDictionary<string, ISymbol> parameterToExistingFieldMap,
 			IDictionary<string, string> parameterToNewFieldMap)
 		{
-			return (IEnumerable<SyntaxNode>)createAssignmentStatementMethod.Invoke (null, new object[] {
-				factory,
-				parameters,
-				parameterToExistingFieldMap,
-				parameterToNewFieldMap 
-			});
+			try {
+				return (IEnumerable<SyntaxNode>)createAssignmentStatementMethod.Invoke (null, new object[] {
+					factory,
+					parameters,
+					parameterToExistingFieldMap,
+					parameterToNewFieldMap 
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public static IList<SyntaxNode> CreateArguments(

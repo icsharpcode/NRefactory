@@ -26,6 +26,8 @@
 using System;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Runtime.ExceptionServices;
+using System.Reflection;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -47,10 +49,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 			out SyntaxList<ExternAliasDirectiveSyntax> organizedExternAliasList,
 			out SyntaxList<UsingDirectiveSyntax> organizedUsingList)
 		{
-			var args = new object[] { externAliasList, usingList, placeSystemNamespaceFirst, default(SyntaxList<ExternAliasDirectiveSyntax>), default(SyntaxList<ExternAliasDirectiveSyntax>), default(SyntaxList<UsingDirectiveSyntax>)};
-			organizeMethod.Invoke (null, args);
-			organizedExternAliasList = (SyntaxList<ExternAliasDirectiveSyntax>)args [3];
-			organizedUsingList = (SyntaxList<UsingDirectiveSyntax>)args [4];
+			try {
+				var args = new object[] { externAliasList, usingList, placeSystemNamespaceFirst, default(SyntaxList<ExternAliasDirectiveSyntax>), default(SyntaxList<ExternAliasDirectiveSyntax>), default(SyntaxList<UsingDirectiveSyntax>)};
+				organizeMethod.Invoke (null, args);
+				organizedExternAliasList = (SyntaxList<ExternAliasDirectiveSyntax>)args [3];
+				organizedUsingList = (SyntaxList<UsingDirectiveSyntax>)args [4];
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+			}
 		}
 	}
 }

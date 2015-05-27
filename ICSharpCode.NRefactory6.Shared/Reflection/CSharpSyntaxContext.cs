@@ -8,6 +8,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -120,12 +121,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 			bool canBePartial = false,
 			CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (bool)isMemberDeclarationContextMethod.Invoke (instance, new object[] {
-				validModifiers,
-				validTypeDeclarations,
-				canBePartial,
-				cancellationToken
-			});
+			try {
+				return (bool)isMemberDeclarationContextMethod.Invoke (instance, new object[] {
+					validModifiers,
+					validTypeDeclarations,
+					canBePartial,
+					cancellationToken
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		readonly static MethodInfo isTypeDeclarationContextMethod;
@@ -136,12 +142,17 @@ namespace ICSharpCode.NRefactory6.CSharp
 			bool canBePartial = false,
 			CancellationToken cancellationToken = default(CancellationToken))
 		{
-			return (bool)isTypeDeclarationContextMethod.Invoke (instance, new object[] {
-				validModifiers,
-				validTypeDeclarations,
-				canBePartial,
-				cancellationToken
-			});
+			try {
+				return (bool)isTypeDeclarationContextMethod.Invoke (instance, new object[] {
+					validModifiers,
+					validTypeDeclarations,
+					canBePartial,
+					cancellationToken
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		readonly static PropertyInfo isPreProcessorDirectiveContextProperty;
@@ -172,7 +183,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public bool IsTypeAttributeContext (CancellationToken cancellationToken)
 		{
-			return (bool)isTypeAttributeContextMethod.Invoke (instance, new object[] { cancellationToken });
+			try {
+				return (bool)isTypeAttributeContextMethod.Invoke (instance, new object[] { cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		readonly static PropertyInfo isAnyExpressionContextProperty;
@@ -292,10 +308,15 @@ namespace ICSharpCode.NRefactory6.CSharp
 		readonly static MethodInfo isMemberAttributeContextMethod;
 		public bool IsMemberAttributeContext(ISet<SyntaxKind> validTypeDeclarations, CancellationToken cancellationToken)
 		{
-			return (bool)isMemberAttributeContextMethod.Invoke (instance, new object[] {
-				validTypeDeclarations,
-				cancellationToken
-			});
+			try {
+				return (bool)isMemberAttributeContextMethod.Invoke (instance, new object [] {
+					validTypeDeclarations,
+					cancellationToken
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 
 		}
 
@@ -401,15 +422,20 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static CSharpSyntaxContext CreateContext (Workspace workspace, SemanticModel semanticModel, int position, CancellationToken cancellationToken)
 		{
-			return new CSharpSyntaxContext (createContextMethod.Invoke (null, new object[] {
-				workspace,
-				semanticModel,
-				position,
-				cancellationToken
-			})) {
-				SemanticModel = semanticModel,
-				Position = position
-			};
+			try {
+				return new CSharpSyntaxContext (createContextMethod.Invoke (null, new object[] {
+					workspace,
+					semanticModel,
+					position,
+					cancellationToken
+				})) {
+					SemanticModel = semanticModel,
+					Position = position
+				};
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 	}
 
@@ -446,20 +472,30 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public IEnumerable<ITypeSymbol> InferTypes (SemanticModel semanticModel, int position, CancellationToken cancellationToken)
 		{
-			return (IEnumerable<ITypeSymbol>)inferTypesMethod.Invoke (instance, new object[] {
-				semanticModel,
-				position,
-				cancellationToken
-			});
+			try {
+				return (IEnumerable<ITypeSymbol>)inferTypesMethod.Invoke (instance, new object[] {
+					semanticModel,
+					position,
+					cancellationToken
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public IEnumerable<ITypeSymbol> InferTypes (SemanticModel semanticModel, SyntaxNode expression, CancellationToken cancellationToken)
 		{
-			return (IEnumerable<ITypeSymbol>)inferTypes2Method.Invoke (instance, new object[] {
-				semanticModel,
-				expression,
-				cancellationToken
-			});
+			try {
+				return (IEnumerable<ITypeSymbol>)inferTypes2Method.Invoke (instance, new object[] {
+					semanticModel,
+					expression,
+					cancellationToken
+				});
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 
@@ -535,7 +571,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static Task<Document> CaseCorrectAsync (Document document, SyntaxAnnotation annotation, CancellationToken cancellationToken)
 		{
-			return (Task<Document>)caseCorrectAsyncMethod.Invoke (null, new object[] { document, annotation, cancellationToken });
+			try {
+				return (Task<Document>)caseCorrectAsyncMethod.Invoke (null, new object[] { document, annotation, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 	}
 

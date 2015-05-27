@@ -35,6 +35,7 @@ using System.Collections.Immutable;
 using System.Threading;
 using System.Text;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {

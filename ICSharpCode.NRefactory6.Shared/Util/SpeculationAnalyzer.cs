@@ -31,6 +31,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.CSharp;
@@ -86,17 +87,32 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool SymbolInfosAreCompatible(SymbolInfo originalSymbolInfo, SymbolInfo newSymbolInfo, bool performEquivalenceCheck, bool requireNonNullSymbols = false)
 		{
-			return (bool)symbolInfosAreCompatibleMethod.Invoke (null, new object[] { originalSymbolInfo, newSymbolInfo, performEquivalenceCheck, requireNonNullSymbols } );
+			try {
+				return (bool)symbolInfosAreCompatibleMethod.Invoke (null, new object [] { originalSymbolInfo, newSymbolInfo, performEquivalenceCheck, requireNonNullSymbols });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		public bool SymbolsForOriginalAndReplacedNodesAreCompatible ()
 		{
-			return (bool)symbolsForOriginalAndReplacedNodesAreCompatibleMethod.Invoke (instance, new object[0]);
+			try {
+				return (bool)symbolsForOriginalAndReplacedNodesAreCompatibleMethod.Invoke (instance, new object[0]);
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		public bool ReplacementChangesSemantics ()
 		{
-			return (bool)replacementChangesSemanticsMethod.Invoke (instance, new object[0]);
+			try {
+				return (bool)replacementChangesSemanticsMethod.Invoke (instance, new object[0]);
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 
 		readonly static MethodInfo createSpeculativeSemanticModelForNodeMethod;

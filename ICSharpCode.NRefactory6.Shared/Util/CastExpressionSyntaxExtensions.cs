@@ -5,6 +5,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis;
 using System;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -23,7 +24,12 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public static bool IsUnnecessaryCast(this CastExpressionSyntax cast, SemanticModel semanticModel, CancellationToken cancellationToken)
 		{
-			return (bool)isUnnecessaryCastMethod.Invoke (null, new object[] { cast, semanticModel, cancellationToken });
+			try {
+				return (bool)isUnnecessaryCastMethod.Invoke (null, new object[] { cast, semanticModel, cancellationToken });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return false;
+			}
 		}
 	}
 }

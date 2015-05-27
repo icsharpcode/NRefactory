@@ -35,6 +35,7 @@ using Microsoft.CodeAnalysis.LanguageServices;
 using Microsoft.CodeAnalysis.Shared.Utilities;
 using Roslyn.Utilities;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
@@ -74,17 +75,32 @@ namespace ICSharpCode.NRefactory6.CSharp
 
 		public ITypeSymbol CreateArrayTypeSymbol(ITypeSymbol elementType, int rank)
 		{
-			return (ITypeSymbol)createArrayTypeSymbolMethod.Invoke(instance, new object[] { elementType, rank });
+			try {
+				return (ITypeSymbol)createArrayTypeSymbolMethod.Invoke(instance, new object[] { elementType, rank });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public ITypeSymbol CreatePointerTypeSymbol(ITypeSymbol pointedAtType)
 		{
-			return (ITypeSymbol)createPointerTypeSymbolMethod.Invoke(instance, new object[] { pointedAtType });
+			try {
+				return (ITypeSymbol)createPointerTypeSymbolMethod.Invoke(instance, new object[] { pointedAtType });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 
 		public ITypeSymbol Construct(INamedTypeSymbol namedType, ITypeSymbol[] typeArguments)
 		{
-			return (ITypeSymbol)constructMethod.Invoke(instance, new object[] { namedType, typeArguments });
+			try {
+				return (ITypeSymbol)constructMethod.Invoke(instance, new object[] { namedType, typeArguments });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return null;
+			}
 		}
 	}
 	

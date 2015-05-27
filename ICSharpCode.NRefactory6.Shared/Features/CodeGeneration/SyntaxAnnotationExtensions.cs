@@ -26,6 +26,7 @@
 using System;
 using Microsoft.CodeAnalysis;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 {
@@ -49,7 +50,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeGeneration
 			TSymbol symbol)
 			where TSymbol : ISymbol
 		{
-			return (TSymbol)addAnnotationToSymbolMethod.MakeGenericMethod (typeof(TSymbol)).Invoke (null, new object[] { annotation, symbol });
+			try {
+				return (TSymbol)addAnnotationToSymbolMethod.MakeGenericMethod (typeof(TSymbol)).Invoke (null, new object[] { annotation, symbol });
+			} catch (TargetInvocationException ex) {
+				ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+				return default (TSymbol);
+			}
 		}
 	}
 }

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
+using System.Runtime.ExceptionServices;
 
 namespace ICSharpCode.NRefactory6.VisualBasic
 {
