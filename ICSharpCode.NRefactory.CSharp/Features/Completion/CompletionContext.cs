@@ -60,11 +60,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		SyntaxContext syntaxContext;
-		internal Task<SyntaxContext> GetSyntaxContextAsync  (Workspace workspace, CancellationToken cancellationToken = default (CancellationToken)) 
+		internal async Task<SyntaxContext> GetSyntaxContextAsync  (Workspace workspace, CancellationToken cancellationToken = default (CancellationToken)) 
 		{
-			if (syntaxContext == null)
-				syntaxContext = SyntaxContext.Create(workspace, document, semanticModel, position, cancellationToken);
-			return Task.FromResult (syntaxContext);
+			if (syntaxContext == null) {
+				await Task.Run (() => {
+					syntaxContext = SyntaxContext.Create (workspace, document, semanticModel, position, cancellationToken);
+				});
+			}
+			return syntaxContext;
 		}
 
 		IEnumerable<CompletionContextHandler> additionalContextHandlers;
