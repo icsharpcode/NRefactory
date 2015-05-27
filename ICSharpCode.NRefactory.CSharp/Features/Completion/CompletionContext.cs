@@ -59,15 +59,19 @@ namespace ICSharpCode.NRefactory6.CSharp
 			}
 		}
 
-		SyntaxContext syntaxContext;
+		Task<SyntaxContext>  syntaxContext;
+		object syntaxCreationLock = new object ();
+
 		internal async Task<SyntaxContext> GetSyntaxContextAsync  (Workspace workspace, CancellationToken cancellationToken = default (CancellationToken)) 
 		{
 			if (syntaxContext == null) {
-				await Task.Run (() => {
-					syntaxContext = SyntaxContext.Create (workspace, document, semanticModel, position, cancellationToken);
-				});
+				lock (syntaxCreationLock) {
+					syntaxContext = syntaxContext ?? Task.Run (() => {
+						return SyntaxContext.Create (workspace, document, semanticModel, position, cancellationToken);
+					});
+				}
 			}
-			return syntaxContext;
+			return await syntaxContext;
 		}
 
 		IEnumerable<CompletionContextHandler> additionalContextHandlers;
