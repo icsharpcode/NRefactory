@@ -28,6 +28,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.CodeAnalysis.Diagnostics;
 using System.Collections.Immutable;
+using System.Linq;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -61,7 +62,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                     {
                         nodeContext.ReportDiagnostic(diagnostic);
                     }
-                }, SyntaxKind.None);
+                }, SyntaxKind.LocalDeclarationStatement);
         }
 
         private static bool TryGetDiagnostic(SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
@@ -71,17 +72,44 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                 return false;
 
             var localVariableStatement = nodeContext.Node as LocalDeclarationStatementSyntax;
-            //Either we don't have a local variable or we're using constant value
-            if (localVariableStatement == null || localVariableStatement.IsConst)
-                return false;
 
-            var localVariableSyntax = localVariableStatement.Declaration;
-            //We don't want to raise a diagnostic if the local variable is already a var
-            if (localVariableSyntax.Type.IsVar)
-                return false;
+            if (localVariableStatement != null)
+            {
+                var localVariableSyntax = localVariableStatement.Declaration;
 
-            diagnostic = Diagnostic.Create(descriptor,localVariableSyntax.Type.GetLocation());
+                if (!TryValidateLocalVariableType(localVariableStatement, localVariableSyntax))
+                    return false;
+
+
+                if (!TryFindObviousTypeCase(localVariableStatement, nodeContext.SemanticModel))
+                    return false;
+
+                diagnostic = Diagnostic.Create(descriptor, localVariableSyntax.Type.GetLocation());
+            }
             return true;
+        }
+
+        private static bool TryValidateLocalVariableType(LocalDeclarationStatementSyntax localDeclarationStatementSyntax,
+            VariableDeclarationSyntax variableDeclarationSyntax)
+        {
+            //Either we don't have a local variable or we're using constant value
+            if (localDeclarationStatementSyntax == null ||
+                localDeclarationStatementSyntax.IsConst ||
+                localDeclarationStatementSyntax.ChildNodes().OfType<VariableDeclarationSyntax>().Count() != 1)
+                return false;
+
+            //We don't want to raise a diagnostic if the local variable is already a var
+            return !variableDeclarationSyntax.Type.IsVar;
+        }
+
+        private static bool TryFindObviousTypeCase(LocalDeclarationStatementSyntax localVariable,SemanticModel semanticModel)
+        {
+            var singleVariable = localVariable.Declaration.Variables.First();
+            var initializer = singleVariable.Initializer;
+
+            var variableTypeName = localVariable.Declaration.Type;
+            var variableType = semanticModel.GetTypeInfo(variableTypeName).ConvertedType;
+            return false;
         }
 
         //		class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentAnalyzer>
