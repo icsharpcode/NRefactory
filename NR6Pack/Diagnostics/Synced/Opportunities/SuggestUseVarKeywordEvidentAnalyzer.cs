@@ -80,7 +80,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                 if (!TryValidateLocalVariableType(localVariableStatement, localVariableSyntax))
                     return false;
 
-
                 if (!TryFindObviousTypeCase(localVariableStatement, nodeContext.SemanticModel))
                     return false;
 
@@ -102,15 +101,35 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
             return !variableDeclarationSyntax.Type.IsVar;
         }
 
-        private static bool TryFindObviousTypeCase(LocalDeclarationStatementSyntax localVariable,SemanticModel semanticModel)
+        private static bool TryFindObviousTypeCase(LocalDeclarationStatementSyntax localVariable, SemanticModel semanticModel)
         {
             var singleVariable = localVariable.Declaration.Variables.First();
             var initializer = singleVariable.Initializer;
+            var initializerExpression = initializer.Value;
 
             var variableTypeName = localVariable.Declaration.Type;
             var variableType = semanticModel.GetTypeInfo(variableTypeName).ConvertedType;
-            return false;
+
+            return TryValidateArrayCreationSyntaxType(initializerExpression, semanticModel, variableType) ||
+                   TryValidateObjectCreationSyntaxType(initializerExpression, semanticModel, variableType);
         }
+
+        private static bool TryValidateArrayCreationSyntaxType(ExpressionSyntax initializerExpression,
+            SemanticModel semanticModel, ITypeSymbol variableType)
+        {
+            var arrayCreationExpressionSyntax = initializerExpression as ArrayCreationExpressionSyntax;
+            var arrayType = semanticModel.GetTypeInfo(arrayCreationExpressionSyntax).ConvertedType;
+            return arrayType != null && variableType.Equals(arrayType);
+        }
+
+        private static bool TryValidateObjectCreationSyntaxType(ExpressionSyntax initializerExpression,
+            SemanticModel semanticModel, ITypeSymbol variableType)
+        {
+            var objectCreationExpressionSyntax = initializerExpression as ObjectCreationExpressionSyntax;
+            var objectType = semanticModel.GetTypeInfo(objectCreationExpressionSyntax).ConvertedType;
+            return objectType != null && variableType.Equals(objectType);
+        }
+
 
         //		class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentAnalyzer>
         //		{

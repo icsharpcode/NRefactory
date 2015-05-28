@@ -32,6 +32,7 @@ using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
+	[Ignore("TODO: Issue not ported yet")]
 	public class SuggestUseVarKeywordEvidentTests : InspectionActionTestBase
 	{
 		[Test]
