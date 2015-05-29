@@ -2,7 +2,7 @@
 <package>
 	<metadata>
 		<id>NR6Pack</id>
-		<version>0.9.0</version>
+		<version>0.10.0</version>
 		<title>NR6Pack</title>
 		<authors>IC#Code</authors>
 		<owners>IC#Code</owners>
@@ -10,7 +10,7 @@
 		<projectUrl>https://visualstudiogallery.msdn.microsoft.com/68c1575b-e0bf-420d-a94b-1b0f4bcdcbcc</projectUrl>
 		<requireLicenseAcceptance>false</requireLicenseAcceptance>
 		<description>Roslyn-based analyzers from the NRefactory OSS library for Visual Studio 2015.</description>
-		<releaseNotes>New diagnostic analyzers. Redesign of almost all analyzers and refactorings (now much closer to Roslyn API).</releaseNotes>
+		<releaseNotes>New diagnostic analyzers and refactorings, some bug fixes.</releaseNotes>
 		<copyright>Copyright (c) 2014-2015 AlphaSierraPapa</copyright>
 		<tags>VS 2015 Roslyn NRefactory Analyzer</tags>
 		<frameworkAssemblies>
