@@ -87,7 +87,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
                         var indentTrivia = triva.FirstOrDefault(t => t.IsKind(SyntaxKind.WhitespaceTrivia));
                         var indent = indentTrivia.ToString();
 
-                        string[] lines = NewLine.SplitLines(inner);
+						string[] lines = NewLine.SplitLines(inner);
                         for (int i = 0; i < lines.Length; i++)
                         {
                             lines[i] = indent + "/// " + lines[i].Trim();

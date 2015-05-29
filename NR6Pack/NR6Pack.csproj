@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems" Label="Shared" Condition="Exists('..\ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <MinimumVisualStudioVersion>11.0</MinimumVisualStudioVersion>
@@ -495,6 +494,52 @@
     <Compile Include="CodeRefactorings\Custom\ConvertInterpolatedStringToStringFormatCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Custom\ConvertStringFormatToInterpolatedStringCodeRefactoringProvider.cs" />
     <Compile Include="CodeRefactorings\Synced\ImportStaticClassWithUsingCodeRefactoringProvider.cs" />
+    <Compile Include="Util\GeneratedCodeRecognition.cs" />
+    <Compile Include="Util\HelpLink.cs" />
+    <Compile Include="Util\NRefactory6Host.cs" />
+    <Compile Include="Util\SyntaxExtensions.cs" />
+    <Compile Include="Util\TypeExtensions.cs" />
+    <Compile Include="Util\CSharpUtil.cs" />
+    <Compile Include="Util\SymbolExtensions.cs" />
+    <Compile Include="Util\SignatureComparer.cs" />
+    <Compile Include="Util\CaseCorrector.cs" />
+    <Compile Include="Util\UnicodeNewline.cs" />
+    <Compile Include="Util\ReflectionCompatibilityExtensions.cs" />
+    <Compile Include="Util\FindTokenHelper.cs" />
+    <Compile Include="Util\RefactoringHelpers.cs" />
+    <Compile Include="Util\SpeculationAnalyzer.cs" />
+    <Compile Include="Util\CodeFixContextExtensions.cs" />
+    <Compile Include="Util\SyntaxTokenExtensions.cs" />
+    <Compile Include="Util\WordParser.cs" />
+    <Compile Include="Util\SyntaxNodeExtensions.cs" />
+    <Compile Include="Util\Matcher.cs" />
+    <Compile Include="Util\ValueTuple.cs" />
+    <Compile Include="Util\ValueTuple`2.cs" />
+    <Compile Include="Util\ITypeParameterSymbolExtensions.cs" />
+    <Compile Include="Util\StringPclExtensions.cs" />
+    <Compile Include="Util\ObjectExtensions.cs" />
+    <Compile Include="Util\AnnotationTable.cs" />
+    <Compile Include="Util\EnumerableExtensions.cs" />
+    <Compile Include="Util\ISymbolExtensions.cs" />
+    <Compile Include="Util\SpecializedCollections.cs" />
+    <Compile Include="Util\TypeGuessing.cs" />
+    <Compile Include="Util\CSharpSyntaxContext.cs" />
+    <Compile Include="Util\CompilationUnitSyntaxExtensions.cs" />
+    <Compile Include="Util\ExpressionSyntaxExtensions.cs" />
+    <Compile Include="Util\IAssemblySymbolExtensions.cs" />
+    <Compile Include="Util\ITypeSymbolExtensions.cs" />
+    <Compile Include="Util\TypeGenerator.cs" />
+    <Compile Include="Util\UsingsAndExternAliasesDirectiveComparer.cs" />
+    <Compile Include="Util\SyntaxTriviaExtensions.cs" />
+    <Compile Include="Util\SyntaxTriviaListExtensions.cs" />
+    <Compile Include="Util\StringExtensions.cs" />
+    <Compile Include="Util\CompilationExtensions.cs" />
+    <Compile Include="Util\CommonAccessibilityUtilities.cs" />
+    <Compile Include="Util\INamespaceOrTypeSymbolExtensions.cs" />
+    <Compile Include="Util\NameSyntaxComparer.cs" />
+    <Compile Include="Util\TypeSyntaxComparer.cs" />
+    <Compile Include="Util\TokenComparer.cs" />
+    <Compile Include="Util\NamespaceDeclarationSyntaxExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Collections.Immutable">

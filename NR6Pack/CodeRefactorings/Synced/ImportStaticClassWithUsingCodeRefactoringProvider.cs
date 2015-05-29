@@ -148,10 +148,41 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					result.AddRange (sym.MemberNames);
 				} else {
 					foreach (var member in node.Members) {
-						result.Add (member.GetNameToken ().ValueText);
+						result.Add (GetNameToken (member).ValueText);
 					}
 				}
 				return result;
+			}
+
+			public static SyntaxToken GetNameToken( MemberDeclarationSyntax member)
+			{
+				if (member != null)
+				{
+					switch (member.Kind())
+					{
+						case SyntaxKind.EnumDeclaration:
+						return ((EnumDeclarationSyntax)member).Identifier;
+						case SyntaxKind.ClassDeclaration:
+						case SyntaxKind.InterfaceDeclaration:
+						case SyntaxKind.StructDeclaration:
+						return ((TypeDeclarationSyntax)member).Identifier;
+						case SyntaxKind.DelegateDeclaration:
+						return ((DelegateDeclarationSyntax)member).Identifier;
+						case SyntaxKind.FieldDeclaration:
+						return ((FieldDeclarationSyntax)member).Declaration.Variables.First().Identifier;
+						case SyntaxKind.EventFieldDeclaration:
+						return ((EventFieldDeclarationSyntax)member).Declaration.Variables.First().Identifier;
+						case SyntaxKind.PropertyDeclaration:
+						return ((PropertyDeclarationSyntax)member).Identifier;
+						case SyntaxKind.EventDeclaration:
+						return ((EventDeclarationSyntax)member).Identifier;
+						case SyntaxKind.MethodDeclaration:
+						return ((MethodDeclarationSyntax)member).Identifier;
+					}
+				}
+
+				// Constructors, destructors, indexers and operators don't have names.
+				return default(SyntaxToken);
 			}
 
 			public override void VisitClassDeclaration (ClassDeclarationSyntax node)
