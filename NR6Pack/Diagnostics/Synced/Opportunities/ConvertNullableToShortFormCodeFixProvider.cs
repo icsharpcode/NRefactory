@@ -66,7 +66,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			var newRoot = root.ReplaceNode((SyntaxNode)node, SyntaxFactory.NullableType(arg)
 				.WithAdditionalAnnotations(Formatter.Annotation)
 				.WithLeadingTrivia(node.GetLeadingTrivia()));
-			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Rewrite to '{0}?'", document.WithSyntaxRoot(newRoot)), diagnostic);
+			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, string.Format("Rewrite to '{0}?'", arg.ToString()), document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
 }
