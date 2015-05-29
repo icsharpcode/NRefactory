@@ -379,8 +379,11 @@ namespace ICSharpCode.NRefactory6.CSharp.Analysis
 			// "alias" is handled in VisitExternAliasDeclaration()
 
 			TColor color;
-			if (TryGetSymbolColor (semanticModel.GetSymbolInfo(node, cancellationToken), out color))
-				Colorize(node.Span, color);
+			if (TryGetSymbolColor (semanticModel.GetSymbolInfo (node, cancellationToken), out color)) {
+				if (node.Parent is AttributeSyntax || node.Parent is QualifiedNameSyntax && node.Parent.Parent is AttributeSyntax)
+					color = referenceTypeColor;
+				Colorize (node.Span, color);
+			}
 		}
 		
 		bool TryGetSymbolColor(SymbolInfo info, out TColor color)

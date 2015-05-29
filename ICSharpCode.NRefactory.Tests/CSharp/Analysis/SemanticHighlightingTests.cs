@@ -514,6 +514,23 @@ class FooBar
 ", whenKeywordColor);
 		}
 
+		[Test]
+		public void TestAttributeColor()
+		{
+			TestColor (@"
+using System;
+[$Obsolete]
+class Class { }", referenceTypeColor);
+		}
+
+		[Test]
+		public void TestAttributeColor_Case2()
+		{
+			TestColor (@"
+[System.$Obsolete]
+class Class { }", referenceTypeColor);
+		}
+
 	}
 }
 
