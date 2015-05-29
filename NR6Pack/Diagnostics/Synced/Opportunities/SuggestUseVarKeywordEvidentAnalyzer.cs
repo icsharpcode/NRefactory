@@ -118,16 +118,24 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
             SemanticModel semanticModel, ITypeSymbol variableType)
         {
             var arrayCreationExpressionSyntax = initializerExpression as ArrayCreationExpressionSyntax;
-            var arrayType = semanticModel.GetTypeInfo(arrayCreationExpressionSyntax).ConvertedType;
-            return arrayType != null && variableType.Equals(arrayType);
+            if (arrayCreationExpressionSyntax != null)
+            {
+                var arrayType = semanticModel.GetTypeInfo(arrayCreationExpressionSyntax).ConvertedType;
+                return arrayType != null && variableType.Equals(arrayType);
+            }
+            return false;
         }
 
         private static bool TryValidateObjectCreationSyntaxType(ExpressionSyntax initializerExpression,
             SemanticModel semanticModel, ITypeSymbol variableType)
         {
             var objectCreationExpressionSyntax = initializerExpression as ObjectCreationExpressionSyntax;
-            var objectType = semanticModel.GetTypeInfo(objectCreationExpressionSyntax).ConvertedType;
-            return objectType != null && variableType.Equals(objectType);
+            if (objectCreationExpressionSyntax != null)
+            {
+                var objectType = semanticModel.GetTypeInfo(objectCreationExpressionSyntax).ConvertedType;
+                return objectType != null && variableType.Equals(objectType);
+            }
+            return false;
         }
 
 
