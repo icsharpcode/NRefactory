@@ -147,7 +147,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 						}
 					)
 					);
-				} else {
+				} else if (!declarationParent.Modifiers.Any(m => m.IsKind(SyntaxKind.StaticKeyword))) {
 					context.RegisterRefactoring(CodeActionFactory.Create(
 						token.Span,
 						DiagnosticSeverity.Info,

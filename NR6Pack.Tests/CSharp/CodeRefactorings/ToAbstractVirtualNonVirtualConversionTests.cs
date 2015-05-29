@@ -239,6 +239,18 @@ abstract class Test
 }");
 		}
 
+        [Test]
+		public void StaticMethodInStaticClassTest()
+		{
+			TestWrongContext<ToAbstractVirtualNonVirtualConversionCodeRefactoringProvider>(
+                @"public static class MyStaticClass
+    {
+        public static string $MyStaticMethod()
+        {
+            // Do something
+        }
+    }");
+		}
 
 		[Test]
 		public void InvalidLocalContext()
