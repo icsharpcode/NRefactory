@@ -32,30 +32,29 @@ using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class SuggestUseVarKeywordEvidentTests : InspectionActionTestBase
 	{
 		[Test]
-		public void TestInspectorCase1 ()
+		public void When_Creating_An_Object ()
 		{
-			TestIssue<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
 {
 	void Bar (object o)
 	{
-		Foo foo = (Foo)o;
+		Foo foo = new Foo();
 	}
 }");
 			// Fix is done by code action.
 		}
 
 		[Test]
-		public void TestV2 ()
+		public void When_Initializing_An_Array ()
 		{
 			Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
 {
 	void Bar (object o)
 	{
-		Foo foo = (Foo)o;
+	    int[] array = new int[10];
 	}
 }");
 		}
