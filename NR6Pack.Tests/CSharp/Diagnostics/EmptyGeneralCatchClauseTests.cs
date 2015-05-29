@@ -81,7 +81,31 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 ");
 		}
 
-		[Test]
+        [Test]
+        public void TestCatchWhen()
+        {
+            Analyze<EmptyGeneralCatchClauseAnalyzer>(@"using System;
+	using System.IO;
+	namespace Application
+	{
+		public class BaseClass
+		{
+			public void method()
+			{
+				try
+				{
+					F ();
+				}
+				catch (Exception ex) when (ex.Message != null)
+				{
+				}
+			}
+		}
+	}
+");
+        }
+
+        [Test]
 		public void TestDisable()
 		{
 			Analyze<EmptyGeneralCatchClauseAnalyzer>(@"using System;

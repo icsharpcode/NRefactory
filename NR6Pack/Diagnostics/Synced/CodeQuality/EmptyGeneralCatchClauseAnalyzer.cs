@@ -81,6 +81,10 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 					if (typeSymbol == null || typeSymbol.TypeKind == TypeKind.Error || !typeSymbol.GetFullName ().Equals ("System.Exception"))
 						return false;
 
+                    // Don't consider a catch clause with "when (...)" as general
+                    if (node.Filter != null)
+                        return false;
+
 					BlockSyntax body = node.Block;
 					if (body.Statements.Any ())
 						return false;
