@@ -37,7 +37,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.EmptyEmbeddedStatementAnalyzerID, 
 			GettextCatalog.GetString("Empty control statement body"),
-			GettextCatalog.GetString("';' should be avoided. Use '{{}}' instead"), 
+			GettextCatalog.GetString("';' should be avoided. Use '{}' instead"), 
 			DiagnosticAnalyzerCategories.PracticesAndImprovements, 
 			DiagnosticSeverity.Warning, 
 			isEnabledByDefault: true,
