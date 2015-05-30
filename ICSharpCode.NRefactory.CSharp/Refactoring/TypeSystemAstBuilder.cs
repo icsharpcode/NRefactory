@@ -129,6 +129,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public bool ShowConstantValues { get; set; }
 		
 		/// <summary>
+		/// Controls whether to show attributes.
+		/// The default value is <c>false</c>.
+		/// </summary>
+		public bool ShowAttributes { get; set; }
+		
+		/// <summary>
 		/// Controls whether to use fully-qualified type names or short type names.
 		/// The default value is <c>false</c>.
 		/// </summary>
@@ -567,7 +573,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			} else if (parameter.IsParams) {
 				decl.ParameterModifier = ParameterModifier.Params;
 			}
-			decl.Attributes.AddRange (parameter.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (parameter.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
 			decl.Type = ConvertType(parameter.Type);
 			if (this.ShowParameterNames) {
 				decl.Name = parameter.Name;
@@ -680,7 +688,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			var decl = new TypeDeclaration();
 			decl.ClassType = classType;
 			decl.Modifiers = modifiers;
-			decl.Attributes.AddRange (typeDefinition.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (typeDefinition.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
 			decl.Name = typeDefinition.Name;
 			
 			int outerTypeParameterCount = (typeDefinition.DeclaringTypeDefinition == null) ? 0 : typeDefinition.DeclaringTypeDefinition.TypeParameterCount;
@@ -694,8 +704,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (this.ShowBaseTypes) {
 				foreach (IType baseType in typeDefinition.DirectBaseTypes) {
 					if (!baseType.IsKnownType (KnownTypeCode.Enum) &&
-						!baseType.IsKnownType (KnownTypeCode.Object) &&
-						!baseType.IsKnownType (KnownTypeCode.ValueType)) {
+					    !baseType.IsKnownType (KnownTypeCode.Object) &&
+					    !baseType.IsKnownType (KnownTypeCode.ValueType)) {
 						decl.BaseTypes.Add (ConvertType (baseType));
 					}
 				}
@@ -717,10 +727,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			DelegateDeclaration decl = new DelegateDeclaration();
 			decl.Modifiers = modifiers & ~Modifiers.Sealed;
-			decl.Attributes.AddRange (d.Attributes.Select (a => new AttributeSection (ConvertAttribute (a))));
-			decl.Attributes.AddRange (invokeMethod.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
-				AttributeTarget = "return"
-			}));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (d.Attributes.Select (a => new AttributeSection (ConvertAttribute (a))));
+				decl.Attributes.AddRange (invokeMethod.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
+					AttributeTarget = "return"
+				}));
+			}
 			decl.ReturnType = ConvertType(invokeMethod.ReturnType);
 			decl.Name = d.Name;
 			
@@ -759,7 +771,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 				decl.Modifiers = m;
 			}
-			decl.Attributes.AddRange (field.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (field.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
 			decl.ReturnType = ConvertType(field.ReturnType);
 			Expression initializer = null;
 			if (field.IsConst && this.ShowConstantValues)
@@ -786,14 +800,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			Accessor decl = new Accessor();
 			if (this.ShowAccessibility && accessor.Accessibility != ownerAccessibility)
 				decl.Modifiers = ModifierFromAccessibility(accessor.Accessibility);
-			decl.Attributes.AddRange (accessor.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
-			decl.Attributes.AddRange (accessor.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
-				AttributeTarget = "return"
-			}));
-			if (addParamterAttribute && accessor.Parameters.Count > 0) {
-				decl.Attributes.AddRange (accessor.Parameters.Last ().Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
-					AttributeTarget = "param"
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (accessor.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				decl.Attributes.AddRange (accessor.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
+					AttributeTarget = "return"
 				}));
+				if (addParamterAttribute && accessor.Parameters.Count > 0) {
+					decl.Attributes.AddRange (accessor.Parameters.Last ().Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
+						AttributeTarget = "param"
+					}));
+				}
 			}
 			decl.Body = GenerateBodyBlock();
 			return decl;
@@ -803,7 +819,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			PropertyDeclaration decl = new PropertyDeclaration();
 			decl.Modifiers = GetMemberModifiers(property);
-			decl.Attributes.AddRange (property.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (property.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
 			decl.ReturnType = ConvertType(property.ReturnType);
 			decl.Name = property.Name;
 			decl.Getter = ConvertAccessor(property.Getter, property.Accessibility, false);
@@ -815,7 +833,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			IndexerDeclaration decl = new IndexerDeclaration();
 			decl.Modifiers = GetMemberModifiers(indexer);
-			decl.Attributes.AddRange (indexer.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (indexer.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
 			decl.ReturnType = ConvertType(indexer.ReturnType);
 			foreach (IParameter p in indexer.Parameters) {
 				decl.Parameters.Add(ConvertParameter(p));
@@ -830,7 +850,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (this.UseCustomEvents) {
 				CustomEventDeclaration decl = new CustomEventDeclaration();
 				decl.Modifiers = GetMemberModifiers(ev);
-				decl.Attributes.AddRange (ev.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				if (ShowAttributes) {
+					decl.Attributes.AddRange (ev.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				}
 				decl.ReturnType = ConvertType(ev.ReturnType);
 				decl.Name = ev.Name;
 				decl.AddAccessor    = ConvertAccessor(ev.AddAccessor, ev.Accessibility, true);
@@ -839,7 +861,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			} else {
 				EventDeclaration decl = new EventDeclaration();
 				decl.Modifiers = GetMemberModifiers(ev);
-				decl.Attributes.AddRange (ev.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				if (ShowAttributes) {
+					decl.Attributes.AddRange (ev.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				}
 				decl.ReturnType = ConvertType(ev.ReturnType);
 				decl.Variables.Add(new VariableInitializer(ev.Name));
 				return decl;
@@ -852,11 +876,13 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.Modifiers = GetMemberModifiers(method);
 			if (method.IsAsync && ShowModifiers)
 				decl.Modifiers |= Modifiers.Async;
-			decl.Attributes.AddRange (method.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes) {
+				decl.Attributes.AddRange (method.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				decl.Attributes.AddRange (method.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
+					AttributeTarget = "return"
+				}));
+			}
 			decl.ReturnType = ConvertType(method.ReturnType);
-			decl.Attributes.AddRange (method.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
-				AttributeTarget = "return"
-			}));
 			decl.Name = method.Name;
 			
 			if (this.ShowTypeParameters) {
@@ -903,7 +929,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			ConstructorDeclaration decl = new ConstructorDeclaration();
 			decl.Modifiers = GetMemberModifiers(ctor);
-			decl.Attributes.AddRange (ctor.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes)
+				decl.Attributes.AddRange (ctor.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
 			if (ctor.DeclaringTypeDefinition != null)
 				decl.Name = ctor.DeclaringTypeDefinition.Name;
 			foreach (IParameter p in ctor.Parameters) {
@@ -976,7 +1003,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			TypeParameterDeclaration decl = new TypeParameterDeclaration();
 			decl.Variance = tp.Variance;
 			decl.Name = tp.Name;
-			decl.Attributes.AddRange (tp.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			if (ShowAttributes)
+				decl.Attributes.AddRange (tp.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
 			return decl;
 		}
 		
