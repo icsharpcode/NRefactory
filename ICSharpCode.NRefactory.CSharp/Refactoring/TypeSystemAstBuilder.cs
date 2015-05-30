@@ -703,9 +703,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			if (this.ShowBaseTypes) {
 				foreach (IType baseType in typeDefinition.DirectBaseTypes) {
-					if (!baseType.IsKnownType (KnownTypeCode.Enum) &&
-					    !baseType.IsKnownType (KnownTypeCode.Object) &&
-					    !baseType.IsKnownType (KnownTypeCode.ValueType)) {
+					if (baseType.IsKnownType (KnownTypeCode.Enum)) {
+						if (!typeDefinition.EnumUnderlyingType.IsKnownType (KnownTypeCode.Int32)) {
+							decl.BaseTypes.Add (ConvertType (typeDefinition.EnumUnderlyingType));
+						}
+					} else if (!baseType.IsKnownType (KnownTypeCode.Object) &&
+						 !baseType.IsKnownType (KnownTypeCode.ValueType)) {
 						decl.BaseTypes.Add (ConvertType (baseType));
 					}
 				}
