@@ -251,11 +251,21 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 	}
 
 	public class ClassWithVirtualProperty {
-		public virtual int Prop { get; set; }
+		public virtual int Prop { get; protected set; }
 	}
 	
 	public class ClassThatOverridesAndSealsVirtualProperty : ClassWithVirtualProperty {
-		public sealed override int Prop { get; set; }
+		public sealed override int Prop { get; protected set; }
+	}
+
+	public class ClassThatOverridesGetterOnly : ClassWithVirtualProperty
+	{
+		public override int Prop { get { return 1; } }
+	}
+
+	public class ClassThatOverridesSetterOnly : ClassThatOverridesGetterOnly
+	{
+		public override int Prop { protected set { } }
 	}
 
 	public class ClassThatImplementsProperty : IInterfaceWithProperty {

@@ -1048,6 +1048,22 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		}
 
 		[Test]
+		public void ClassThatOverridesGetterOnly() {
+			ITypeDefinition type = GetTypeDefinition(typeof(ClassThatOverridesGetterOnly));
+			var prop = type.Properties.Single(p => p.Name == "Prop");
+			Assert.AreEqual(Accessibility.Public, prop.Accessibility);
+			Assert.AreEqual(Accessibility.Public, prop.Getter.Accessibility);
+		}
+
+		[Test]
+		public void ClassThatOverridesSetterOnly() {
+			ITypeDefinition type = GetTypeDefinition(typeof(ClassThatOverridesSetterOnly));
+			var prop = type.Properties.Single(p => p.Name == "Prop");
+			Assert.AreEqual(Accessibility.Public, prop.Accessibility);
+			Assert.AreEqual(Accessibility.Protected, prop.Setter.Accessibility);
+		}
+
+		[Test]
 		public void PropertyAccessorsShouldBeReportedAsImplementingInterfaceAccessors() {
 			ITypeDefinition type = GetTypeDefinition(typeof(ClassThatImplementsProperty));
 			var prop = type.Properties.Single(p => p.Name == "Prop");

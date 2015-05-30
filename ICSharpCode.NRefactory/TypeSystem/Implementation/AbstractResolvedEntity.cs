@@ -108,13 +108,13 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		public string ReflectionName { get { return unresolved.ReflectionName; } }
 		public string Namespace { get { return unresolved.Namespace; } }
 		
-		public Accessibility Accessibility { get { return unresolved.Accessibility; } }
-		public bool IsPrivate { get { return unresolved.IsPrivate; } }
-		public bool IsPublic { get { return unresolved.IsPublic; } }
-		public bool IsProtected { get { return unresolved.IsProtected; } }
-		public bool IsInternal { get { return unresolved.IsInternal; } }
-		public bool IsProtectedOrInternal { get { return unresolved.IsProtectedOrInternal; } }
-		public bool IsProtectedAndInternal { get { return unresolved.IsProtectedAndInternal; } }
+		public virtual Accessibility Accessibility { get { return unresolved.Accessibility; } }
+		public bool IsPrivate { get { return Accessibility == Accessibility.Private; } }
+		public bool IsPublic { get { return Accessibility == Accessibility.Public; } }
+		public bool IsProtected { get { return Accessibility == Accessibility.Protected; } }
+		public bool IsInternal { get { return Accessibility == Accessibility.Internal; } }
+		public bool IsProtectedOrInternal { get { return Accessibility == Accessibility.ProtectedOrInternal; } }
+		public bool IsProtectedAndInternal { get { return Accessibility == Accessibility.ProtectedAndInternal; } }
 		
 		public override string ToString()
 		{
