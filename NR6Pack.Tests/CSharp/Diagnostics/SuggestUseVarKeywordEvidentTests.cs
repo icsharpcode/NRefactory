@@ -1,21 +1,21 @@
-﻿// 
+﻿//
 // SuggestUseVarKeywordEvidentTests.cs
-//  
+//
 // Author:
 //       Mike Krüger <mkrueger@xamarin.com>
-// 
+//
 // Copyright (c) 2012 Xamarin Inc. (http://xamarin.com)
-// 
+//
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
 // in the Software without restriction, including without limitation the rights
 // to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
-// 
+//
 // The above copyright notice and this permission notice shall be included in
 // all copies or substantial portions of the Software.
-// 
+//
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
 // FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
@@ -24,40 +24,118 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory6.CSharp.Refactoring;
-using ICSharpCode.NRefactory6.CSharp.CodeRefactorings;
+using Microsoft.CodeAnalysis;
+
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
-	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
-	public class SuggestUseVarKeywordEvidentTests : InspectionActionTestBase
-	{
-		[Test]
-		public void TestInspectorCase1 ()
-		{
-			TestIssue<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+    [TestFixture]
+    public class SuggestUseVarKeywordEvidentTests : InspectionActionTestBase
+    {
+        [Test]
+        public void TestInspectorCase1()
+        {
+            TestIssue<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
 {
 	void Bar (object o)
 	{
 		Foo foo = (Foo)o;
 	}
 }");
-			// Fix is done by code action.
-		}
+            // Fix is done by code action.
+        }
 
-		[Test]
-		public void TestV2 ()
-		{
-			Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+        [Test]
+        public void TestV2()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
 {
 	void Bar (object o)
 	{
 		Foo foo = (Foo)o;
 	}
 }");
-		}
+        }
+
+        [Test]
+        public void When_Creating_An_Object()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+{
+	void Bar (object o)
+	{
+		Foo foo = new Foo();
 	}
+}");
+            // Fix is done by code action.
+        }
+
+        [Test]
+        public void When_Explicitely_Initializing_An_Array()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+{
+	void Bar (object o)
+	{
+	    int[] foo = new int[] { 1, 2, 3 };
+	}
+}");
+
+        }
+
+        [Test]
+        public void When_Implicitely_Initializing_An_Array()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+{
+	void Bar (object o)
+	{
+	    int[] foo = new[] { 1, 2, 3 };
+	}
+}");
+        }
+
+        [Test]
+        public void When_Retrieving_Object_By_Property()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"
+   
+
+public class SomeClass
+{
+     public SomeClass MyProperty { get; set; }
+ }
+
+public class Foo
+{
+    public void SomeMethod(object o)
+    {
+        SomeClass someObject = (SomeClass)o;
+        SomeClass retrievedObject = someObject.MyProperty;
+    }
+}
+");
+        }
+        [Test]
+        public void When_Casting_Objects()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"
+public class MyClass
+{
+}
+
+public class Foo
+{
+    public void SomeMethod(object o)
+    {
+        MyClass someObject = (MyClass)o;
+        if(someObject is MyClass)
+            MyClass castedObject = o as MyClass;
+    }
+}
+");
+        }
+
+    }
 }
