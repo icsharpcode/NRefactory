@@ -372,7 +372,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				return interningProvider.Intern(new ParameterizedTypeReference(baseType, para));
 			} else if (type is GenericParameter) {
 				GenericParameter typeGP = (GenericParameter)type;
-				return TypeParameterReference.Create(typeGP.Owner is MethodDefinition ? SymbolKind.Method : SymbolKind.TypeDefinition, typeGP.Position);
+				return TypeParameterReference.Create(typeGP.Owner is MethodReference ? SymbolKind.Method : SymbolKind.TypeDefinition, typeGP.Position);
 			} else if (type.IsNested) {
 				ITypeReference typeRef = CreateType(type.DeclaringType, typeAttributes, ref typeIndex);
 				int partTypeParameterCount;
