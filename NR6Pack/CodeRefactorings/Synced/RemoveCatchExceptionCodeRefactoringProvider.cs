@@ -81,8 +81,12 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 					DiagnosticSeverity.Info,
 					GettextCatalog.GetString ("To 'catch'"),
 					t2 => {
-						var newRoot = root.ReplaceNode ((SyntaxNode)catchClause, catchClause.WithDeclaration (null));
-						return Task.FromResult (document.WithSyntaxRoot (newRoot));
+                        var newRoot = root.ReplaceNode((SyntaxNode)catchClause,
+                            catchClause
+                                .WithDeclaration(null)
+                                .WithLeadingTrivia(catchClause.GetLeadingTrivia())
+                                .WithCatchKeyword(catchClause.CatchKeyword.WithTrailingTrivia(catchClause.Declaration.GetTrailingTrivia())));
+                        return Task.FromResult (document.WithSyntaxRoot (newRoot));
 					}
 				)
 			);

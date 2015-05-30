@@ -83,7 +83,7 @@ class TestClass
 		}
 
 		[Test]
-		public void PreservesWhitespaceInBody ()
+		public void PreservesWhitespaceInBody1()
 		{
 			Test<RemoveCatchExceptionCodeRefactoringProvider> (@"
 class TestClass
@@ -110,7 +110,37 @@ class TestClass
 }");
 		}
 
-		[Test]
+        [Test]
+        public void PreservesWhitespaceInBody2()
+        {
+            Test<RemoveCatchExceptionCodeRefactoringProvider>(@"
+class TestClass
+{
+    public void F()
+    {
+        try {
+        }
+        $catch (System.Exception e)
+        {
+
+        }
+    }
+}", @"
+class TestClass
+{
+    public void F()
+    {
+        try {
+        }
+        catch
+        {
+
+        }
+    }
+}");
+        }
+
+        [Test]
 		public void IgnoresReferencedExceptionMatch ()
 		{
 			TestWrongContext<RemoveCatchExceptionCodeRefactoringProvider> (@"
