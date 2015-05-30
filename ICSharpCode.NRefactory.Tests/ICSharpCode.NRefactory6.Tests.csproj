@@ -70,6 +70,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <DebugType>none</DebugType>
+    <OutputPath>..\bin\Release</OutputPath>
     <AssemblyName>ICSharpCode.NRefactory.Tests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Debug|AnyCPU' ">
@@ -87,9 +88,11 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Debug|x86' ">
     <AssemblyName>ICSharpCode.NRefactory.Tests</AssemblyName>
+    <OutputPath>..\bin\net_4_5_Debug</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'net_4_5_Release|x86' ">
     <DebugType>none</DebugType>
+    <OutputPath>..\bin\net_4_5_Release</OutputPath>
     <AssemblyName>ICSharpCode.NRefactory.Tests</AssemblyName>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -100,6 +103,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <AssemblyName>ICSharpCode.NRefactory.Tests</AssemblyName>
+    <OutputPath>..\bin\Debug</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -140,8 +144,9 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.ComponentModel.Composition" />
-    <Reference Include="nunit.framework">
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
       <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System.Collections.Immutable, Version=1.1.33.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <HintPath>..\packages\System.Collections.Immutable.1.1.33-beta\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
@@ -223,6 +228,7 @@
     <Compile Include="CSharp\CodeCompletion\NR6\EnumMemberContextHandlerTests.cs" />
     <Compile Include="CSharp\CodeCompletion\NR6\KeywordCompletionContextHandlerTests.cs" />
     <Compile Include="CSharp\InspectionActionTestBase.cs" />
+    <Compile Include="CSharp\CodeCompletion\NR6\MiscTests.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ProjectExtensions>
