@@ -97,7 +97,7 @@ namespace ICSharpCode.NRefactory6.CSharp.CodeRefactorings
 
 		#endregion
 
-		static Document PerformAction(Document document, SyntaxNode root, TypeSyntax type)
+		internal static Document PerformAction(Document document, SyntaxNode root, TypeSyntax type)
 		{
 			var newRoot = root.ReplaceNode((SyntaxNode)
 				type,

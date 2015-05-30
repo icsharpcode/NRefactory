@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
     [NotPortedYet]
     public class SuggestUseVarKeywordEvidentAnalyzer : DiagnosticAnalyzer
     {
-        private static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
+        static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
             NRefactoryDiagnosticIDs.SuggestUseVarKeywordEvidentAnalyzerID,
             GettextCatalog.GetString("Use 'var' keyword when possible"),
             GettextCatalog.GetString("Use 'var' keyword"),
@@ -65,7 +65,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                 }, SyntaxKind.LocalDeclarationStatement);
         }
 
-        private static bool TryGetDiagnostic(SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+        static bool TryGetDiagnostic(SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
         {
             diagnostic = default(Diagnostic);
             if (nodeContext.IsFromGeneratedCode())
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                 if (!TryValidateLocalVariableType(localVariableStatement, localVariableSyntax))
                     return false;
 
-                if (!DidVariableDeclarationTypeCorrespondToObviousCase(localVariableStatement, nodeContext.SemanticModel))
+                if (!DidVariableDeclarationTypeCorrespondToObviousCase(nodeContext, localVariableStatement))
                     return false;
 
                 diagnostic = Diagnostic.Create(descriptor, localVariableSyntax.Type.GetLocation());
@@ -88,8 +88,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
             return true;
         }
 
-        private static bool TryValidateLocalVariableType(LocalDeclarationStatementSyntax localDeclarationStatementSyntax,
-            VariableDeclarationSyntax variableDeclarationSyntax)
+        static bool TryValidateLocalVariableType(LocalDeclarationStatementSyntax localDeclarationStatementSyntax, VariableDeclarationSyntax variableDeclarationSyntax)
         {
             //Either we don't have a local variable or we're using constant value
             if (localDeclarationStatementSyntax == null ||
@@ -101,142 +100,79 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
             return !variableDeclarationSyntax.Type.IsVar;
         }
 
-        private static bool DidVariableDeclarationTypeCorrespondToObviousCase(LocalDeclarationStatementSyntax localVariable, SemanticModel semanticModel)
+        static bool DidVariableDeclarationTypeCorrespondToObviousCase(SyntaxNodeAnalysisContext nodeContext, LocalDeclarationStatementSyntax localVariable)
         {
             var singleVariable = localVariable.Declaration.Variables.First();
             var initializer = singleVariable.Initializer;
             var initializerExpression = initializer.Value;
 
             var variableTypeName = localVariable.Declaration.Type;
-            var variableType = semanticModel.GetTypeInfo(variableTypeName).ConvertedType;
-
-            return IsArrayTypeSomeObviousTypeCase(initializerExpression, semanticModel, variableType) ||
-                   IsObjectCreationSomeObviousTypeCase(initializerExpression, semanticModel, variableType) ||
-                   IsCastingSomeObviousTypeCase(initializerExpression, semanticModel, variableType) ||
-                   IsPropertyAccessSomeObviousTypeCase(initializerExpression, semanticModel, variableType);
+            var semanticModel = nodeContext.SemanticModel;
+            var variableType = semanticModel.GetSymbolInfo(variableTypeName, nodeContext.CancellationToken).Symbol as ITypeSymbol;
+            return IsArrayTypeSomeObviousTypeCase(nodeContext, initializerExpression, variableType, localVariable) ||
+                IsObjectCreationSomeObviousTypeCase(nodeContext, initializerExpression, variableType) ||
+                IsCastingSomeObviousTypeCase(nodeContext, initializerExpression, variableType) /*||
+				IsPropertyAccessSomeObviousTypeCase(nodeContext, initializerExpression, variableType)*/;
         }
 
-        private static bool IsArrayTypeSomeObviousTypeCase(ExpressionSyntax initializerExpression,
-            SemanticModel semanticModel, ITypeSymbol variableType)
+        static bool IsArrayTypeSomeObviousTypeCase(SyntaxNodeAnalysisContext nodeContext, ExpressionSyntax initializerExpression, ITypeSymbol variableType, LocalDeclarationStatementSyntax localVariable)
         {
             var arrayCreationExpressionSyntax = initializerExpression as ArrayCreationExpressionSyntax;
             if (arrayCreationExpressionSyntax != null)
             {
-                var arrayType = semanticModel.GetTypeInfo(arrayCreationExpressionSyntax).ConvertedType;
+                if (arrayCreationExpressionSyntax.Type.IsMissing)
+                    return false;
+
+                var arrayType = nodeContext.SemanticModel.GetTypeInfo(arrayCreationExpressionSyntax).ConvertedType;
                 return arrayType != null && arrayCreationExpressionSyntax.Initializer != null && variableType.Equals(arrayType);
             }
 
             return false;
         }
 
-        private static bool IsObjectCreationSomeObviousTypeCase(ExpressionSyntax initializerExpression,
-            SemanticModel semanticModel, ITypeSymbol variableType)
+        static bool IsObjectCreationSomeObviousTypeCase(SyntaxNodeAnalysisContext nodeContext, ExpressionSyntax initializerExpression, ITypeSymbol variableType)
         {
             var objectCreationExpressionSyntax = initializerExpression as ObjectCreationExpressionSyntax;
             if (objectCreationExpressionSyntax != null)
             {
-                var objectType = semanticModel.GetTypeInfo(objectCreationExpressionSyntax).ConvertedType;
+                var objectType = nodeContext.SemanticModel.GetTypeInfo(objectCreationExpressionSyntax, nodeContext.CancellationToken).ConvertedType;
                 return objectType != null && variableType.Equals(objectType);
             }
 
             return false;
         }
 
-        private static bool IsPropertyAccessSomeObviousTypeCase(ExpressionSyntax initializerExpression,
-    SemanticModel semanticModel, ITypeSymbol variableType)
+        protected static bool IsPropertyAccessSomeObviousTypeCase(SyntaxNodeAnalysisContext nodeContext, ExpressionSyntax initializerExpression, ITypeSymbol variableType)
         {
             var simpleMemberAccess = initializerExpression as MemberAccessExpressionSyntax;
             if (simpleMemberAccess != null)
             {
-                var propertyType = semanticModel.GetTypeInfo(simpleMemberAccess).ConvertedType;
+                var propertyType = nodeContext.SemanticModel.GetTypeInfo(simpleMemberAccess, nodeContext.CancellationToken).ConvertedType;
                 return propertyType != null && variableType.Equals(propertyType);
             }
 
             return false;
         }
 
-
-        private static bool IsCastingSomeObviousTypeCase(ExpressionSyntax initializerExpression,
-            SemanticModel semanticModel, ITypeSymbol variableType)
+        static bool IsCastingSomeObviousTypeCase(SyntaxNodeAnalysisContext nodeContext, ExpressionSyntax initializerExpression, ITypeSymbol variableType)
         {
             var asBinaryExpression = initializerExpression as BinaryExpressionSyntax;
             if (asBinaryExpression != null && asBinaryExpression.IsKind(SyntaxKind.AsExpression))
             {
-                var castType = semanticModel.GetTypeInfo(asBinaryExpression.Right).ConvertedType;
+                var castType = nodeContext.SemanticModel.GetTypeInfo(asBinaryExpression.Right, nodeContext.CancellationToken).ConvertedType;
                 return castType != null && castType.Equals(variableType);
             }
-            else if(asBinaryExpression == null)
+            else if (asBinaryExpression == null)
             {
                 var castExpression = initializerExpression as CastExpressionSyntax;
-                if(castExpression != null)
+                if (castExpression != null)
                 {
-                    var castExpressionType = semanticModel.GetTypeInfo(castExpression).ConvertedType;
+                    var castExpressionType = nodeContext.SemanticModel.GetTypeInfo(castExpression, nodeContext.CancellationToken).ConvertedType;
                     return castExpressionType != null && castExpressionType.Equals(variableType);
                 }
             }
 
             return false;
         }
-
-        //		class GatherVisitor : GatherVisitorBase<SuggestUseVarKeywordEvidentAnalyzer>
-        //		{
-        //			public GatherVisitor(SemanticModel semanticModel, Action<Diagnostic> addDiagnostic, CancellationToken cancellationToken)
-        //				: base (semanticModel, addDiagnostic, cancellationToken)
-        //			{
-        //			}
-        ////
-        ////			public override void VisitSyntaxTree(SyntaxTree syntaxTree)
-        ////			{
-        ////				if (!ctx.Supports(UseVarKeywordAction.minimumVersion))
-        ////					return;
-        ////				base.VisitSyntaxTree(syntaxTree);
-        ////			}
-        ////
-        ////			public override void VisitVariableDeclarationStatement(VariableDeclarationStatement variableDeclarationStatement)
-        ////			{
-        ////				base.VisitVariableDeclarationStatement(variableDeclarationStatement);
-        ////				if (variableDeclarationStatement.Type is PrimitiveType) {
-        ////					return;
-        ////				}
-        ////				if (variableDeclarationStatement.Type.IsVar()) {
-        ////					return;
-        ////				}
-        ////				if (variableDeclarationStatement.Variables.Count != 1) {
-        ////					return;
-        ////				}
-        ////
-        ////				//only checks for cases where the type would be obvious - assignment of new, cast, etc.
-        ////				//also check the type actually matches else the user might want to assign different subclasses later
-        ////				var v = variableDeclarationStatement.Variables.Single();
-        ////
-        ////				var arrCreate = v.Initializer as ArrayCreateExpression;
-        ////				if (arrCreate != null) {
-        ////					var n = variableDeclarationStatement.Type as ComposedType;
-        ////					//FIXME: check the specifier compatibility
-        ////					if (n != null && n.ArraySpecifiers.Any() && n.BaseType.IsMatch(arrCreate.Type)) {
-        ////						AddDiagnosticAnalyzer(variableDeclarationStatement);
-        ////					}
-        ////				}
-        ////				var objCreate = v.Initializer as ObjectCreateExpression;
-        ////				if (objCreate != null && objCreate.Type.IsMatch(variableDeclarationStatement.Type)) {
-        ////					AddDiagnosticAnalyzer(variableDeclarationStatement);
-        ////				}
-        ////				var asCast = v.Initializer as AsExpression;
-        ////				if (asCast != null && asCast.Type.IsMatch(variableDeclarationStatement.Type)) {
-        ////					AddDiagnosticAnalyzer(variableDeclarationStatement);
-        ////				}
-        ////				var cast = v.Initializer as CastExpression;
-        ////				if (cast != null && cast.Type.IsMatch(variableDeclarationStatement.Type)) {
-        ////					AddDiagnosticAnalyzer(variableDeclarationStatement);
-        ////				}
-        ////			}
-        ////
-        ////			void AddDiagnosticAnalyzer(VariableDeclarationStatement variableDeclarationStatement)
-        ////			{
-        ////				AddDiagnosticAnalyzer(new CodeIssue(variableDeclarationStatement.Type, ctx.TranslateString("")) { IssueMarker = IssueMarker.DottedLine, ActionProvider = { typeof(UseVarKeywordAction) } });
-        ////			}
-        //		}
     }
-
-
 }
