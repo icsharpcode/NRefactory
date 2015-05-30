@@ -104,6 +104,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
         {
             var singleVariable = localVariable.Declaration.Variables.First();
             var initializer = singleVariable.Initializer;
+            if (initializer == null)
+                return false;
             var initializerExpression = initializer.Value;
 
             var variableTypeName = localVariable.Declaration.Type;

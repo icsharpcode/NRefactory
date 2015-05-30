@@ -187,5 +187,16 @@ public class Foo
 ");
         }
 
+        [Test]
+        public void TestNoInitializer()
+        {
+            Analyze<SuggestUseVarKeywordEvidentAnalyzer>(@"class Foo
+{
+	void Bar (object o)
+	{
+		Foo foo;
+	}
+}");
+        }
     }
 }
