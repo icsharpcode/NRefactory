@@ -90,6 +90,8 @@ namespace ICSharpCode.NRefactory.CSharp
 	public class CatchClause : AstNode
 	{
 		public static readonly TokenRole CatchKeywordRole = new TokenRole ("catch");
+		public static readonly TokenRole WhenKeywordRole = new TokenRole ("when");
+		public static readonly Role<Expression> ConditionRole = Roles.Condition;
 
 		#region Null
 		public new static readonly CatchClause Null = new NullCatchClause ();
@@ -210,6 +212,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		public CSharpTokenNode RParToken {
 			get { return GetChildByRole (Roles.RPar); }
+		}
+		
+		public CSharpTokenNode WhenToken {
+			get { return GetChildByRole (WhenKeywordRole); }
+		}
+		
+		public Expression Condition {
+			get { return GetChildByRole(ConditionRole);  }
+			set { SetChildByRole(ConditionRole, value); }
 		}
 		
 		public BlockStatement Body {

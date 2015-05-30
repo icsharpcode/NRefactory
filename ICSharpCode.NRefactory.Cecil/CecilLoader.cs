@@ -32,6 +32,8 @@ using Mono.Cecil;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {
+	using BlobReader = ICSharpCode.NRefactory.TypeSystem.Implementation.BlobReader;
+
 	/// <summary>
 	/// Allows loading an IProjectContent from an already compiled assembly.
 	/// </summary>
@@ -64,7 +66,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// If you access the Cecil objects directly in your application, you may need to take the same lock.
 		/// </remarks>
 		public bool LazyLoad { get; set; }
-		
+
 		/// <summary>
 		/// This delegate gets executed whenever an entity was loaded.
 		/// </summary>
@@ -425,7 +427,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			return false;
 		}
 		#endregion
-		
+
 		#region Read Attributes
 		#region Assembly Attributes
 		static readonly ITypeReference assemblyVersionAttributeTypeRef = typeof(System.Reflection.AssemblyVersionAttribute).ToTypeReference();
@@ -724,6 +726,15 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		}
 		#endregion
 		
+		#region Type Parameter Attributes
+		void AddAttributes(GenericParameter genericParameter, IUnresolvedTypeParameter targetTP)
+		{
+			if (genericParameter.HasCustomAttributes) {
+				AddCustomAttributes(genericParameter.CustomAttributes, targetTP.Attributes);
+			}
+		}
+		#endregion
+		
 		#region MarshalAsAttribute (ConvertMarshalInfo)
 		static readonly ITypeReference marshalAsAttributeTypeRef = typeof(MarshalAsAttribute).ToTypeReference();
 		static readonly ITypeReference unmanagedTypeTypeRef = typeof(UnmanagedType).ToTypeReference();
@@ -864,6 +875,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			for (int i = 0; i < typeParameters.Count; i++) {
 				var tp = (DefaultUnresolvedTypeParameter)typeParameters[i];
 				AddConstraints(tp, typeDefinition.GenericParameters[i]);
+				AddAttributes(typeDefinition.GenericParameters[i], tp);
 				tp.ApplyInterningProvider(interningProvider);
 			}
 		}
@@ -1330,6 +1342,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				for (int i = 0; i < method.GenericParameters.Count; i++) {
 					var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
 					AddConstraints(tp, method.GenericParameters[i]);
+					AddAttributes(method.GenericParameters[i], tp);
 					tp.ApplyInterningProvider(interningProvider);
 				}
 			}
