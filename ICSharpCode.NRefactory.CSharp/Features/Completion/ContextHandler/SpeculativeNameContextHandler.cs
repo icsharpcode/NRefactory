@@ -51,9 +51,14 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 			var parent = token.Parent.AncestorsAndSelf ().OfType<GenericNameSyntax> ().FirstOrDefault () ?? token.Parent;
 
 			if (!parent.Parent.IsKind (SyntaxKind.IncompleteMember) &&
-				!IsLocal(parent) &&
-				!parent.Parent.IsKind (SyntaxKind.Parameter) &&
-				!parent.Parent.IsKind (SyntaxKind.ForEachStatement)) {
+			    !IsLocal(parent) &&
+			    !parent.Parent.IsKind (SyntaxKind.Parameter) &&
+			    !parent.Parent.IsKind (SyntaxKind.ForEachStatement)) {
+				return Enumerable.Empty<ICompletionData>();
+			}
+
+			if (info.TriggerCharacter != ' ' &&
+				parent.Parent.IsKind (SyntaxKind.ExpressionStatement)) {
 				return Enumerable.Empty<ICompletionData>();
 			}
 			var list = new List<ICompletionData> ();

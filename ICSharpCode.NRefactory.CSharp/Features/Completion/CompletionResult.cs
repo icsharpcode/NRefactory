@@ -96,11 +96,17 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 		
 		internal void AddData (ICompletionData completionData)
 		{
+			if (completionData.DisplayText == "foobar")
+				Console.WriteLine (Environment.StackTrace);
 			data.Add(completionData); 
 		}
 
 		internal void AddRange (IEnumerable<ICompletionData> completionData)
 		{
+			foreach (var data in completionData)
+				if (data.DisplayText == "foobar")
+					Console.WriteLine (Environment.StackTrace);
+			
 			data.AddRange(completionData); 
 		}
 
