@@ -231,7 +231,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			if (typeCode == KnownTypeCode.Object) {
 				// boxed value type
 				IType boxedTyped = ReadCustomAttributeFieldOrPropType();
-				ResolveResult elem = ReadElem(boxedTyped);
+				ResolveResult elem = ReadFixedArg(boxedTyped);
 				if (elem.IsCompileTimeConstant && elem.ConstantValue == null)
 					return new ConstantResolveResult(elementType, null);
 				else
