@@ -160,14 +160,14 @@ namespace ICSharpCode.NRefactory6.CSharp
 		/// </summary>
 		/// <returns>All classes and interfaces.</returns>
 		/// <param name="type">Type.</param>
-		public static IEnumerable<INamedTypeSymbol> GetAllBaseClassesAndInterfaces(this INamedTypeSymbol type, bool includeSuperType = false)
+		public static IEnumerable<INamedTypeSymbol> GetAllBaseClassesAndInterfaces (this INamedTypeSymbol type, bool includeSuperType = false)
 		{
 			if (!includeSuperType)
 				type = type.BaseType;
-
-			while (type != null) {
-				yield return type;
-				type = type.BaseType;
+			var curType = type;
+			while (curType != null) {
+				yield return curType;
+				curType = curType.BaseType;
 			}
 
 			foreach (var inter in type.AllInterfaces) {
