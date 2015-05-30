@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Features.GotoDefinition
 			return symbol;
 		}
 
-		static async Task<ISymbol> FindSymbolAsync(Document document, int position, CancellationToken cancellationToken)
+		public static async Task<ISymbol> FindSymbolAsync(Document document, int position, CancellationToken cancellationToken)
 		{
 			var workspace = document.Project.Solution.Workspace;
 
