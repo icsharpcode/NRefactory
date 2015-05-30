@@ -97,7 +97,6 @@
 * StaticEventSubscriptionAnalyzer
 * StaticFieldInGenericTypeAnalyzer
 * StringCompareIsCultureSpecificAnalyzer
-* SuggestUseVarKeywordEvidentAnalyzer
 * UnassignedReadonlyFieldAnalyzer
 * UnusedAnonymousMethodSignatureAnalyzer
 * UnusedParameterAnalyzer

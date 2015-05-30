@@ -37,7 +37,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
     /// action.
     /// </summary>
     [DiagnosticAnalyzer(LanguageNames.CSharp)]
-    [NotPortedYet]
     public class SuggestUseVarKeywordEvidentAnalyzer : DiagnosticAnalyzer
     {
         static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor(
