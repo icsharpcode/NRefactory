@@ -829,6 +829,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.Name = property.Name;
 			decl.Getter = ConvertAccessor(property.Getter, property.Accessibility, false);
 			decl.Setter = ConvertAccessor(property.Setter, property.Accessibility, true);
+			decl.PrivateImplementationType = GetExcplicitInterfaceType (property);
 			return decl;
 		}
 		
@@ -845,6 +846,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			decl.Getter = ConvertAccessor(indexer.Getter, indexer.Accessibility, false);
 			decl.Setter = ConvertAccessor(indexer.Setter, indexer.Accessibility, true);
+			decl.PrivateImplementationType = GetExcplicitInterfaceType (indexer);
 			return decl;
 		}
 		
@@ -908,6 +910,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 			decl.Body = GenerateBodyBlock();
+			decl.PrivateImplementationType = GetExcplicitInterfaceType (method);
 			return decl;
 		}
 		
@@ -1057,6 +1060,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		NamespaceDeclaration ConvertNamespaceDeclaration(INamespace ns)
 		{
 			return new NamespaceDeclaration(ns.FullName);
+		}
+
+		AstType GetExcplicitInterfaceType (IMember member)
+		{
+			if (member.IsExplicitInterfaceImplementation) {
+				var baseMember = member.ImplementedInterfaceMembers.FirstOrDefault ();
+				if (baseMember != null)
+					return ConvertType (baseMember.DeclaringType);
+			}
+			return null;
 		}
 	}
 }
