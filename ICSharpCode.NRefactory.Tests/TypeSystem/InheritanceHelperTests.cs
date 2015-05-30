@@ -74,5 +74,29 @@ public class Derived : Base {
 				Assert.That(InheritanceHelper.GetDerivedMember(btype.Methods.Single(m => m.Name == name), dtype), Is.EqualTo(dtype.Methods.Single(m => m.Name == name)), name + " does not match");
 			}
 		}
+		
+		[Test]
+		public void PrivateMemberDoesNotDisruptSearchForBaseMember()
+		{
+			string program = @"using System.Collections.Generic;
+public class Base {
+  public virtual int M();
+}
+public class Middle : Base {
+  private int M();
+}
+public class Derived : Middle {
+  public override void M() {}
+}";
+
+			var unresolvedFile = new CSharpParser().Parse(program, "program.cs").ToTypeSystem();
+			var compilation = new CSharpProjectContent().AddAssemblyReferences(CecilLoaderTests.Mscorlib).AddOrUpdateFiles(unresolvedFile).CreateCompilation();
+
+			var dtype = (ITypeDefinition)ReflectionHelper.ParseReflectionName("Derived").Resolve(compilation);
+			var btype = (ITypeDefinition)ReflectionHelper.ParseReflectionName("Base").Resolve(compilation);
+
+			Assert.AreEqual(btype.Methods.Single(m => m.Name == "M"),
+			                InheritanceHelper.GetBaseMember(dtype.Methods.Single(m => m.Name == "M")));
+		}
 	}
 }

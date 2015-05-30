@@ -83,6 +83,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					baseMembers = baseType.GetMembers(m => m.Name == member.Name && !m.IsExplicitInterfaceImplementation, GetMemberOptions.IgnoreInheritedMembers);
 				}
 				foreach (IMember baseMember in baseMembers) {
+					if (baseMember.IsPrivate) {
+						// skip private base members; 
+						continue;
+					}
 					if (SignatureComparer.Ordinal.Equals(member, baseMember)) {
 						yield return baseMember.Specialize(substitution);
 					}
