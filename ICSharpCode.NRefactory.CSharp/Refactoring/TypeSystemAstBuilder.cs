@@ -703,9 +703,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			
 			if (this.ShowBaseTypes) {
 				foreach (IType baseType in typeDefinition.DirectBaseTypes) {
-					if (!baseType.IsKnownType (KnownTypeCode.Enum) &&
-					    !baseType.IsKnownType (KnownTypeCode.Object) &&
-					    !baseType.IsKnownType (KnownTypeCode.ValueType)) {
+					if (baseType.IsKnownType (KnownTypeCode.Enum)) {
+						if (!typeDefinition.EnumUnderlyingType.IsKnownType (KnownTypeCode.Int32)) {
+							decl.BaseTypes.Add (ConvertType (typeDefinition.EnumUnderlyingType));
+						}
+					} else if (!baseType.IsKnownType (KnownTypeCode.Object) &&
+						 !baseType.IsKnownType (KnownTypeCode.ValueType)) {
 						decl.BaseTypes.Add (ConvertType (baseType));
 					}
 				}
@@ -826,6 +829,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.Name = property.Name;
 			decl.Getter = ConvertAccessor(property.Getter, property.Accessibility, false);
 			decl.Setter = ConvertAccessor(property.Setter, property.Accessibility, true);
+			decl.PrivateImplementationType = GetExcplicitInterfaceType (property);
 			return decl;
 		}
 		
@@ -842,6 +846,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			decl.Getter = ConvertAccessor(indexer.Getter, indexer.Accessibility, false);
 			decl.Setter = ConvertAccessor(indexer.Setter, indexer.Accessibility, true);
+			decl.PrivateImplementationType = GetExcplicitInterfaceType (indexer);
 			return decl;
 		}
 		
@@ -905,6 +910,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 			decl.Body = GenerateBodyBlock();
+			decl.PrivateImplementationType = GetExcplicitInterfaceType (method);
 			return decl;
 		}
 		
@@ -974,8 +980,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			bool isInterfaceMember = member.DeclaringType.Kind == TypeKind.Interface;
 			Modifiers m = Modifiers.None;
-			if (this.ShowAccessibility && !isInterfaceMember) {
-				m |= ModifierFromAccessibility(member.Accessibility);
+			if (this.ShowAccessibility && !isInterfaceMember && !member.IsExplicitInterfaceImplementation) {
+				m |= ModifierFromAccessibility (member.Accessibility);
 			}
 			if (this.ShowModifiers) {
 				if (member.IsStatic) {
@@ -1054,6 +1060,16 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		NamespaceDeclaration ConvertNamespaceDeclaration(INamespace ns)
 		{
 			return new NamespaceDeclaration(ns.FullName);
+		}
+
+		AstType GetExcplicitInterfaceType (IMember member)
+		{
+			if (member.IsExplicitInterfaceImplementation) {
+				var baseMember = member.ImplementedInterfaceMembers.FirstOrDefault ();
+				if (baseMember != null)
+					return ConvertType (baseMember.DeclaringType);
+			}
+			return null;
 		}
 	}
 }
