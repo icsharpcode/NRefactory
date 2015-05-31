@@ -148,7 +148,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Completion
 				if (result.Count == 0) {
 					foreach (var handler in nonExclusiveHandlers) {
 						var handlerResult = handler.GetCompletionDataAsync (result, this, completionContext, info, cancellationToken).Result;
-						Console.WriteLine ("-----" + handler);
 						//foreach (var item in handlerResult) {
 						//	Console.WriteLine (item.DisplayText);
 						//}
