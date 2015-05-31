@@ -39,6 +39,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
 using Microsoft.CodeAnalysis.Formatting;
 using Microsoft.CodeAnalysis.FindSymbols;
+using System.Runtime.CompilerServices;
 
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
@@ -49,38 +50,96 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
 			NRefactoryDiagnosticIDs.LockThisAnalyzerID, 
 			GettextCatalog.GetString("Warns about using lock (this) or MethodImplOptions.Synchronized"),
-			"{0}", 
+			"{0}",
 			DiagnosticAnalyzerCategories.CodeQualityIssues, 
 			DiagnosticSeverity.Warning, 
 			isEnabledByDefault: true,
 			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.LockThisAnalyzerID)
 		);
 
-		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+        
 
-		public override void Initialize(AnalysisContext context)
+        public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
+        public override void Initialize(AnalysisContext context)
 		{
-			//context.RegisterSyntaxNodeAction(
-			//	(nodeContext) => {
-			//		Diagnostic diagnostic;
-			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
-			//			nodeContext.ReportDiagnostic(diagnostic);
-			//		}
-			//	}, 
-			//	new SyntaxKind[] { SyntaxKind.None }
-			//);
-		}
+            context.RegisterSyntaxNodeAction(
+                (nodeContext) =>
+                {
+                     Diagnostic diagnostic;
+                    if (TryGetDiagnostic(nodeContext, out diagnostic))
+                    {
+                        nodeContext.ReportDiagnostic(diagnostic);
+                    }
+                }, SyntaxKind.LockStatement, SyntaxKind.Attribute);
+        }
 
 		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
 			if (nodeContext.IsFromGeneratedCode())
 				return false;
-			//var node = nodeContext.Node as ;
-			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
-			//return true;
-			return false;
-		}
+
+            var lockStatementThisUsageKeyValuePair = ValidateLockStatementUsesThisExpression(nodeContext);
+            
+            if (lockStatementThisUsageKeyValuePair.Key)
+            {
+                diagnostic = Diagnostic.Create(descriptor, lockStatementThisUsageKeyValuePair.Value);
+                return true;
+            }
+
+		    if (!lockStatementThisUsageKeyValuePair.Key)
+		    {
+		        var synchronizedMethodAttributeUsageKeyValuePair =
+		            ValidateMethodImplementationUsesSynchronizedAttribute(nodeContext);
+
+                if (synchronizedMethodAttributeUsageKeyValuePair.Key)
+                {
+                    diagnostic = Diagnostic.Create(descriptor, synchronizedMethodAttributeUsageKeyValuePair.Value);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        static KeyValuePair<bool,Location> ValidateLockStatementUsesThisExpression(SyntaxNodeAnalysisContext nodeContext)
+        {
+            var node = nodeContext.Node as LockStatementSyntax;
+            if (node == null)
+                return new KeyValuePair<bool, Location>(false, null);
+
+            return new KeyValuePair<bool, Location>(node
+                .ChildNodes()
+                .OfType<ThisExpressionSyntax>()
+                .Any(), node.LockKeyword.GetLocation());
+        }
+        static KeyValuePair<bool, Location> ValidateMethodImplementationUsesSynchronizedAttribute(SyntaxNodeAnalysisContext nodeContext)
+        {
+            var attribute = nodeContext.Node as AttributeSyntax;
+
+            if (attribute != null && attribute.Name.ToString().Equals("MethodImpl"))
+            {
+                {
+                    var attributeArgumentList = attribute.ArgumentList.Arguments;
+                    foreach(var argument in attributeArgumentList)
+                    {
+                        var memberAccessExpression =
+                            argument.ChildNodes().OfType<MemberAccessExpressionSyntax>().FirstOrDefault();
+
+                        if(memberAccessExpression!= null &&
+                           memberAccessExpression
+                               .ChildNodes()
+                               .OfType<IdentifierNameSyntax>()
+                               .First().Identifier.ValueText.Equals("MethodImplOptions") &&
+                           memberAccessExpression.Name.Identifier.ValueText.Equals("Synchronized"))
+
+                        {
+                            return new KeyValuePair<bool, Location>(true, memberAccessExpression.GetLocation());
+                        }
+                    }
+                }
+            }
+                return new KeyValuePair<bool, Location>(false, null);
+        }
 
 //		class GatherVisitor : GatherVisitorBase<LockThisAnalyzer>
 //		{

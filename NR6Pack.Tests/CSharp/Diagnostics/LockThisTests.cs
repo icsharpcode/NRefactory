@@ -29,7 +29,6 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class LockThisTests : InspectionActionTestBase
 	{
 		[Test]
@@ -40,7 +39,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		lock (this) {
+		$lock (this)$ {
 		}
 	}
 }";
@@ -56,7 +55,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
+			Analyze<LockThisAnalyzer> (input, output,1);
 		}
 
 		[Test]
@@ -67,7 +66,7 @@ class TestClass
 {
 	int MyProperty {
 		get {
-			lock (this) {
+		$lock (this)$ {
 				return 0;
 			}
 		}
@@ -87,10 +86,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestLockThisInSetter ()
 		{
 			var input = @"
@@ -98,7 +97,7 @@ class TestClass
 {
 	int MyProperty {
 		set {
-			lock (this) {
+		$lock (this)$ {
 			}
 		}
 	}
@@ -116,10 +115,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestLockThisInConstructor ()
 		{
 			var input = @"
@@ -127,7 +126,7 @@ class TestClass
 {
 	TestClass()
 	{
-		lock (this) {
+		$lock (this)$ {
 		}
 	}
 }";
@@ -143,10 +142,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestLockThisInDelegate ()
 		{
 			var input = @"
@@ -156,7 +155,7 @@ class TestClass
 	{
 		Action lockThis = delegate ()
 		{
-			lock (this) {
+		$lock (this)$ {
 			}
 		};
 	}
@@ -176,10 +175,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestLockThisInLambda ()
 		{
 			var input = @"
@@ -189,7 +188,7 @@ class TestClass
 	{
 		Action lockThis = () =>
 		{
-			lock (this) {
+		$lock (this)$ {
 			}
 		};
 	}
@@ -209,10 +208,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test] //For some reason, the test says this test does not create any diagnostics....
 		public void TestLockParenthesizedThis ()
 		{
 			var input = @"
@@ -220,7 +219,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		lock ((this)) {
+		$lock ((this))$ {
 		}
 	}
 }";
@@ -236,10 +235,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1); 
+        }
 
-		[Test]
+        [Test]
 		public void TestFixMultipleLockThis ()
 		{
 			var input = @"
@@ -247,13 +246,13 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		lock (this) {
+		$lock (this)$ {
 		}
 	}
 
 	void TestMethod2 ()
 	{
-		lock (this) {
+		$lock (this)$ {
 		}
 	}
 }";
@@ -275,9 +274,9 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 2, output, 0);
-		}
-		[Test]
+            Analyze<LockThisAnalyzer>(input, output, 2);
+        }
+        [Test]
 		public void TestFixMixedLocks ()
 		{
 			var input = @"
@@ -285,7 +284,7 @@ class TestClass
 {
 	void TestMethod ()
 	{
-		lock (this) {
+		$lock (this)$ {
 		}
 	}
 
@@ -315,10 +314,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestLockNonThis ()
 		{
 			var input = @"
@@ -333,7 +332,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 0);
+			Analyze<LockThisAnalyzer> (input, null,0);
 		}
 
 		[Test]
@@ -346,7 +345,7 @@ class TestClass
 	{
 		Nested()
 		{
-			lock (this) {
+		    $lock (this)$ {
 			}
 		}
 	}
@@ -366,17 +365,17 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer>(input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestMethodSynchronized ()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	void TestMethod ()
 	{
 		System.Console.WriteLine (""Foo"");
@@ -396,17 +395,17 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestMethodWithSynchronizedValue ()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl (Value = MethodImplOptions.Synchronized)]
+	$[MethodImpl (Value = MethodImplOptions.Synchronized)]$
 	void TestMethod ()
 	{
 		System.Console.WriteLine (""Foo"");
@@ -426,17 +425,18 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test] //Breaks my code as when using | does not allow any simple member access expression
+        //I would need to use a BinaryExpressionSyntax to get access to the left/right members. Do I need to make a big recursion code for those cases or just have a simple binary that I would then break in its members to get my hands on the member access expressions and then follow the same logic that I had 
 		public void TestMethodHasSynchronized ()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]
+	$[MethodImpl (MethodImplOptions.Synchronized | MethodImplOptions.NoInlining)]$
 	void TestMethod ()
 	{
 		System.Console.WriteLine (""Foo"");
@@ -457,10 +457,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestMethodNotSynchronized ()
 		{
 			var input = @"
@@ -474,7 +474,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 0);
+			Analyze<LockThisAnalyzer> (input,null,0);
 		}
 
 		[Test]
@@ -484,7 +484,7 @@ class TestClass
 using System.Runtime.CompilerServices;
 abstract class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public abstract void TestMethod ();
 }";
 
@@ -495,7 +495,7 @@ abstract class TestClass
 	public abstract void TestMethod ();
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
+			Analyze<LockThisAnalyzer> (input, output,1);
 		}
 
 		[Test]
@@ -505,10 +505,10 @@ abstract class TestClass
 using System.Runtime.CompilerServices;
 abstract class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public void TestMethod ()
 	{
-		lock (this) {
+		$lock (this)$ {
 		}
 	}
 }";
@@ -527,21 +527,21 @@ abstract class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 2, output, 0);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 2);
+        }
 
-		[Test]
+        [Test]
 		public void TestDelegateLocking ()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 abstract class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public void TestMethod ()
 	{
 		Action action = delegate {
-			lock (this) {
+			$lock (this)$ {
 			}
 		};
 	}
@@ -563,21 +563,21 @@ abstract class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 2, output, 0);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 2);
+        }
 
-		[Test]
+        [Test]
 		public void TestLambdaLocking ()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 abstract class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public void TestMethod ()
 	{
 		Action action = () => {
-			lock (this) {
+			$lock (this)$ {
 			}
 		};
 	}
@@ -599,17 +599,17 @@ abstract class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 2, output, 0);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 2);
+        }
 
-		[Test]
+        [Test]
 		public void TestStaticMethod()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public static void TestMethod ()
 	{
 		Console.WriteLine ();
@@ -629,10 +629,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestStaticProperty()
 		{
 			var input = @"
@@ -641,7 +641,7 @@ class TestClass
 {
 	public static int TestProperty
 	{
-		[MethodImpl (MethodImplOptions.Synchronized)]
+		$[MethodImpl (MethodImplOptions.Synchronized)]$
 		set {
 			Console.WriteLine (value);
 		}
@@ -663,23 +663,23 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestMixedStaticMethod()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
 class TestClass
 {
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public void TestMethod ()
 	{
 		Console.WriteLine ();
 	}
 
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public static void TestStaticMethod ()
 	{
 		Console.WriteLine ();
@@ -705,10 +705,10 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 2, output, 0);
-		}
+            Analyze<LockThisAnalyzer>(input, output, 2);
+        }
 
-		[Test]
+        [Test]
 		public void TestNewNameLock()
 		{
 			var input = @"
@@ -716,7 +716,7 @@ using System.Runtime.CompilerServices;
 class TestClass
 {
 	int locker;
-	[MethodImpl (MethodImplOptions.Synchronized)]
+	$[MethodImpl (MethodImplOptions.Synchronized)]$
 	public void TestMethod ()
 	{
 		Console.WriteLine ();
@@ -737,7 +737,7 @@ class TestClass
 	}
 }";
 
-			Test<LockThisAnalyzer> (input, 1, output);
-		}
-	}
+            Analyze<LockThisAnalyzer>(input, output, 1);
+        }
+    }
 }
