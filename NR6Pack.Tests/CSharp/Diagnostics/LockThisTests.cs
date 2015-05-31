@@ -428,9 +428,8 @@ class TestClass
             Analyze<LockThisAnalyzer>(input, output, 1);
         }
 
-        [Test] //Breaks my code as when using | does not allow any simple member access expression
-        //I would need to use a BinaryExpressionSyntax to get access to the left/right members. Do I need to make a big recursion code for those cases or just have a simple binary that I would then break in its members to get my hands on the member access expressions and then follow the same logic that I had 
-		public void TestMethodHasSynchronized ()
+        [Test]
+        public void TestMethodHasSynchronized ()
 		{
 			var input = @"
 using System.Runtime.CompilerServices;
