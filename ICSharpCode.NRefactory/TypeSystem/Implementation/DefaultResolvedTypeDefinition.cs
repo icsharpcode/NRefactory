@@ -614,7 +614,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		}
 		
 		public IType DeclaringType {
-			get { return parentContext.CurrentTypeDefinition; }
+			get { return parentContext.CurrentTypeDefinition ?? (IType)SpecialType.UnknownType; }
 		}
 		
 		public IAssembly ParentAssembly {
