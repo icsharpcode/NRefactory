@@ -980,8 +980,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		{
 			bool isInterfaceMember = member.DeclaringType.Kind == TypeKind.Interface;
 			Modifiers m = Modifiers.None;
-			if (this.ShowAccessibility && !isInterfaceMember) {
-				m |= ModifierFromAccessibility(member.Accessibility);
+			if (this.ShowAccessibility && !isInterfaceMember && !member.IsExplicitInterfaceImplementation) {
+				m |= ModifierFromAccessibility (member.Accessibility);
 			}
 			if (this.ShowModifiers) {
 				if (member.IsStatic) {
