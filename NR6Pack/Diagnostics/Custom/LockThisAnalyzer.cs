@@ -23,7 +23,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using System.Collections.Generic;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -55,29 +54,48 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                 (nodeContext) =>
                 {
                     Diagnostic diagnostic;
-                    if (TryGetDiagnostic(nodeContext, out diagnostic))
+                    if (TryGetDiagnosticFromLockStatement(nodeContext, out diagnostic))
                     {
                         nodeContext.ReportDiagnostic(diagnostic);
                     }
-                }, SyntaxKind.LockStatement, SyntaxKind.Attribute);
+                }, SyntaxKind.LockStatement);
+
+            context.RegisterSyntaxNodeAction(
+                (nodeContext) =>
+                {
+                    Diagnostic diagnostic;
+                    if (TryGetDiagnosticFromPossibleSynchronizeAttribute(nodeContext, out diagnostic))
+                    {
+                        nodeContext.ReportDiagnostic(diagnostic);
+                    }
+                }, SyntaxKind.Attribute);
         }
 
-        private static bool TryGetDiagnostic(SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+        private static bool TryGetDiagnosticFromLockStatement(SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
         {
             diagnostic = default(Diagnostic);
             if (nodeContext.IsFromGeneratedCode())
                 return false;
 
-            if (ValidateLockStatementUsesThisExpression(nodeContext))
+            var lockStatement = nodeContext.Node as LockStatementSyntax;
+
+            if (lockStatement != null &&
+                lockStatement.Expression.SkipParens().IsKind(SyntaxKind.ThisExpression))
             {
-                var lockStatementSyntax = nodeContext.Node as LockStatementSyntax;
-                if (lockStatementSyntax != null)
-                    diagnostic = Diagnostic.Create(descriptor, lockStatementSyntax.LockKeyword.GetLocation());
+                diagnostic = Diagnostic.Create(descriptor, lockStatement.LockKeyword.GetLocation());
                 return true;
             }
+            return false;
+        }
+
+        private static bool TryGetDiagnosticFromPossibleSynchronizeAttribute(SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+        {
+            diagnostic = default(Diagnostic);
+            if (nodeContext.IsFromGeneratedCode())
+                return false;
 
             var synchronizedMethodAttributeUsageLocation =
-                ValidateMethodImplementationUsesSynchronizedAttribute(nodeContext);
+                ValidateMethodImplementationSynchronizedAttributeLocation(nodeContext);
 
             if (synchronizedMethodAttributeUsageLocation != null)
             {
@@ -88,19 +106,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
             return false;
         }
 
-        private static bool ValidateLockStatementUsesThisExpression(SyntaxNodeAnalysisContext nodeContext)
-        {
-            var node = nodeContext.Node as LockStatementSyntax;
-            if (node == null)
-                return false;
-
-            return node
-                .ChildNodes()
-                .OfType<ThisExpressionSyntax>()
-                .Any();
-        }
-
-        private static Location ValidateMethodImplementationUsesSynchronizedAttribute(SyntaxNodeAnalysisContext nodeContext)
+        private static Location ValidateMethodImplementationSynchronizedAttributeLocation(SyntaxNodeAnalysisContext nodeContext)
         {
             var attribute = nodeContext.Node as AttributeSyntax;
 
@@ -123,7 +129,13 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
                         if (memberAccessExpression == null && binaryExpression != null)
                         {
-                            return FindMemberAccessExpressionLocationWithinBinaryExpression(binaryExpression);
+                            return binaryExpression
+                                .DescendantNodes()
+                                .OfType<MemberAccessExpressionSyntax>()
+                                .FirstOrDefault(
+                                    memberAccess =>
+                                        memberAccess != null && IsSynchronizedEnumValueBeingUsed(memberAccess))
+                                .GetLocation();
                         }
                     }
                 }
@@ -138,41 +150,6 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
                 .OfType<IdentifierNameSyntax>()
                 .First().Identifier.ValueText.Equals("MethodImplOptions") &&
                    memberAccessExpression.Name.Identifier.ValueText.Equals("Synchronized");
-        }
-
-        private static Location FindMemberAccessExpressionLocationWithinBinaryExpression(
-            BinaryExpressionSyntax binaryExpression, List<MemberAccessExpressionSyntax> list = null)
-        {
-            if (list == null)
-                list = new List<MemberAccessExpressionSyntax>();
-
-            var leftMember = binaryExpression.Left;
-            var rightMember = binaryExpression.Right;
-
-            #region Recursion
-
-            if (leftMember is BinaryExpressionSyntax)
-            {
-                FindMemberAccessExpressionLocationWithinBinaryExpression((leftMember as BinaryExpressionSyntax), list);
-            }
-
-            if(leftMember is MemberAccessExpressionSyntax)
-                list.Add(leftMember as MemberAccessExpressionSyntax);
-
-            if (rightMember is BinaryExpressionSyntax)
-            {
-                FindMemberAccessExpressionLocationWithinBinaryExpression((rightMember as BinaryExpressionSyntax), list);
-            }
-
-           if(rightMember is MemberAccessExpressionSyntax)
-                list.Add(rightMember as MemberAccessExpressionSyntax);
-
-            #endregion Recursion
-
-            return (from memberAccess 
-                    in list
-                    where IsSynchronizedEnumValueBeingUsed(memberAccess)
-                    select memberAccess.GetLocation()).FirstOrDefault();
         }
 
         //		class GatherVisitor : GatherVisitorBase<LockThisAnalyzer>

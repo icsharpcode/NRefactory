@@ -61,7 +61,8 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
             var node = root.FindNode(context.Span);
             if (node == null)
                 return;
-            TypeSyntax type = null;
+            var newRoot = root.RemoveNode(node, SyntaxRemoveOptions.KeepNoTrivia);
+            context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, "Use locking statements with an object for locking", document.WithSyntaxRoot(newRoot)), diagnostic);
         }
     }
 }
