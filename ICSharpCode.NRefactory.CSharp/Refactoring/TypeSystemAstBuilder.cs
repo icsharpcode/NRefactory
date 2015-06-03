@@ -976,18 +976,31 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 		}
 		
+		bool NeedsAccessibility(IMember member)
+		{
+			if (member.DeclaringType.Kind == TypeKind.Interface || member.IsExplicitInterfaceImplementation)
+				return false;
+			switch (member.SymbolKind) {
+				case SymbolKind.Constructor:
+					return !member.IsStatic;
+				case SymbolKind.Destructor:
+					return false;
+				default:
+					return true;
+			}
+		}
+		
 		Modifiers GetMemberModifiers(IMember member)
 		{
-			bool isInterfaceMember = member.DeclaringType.Kind == TypeKind.Interface;
 			Modifiers m = Modifiers.None;
-			if (this.ShowAccessibility && !isInterfaceMember && !member.IsExplicitInterfaceImplementation) {
+			if (this.ShowAccessibility && NeedsAccessibility(member)) {
 				m |= ModifierFromAccessibility (member.Accessibility);
 			}
 			if (this.ShowModifiers) {
 				if (member.IsStatic) {
 					m |= Modifiers.Static;
 				} else {
-					if (member.IsAbstract && !isInterfaceMember)
+					if (member.IsAbstract && member.DeclaringType.Kind != TypeKind.Interface)
 						m |= Modifiers.Abstract;
 					if (member.IsOverride)
 						m |= Modifiers.Override;
