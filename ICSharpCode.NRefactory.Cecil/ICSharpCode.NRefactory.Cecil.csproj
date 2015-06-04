@@ -16,7 +16,7 @@
     <NoStdLib>False</NoStdLib>
     <TreatWarningsAsErrors>False</TreatWarningsAsErrors>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
-    <DocumentationFile>..\bin\$(Configuration)\ICSharpCode.NRefactory.Cecil.xml</DocumentationFile>
+    <DocumentationFile>$(IntermediateOutputPath)ICSharpCode.NRefactory.Cecil.xml</DocumentationFile>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
