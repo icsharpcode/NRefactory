@@ -22,9 +22,9 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
-    <DocumentationFile>..\bin\$(Configuration)\ICSharpCode.NRefactory.xml</DocumentationFile>
     <NoWin32Manifest>False</NoWin32Manifest>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
+    <DocumentationFile>$(IntermediateOutputPath)ICSharpCode.NRefactory.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
