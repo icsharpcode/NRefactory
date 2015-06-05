@@ -693,6 +693,13 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			AddCustomAttributes(propertyDefinition.CustomAttributes, targetEntity.Attributes);
 		}
 		#endregion
+		
+		#region Type Parameter Attributes
+		void AddAttributes(IKVM.Reflection.Type genericParameter, IUnresolvedTypeParameter targetTP)
+		{
+			AddCustomAttributes(genericParameter.CustomAttributes, targetTP.Attributes);
+		}
+		#endregion
 
 		#region MarshalAsAttribute (ConvertMarshalInfo)
 		static readonly ITypeReference marshalAsAttributeTypeRef = typeof(MarshalAsAttribute).ToTypeReference();
@@ -842,6 +849,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			for (int i = 0; i < typeParameters.Count; i++) {
 				var tp = (DefaultUnresolvedTypeParameter)typeParameters[i];
 				AddConstraints(tp, args[i]);
+				AddAttributes(args[i], tp);
 				tp.ApplyInterningProvider(interningProvider);
 			}
 		}
@@ -1084,6 +1092,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					for (int i = 0; i < genericArguments.Length; i++) {
 						var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
 						AddConstraints(tp, genericArguments[i]);
+						AddAttributes(genericArguments[i], tp);
 						tp.ApplyInterningProvider(interningProvider);
 					}
 				}
@@ -1214,6 +1223,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				for (int i = 0; i < genericArguments.Length; i++) {
 					var tp = (DefaultUnresolvedTypeParameter)m.TypeParameters[i];
 					AddConstraints(tp, genericArguments[i]);
+					AddAttributes(genericArguments[i], tp);
 					tp.ApplyInterningProvider(interningProvider);
 				}
 			}

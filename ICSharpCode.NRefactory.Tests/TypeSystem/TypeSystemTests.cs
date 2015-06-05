@@ -1500,5 +1500,13 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			var inner2MyAttr = attributedInner2.Attributes.Single(a => a.AttributeType.Name == "MyAttribute");
 			Assert.AreEqual(myAttribute2, inner2MyAttr.AttributeType);
 		}
+		
+		[Test]
+		public void ClassWithAttributeOnTypeParameter()
+		{
+			var tp = GetTypeDefinition(typeof(ClassWithAttributeOnTypeParameter<>)).TypeParameters.Single();
+			var attr = tp.Attributes.Single();
+			Assert.AreEqual("DoubleAttribute", attr.AttributeType.Name);
+		}
 	}
 }
