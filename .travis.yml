@@ -4,5 +4,7 @@ install:
   - git clone git://github.com/jbevain/cecil.git ../cecil
   - git clone git://github.com/mono/ikvm-fork.git ../ikvm
   - pushd ../ikvm && git checkout c9edfe788667d5777e97e3f2fd195080d06dd32c && popd
+  - nuget install NUnit.Runners -Version 2.6.4 -OutputDirectory testrunner
 script:
   - xbuild /p:Configuration=Debug NRefactory.sln
+  - mono ./testrunner/NUnit.Runners.2.6.4/tools/nunit-console.exe bin/Debug/ICSharpCode.NRefactory.Tests.dll
