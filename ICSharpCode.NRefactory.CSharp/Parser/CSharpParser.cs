@@ -2574,6 +2574,8 @@ namespace ICSharpCode.NRefactory.CSharp
 					}
 					if (p.TypeExpression != null) // lambdas may have no types (a, b) => ...
 						parameterDeclarationExpression.AddChild(ConvertToType(p.TypeExpression), Roles.Type);
+					else if (p is ArglistParameter)
+						parameterDeclarationExpression.AddChild(new PrimitiveType("__arglist"), Roles.Type);
 					if (p.Name != null)
 						parameterDeclarationExpression.AddChild(Identifier.Create(p.Name, Convert(p.Location)), Roles.Identifier);
 					if (p.HasDefaultValue) {

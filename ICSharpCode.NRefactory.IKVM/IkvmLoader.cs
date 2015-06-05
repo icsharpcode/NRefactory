@@ -1097,6 +1097,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			foreach (var p in method.GetParameters ()) {
 				m.Parameters.Add(ReadParameter(p));
 			}
+			if ((method.CallingConvention & CallingConventions.VarArgs) != 0) {
+				m.Parameters.Add(new DefaultUnresolvedParameter(SpecialType.ArgList, string.Empty));
+			}
 
 			// mark as extension method if the attribute is set
 			if (method.IsStatic && HasExtensionAttribute(method)) {
@@ -1223,6 +1226,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			foreach (var p in method.GetParameters ()) {
 				m.Parameters.Add(ReadParameter(p));
+			}
+			if ((method.CallingConvention & CallingConventions.VarArgs) != 0) {
+				m.Parameters.Add(new DefaultUnresolvedParameter(SpecialType.ArgList, string.Empty));
 			}
 
 			FinishReadMember(m, method);
@@ -1436,6 +1442,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			foreach (var par in property.GetIndexParameters ()) {
 				p.Parameters.Add(ReadParameter(par));
+			}
+			if ((property.__CallingConvention & CallingConventions.VarArgs) != 0) {
+				p.Parameters.Add(new DefaultUnresolvedParameter(SpecialType.ArgList, string.Empty));
 			}
 
 			AddAttributes(property, p);

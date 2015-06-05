@@ -1730,8 +1730,10 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			IType resultType;
 			switch (undocumentedExpression.UndocumentedExpressionType) {
 				case UndocumentedExpressionType.ArgListAccess:
-				case UndocumentedExpressionType.ArgList:
 					resultType = resolver.Compilation.FindType(typeof(RuntimeArgumentHandle));
+					break;
+				case UndocumentedExpressionType.ArgList:
+					resultType = SpecialType.ArgList;
 					break;
 				case UndocumentedExpressionType.RefValue:
 					var tre = undocumentedExpression.Arguments.ElementAtOrDefault(1) as TypeReferenceExpression;

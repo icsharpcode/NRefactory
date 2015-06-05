@@ -160,6 +160,12 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		public void MethodWithOptionalNullableParameter(int? x = null) {}
 		public void MethodWithOptionalLongParameter(long x = 1) {}
 		public void MethodWithOptionalNullableLongParameter(long? x = 1) {}
+		public void VarArgsMethod(__arglist) {}
+	}
+	
+	public class VarArgsCtor
+	{
+		public VarArgsCtor(__arglist) {}
 	}
 	
 	[ComImport(), Guid("21B8916C-F28E-11D2-A473-00C04F8EF448"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]

@@ -79,6 +79,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		
 		/// <summary>Intersection of several types</summary>
 		/// <see cref="IntersectionType"/>
-		Intersection
+		Intersection,
+		/// <see cref="SpecialType.ArgList"/>
+		ArgList,
 	}
 }

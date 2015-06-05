@@ -1358,6 +1358,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					m.Parameters.Add(ReadParameter(p));
 				}
 			}
+			if (method.CallingConvention == MethodCallingConvention.VarArg) {
+				m.Parameters.Add(new DefaultUnresolvedParameter(SpecialType.ArgList, string.Empty));
+			}
 			
 			// mark as extension method if the attribute is set
 			if (method.IsStatic && HasExtensionAttribute(method)) {

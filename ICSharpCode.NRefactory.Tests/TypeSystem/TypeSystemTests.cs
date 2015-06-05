@@ -692,6 +692,30 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		}
 		
 		[Test]
+		public void VarArgsMethod()
+		{
+			IParameter p = GetTypeDefinition(typeof(ParameterTests)).Methods.Single(m => m.Name == "VarArgsMethod").Parameters.Single();
+			Assert.IsFalse(p.IsOptional);
+			Assert.IsFalse(p.IsRef);
+			Assert.IsFalse(p.IsOut);
+			Assert.IsFalse(p.IsParams);
+			Assert.AreEqual(TypeKind.ArgList, p.Type.Kind);
+			Assert.AreEqual("", p.Name);
+		}
+		
+		[Test]
+		public void VarArgsCtor()
+		{
+			IParameter p = GetTypeDefinition(typeof(VarArgsCtor)).Methods.Single(m => m.IsConstructor).Parameters.Single();
+			Assert.IsFalse(p.IsOptional);
+			Assert.IsFalse(p.IsRef);
+			Assert.IsFalse(p.IsOut);
+			Assert.IsFalse(p.IsParams);
+			Assert.AreEqual(TypeKind.ArgList, p.Type.Kind);
+			Assert.AreEqual("", p.Name);
+		}
+		
+		[Test]
 		public void GenericDelegate_Variance()
 		{
 			ITypeDefinition type = GetTypeDefinition(typeof(GenericDelegate<,>));

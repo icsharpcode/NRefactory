@@ -44,6 +44,11 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		public readonly static SpecialType Dynamic = new SpecialType(TypeKind.Dynamic, "dynamic", isReferenceType: true);
 		
 		/// <summary>
+		/// Type representing the result of the C# '__arglist()' expression.
+		/// </summary>
+		public readonly static SpecialType ArgList = new SpecialType(TypeKind.ArgList, "__arglist", isReferenceType: null);
+		
+		/// <summary>
 		/// A type used for unbound type arguments in partially parameterized types.
 		/// </summary>
 		/// <see cref="IType.GetNestedTypes(Predicate{ITypeDefinition}, GetMemberOptions)"/>
