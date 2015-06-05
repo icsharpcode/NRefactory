@@ -17,6 +17,12 @@
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
     <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
+  <PropertyGroup Condition=" Exists('..\..\cecil\Test\libs\nunit-2.5.10\nunit.framework.dll') ">
+    <CecilHintPath>..\..\cecil\Test\libs\nunit-2.5.10\nunit.framework.dll</CecilHintPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" Exists('..\..\cecil\Test\libs\nunit-2.6.2\nunit.framework.dll') ">
+    <CecilHintPath>..\..\cecil\Test\libs\nunit-2.6.2\nunit.framework.dll</CecilHintPath>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugType>Full</DebugType>
     <Optimize>False</Optimize>
@@ -87,7 +93,7 @@
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="nunit.framework">
-      <HintPath>..\..\cecil\Test\libs\nunit-2.5.10\nunit.framework.dll</HintPath>
+      <HintPath>$(CecilHintPath)</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
