@@ -236,7 +236,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		
 		public override ISymbolReference ToReference()
 		{
-			var declTypeRef = this.DeclaringType.ToTypeReference();
+			var declType = this.DeclaringType;
+			var declTypeRef = declType != null ? declType.ToTypeReference() : SpecialType.UnknownType;
 			if (IsExplicitInterfaceImplementation && ImplementedInterfaceMembers.Count == 1) {
 				return new ExplicitInterfaceImplementationMemberReference(declTypeRef, ImplementedInterfaceMembers[0].ToReference());
 			} else {
@@ -270,7 +271,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			StringBuilder b = new StringBuilder("[");
 			b.Append(this.SymbolKind);
 			b.Append(' ');
-			if (this.DeclaringType.Kind != TypeKind.Unknown) {
+			if (this.DeclaringType != null) {
 				b.Append(this.DeclaringType.ReflectionName);
 				b.Append('.');
 			}

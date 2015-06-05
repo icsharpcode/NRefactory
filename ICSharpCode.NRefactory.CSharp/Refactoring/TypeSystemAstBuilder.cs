@@ -829,7 +829,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.Name = property.Name;
 			decl.Getter = ConvertAccessor(property.Getter, property.Accessibility, false);
 			decl.Setter = ConvertAccessor(property.Setter, property.Accessibility, true);
-			decl.PrivateImplementationType = GetExcplicitInterfaceType (property);
+			decl.PrivateImplementationType = GetExplicitInterfaceType (property);
 			return decl;
 		}
 		
@@ -846,7 +846,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			decl.Getter = ConvertAccessor(indexer.Getter, indexer.Accessibility, false);
 			decl.Setter = ConvertAccessor(indexer.Setter, indexer.Accessibility, true);
-			decl.PrivateImplementationType = GetExcplicitInterfaceType (indexer);
+			decl.PrivateImplementationType = GetExplicitInterfaceType (indexer);
 			return decl;
 		}
 		
@@ -910,7 +910,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 			}
 			decl.Body = GenerateBodyBlock();
-			decl.PrivateImplementationType = GetExcplicitInterfaceType (method);
+			decl.PrivateImplementationType = GetExplicitInterfaceType (method);
 			return decl;
 		}
 		
@@ -978,7 +978,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		
 		bool NeedsAccessibility(IMember member)
 		{
-			if (member.DeclaringType.Kind == TypeKind.Interface || member.IsExplicitInterfaceImplementation)
+			var declaringType = member.DeclaringType;
+			if ((declaringType != null && declaringType.Kind == TypeKind.Interface) || member.IsExplicitInterfaceImplementation)
 				return false;
 			switch (member.SymbolKind) {
 				case SymbolKind.Constructor:
@@ -1000,7 +1001,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (member.IsStatic) {
 					m |= Modifiers.Static;
 				} else {
-					if (member.IsAbstract && member.DeclaringType.Kind != TypeKind.Interface)
+					var declaringType = member.DeclaringType;
+					if (member.IsAbstract && declaringType != null && declaringType.Kind != TypeKind.Interface)
 						m |= Modifiers.Abstract;
 					if (member.IsOverride)
 						m |= Modifiers.Override;
@@ -1075,7 +1077,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return new NamespaceDeclaration(ns.FullName);
 		}
 
-		AstType GetExcplicitInterfaceType (IMember member)
+		AstType GetExplicitInterfaceType (IMember member)
 		{
 			if (member.IsExplicitInterfaceImplementation) {
 				var baseMember = member.ImplementedInterfaceMembers.FirstOrDefault ();

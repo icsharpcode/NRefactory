@@ -48,8 +48,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			var decl = builder.ConvertEntity(member);
 			if (explicitImplementation) {
 				decl.Modifiers = Modifiers.None;
-				decl.AddChild(builder.ConvertType(member.DeclaringType), EntityDeclaration.PrivateImplementationTypeRole);
-			} else if (member.DeclaringType.Kind == TypeKind.Interface) {
+				decl.AddChild(builder.ConvertType(member.DeclaringType ?? SpecialType.UnknownType), EntityDeclaration.PrivateImplementationTypeRole);
+			} else if (member.DeclaringType != null && member.DeclaringType.Kind == TypeKind.Interface) {
 				decl.Modifiers |= Modifiers.Public;
 			} else {
 				// Remove 'internal' modifier from 'protected internal' members if the override is in a different assembly than the member

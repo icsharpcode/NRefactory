@@ -448,7 +448,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			if (id != null) {
 				CodeExpression target;
 				if (rr != null && rr.Member.IsStatic)
-					target = new CodeTypeReferenceExpression(Convert(rr.Member.DeclaringType));
+					target = new CodeTypeReferenceExpression(Convert(rr.Member.DeclaringType ?? SpecialType.UnknownType));
 				else
 					target = new CodeThisReferenceExpression();
 				
@@ -493,7 +493,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			if (target == null) {
 				if (mrr.Member.IsStatic)
-					target = new CodeTypeReferenceExpression(Convert(mrr.Member.DeclaringType));
+					target = new CodeTypeReferenceExpression(Convert(mrr.Member.DeclaringType ?? SpecialType.UnknownType));
 				else
 					target = new CodeThisReferenceExpression();
 			}

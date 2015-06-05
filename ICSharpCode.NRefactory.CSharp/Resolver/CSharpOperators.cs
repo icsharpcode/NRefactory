@@ -120,7 +120,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			}
 			
 			IType IEntity.DeclaringType {
-				get { return SpecialType.UnknownType; }
+				get { return null; }
 			}
 			
 			IMember IMember.MemberDefinition {

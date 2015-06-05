@@ -130,7 +130,7 @@ namespace ICSharpCode.NRefactory.Analysis
 					symbols.AddRange(member.ImplementedInterfaceMembers);
 				}
 
-				if (member.DeclaringType.Kind == TypeKind.Interface) {
+				if (member.DeclaringTypeDefinition != null && member.DeclaringTypeDefinition.Kind == TypeKind.Interface) {
 					var declaringTypeNode = g.Value.GetNode(member.DeclaringTypeDefinition);
 					if (declaringTypeNode != null) {
 						foreach (var derivedType in declaringTypeNode.DerivedTypes) {

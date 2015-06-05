@@ -87,7 +87,8 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		
 		public override ISymbolReference ToReference()
 		{
-			var declTypeRef = this.DeclaringType.ToTypeReference();
+			var declType = this.DeclaringType;
+			var declTypeRef = declType != null ? declType.ToTypeReference() : SpecialType.UnknownType;
 			if (IsExplicitInterfaceImplementation && ImplementedInterfaceMembers.Count == 1) {
 				return new ExplicitInterfaceImplementationMemberReference(declTypeRef, ImplementedInterfaceMembers[0].ToReference());
 			} else {

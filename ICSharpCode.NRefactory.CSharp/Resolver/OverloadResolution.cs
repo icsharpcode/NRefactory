@@ -944,7 +944,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				throw new InvalidOperationException();
 
 			return new CSharpInvocationResolveResult(
-				this.IsExtensionMethodInvocation ? new TypeResolveResult(member.DeclaringType) : targetResolveResult,
+				this.IsExtensionMethodInvocation ? new TypeResolveResult(member.DeclaringType ?? SpecialType.UnknownType) : targetResolveResult,
 				member,
 				GetArgumentsWithConversions(targetResolveResult, member),
 				this.BestCandidateErrors,

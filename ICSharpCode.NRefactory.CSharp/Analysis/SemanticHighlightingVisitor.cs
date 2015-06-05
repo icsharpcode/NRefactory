@@ -535,7 +535,8 @@ namespace ICSharpCode.NRefactory.CSharp.Analysis
 					return true;
 				case SymbolKind.Constructor:
 				case SymbolKind.Destructor:
-					return TryGetTypeHighlighting (member.DeclaringType.Kind, out color);
+					var declaringType = member.DeclaringType;
+					return TryGetTypeHighlighting (declaringType != null ? declaringType.Kind : TypeKind.Unknown, out color);
 				default:
 					color = default (TColor);
 					return false;

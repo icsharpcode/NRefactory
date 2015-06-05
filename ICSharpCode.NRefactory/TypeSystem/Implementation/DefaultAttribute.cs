@@ -53,7 +53,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 			if (constructor == null)
 				throw new ArgumentNullException("constructor");
 			this.constructor = constructor;
-			this.attributeType = constructor.DeclaringType;
+			this.attributeType = constructor.DeclaringType ?? SpecialType.UnknownType;
 			this.positionalArguments = positionalArguments ?? EmptyList<ResolveResult>.Instance;
 			this.namedArguments = namedArguments ?? EmptyList<KeyValuePair<IMember, ResolveResult>>.Instance;
 			this.region = region;

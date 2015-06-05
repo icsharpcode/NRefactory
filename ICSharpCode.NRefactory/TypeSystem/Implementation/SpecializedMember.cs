@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 					} else {
 						result = new ParameterizedType(definitionDeclaringTypeDef, definitionDeclaringTypeDef.TypeParameters).AcceptVisitor(substitution);
 					}
-				} else {
+				} else if (definitionDeclaringType != null) {
 					result = definitionDeclaringType.AcceptVisitor(substitution);
 				}
 				return LazyInit.GetOrSet(ref this.declaringType, result);
@@ -138,7 +138,6 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 				// This setter is used as an optimization when the code constructing
 				// the SpecializedMember already knows the declaring type.
 				Debug.Assert(this.declaringType == null);
-				Debug.Assert(value != null);
 				// As this setter is used only during construction before the member is published
 				// to other threads, we don't need a volatile write.
 				this.declaringType = value;

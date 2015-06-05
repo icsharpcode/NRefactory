@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				return null;
 
 			var method = (IMethod)((MemberResolveResult)context.Resolve (node)).Member;
-			var type = method.DeclaringType;
+			var type = method.DeclaringType ?? SpecialType.UnknownType;
 
 			// find existing method with the same signature
 			if (type.GetMethods (m => m.Name == node.Name && m.TypeParameters.Count == method.TypeParameters.Count

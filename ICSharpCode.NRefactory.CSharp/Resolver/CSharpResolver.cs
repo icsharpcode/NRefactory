@@ -2252,7 +2252,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 				if (invoke != null) {
 					input = new MethodGroupResolveResult(
 						input, invoke.Name,
-						methods: new[] { new MethodListWithDeclaringType(invoke.DeclaringType) { invoke } },
+						methods: new[] { new MethodListWithDeclaringType(input.Type) { invoke } },
 						typeArguments: EmptyList<IType>.Instance
 					);
 				}

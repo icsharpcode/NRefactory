@@ -203,7 +203,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			TypeSystemAstBuilder astBuilder = CreateAstBuilder();
 			EntityDeclaration node = astBuilder.ConvertEntity(member);
-			if ((ConversionFlags & ConversionFlags.ShowDeclaringType) == ConversionFlags.ShowDeclaringType) {
+			if ((ConversionFlags & ConversionFlags.ShowDeclaringType) == ConversionFlags.ShowDeclaringType && member.DeclaringType != null) {
 				ConvertType(member.DeclaringType, writer, formattingPolicy);
 				writer.WriteToken(Roles.Dot, ".");
 			}

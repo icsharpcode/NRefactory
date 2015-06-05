@@ -613,7 +613,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 			if (invokeResult == null)
 				return Enumerable.Empty<ICompletionData>();
 			if (invokeResult.Member.Name == "ToString")
-				return GetFormatCompletionData(invokeResult.Member.DeclaringType) ?? Enumerable.Empty<ICompletionData>();
+				return GetFormatCompletionData(invokeResult.Member.DeclaringType ?? SpecialType.UnknownType) ?? Enumerable.Empty<ICompletionData>();
 			return Enumerable.Empty<ICompletionData>();
 		}
 

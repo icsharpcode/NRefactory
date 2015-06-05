@@ -46,7 +46,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			arguments = new List<Expression>();
 
 			// Serach for method of type: void Name(string format, params object[] args);
-			if (invocationResolveResult.Member.SymbolKind == SymbolKind.Method) {
+			if (invocationResolveResult.Member.SymbolKind == SymbolKind.Method && invocationResolveResult.Member.DeclaringType != null) {
 				var methods = invocationResolveResult.Member.DeclaringType.GetMethods(m => m.Name == invocationResolveResult.Member.Name).ToList();
 				if (!methods.Any(m => m.Parameters.Count == 2 && 
 					m.Parameters[0].Type.IsKnownType(KnownTypeCode.String) && parameterNames.Contains(m.Parameters[0].Name) && 
