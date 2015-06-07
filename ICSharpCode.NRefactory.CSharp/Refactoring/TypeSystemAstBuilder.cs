@@ -715,7 +715,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			
 			if (this.ShowTypeParameters && this.ShowTypeParameterConstraints) {
-				foreach (ITypeParameter tp in typeDefinition.TypeParameters) {
+				foreach (ITypeParameter tp in typeDefinition.TypeParameters.Skip(outerTypeParameterCount)) {
 					var constraint = ConvertTypeParameterConstraint(tp);
 					if (constraint != null)
 						decl.Constraints.Add(constraint);
@@ -1045,7 +1045,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (!IsObjectOrValueType(t))
 					c.BaseTypes.Add(ConvertType(t));
 			}
-			if (tp.HasDefaultConstructorConstraint) {
+			if (tp.HasDefaultConstructorConstraint && !tp.HasValueTypeConstraint) {
 				c.BaseTypes.Add(new PrimitiveType("new"));
 			}
 			return c;
