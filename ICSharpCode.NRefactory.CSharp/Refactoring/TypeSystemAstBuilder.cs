@@ -777,6 +777,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (ShowAttributes) {
 				decl.Attributes.AddRange (field.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
 			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, field));
+			}
 			decl.ReturnType = ConvertType(field.ReturnType);
 			Expression initializer = null;
 			if (field.IsConst && this.ShowConstantValues)
@@ -814,6 +817,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					}));
 				}
 			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, accessor));
+			}
 			decl.Body = GenerateBodyBlock();
 			return decl;
 		}
@@ -824,6 +830,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.Modifiers = GetMemberModifiers(property);
 			if (ShowAttributes) {
 				decl.Attributes.AddRange (property.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, property));
 			}
 			decl.ReturnType = ConvertType(property.ReturnType);
 			decl.Name = property.Name;
@@ -839,6 +848,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.Modifiers = GetMemberModifiers(indexer);
 			if (ShowAttributes) {
 				decl.Attributes.AddRange (indexer.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, indexer));
 			}
 			decl.ReturnType = ConvertType(indexer.ReturnType);
 			foreach (IParameter p in indexer.Parameters) {
@@ -858,6 +870,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				if (ShowAttributes) {
 					decl.Attributes.AddRange (ev.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
 				}
+				if (AddResolveResultAnnotations) {
+					decl.AddAnnotation(new MemberResolveResult(null, ev));
+				}
 				decl.ReturnType = ConvertType(ev.ReturnType);
 				decl.Name = ev.Name;
 				decl.AddAccessor    = ConvertAccessor(ev.AddAccessor, ev.Accessibility, true);
@@ -868,6 +883,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				decl.Modifiers = GetMemberModifiers(ev);
 				if (ShowAttributes) {
 					decl.Attributes.AddRange (ev.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
+				}
+				if (AddResolveResultAnnotations) {
+					decl.AddAnnotation(new MemberResolveResult(null, ev));
 				}
 				decl.ReturnType = ConvertType(ev.ReturnType);
 				decl.Variables.Add(new VariableInitializer(ev.Name));
@@ -886,6 +904,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				decl.Attributes.AddRange (method.ReturnTypeAttributes.Select ((a) => new AttributeSection (ConvertAttribute (a)) {
 					AttributeTarget = "return"
 				}));
+			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, method));
 			}
 			decl.ReturnType = ConvertType(method.ReturnType);
 			decl.Name = method.Name;
@@ -927,6 +948,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			foreach (IParameter p in op.Parameters) {
 				decl.Parameters.Add(ConvertParameter(p));
 			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, op));
+			}
 			decl.Body = GenerateBodyBlock();
 			return decl;
 		}
@@ -942,6 +966,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			foreach (IParameter p in ctor.Parameters) {
 				decl.Parameters.Add(ConvertParameter(p));
 			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, ctor));
+			}
 			decl.Body = GenerateBodyBlock();
 			return decl;
 		}
@@ -951,6 +978,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			DestructorDeclaration decl = new DestructorDeclaration();
 			if (dtor.DeclaringTypeDefinition != null)
 				decl.Name = dtor.DeclaringTypeDefinition.Name;
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new MemberResolveResult(null, dtor));
+			}
 			decl.Body = GenerateBodyBlock();
 			return decl;
 		}
