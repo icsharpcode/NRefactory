@@ -6,9 +6,9 @@ using System.Collections.Immutable;
 
 namespace ICSharpCode.NRefactory6.CSharp
 {
-	internal static class ImmutableArrayExtensions
+	public static class ImmutableArrayExtensions
 	{
-		internal static ImmutableArray<T> ToImmutableArrayOrEmpty<T>(this IEnumerable<T> items)
+		public static ImmutableArray<T> ToImmutableArrayOrEmpty<T>(this IEnumerable<T> items)
 		{
 			if (items == null)
 			{
@@ -18,7 +18,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 			return ImmutableArray.CreateRange<T>(items);
 		}
 
-		internal static ImmutableArray<T> ToImmutableArrayOrEmpty<T>(this ImmutableArray<T> items)
+		public static ImmutableArray<T> ToImmutableArrayOrEmpty<T>(this ImmutableArray<T> items)
 		{
 			if (items.IsDefault)
 			{
@@ -29,7 +29,7 @@ namespace ICSharpCode.NRefactory6.CSharp
 		}
 
 		// same as Array.BinarySearch but the ability to pass arbitrary value to the comparer without allocation
-		internal static int BinarySearch<TElement, TValue>(this ImmutableArray<TElement> array, TValue value, Func<TElement, TValue, int> comparer)
+		public static int BinarySearch<TElement, TValue>(this ImmutableArray<TElement> array, TValue value, Func<TElement, TValue, int> comparer)
 		{
 			int low = 0;
 			int high = array.Length - 1;
