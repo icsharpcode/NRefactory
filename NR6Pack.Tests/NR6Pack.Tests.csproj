@@ -292,6 +292,7 @@
     <Compile Include="CSharp\Diagnostics\ReplaceWithSingleCallToSingleOrDefaultTests.cs" />
     <Compile Include="CSharp\Diagnostics\ReplaceWithSingleCallToSingleTests.cs" />
     <Compile Include="CSharp\Diagnostics\ReplaceWithStringIsNullOrEmptyTests.cs" />
+    <Compile Include="CSharp\Diagnostics\RewriteIfReturnToReturnTests.cs" />
     <Compile Include="CSharp\Diagnostics\SealedMemberInSealedClassTests.cs" />
     <Compile Include="CSharp\Diagnostics\SimplifyConditionalTernaryExpressionTests.cs" />
     <Compile Include="CSharp\Diagnostics\StaticConstructorParameterTests.cs" />
