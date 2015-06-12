@@ -10,8 +10,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		doc\TODO = doc\TODO
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.Tests", "ICSharpCode.NRefactory.Tests\ICSharpCode.NRefactory6.Tests.csproj", "{A28CDF69-C23E-44D0-87C3-CE72A3E61762}"
-EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NR6Pack", "NR6Pack\NR6Pack.csproj", "{C465A5DC-AD28-49A2-89C0-F81838814A7E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ICSharpCode.NRefactory6.CSharp", "ICSharpCode.NRefactory.CSharp\ICSharpCode.NRefactory6.CSharp.csproj", "{7E891659-45F3-42B5-B940-A728780CCAE9}"
@@ -37,22 +35,6 @@ Global
 		Release|x86 = Release|x86
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Debug|x86.ActiveCfg = Debug|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Debug|x86.Build.0 = Debug|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Debug|Any CPU.ActiveCfg = net_4_5_Debug|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Debug|Any CPU.Build.0 = net_4_5_Debug|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Debug|x86.ActiveCfg = net_4_5_Debug|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Debug|x86.Build.0 = net_4_5_Debug|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Release|Any CPU.ActiveCfg = net_4_5_Release|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Release|Any CPU.Build.0 = net_4_5_Release|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Release|x86.ActiveCfg = net_4_5_Release|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.net_4_5_Release|x86.Build.0 = net_4_5_Release|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Release|x86.ActiveCfg = Release|x86
-		{A28CDF69-C23E-44D0-87C3-CE72A3E61762}.Release|x86.Build.0 = Release|x86
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C465A5DC-AD28-49A2-89C0-F81838814A7E}.Debug|x86.ActiveCfg = Debug|Any CPU
@@ -112,5 +94,7 @@ Global
 		$1.inheritsSet = VisualStudio
 		$1.inheritsScope = text/plain
 		$1.scope = text/plain
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal

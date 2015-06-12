@@ -45,6 +45,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>..\bin\Release</OutputPath>
     <DefineConstants>TRACE;NR6;NET_4_0</DefineConstants>
+    <DocumentationFile>..\bin\Release\ICSharpCode.NRefactory6.CSharp.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -52,6 +53,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>..\bin\Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE;;NR6;NET_4_0</DefineConstants>
+    <DocumentationFile>..\bin\Debug\ICSharpCode.NRefactory6.CSharp.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'net_4_5_Debug' ">
     <Optimize>False</Optimize>
@@ -65,6 +67,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>..\bin\net_4_5_Debug</OutputPath>
     <DefineConstants>DEBUG;TRACE;NR6;NET_4_0;NET_4_5</DefineConstants>
+    <DocumentationFile>..\bin\net_4_5_Debug\ICSharpCode.NRefactory6.CSharp.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'net_4_5_Release' ">
     <Optimize>True</Optimize>
@@ -77,6 +80,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>..\bin\net_4_5_Release</OutputPath>
     <DefineConstants>TRACE;NR6;NET_4_0;NET_4_5</DefineConstants>
+    <DocumentationFile>..\bin\net_4_5_Release\ICSharpCode.NRefactory6.CSharp.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -132,307 +136,7 @@
   <ItemGroup>
     <Compile Include="Properties\GlobalAssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Features\Completion\CompletionResult.cs" />
-    <Compile Include="Features\Completion\DisplayFlags.cs" />
-    <Compile Include="Features\Completion\ICompletionData.cs" />
-    <Compile Include="Features\Completion\ICompletionDataFactory.cs" />
-    <Compile Include="Features\Completion\ISymbolCompletionData.cs" />
-    <Compile Include="Features\IndentEngine\CacheIndentEngine.cs" />
-    <Compile Include="Features\IndentEngine\CSharpIndentEngine.cs" />
-    <Compile Include="Features\IndentEngine\IDocumentIndentEngine.cs" />
-    <Compile Include="Features\IndentEngine\IndentState.cs" />
-    <Compile Include="Features\IndentEngine\IStateMachineIndentEngine.cs" />
-    <Compile Include="Features\IndentEngine\ITextPasteHandler.cs" />
-    <Compile Include="Features\IndentEngine\NullIStateMachineIndentEngine.cs" />
-    <Compile Include="Features\IndentEngine\TextPasteIndentEngine.cs" />
-    <Compile Include="Features\Formatter\FormattingOptionsFactory.cs" />
-    <Compile Include="Features\Formatter\Indent.cs" />
-    <Compile Include="Features\SemanticHighlighting\SemanticHighlightingVisitor.cs" />
-    <Compile Include="Features\Completion\EditorBrowsableBehavior.cs" />
-    <Compile Include="Features\Completion\ContextHandler\CompletionContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\EnumMemberContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\KeywordContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\RoslynRecommendationsCompletionContextHandler.cs" />
-    <Compile Include="Features\Completion\CompletionEngine.cs" />
-    <Compile Include="Features\ParameterHinting\ParameterHintingEngine.cs" />
-    <Compile Include="Features\ParameterHinting\ParameterHintingResult.cs" />
-    <Compile Include="Features\ParameterHinting\IParameterHintingData.cs" />
-    <Compile Include="Features\ParameterHinting\IParameterHintingDataFactory.cs" />
-    <Compile Include="Features\ParameterHinting\ParameterUtil.cs" />
-    <Compile Include="Features\Completion\ICompletionCategory.cs" />
-    <Compile Include="Features\Completion\CompletionTriggerReason.cs" />
-    <Compile Include="Features\Completion\CompletionTriggerInfo.cs" />
-    <Compile Include="Features\Completion\CompletionContext.cs" />
-    <Compile Include="Features\Completion\ContextHandler\ExternAliasContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\OverrideContextHandler.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AbstractKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AbstractSyntacticSingleKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AddKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AliasKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AscendingKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AsKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AssemblyKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AsyncKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\AwaitKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\BaseKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\BoolKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\BreakKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ByKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ByteKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\CaseKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\CatchKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\CharKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\CheckedKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ChecksumKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ClassKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ConstKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ContinueKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DecimalKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DefaultKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DefineKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DelegateKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DescendingKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DisableKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DoKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DoubleKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\DynamicKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ElifKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ElseKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\EndIfKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\EndRegionKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\EnumKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\EqualsKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ErrorKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\EventKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ExplicitKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ExternKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\FalseKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\FieldKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\FinallyKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\FixedKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\FloatKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ForEachKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ForKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\FromKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\GetKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\GlobalKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\GotoKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\GroupKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\HiddenKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\IfKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ImplicitKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\InKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\InterfaceKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\InternalKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\IntKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\IntoKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\IsKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\JoinKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\LetKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\LineKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\LockKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\LongKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\MethodKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ModuleKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\NameOfKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\NamespaceKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\NewKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\NullKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ObjectKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\OnKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\OperatorKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\OrderByKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\OutKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\OverrideKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ParamKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ParamsKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\PartialKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\PragmaKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\PrivateKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\PropertyKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ProtectedKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\PublicKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ReadOnlyKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ReferenceKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\RefKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\RegionKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\RemoveKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\RestoreKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ReturnKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\SByteKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\SealedKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\SelectKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\SetKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ShortKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\SizeOfKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\StackAllocKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\StaticKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\StringKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\StructKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\SwitchKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ThisKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ThrowKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\TrueKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\TryKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\TypeKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\TypeOfKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\TypeVarKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\UIntKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\ULongKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\UncheckedKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\UndefKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\UnsafeKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\UShortKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\UsingKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\VarKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\VirtualKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\VoidKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\VolatileKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\WarningKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\WhenKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\WhereKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\WhileKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\KeywordRecommender\YieldKeywordRecommender.cs" />
-    <Compile Include="Features\Completion\ContextHandler\XmlDocCommentContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\ExplicitInterfaceContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\AttributeNamedParameterContextHandler.cs" />
-    <Compile Include="Features\Completion\ICompletionKeyHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\NamedParameterContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\SpeculativeTContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\SnippetContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\ObjectInitializerContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\FormatItemContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\SpeculativeNameContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\DelegateCreationContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\ObjectCreationContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\CastCompletionContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\SenderCompletionContextHandler.cs" />
-    <Compile Include="Features\Formatter\FormattingRangeHelper.cs" />
-    <Compile Include="Features\Formatter\FormattingHelpers.cs" />
-    <Compile Include="Features\Formatter\CommonFormattingHelpers.cs" />
-    <Compile Include="Features\Formatter\CSharpEditorFormattingService.cs" />
-    <Compile Include="Features\ExtractMethod\AbstractExtractMethodService.cs" />
-    <Compile Include="Features\ExtractMethod\AbstractSyntaxTriviaService.cs" />
-    <Compile Include="Features\ExtractMethod\AbstractSyntaxTriviaService.Result.cs" />
-    <Compile Include="Features\ExtractMethod\Enums.cs" />
-    <Compile Include="Features\ExtractMethod\Extensions.cs" />
-    <Compile Include="Features\ExtractMethod\ExtractMethodMatrix.cs" />
-    <Compile Include="Features\ExtractMethod\ExtractMethodOptions.cs" />
-    <Compile Include="Features\ExtractMethod\ExtractMethodResult.cs" />
-    <Compile Include="Features\ExtractMethod\ExtractMethodService.cs" />
-    <Compile Include="Features\ExtractMethod\FailedExtractMethodResult.cs" />
-    <Compile Include="Features\ExtractMethod\IExtractMethodService.cs" />
-    <Compile Include="Features\ExtractMethod\InsertionPoint.cs" />
-    <Compile Include="Features\ExtractMethod\ISyntaxTriviaService.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.Analyzer.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.Analyzer.SymbolMapBuilder.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.AnalyzerResult.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.CodeGenerator.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.GeneratedCode.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.TriviaResult.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.TypeParameterCollector.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.VariableInfo.cs" />
-    <Compile Include="Features\ExtractMethod\MethodExtractor.VariableSymbol.cs" />
-    <Compile Include="Features\ExtractMethod\OperationStatus.cs" />
-    <Compile Include="Features\ExtractMethod\OperationStatus_Statics.cs" />
-    <Compile Include="Features\ExtractMethod\OperationStatus`1.cs" />
-    <Compile Include="Features\ExtractMethod\ParameterStyle.cs" />
-    <Compile Include="Features\ExtractMethod\ReturnStyle.cs" />
-    <Compile Include="Features\ExtractMethod\SelectionResult.cs" />
-    <Compile Include="Features\ExtractMethod\SelectionValidator.cs" />
-    <Compile Include="Features\ExtractMethod\SelectionValidator.NullSelectionResult.cs" />
-    <Compile Include="Features\ExtractMethod\SimpleExtractMethodResult.cs" />
-    <Compile Include="Features\ExtractMethod\UniqueNameGenerator.cs" />
-    <Compile Include="Features\ExtractMethod\VariableStyle.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpExtractMethodService.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.Analyzer.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.CallSiteContainerRewriter.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.ExpressionCodeGenerator.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.MultipleStatementsCodeGenerator.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.CSharpCodeGenerator.SingleStatementCodeGenerator.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.FormattingProvider.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.PostProcessor.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpMethodExtractor.TriviaResult.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionResult.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionResult.ExpressionResult.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionResult.StatementResult.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionValidator.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSelectionValidator.Validator.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSyntaxTriviaService.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\CSharpSyntaxTriviaServiceFactory.cs" />
-    <Compile Include="Features\ExtractMethod\CSharp\Extensions.cs" />
-    <Compile Include="Features\GotoDefinition\GotoDefinitionHelpers.cs" />
-    <Compile Include="Features\GotoDefinition\GotoDefinitionService.cs" />
-    <Compile Include="Features\GenerateFromMembers\GenerateConstructor\GenerateConstructorResult.cs" />
-    <Compile Include="Features\GenerateFromMembers\GenerateConstructor\AbstractGenerateConstructorService.cs" />
-    <Compile Include="Features\GenerateFromMembers\AbstractGenerateFromMembersService.cs" />
-    <Compile Include="Features\GenerateFromMembers\AbstractCodeRefactoringResult.cs" />
-    <Compile Include="Features\GenerateFromMembers\GenerateConstructor\CSharpGenerateConstructorService.cs" />
-    <Compile Include="Features\GenerateFromMembers\GenerateFromMembersHelpers.cs" />
-    <Compile Include="Features\GenerateMember\GenerateConstructor\AbstractGenerateConstructorService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateConstructor\GenerateConstructorHelpers.cs" />
-    <Compile Include="Features\GenerateMember\GenerateConstructor\CSharpGenerateConstructorService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateEnumMember\AbstractGenerateEnumMemberService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateEnumMember\CSharpGenerateEnumMemberService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\AbstractGenerateDefaultConstructorsService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\GenerateDefaultConstructorsResult.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\AbstractGenerateConversionService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\AbstractGenerateMethodService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\AbstractGenerateParameterizedMemberService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\MethodGenerationKind.cs" />
-    <Compile Include="Features\GenerateMember\GenerateVariable\AbstractGenerateVariableService.cs" />
-    <Compile Include="Features\GenerateMember\AbstractGenerateMemberService.cs" />
-    <Compile Include="Features\GenerateMember\AbstractCodeRefactoringResult.cs" />
     <Compile Include="Resources.cs" />
-    <Compile Include="Features\GenerateMember\GenerateDefaultConstructors\CSharpGenerateDefaultConstructorsService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpCommonGenerationServiceMethods.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateConversionService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateMethodService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateParameterizedMember\CSharpGenerateParameterizedMemberService.cs" />
-    <Compile Include="Features\GenerateMember\GenerateVariable\CSharpGenerateVariableService.cs" />
-    <Compile Include="Features\GenerateType\TypeKindOptions.cs" />
-    <Compile Include="Features\GenerateType\GenerateTypeOptionsResult.cs" />
-    <Compile Include="Features\GenerateType\AbstractGenerateTypeService.cs" />
-    <Compile Include="Features\GenerateType\GenerateTypeDialogOptions.cs" />
-    <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.cs" />
-    <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.Editor.cs" />
-    <Compile Include="Features\ImplementAbstractClass\AbstractImplementAbstractClassService.State.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Method.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Property.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.DisposePatternCodeAction.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.State.cs" />
-    <Compile Include="Features\ImplementInterface\AbstractImplementInterfaceService.CodeAction_Conflicts.cs" />
-    <Compile Include="Features\ImplementAbstractClass\CSharpImplementAbstractClassService.cs" />
-    <Compile Include="Features\ImplementInterface\CSharpImplementInterfaceService.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.cs" />
-    <Compile Include="Features\IntroduceVariable\IntroduceVariableResult.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.AbstractIntroduceVariableCodeAction.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Query.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Parameter.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Field.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_ConstructorInitializer.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Block.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State_Attribute.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.State.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.IntroduceVariableAllOccurrenceCodeAction.cs" />
-    <Compile Include="Features\IntroduceVariable\AbstractIntroduceVariableService.CodeAction.cs" />
-    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService.cs" />
-    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService.Rewriter.cs" />
-    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceField.cs" />
-    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceLocal.cs" />
-    <Compile Include="Features\IntroduceVariable\CSharpIntroduceVariableService_IntroduceQueryLocal.cs" />
-    <Compile Include="Features\GenerateType\CSharpGenerateTypeService.cs" />
-    <Compile Include="Features\OrganizeImports\CSharpOrganizeImportsService.cs" />
-    <Compile Include="Features\OrganizeImports\CSharpOrganizeImportsService.Rewriter.cs" />
-    <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.cs" />
-    <Compile Include="Features\RemoveUnnecessaryImports\CSharpRemoveUnnecessaryImportsService.Rewriter.cs" />
-    <Compile Include="Features\Completion\ContextHandler\PartialContextHandler.cs" />
-    <Compile Include="Features\Completion\ContextHandler\PreProcessorExpressionContextHandler.cs" />
     <Compile Include="Util\7BitEncodedInts.cs" />
     <Compile Include="Util\CloneableStack.cs" />
     <Compile Include="Util\CSharpSemanticFactsService.cs" />
@@ -466,12 +170,7 @@
     <Folder Include="Util\ContextQuery\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Features\FrameworkLookup\FrameworkLookup.cs" />
     <None Include="packages.config" />
-    <None Include="Features\EncapsulateField\AbstractEncapsulateFieldRefactoringProvider.cs" />
-    <None Include="Features\EncapsulateField\AbstractEncapsulateFieldService.cs" />
-    <None Include="Features\EncapsulateField\EncapsulateFieldCodeAction.cs" />
-    <None Include="Features\EncapsulateField\EncapsulateFieldResult.cs" />
   </ItemGroup>
   <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
