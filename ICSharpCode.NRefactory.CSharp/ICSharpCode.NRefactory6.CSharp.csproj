@@ -141,7 +141,6 @@
     <Compile Include="Util\CloneableStack.cs" />
     <Compile Include="Util\CSharpSemanticFactsService.cs" />
     <Compile Include="Util\CSharpSyntaxFactsService.cs" />
-    <Compile Include="Util\DeclaredSymbolInfo.cs" />
     <Compile Include="Util\EnumValueUtilities.cs" />
     <Compile Include="Util\FastSerializer.cs" />
     <Compile Include="Util\FormatStringHelper.cs" />
