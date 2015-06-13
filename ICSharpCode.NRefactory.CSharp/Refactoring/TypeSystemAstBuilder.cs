@@ -691,6 +691,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (ShowAttributes) {
 				decl.Attributes.AddRange (typeDefinition.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
 			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new TypeResolveResult(typeDefinition));
+			}
 			decl.Name = typeDefinition.Name;
 			
 			int outerTypeParameterCount = (typeDefinition.DeclaringTypeDefinition == null) ? 0 : typeDefinition.DeclaringTypeDefinition.TypeParameterCount;
