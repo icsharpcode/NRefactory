@@ -63,7 +63,7 @@ class TestClass
 	}
 }";
 
-            Analyze<RewriteIfReturnToReturnAnalyzer>(input, output, 1);
+            Analyze<RewriteIfReturnToReturnAnalyzer>(input, output,1,1);
         }        
 
     }
