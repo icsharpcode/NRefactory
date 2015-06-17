@@ -21,7 +21,51 @@ class TestClass
 	}
 }";
 
+            Analyze<RewriteIfReturnToReturnAnalyzer>(input, null, 1);
+        }
+
+
+        [Test]
+        public void When_Return_Value_Correctly()
+        {
+            var input = @"
+class TestClass
+{
+	bool TestMethod (object obj)
+	{
+        return obj!= null
+	}
+}";
+
             Analyze<RewriteIfReturnToReturnAnalyzer>(input, null, 0);
         }
+
+        [Test]
+        public void When_Return_Statement_Corrected()
+        {
+            var input = @"
+class TestClass
+{
+	bool TestMethod (object obj)
+	{
+        if (obj != null)
+            return true;
+        return false;
+	}
+}";
+
+            var output = @"
+class TestClass
+{
+	bool TestMethod (object obj)
+	{
+        return obj!= null
+	}
+}";
+
+            Analyze<RewriteIfReturnToReturnAnalyzer>(input, output, 1);
+        }        
+
     }
+
 }
