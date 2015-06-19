@@ -3,7 +3,7 @@ using ICSharpCode.NRefactory6.CSharp.Refactoring;
 using NUnit.Framework;
 
 namespace NR6Pack.Tests.CSharp.Diagnostics
-{
+{ 
     [TestFixture]
     public class RewriteIfReturnToReturnTests : InspectionActionTestBase
     {
