@@ -43,7 +43,6 @@ using Microsoft.CodeAnalysis.FindSymbols;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[DiagnosticAnalyzer(LanguageNames.CSharp)]
-    [NotPortedYet]
     public class RedundantDelegateCreationAnalyzer : DiagnosticAnalyzer
 	{
 		static readonly DiagnosticDescriptor descriptor = new DiagnosticDescriptor (
@@ -61,26 +60,55 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 
 		public override void Initialize(AnalysisContext context)
 		{
-			//context.RegisterSyntaxNodeAction(
-			//	(nodeContext) => {
-			//		Diagnostic diagnostic;
-			//		if (TryGetDiagnostic (nodeContext, out diagnostic)) {
-			//			nodeContext.ReportDiagnostic(diagnostic);
-			//		}
-			//	}, 
-			//	new SyntaxKind[] { SyntaxKind.None }
-			//);
-		}
+            context.RegisterSyntaxNodeAction(
+                (nodeContext) =>
+                {
+                    Diagnostic diagnostic;
+                    if (TryGetDiagnostic(nodeContext, out diagnostic))
+                    {
+                        nodeContext.ReportDiagnostic(diagnostic);
+                    }
+                },
+                new SyntaxKind[] { SyntaxKind.SimpleAssignmentExpression }
+            );
+        }
 
-		static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
+        static bool TryGetDiagnostic (SyntaxNodeAnalysisContext nodeContext, out Diagnostic diagnostic)
 		{
 			diagnostic = default(Diagnostic);
 			if (nodeContext.IsFromGeneratedCode())
 				return false;
-			//var node = nodeContext.Node as ;
-			//diagnostic = Diagnostic.Create (descriptor, node.GetLocation ());
-			//return true;
-			return false;
+            var assignmentExpression = nodeContext.Node as AssignmentExpressionSyntax ;
+            var semanticModel = nodeContext.SemanticModel;
+            if (assignmentExpression != null
+                && (!assignmentExpression.OperatorToken.IsKind(SyntaxKind.AddAssignmentExpression)
+                    && !assignmentExpression.OperatorToken.IsKind(SyntaxKind.SubtractAssignmentExpression)))
+            {
+                return false;
+            }
+
+            var oce = assignmentExpression?.Right as ObjectCreationExpressionSyntax;
+
+            if (oce == null || oce.ArgumentList.Arguments.Count != 1)
+                return false;
+
+            var leftSymbol = semanticModel.GetSymbolInfo(assignmentExpression.Left).Symbol as ITypeSymbol;
+            if (leftSymbol == null || leftSymbol.Kind != SymbolKind.Event)
+            {
+                return false;
+            }
+
+            var rightSymbol = semanticModel.GetSymbolInfo(assignmentExpression.Right).Symbol as ITypeSymbol;
+            var leftTypeInfo = semanticModel.GetTypeInfo(assignmentExpression).ConvertedType;
+            var rightTypeInfo =semanticModel.GetTypeInfo(assignmentExpression).ConvertedType;
+            if (rightSymbol == null || rightSymbol.Kind != SymbolKind.ErrorType || leftTypeInfo == null || rightTypeInfo == null ||
+                leftTypeInfo.Equals(rightTypeInfo))
+            {
+                return false;
+            }
+
+            diagnostic = Diagnostic.Create(descriptor, assignmentExpression.GetLocation());
+            return true;
 		}
 
 //		class GatherVisitor : GatherVisitorBase<RedundantDelegateCreationAnalyzer>

@@ -30,13 +30,12 @@ using NUnit.Framework;
 namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 {
 	[TestFixture]
-	[Ignore("TODO: Issue not ported yet")]
 	public class RedundantDelegateCreationTests : InspectionActionTestBase
 	{
 		[Test]
 		public void TestAdd ()
 		{
-			Test<RedundantDelegateCreationAnalyzer>(@"
+		    var input = @"
 using System;
 
 public class FooBase
@@ -51,7 +50,8 @@ public class FooBase
 	void HandleChanged(object sender, EventArgs e)
 	{
 	}
-}", @"
+}";
+            var output = @"
 using System;
 
 public class FooBase
@@ -66,13 +66,14 @@ public class FooBase
 	void HandleChanged(object sender, EventArgs e)
 	{
 	}
-}");
-		}
+}";
+            Analyze<RedundantDelegateCreationAnalyzer>(input, null, 1);
+        }
 
-		[Test]
+        [Test]
 		public void TestRemove ()
-		{
-			Test<RedundantDelegateCreationAnalyzer>(@"
+        {
+            var input = @"
 using System;
 
 public class FooBase
@@ -87,7 +88,8 @@ public class FooBase
 	void HandleChanged(object sender, EventArgs e)
 	{
 	}
-}", @"
+}";
+            var output = @"
 using System;
 
 public class FooBase
@@ -102,10 +104,12 @@ public class FooBase
 	void HandleChanged(object sender, EventArgs e)
 	{
 	}
-}");
-		}
+}";
+            Analyze<RedundantDelegateCreationAnalyzer>(input, null, 1);
 
-		[Test]
+        }
+
+        [Test]
 		public void TestDisable ()
 		{
 			Analyze<RedundantDelegateCreationAnalyzer>(@"
@@ -125,7 +129,7 @@ public class FooBase
 	{
 	}
 }");
-		}
-	}
+        }
+    }
 }
 
