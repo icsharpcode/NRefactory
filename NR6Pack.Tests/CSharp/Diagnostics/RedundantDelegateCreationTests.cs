@@ -125,7 +125,7 @@ public class FooBase
 		Changed += new EventHandler<EventArgs>(HandleChanged);
 	}
 
-	void HandleChanged(object sender, EventArgs e)
+	void HandleChanged(object sender, EventArgs ec) 
 	{
 	}
 }");

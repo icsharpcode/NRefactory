@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			helpLinkUri: HelpLink.CreateFor(NRefactoryDiagnosticIDs.RedundantDelegateCreationAnalyzerID),
 			customTags: DiagnosticCustomTags.Unnecessary
 		);
-
+         
 		public override ImmutableArray<DiagnosticDescriptor> SupportedDiagnostics => ImmutableArray.Create (descriptor);
 
 		public override void Initialize(AnalysisContext context)
