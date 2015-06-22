@@ -735,7 +735,7 @@ class TestClass
 			Console.WriteLine ();
 		}
 	}
-}";
+}"; 
 
 			Test<LockThisAnalyzer> (input, 1, output);
 		}

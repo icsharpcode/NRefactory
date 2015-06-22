@@ -61,4 +61,4 @@ namespace ICSharpCode.NRefactory6.CSharp.Diagnostics
 			context.RegisterCodeFix(CodeActionFactory.Create(node.Span, diagnostic.Severity, diagnostic.GetMessage(), document.WithSyntaxRoot(newRoot)), diagnostic);
 		}
 	}
-}
+} 

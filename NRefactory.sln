@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.22823.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DC98210E-1646-483B-819A-2BB8272461E4}"
 	ProjectSection(SolutionItems) = preProject
@@ -21,7 +21,6 @@ EndProject
 Global
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
 		ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems*{5ad3093f-f79d-4014-b197-27d09492c3e3}*SharedItemsImports = 13
-		ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems*{c465a5dc-ad28-49a2-89c0-f81838814a7e}*SharedItemsImports = 4
 		ICSharpCode.NRefactory6.Shared\ICSharpCode.NRefactory6.Shared.projitems*{7e891659-45f3-42b5-b940-a728780ccae9}*SharedItemsImports = 4
 	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -94,7 +93,5 @@ Global
 		$1.inheritsSet = VisualStudio
 		$1.inheritsScope = text/plain
 		$1.scope = text/plain
-	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
 	EndGlobalSection
 EndGlobal
