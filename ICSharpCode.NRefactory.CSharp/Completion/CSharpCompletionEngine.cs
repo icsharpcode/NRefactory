@@ -1948,7 +1948,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 					}
 
 					if (addType != null) {
-						var a2 = onlyAddConstructors ? wrapper.AddConstructors(addType, false, IsAttributeContext(node)) : wrapper.AddType(addType, false);
+						var a2 = onlyAddConstructors ? wrapper.AddConstructors(addType, false, IsAttributeContext(node)) : wrapper.AddType(addType, false, IsAttributeContext(node));
 						if (a2 != null && callback != null) {
 							callback(a2, type);
 						}

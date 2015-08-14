@@ -1377,6 +1377,28 @@ class Test {
 			Assert.IsNotNull (provider.Find ("Obsolete"), "attribute 'Obsolete' not found.");
 			Assert.IsNotNull (provider.Find ("Serializable"), "attribute 'Serializable' not found.");
 		}
+
+		[Test()]
+		public void TestAttributeContextBug ()
+		{
+			var provider = CodeCompletionBugTests.CreateProvider (@"
+using System;
+
+namespace AttrCompletionTest
+{
+	class SomeAttribute : Attribute
+	{
+	}
+
+	class Test {
+		$[O$
+	}
+}
+");
+			Assert.IsNotNull (provider, "provider == null");
+			Assert.IsNotNull (provider.Find ("Obsolete"), "attribute 'Obsolete' not found.");
+			Assert.IsNotNull (provider.Find ("Some"), "attribute 'Serializable' not found.");
+		}
 		
 		[Test()]
 		public void TestAttributeInNonAttributeContext ()
