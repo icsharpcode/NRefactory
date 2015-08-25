@@ -15,7 +15,6 @@
     <WarningLevel>4</WarningLevel>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
-    <UseMSBuildEngine>False</UseMSBuildEngine>
   </PropertyGroup>
   <PropertyGroup Condition=" Exists('..\..\cecil\Test\libs\nunit-2.5.10\nunit.framework.dll') ">
     <CecilHintPath>..\..\cecil\Test\libs\nunit-2.5.10\nunit.framework.dll</CecilHintPath>
