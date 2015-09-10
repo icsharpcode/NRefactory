@@ -174,6 +174,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				MinimumBlankLinesBeforeUsings = 0,
 				MinimumBlankLinesAfterUsings = 1,
 				UsingPlacement = UsingPlacement.TopOfFile,
+                AlphabeticalSortUsing = false,
 				
 				MinimumBlankLinesBeforeFirstDeclaration = 0,
 				MinimumBlankLinesBetweenTypes = 1,
