@@ -35,7 +35,7 @@
     <DefineConstants>TRACE;FULL_AST;NET_4_0</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>none</DebugType>
+    <DebugType>pdbonly</DebugType>
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
     <OutputPath>..\bin\Release\</OutputPath>
     <WarningLevel>4</WarningLevel>
