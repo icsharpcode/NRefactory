@@ -1,67 +1,62 @@
-﻿Overview of the NRefactory library:
+# ﻿Overview of the NRefactory library
 
-Introductory documentation:
-	 http://www.codeproject.com/Articles/408663/Using-NRefactory-for-analyzing-Csharp-code
+### Introductory documentation
+>[Documentation on CodeProject](http://www.codeproject.com/Articles/408663/Using-NRefactory-for-analyzing-Csharp-code)
 
-How to download:
-	- Binaries are provided as a NuGet package (http://nuget.org/packages/ICSharpCode.NRefactory)
-	- Sourcecode is available on GitHub (https://github.com/icsharpcode/NRefactory)
+### How to download
+- Binaries are provided as a [NuGet package](http://nuget.org/packages/ICSharpCode.NRefactory, NRefactory Nuget)
+- Sourcecode is available on [GitHub respository](https://github.com/icsharpcode/NRefactory, github repository of NRefactory)
 
-How to compile:
-	1. Get Mono.Cecil
-		Get Cecil from https://github.com/jbevain/cecil ('git clone git://github.com/jbevain/cecil.git')
-		or download Cecil from https://github.com/jbevain/cecil/ and unzip it into a directory named "cecil"
-		next to the directory containing NRefactory.
-	2. If you need the IKVM binding get it from https://github.com/mono/ikvm-fork and put it next to the NRefactory directory
-		like Mono.Cecil - name it "ikvm".
-	3. Open NRefactory.sln in your favorite .NET IDE and compile.
+### How to compile:
+1. [Get Mono.Cecil](https://github.com/jbevain/cecil, 'git clone git://github.com/jbevain/cecil.git')
+or [Download Cecil](https://github.com/jbevain/cecil/) and unzip it into a directory named "cecil"
+next to the directory containing NRefactory.
+2. If you need the IKVM binding [get it](https://github.com/mono/ikvm-fork, 'download ikvm fork') and put it next to the NRefactory directory like Mono.Cecil - name it "ikvm".
+3. Open NRefactory.sln in your favorite .NET IDE and compile.
 
-Features:
-	- C# Parser
-	- Abstract Syntax Tree with pattern-matching support
-	- Semantic Analysis for C# (supports C# 5.0)
-	- Code Completion for C#
-	- Pretty Printer for C#
-	- Lots of C# refactorings
+#### Features
+- C# Parser
+- Abstract Syntax Tree with pattern-matching support
+- Semantic Analysis for C# (supports C# 5.0)
+- Code Completion for C#
+- Pretty Printer for C#
+- Lots of C# refactorings
 	
-Non-Features:
-	- VB support is not implemented yet.
-	- NRefactory cannot generate IL code -- it's a compiler frontend, not a full compiler
+#### Non-Features
+- VB support is not implemented yet.
+- NRefactory cannot generate IL code -- it's a compiler frontend, not a full compiler
 
-Dependencies:
-	.NET 4.0
-	Mono.Cecil 0.9.5
-	NRefactory contains a modified copy of mcs (Mono's C# compiler) for the C# parser.
+#### Dependencies
+- .NET 4.0
+- Mono.Cecil 0.9.5
+- NRefactory contains a modified copy of mcs (Mono's C# compiler) for the C# parser.
 
 
-Namespace overview:
+### Namespace overview
 
-ICSharpCode.NRefactory assembly
-	ICSharpCode.NRefactory.Editor:
-		Interfaces that abstract from the text editor control used.
+**ICSharpCode.NRefactory assembly**
+
+  *ICSharpCode.NRefactory.Editor*: Interfaces that abstract from the text editor control used.
 		Maybe future AvalonEdit versions will directly implement these interfaces, but you could also write adapters for other editors.
 	
-	ICSharpCode.NRefactory.TypeSystem:
-		Contains a language-independent representation of the .NET type system.
-		The type system is divided into two portions: unresolved and resolved type systems.
+*ICSharpCode.NRefactory.TypeSystem*: Contains a language-independent representation of the .NET type system.
+The type system is divided into two portions: unresolved and resolved type systems.
 	
-	ICSharpCode.NRefactory.TypeSystem.Implementation:
-		Contains default implementations for the type system interfaces.
+..* *ICSharpCode.NRefactory.TypeSystem.Implementation*: Contains default implementations for the type system interfaces.
 	
-	ICSharpCode.NRefactory.Semantics:
-		Contains classes (ResolveResults) used to represent the semantics of a language element.
-		ResolveResults can have child results, thus forming semantic trees.
+..* *ICSharpCode.NRefactory.Semantics*: Contains classes (ResolveResults) used to represent the semantics of a language element.
+...ResolveResults can have child results, thus forming semantic trees.
 	
-	ICSharpCode.NRefactory.Documentation:
-		Classes for working with .xml documentation files.
-		See "doc/XML Documentation.html" for details.
+..* *ICSharpCode.NRefactory.Documentation*:
+...Classes for working with .xml documentation files.
+...See "doc/XML Documentation.html" for details.
 	
-	ICSharpCode.NRefactory.PatternMatching:
-		Provides classes for pattern matching over the C# and VB ASTs.
-		See "doc/Pattern Matching.html" for details.
+..* *ICSharpCode.NRefactory.PatternMatching*:
+...Provides classes for pattern matching over the C# and VB ASTs.
+...See "doc/Pattern Matching.html" for details.
 	
-	ICSharpCode.NRefactory.Util:
-		Various helper classes.
+..* *ICSharpCode.NRefactory.Util*:
+...Various helper classes.
 
 
 ICSharpCode.NRefactory.CSharp assembly
@@ -117,22 +112,23 @@ Null-Object pattern:
 	child node with that role exists. Check the IsNull property to test whether a node is a null node.
 	Null nodes are not considered to be part of the AST (e.g. they don't have a parent).
 
-FAQ:
-Q:  What is the difference between NRefactory and Roslyn?
-	- NRefactory is ready and stable, Roslyn is only a CTP at this point of time.
-	- NRefactory does not have VB support.
-	- NRefactory cannot compile code to IL; it's not a full compiler, just a frontend.
-	- NRefactory C# AST is mutable and supports pattern matching; Roslyn is immutable and does not have built-in pattern matching.
+#### FAQ:
+**Q:  What is the difference between NRefactory and Roslyn?**
 
-Q:	What is the difference between types and type definitions?
+- NRefactory is ready and stable, Roslyn is only a CTP at this point of time.
+- NRefactory does not have VB support.
+- NRefactory cannot compile code to IL; it's not a full compiler, just a frontend.
+- NRefactory C# AST is mutable and supports pattern matching; Roslyn is immutable and does not have built-in pattern matching.
 
-A:	Basically, a type (IType) is any type in the .NET type system:
-		- an array (ArrayType)
-		- a pointer (PointerType)
-		- a managed reference (ByReferenceType)
-		- a parameterized type (ParameterizedType, e.g. List<int>)
-		- a type parameter (ITypeParameter, e.g. T)
-		- or a type definition (ITypeDefiniton)
+**Q:	What is the difference between types and type definitions?**
+
+**A:**	Basically, a type (IType) is any type in the .NET type system:
+- an array (ArrayType)
+- a pointer (PointerType)
+- a managed reference (ByReferenceType)
+- a parameterized type (ParameterizedType, e.g. List<int>)
+- a type parameter (ITypeParameter, e.g. T)
+- or a type definition (ITypeDefiniton)
 	
 	Type definitions are only classes, structs, enums and delegates.
 	Every type definition is a type, but not every type is a type definition.
