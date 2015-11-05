@@ -20,6 +20,8 @@ using IKVM.Reflection.Emit;
 using System.Reflection.Emit;
 #endif
 
+using Mono.PlayScript;
+
 namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	//
@@ -57,9 +59,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return false;
 
 			if (isExplicit)
-				return ExplicitReferenceConversionExists (array.Element, arg_type);
+				return ExplicitReferenceConversionExists (array.Element, arg_type, null);
 
-			return ImplicitReferenceConversionExists (array.Element, arg_type);
+			return ImplicitReferenceConversionExists (array.Element, arg_type, null, false);
 		}
 		
 		static bool IList_To_Array(TypeSpec list, ArrayContainer array)
@@ -71,7 +73,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (array.Element == arg_type)
 				return true;
 			
-			return ImplicitReferenceConversionExists (array.Element, arg_type) || ExplicitReferenceConversionExists (array.Element, arg_type);
+			return ImplicitReferenceConversionExists (array.Element, arg_type, null, false) || ExplicitReferenceConversionExists (array.Element, arg_type, null);
 		}
 
 		public static Expression ImplicitTypeParameterConversion (Expression expr, TypeParameterSpec expr_type, TypeSpec target_type)
@@ -168,7 +170,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return null;
 		}
 
-		public static Expression ImplicitReferenceConversion (Expression expr, TypeSpec target_type, bool explicit_cast)
+		public static Expression ImplicitReferenceConversion (Expression expr, TypeSpec target_type, bool explicit_cast, ResolveContext opt_ec, bool upconvert_only)
 		{
 			TypeSpec expr_type = expr.Type;
 
@@ -180,17 +182,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			//
 			NullLiteral nl = expr as NullLiteral;
 			if (nl != null) {
-				return nl.ConvertImplicitly (target_type);
+				return nl.ConvertImplicitly (target_type, null);
 			}
 
-			if (ImplicitReferenceConversionExists (expr_type, target_type)) {
+			if (ImplicitReferenceConversionExists (expr_type, target_type, opt_ec, upconvert_only)) {
 				// 
 				// Avoid wrapping implicitly convertible reference type
 				//
 				if (!explicit_cast)
 					return expr;
 
-				return EmptyCast.Create (expr, target_type);
+				return EmptyCast.Create (expr, target_type, opt_ec);
 			}
 
 			return null;
@@ -199,16 +201,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		//
 		// Implicit reference conversions
 		//
-		public static bool ImplicitReferenceConversionExists (TypeSpec expr_type, TypeSpec target_type)
+		public static bool ImplicitReferenceConversionExists (TypeSpec expr_type, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
 		{
-			return ImplicitReferenceConversionExists (expr_type, target_type, true);
+			return ImplicitReferenceConversionExists (expr_type, target_type, true, opt_ec, upconvert_only);
 		}
 
-		public static bool ImplicitReferenceConversionExists (TypeSpec expr_type, TypeSpec target_type, bool refOnlyTypeParameter)
+		public static bool ImplicitReferenceConversionExists (TypeSpec expr_type, TypeSpec target_type, bool refOnlyTypeParameter, ResolveContext opt_ec, bool upconvert_only)
 		{
+			var isPlayScript = (opt_ec == null) ? false : opt_ec.IsPlayScript;
+
 			// It's here only to speed things up
 			if (target_type.IsStruct)
 				return false;
+
 
 			switch (expr_type.Kind) {
 			case MemberKind.TypeParameter:
@@ -269,6 +274,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (target_type_array != null && expr_type_array.Rank == target_type_array.Rank) {
 
 					//
+					// Disable this conversion for PlayScript, specifically for
+					// the case of passing an array to a function which accepts
+					// var args. We want the function to receive 1 parameter of
+					// type array, rather than n parameters.
+					//
+					if (isPlayScript)
+						return false;
+
+					//
 					// Both SE and TE are reference-types. TE check is defered
 					// to ImplicitReferenceConversionExists
 					//
@@ -279,7 +293,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					//
 					// An implicit reference conversion exists from SE to TE
 					//
-					return ImplicitReferenceConversionExists (expr_element_type, target_type_array.Element);
+					return ImplicitReferenceConversionExists (expr_element_type, target_type_array.Element, opt_ec, upconvert_only);
 				}
 
 				//
@@ -374,6 +388,116 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return false;
 		}
 
+
+		public static Expression ImplicitPlayScriptConversion (Expression expr, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
+		{
+			if (!ImplicitPlayScriptConversionExists (expr.Type, target_type, opt_ec, upconvert_only))
+				return null;
+			
+			TypeSpec expr_type = expr.Type;
+			
+			// PlayScript references can always be implicitly cast to bool
+			if (target_type.BuiltinType == BuiltinTypeSpec.Type.Bool) {
+				if (expr_type.BuiltinType == BuiltinTypeSpec.Type.Bool) {
+					// already a boolean
+					return expr;
+				}
+
+				if (expr is NullLiteral) {
+					// cast null to false
+					return new BoolConstant(opt_ec.BuiltinTypes, false, expr.Location);
+				}
+
+				// if its a class or interface reference then just compare against null, else call the more expensive boolean conversion function
+				// strings and objects still have to go through the more expensive test
+				if ((expr_type.IsClass || expr_type.IsInterface) && (expr_type.BuiltinType != BuiltinTypeSpec.Type.String) && (expr_type.BuiltinType != BuiltinTypeSpec.Type.Object)) {
+					// test against null
+					return new Binary(Binary.Operator.Inequality, expr, new NullLiteral(expr.Location)).Resolve(opt_ec);
+				} else {
+					// PlayScript: Call the "Boolean()" static method to convert a dynamic to a bool.  EXPENSIVE, but hey..
+					Arguments args = new Arguments (1);
+					if (BuiltinTypeSpec.IsPrimitiveType (expr_type))
+						args.Add (new Argument (new BoxedCast (expr, target_type)));
+					else
+						args.Add (new Argument(EmptyCast.Create(expr, opt_ec.BuiltinTypes.Object, opt_ec)));
+
+					var function = new MemberAccess (new MemberAccess (
+						new SimpleName (PsConsts.PsRootNamespace, expr.Location), "Boolean_fn", expr.Location), "Boolean", expr.Location);
+
+					return new Invocation (function, args).Resolve (opt_ec);
+				}
+			}
+			
+			// PlayScript references can always be implicitly cast to string
+			if (expr_type.BuiltinType != BuiltinTypeSpec.Type.String && target_type.BuiltinType == BuiltinTypeSpec.Type.String) {
+				if (expr_type.BuiltinType == BuiltinTypeSpec.Type.String) {
+					// already a string
+					return expr;
+				}
+
+				Arguments args = new Arguments (1);
+
+				// Use a dynamic conversion where possible to take advantage of type hints
+				if (expr_type.IsDynamic) {
+					args.Add (new Argument (expr));
+					return new DynamicConversion (target_type, 0, args, expr.Location).Resolve (opt_ec);
+				}
+
+				// PlayScript: Call the "CastToString()" static method to convert a dynamic to a string.  EXPENSIVE, but hey..
+				if (BuiltinTypeSpec.IsPrimitiveType (expr_type))
+					args.Add (new Argument (new BoxedCast (expr, target_type)));
+				else
+					args.Add (new Argument(EmptyCast.Create(expr, opt_ec.BuiltinTypes.Object, opt_ec)));
+
+				var function = new MemberAccess (new MemberAccess (
+					new SimpleName (PsConsts.PsRootNamespace, expr.Location), "String_fn", expr.Location), "CastToString", expr.Location);
+
+				return new Invocation (function, args).Resolve (opt_ec);
+			}
+
+			// Can always cast between Object (Dynamic) and * (AsUntyped)
+			if ((expr_type.IsDynamic || TypeManager.IsAsUndefined (expr_type, opt_ec)) && target_type.IsDynamic) {
+				if (expr_type == target_type)
+					return expr; // nothing to do
+
+				Arguments args = new Arguments (1);
+				args.Add (new Argument (expr));
+				return new DynamicConversion (target_type, 0, args, expr.Location).Resolve (opt_ec);
+			}
+
+			return null;
+		}
+
+		public static bool ImplicitPlayScriptConversionExists (TypeSpec expr_type, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
+		{
+			if (opt_ec == null)
+				return false;
+
+			//
+			// Can always cast between Object (Dynamic) and * (AsUntyped),
+			// even in C#. This is to support using the "*" type in C#.
+			//
+			if ((expr_type.IsDynamic || TypeManager.IsAsUndefined (expr_type, opt_ec)) && target_type.IsDynamic)
+				return true;
+
+			if (opt_ec.FileType != SourceFileType.PlayScript || upconvert_only)
+				return false;
+
+			//
+			// PlayScript types can always be implicitly cast to bool
+			//
+			if (target_type.BuiltinType == BuiltinTypeSpec.Type.Bool)
+				return true;
+
+			//
+			// PlayScript types can always be implicitly cast to string
+			//
+			if (target_type.BuiltinType == BuiltinTypeSpec.Type.String)
+				return true;
+
+			return false;
+		}
+
 		public static Expression ImplicitBoxingConversion (Expression expr, TypeSpec expr_type, TypeSpec target_type)
 		{
 			switch (target_type.BuiltinType) {
@@ -461,9 +585,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return EmptyExpression.Null;
 
 				if (expr is Constant)
-					return ((Constant) expr).ConvertImplicitly (t_el);
+					return ((Constant) expr).ConvertImplicitly (t_el, ec);
 
-				return ImplicitNumericConversion (null, expr_type, t_el);
+				return ImplicitNumericConversion (null, expr_type, t_el, ec, false);
 			}
 
 			Expression unwrap;
@@ -475,9 +599,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			Expression conv = unwrap;
 			if (!TypeSpecComparer.IsEqual (expr_type, t_el)) {
 				if (conv is Constant)
-					conv = ((Constant)conv).ConvertImplicitly (t_el);
+					conv = ((Constant)conv).ConvertImplicitly (t_el, ec);
 				else
-					conv = ImplicitNumericConversion (conv, expr_type, t_el);
+					conv = ImplicitNumericConversion (conv, expr_type, t_el, ec, false);
 
 				if (conv == null)
 					return null;
@@ -495,18 +619,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		///   expr is the expression to convert, returns a new expression of type
 		///   target_type or null if an implicit conversion is not possible.
 		/// </summary>
-		public static Expression ImplicitNumericConversion (Expression expr, TypeSpec target_type)
+		public static Expression ImplicitNumericConversion (Expression expr, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
 		{
-			return ImplicitNumericConversion (expr, expr.Type, target_type);
+			return ImplicitNumericConversion (expr, expr.Type, target_type, opt_ec, upconvert_only);
 		}
 
-		public static bool ImplicitNumericConversionExists (TypeSpec expr_type, TypeSpec target_type)
+		public static bool ImplicitNumericConversionExists (TypeSpec expr_type, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
 		{
-			return ImplicitNumericConversion (null, expr_type, target_type) != null;
+			return ImplicitNumericConversion (null, expr_type, target_type, opt_ec, upconvert_only) != null;
 		}
 
-		static Expression ImplicitNumericConversion (Expression expr, TypeSpec expr_type, TypeSpec target_type)
+		static Expression ImplicitNumericConversion (Expression expr, TypeSpec expr_type, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
 		{
+			var isPlayScript = (opt_ec == null) ? false : opt_ec.IsPlayScript;
+
 			switch (expr_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.SByte:
 				//
@@ -525,9 +651,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I2);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
-
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new  IntLiteral(opt_ec.BuiltinTypes, 0, expr.Location)).Resolve(opt_ec);
+					break;
 				}
-
 				break;
 			case BuiltinTypeSpec.Type.Byte:
 				//
@@ -538,7 +666,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				case BuiltinTypeSpec.Type.UInt:
 				case BuiltinTypeSpec.Type.Short:
 				case BuiltinTypeSpec.Type.UShort:
-					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type);
+					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type, opt_ec);
 				case BuiltinTypeSpec.Type.ULong:
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U8);
 				case BuiltinTypeSpec.Type.Long:
@@ -549,6 +677,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R8);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new UIntLiteral(opt_ec.BuiltinTypes, 0, expr.Location)).Resolve(opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Short:
@@ -557,7 +689,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				//
 				switch (target_type.BuiltinType) {
 				case BuiltinTypeSpec.Type.Int:
-					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type);
+					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type, opt_ec);
 				case BuiltinTypeSpec.Type.Long:
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I8);
 				case BuiltinTypeSpec.Type.Double:
@@ -566,6 +698,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new IntLiteral(opt_ec.BuiltinTypes, 0, expr.Location)).Resolve(opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.UShort:
@@ -575,7 +711,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				switch (target_type.BuiltinType) {
 				case BuiltinTypeSpec.Type.Int:
 				case BuiltinTypeSpec.Type.UInt:
-					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type);
+					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type, opt_ec);
 				case BuiltinTypeSpec.Type.ULong:
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U8);
 				case BuiltinTypeSpec.Type.Long:
@@ -586,6 +722,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary (Binary.Operator.Inequality, expr, new UIntLiteral (opt_ec.BuiltinTypes, 0, expr.Location)).Resolve (opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Int:
@@ -601,6 +741,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.UInt:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U4);
+					break;
+				case BuiltinTypeSpec.Type.ULong:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U8);
+					break;
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new IntLiteral(opt_ec.BuiltinTypes, 0, expr.Location)).Resolve(opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.UInt:
@@ -618,6 +770,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCastDuplex (expr, target_type, OpCodes.Conv_R_Un, OpCodes.Conv_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.Int:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I4);
+					break;
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new UIntLiteral(opt_ec.BuiltinTypes, 0, expr.Location)).Resolve(opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Long:
@@ -631,6 +791,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.Int:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I4);
+					break;
+				case BuiltinTypeSpec.Type.UInt:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U4);
+					break;
+				case BuiltinTypeSpec.Type.ULong:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U8);
+					break;
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new LongLiteral(opt_ec.BuiltinTypes, 0L, expr.Location)).Resolve (opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.ULong:
@@ -644,6 +820,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return expr == null ? EmptyExpression.Null : new OpcodeCastDuplex (expr, target_type, OpCodes.Conv_R_Un, OpCodes.Conv_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return expr == null ? EmptyExpression.Null : new OperatorCast (expr, target_type);
+				case BuiltinTypeSpec.Type.Int:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I4);
+					break;
+				case BuiltinTypeSpec.Type.UInt:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U4);
+					break;
+				case BuiltinTypeSpec.Type.Long:
+					if (isPlayScript && !upconvert_only)
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I8);
+					break;
+				case BuiltinTypeSpec.Type.Bool:
+					if (isPlayScript)
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new ULongLiteral(opt_ec.BuiltinTypes, 0L, expr.Location)).Resolve(opt_ec);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Char:
@@ -654,7 +846,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				case BuiltinTypeSpec.Type.UShort:
 				case BuiltinTypeSpec.Type.Int:
 				case BuiltinTypeSpec.Type.UInt:
-					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type);
+					return expr == null ? EmptyExpression.Null : EmptyCast.Create (expr, target_type, opt_ec);
 				case BuiltinTypeSpec.Type.ULong:
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U8);
 				case BuiltinTypeSpec.Type.Long:
@@ -669,22 +861,49 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				break;
 			case BuiltinTypeSpec.Type.Float:
 				//
-				// float to double
+				// From float to double
 				//
 				if (target_type.BuiltinType == BuiltinTypeSpec.Type.Double)
 					return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R8);
+				//
+				// PlayScript only - from float to int, uint, bool
+				//
+				if (isPlayScript && !upconvert_only) {
+					switch (target_type.BuiltinType) {
+					case BuiltinTypeSpec.Type.Int:
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I4);
+					case BuiltinTypeSpec.Type.UInt:
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U4);
+					case BuiltinTypeSpec.Type.Bool:
+						return expr == null ? EmptyExpression.Null : new Binary(Binary.Operator.Inequality, expr, new FloatLiteral(opt_ec.BuiltinTypes, 0.0f, expr.Location)).Resolve(opt_ec);
+					}
+				}
+				break;
+			case BuiltinTypeSpec.Type.Double:
+				//
+				// PlayScript only - from double to int, uint, float, bool
+				//
+				if (isPlayScript && !upconvert_only) {
+					switch (target_type.BuiltinType) {
+					case BuiltinTypeSpec.Type.Int:
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_I4);
+					case BuiltinTypeSpec.Type.UInt:
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_U4);
+					case BuiltinTypeSpec.Type.Float:
+						return expr == null ? EmptyExpression.Null : new OpcodeCast (expr, target_type, OpCodes.Conv_R4);
+					case BuiltinTypeSpec.Type.Bool:
+						return expr == null ? EmptyExpression.Null : new Binary (Binary.Operator.Inequality, expr, new DoubleLiteral (opt_ec.BuiltinTypes, 0.0, expr.Location)).Resolve (opt_ec);
+					}
+				}
 				break;
 			}
 
 			return null;
 		}
-
-		//
-		// Full version of implicit conversion
-		//
-		public static bool ImplicitConversionExists (ResolveContext ec, Expression expr, TypeSpec target_type)
+			
+		public static bool ImplicitConversionExists (ResolveContext ec, Expression expr, TypeSpec target_type, bool upconvert_only = false)
 		{
-			if (ImplicitStandardConversionExists (ec, expr, target_type))
+			if (ImplicitStandardConversionExists (ec, expr, target_type, upconvert_only))
 				return true;
 
 			if (expr.Type == InternalType.AnonymousMethod) {
@@ -694,7 +913,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				AnonymousMethodExpression ame = (AnonymousMethodExpression) expr;
 				return ame.ImplicitStandardConversionExists (ec, target_type);
 			}
-			
+
 			// Conversion from __arglist to System.ArgIterator
 			if (expr.Type == InternalType.Arglist)
 				return target_type == ec.Module.PredefinedTypes.ArgIterator.TypeSpec;
@@ -703,9 +922,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				UserConversionRestriction.ImplicitOnly | UserConversionRestriction.ProbingOnly, Location.Null) != null;
 		}
 
-		public static bool ImplicitStandardConversionExists (ResolveContext rc, Expression expr, TypeSpec target_type)
+		public static bool ImplicitStandardConversionExists (ResolveContext rc, Expression expr, TypeSpec target_type, bool upconvert_only = false)
 		{
 			if (expr.eclass == ExprClass.MethodGroup) {
+				// PlayScript can implicitly cast unique methods/lambdas to dynamic/delegate types.
+				if (rc.IsPlayScript && !target_type.IsDelegate && 
+				    (target_type.IsDynamic || target_type == rc.BuiltinTypes.Delegate)) {
+					MethodGroupExpr mg = expr as MethodGroupExpr;
+					if (mg != null && mg.Candidates.Count == 1) {
+						return true;
+					}
+				}
 				if (target_type.IsDelegate && rc.Module.Compiler.Settings.Version != LanguageVersion.ISO_1) {
 					MethodGroupExpr mg = expr as MethodGroupExpr;
 					if (mg != null)
@@ -715,13 +942,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return false;
 			}
 
-			return ImplicitStandardConversionExists (expr, target_type);
+			return ImplicitStandardConversionExists (expr, target_type, rc, upconvert_only);
 		}
 
 		//
 		// Implicit standard conversion (only core conversions are used here)
 		//
-		public static bool ImplicitStandardConversionExists (Expression expr, TypeSpec target_type)
+		public static bool ImplicitStandardConversionExists (Expression expr, TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only = false)
 		{
 			//
 			// Identity conversions
@@ -741,10 +968,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (target_type.IsNullableType)
 				return ImplicitNulableConversion (null, expr, target_type) != null;
 
-			if (ImplicitNumericConversion (null, expr_type, target_type) != null)
+			if (ImplicitNumericConversion (null, expr_type, target_type, opt_ec, upconvert_only) != null)
 				return true;
 
-			if (ImplicitReferenceConversionExists (expr_type, target_type, false))
+			if (ImplicitPlayScriptConversionExists (expr_type, target_type, opt_ec, upconvert_only))
+				return true;
+
+			if (ImplicitReferenceConversionExists (expr_type, target_type, false, opt_ec, upconvert_only))
 				return true;
 
 			if (ImplicitBoxingConversion (null, expr_type, target_type) != null)
@@ -851,7 +1081,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		///  Finds "most encompassed type" according to the spec (13.4.2)
 		///  amongst the methods in the MethodGroupExpr
 		/// </summary>
-		public static TypeSpec FindMostEncompassedType (IList<TypeSpec> types)
+		public static TypeSpec FindMostEncompassedType (IList<TypeSpec> types, ResolveContext opt_ec)
 		{
 			TypeSpec best = null;
 			EmptyExpression expr;
@@ -863,7 +1093,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				}
 
 				expr = new EmptyExpression (t);
-				if (ImplicitStandardConversionExists (expr, best))
+				if (ImplicitStandardConversionExists (expr, best, opt_ec))
 					best = t;
 			}
 
@@ -871,7 +1101,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			foreach (TypeSpec t in types) {
 				if (best == t)
 					continue;
-				if (!ImplicitStandardConversionExists (expr, t)) {
+				if (!ImplicitStandardConversionExists (expr, t, opt_ec)) {
 					best = null;
 					break;
 				}
@@ -884,7 +1114,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		// Finds the most encompassing type (type into which all other
 		// types can convert to) amongst the types in the given set
 		//
-		static TypeSpec FindMostEncompassingType (IList<TypeSpec> types)
+		static TypeSpec FindMostEncompassingType (IList<TypeSpec> types, ResolveContext opt_ec)
 		{
 			if (types.Count == 0)
 				return null;
@@ -900,7 +1130,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						continue;
 
 					var expr = new EmptyExpression (types[ii]);
-					if (!ImplicitStandardConversionExists (expr, types [i])) {
+					if (!ImplicitStandardConversionExists (expr, types [i], opt_ec)) {
 						ii = 0;
 						break;
 					}
@@ -960,7 +1190,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					if (source.eclass == ExprClass.MethodGroup)
 						return InternalType.FakeInternalType;
 
-					return FindMostEncompassedType (candidate_set);
+					return FindMostEncompassedType (candidate_set, rc);
 				}
 			}
 
@@ -968,16 +1198,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// Final case
 			//
 			if (apply_explicit_conv_rules)
-				return FindMostEncompassingType (src_types_set);
+				return FindMostEncompassingType (src_types_set, rc);
 			else
-				return FindMostEncompassedType (src_types_set);
+				return FindMostEncompassedType (src_types_set, rc);
 		}
 
 		/// <summary>
 		///  Finds the most specific target Tx according to section 13.4.4
 		/// </summary>
 		static public TypeSpec FindMostSpecificTarget (IList<MethodSpec> list,
-							   TypeSpec target, bool apply_explicit_conv_rules)
+							   TypeSpec target, bool apply_explicit_conv_rules, ResolveContext opt_ec)
 		{
 			List<TypeSpec> tgt_types_set = null;
 
@@ -1007,21 +1237,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				foreach (TypeSpec ret_type in tgt_types_set) {
 					var expr = new EmptyExpression (ret_type);
 
-					if (ImplicitStandardConversionExists (expr, target))
+					if (ImplicitStandardConversionExists (expr, target, opt_ec))
 						candidate_set.Add (ret_type);
 				}
 
 				if (candidate_set.Count != 0)
-					return FindMostEncompassingType (candidate_set);
+					return FindMostEncompassingType (candidate_set, opt_ec);
 			}
 
 			//
 			// Okay, final case !
 			//
 			if (apply_explicit_conv_rules)
-				return FindMostEncompassedType (tgt_types_set);
+				return FindMostEncompassedType (tgt_types_set, opt_ec);
 			else
-				return FindMostEncompassingType (tgt_types_set);
+				return FindMostEncompassingType (tgt_types_set, opt_ec);
 		}
 
 		/// <summary>
@@ -1062,11 +1292,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					continue;
 
 				var t = op.Parameters.Types[0];
-				if (source.Type != t && !ImplicitStandardConversionExists (rc, source, t)) {
+				if (source.Type != t && !ImplicitStandardConversionExists (rc, source, t, false)) {
 					if ((restr & UserConversionRestriction.ImplicitOnly) != 0)
 						continue;
 
-					if (!ImplicitStandardConversionExists (new EmptyExpression (t), source.Type))
+					if (!ImplicitStandardConversionExists (new EmptyExpression (t), source.Type, rc, false))
 							continue;
 				}
 
@@ -1082,14 +1312,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					if (t.IsNullableType)
 						t = Nullable.NullableInfo.GetUnderlyingType (t);
 
-					if (!ImplicitStandardConversionExists (new EmptyExpression (t), target)) {
+					if (!ImplicitStandardConversionExists (new EmptyExpression (t), target, rc)) {
 						if ((restr & UserConversionRestriction.ImplicitOnly) != 0)
 							continue;
 
 						if (texpr == null)
 							texpr = new EmptyExpression (target);
 
-						if (!ImplicitStandardConversionExists (texpr, t))
+						if (!ImplicitStandardConversionExists (texpr, t, rc))
 							continue;
 					}
 				}
@@ -1190,7 +1420,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (s_x == null)
 					return null;
 
-				t_x = FindMostSpecificTarget (candidates, target, !implicitOnly);
+				t_x = FindMostSpecificTarget (candidates, target, !implicitOnly, rc);
 				if (t_x == null)
 					return null;
 
@@ -1217,6 +1447,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 								ambig_arg = candidate;
 						}
 						*/
+						
 						rc.Report.Error (457, loc,
 							"Ambiguous user defined operators `{0}' and `{1}' when converting from `{2}' to `{3}'",
 							ambig_arg.GetSignatureForError (), most_specific_operator.GetSignatureForError (),
@@ -1308,14 +1539,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		///   in a context that expects a `target_type'.
 		/// </summary>
 		static public Expression ImplicitConversion (ResolveContext ec, Expression expr,
-							     TypeSpec target_type, Location loc)
+							     TypeSpec target_type, Location loc, bool upconvert_only = false)
 		{
 			Expression e;
 
 			if (target_type == null)
 				throw new Exception ("Target type is null");
 
-			e = ImplicitConversionStandard (ec, expr, target_type, loc);
+			e = ImplicitConversionStandard (ec, expr, target_type, loc, false, upconvert_only);
 			if (e != null)
 				return e;
 
@@ -1340,13 +1571,51 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		static public Expression ImplicitConversionStandard (ResolveContext ec, Expression expr,
 								     TypeSpec target_type, Location loc)
 		{
-			return ImplicitConversionStandard (ec, expr, target_type, loc, false);
+			return ImplicitConversionStandard (ec, expr, target_type, loc, false, false);
 		}
 
-		static Expression ImplicitConversionStandard (ResolveContext ec, Expression expr, TypeSpec target_type, Location loc, bool explicit_cast)
+		static Expression ImplicitConversionStandard (ResolveContext ec, Expression expr, TypeSpec target_type, Location loc, bool explicit_cast, bool upconvert_only)
 		{
 			if (expr.eclass == ExprClass.MethodGroup){
 				if (!target_type.IsDelegate){
+					if (ec.IsPlayScript && 
+					    (target_type.IsDynamic || target_type == ec.BuiltinTypes.Delegate)) {
+						MethodGroupExpr mg = expr as MethodGroupExpr;
+						if (mg != null) {
+							if (mg.Candidates.Count != 1) {
+								ec.Report.Error (7021, loc, "Ambiguous overloaded methods `{0}' when assigning to Function or Object type", mg.Name);
+								return null;
+							}
+							var ms = (MethodSpec)mg.Candidates[0];
+							var del_type = Delegate.CreateDelegateTypeFromMethodSpec(ec, ms, loc);
+
+							// If return is "Delegate", we create a var args anonymous method which calls the target method..
+							if (del_type == ec.BuiltinTypes.Delegate) {
+								var objArrayType = new ComposedCast (
+									new TypeExpression(ec.BuiltinTypes.Object, loc),  
+									ComposedTypeSpecifier.CreateArrayDimension (1, loc));
+								var parameters = new ParametersCompiled(new Parameter[] {
+									new ParamsParameter(objArrayType, "args", null, loc) }, false);
+								var dynCall = new AnonymousMethodExpression(expr.Location, parameters, new TypeExpression(ms.ReturnType, loc));
+								var block = new ParametersBlock (ec.CurrentBlock, parameters, expr.Location);
+								dynCall.Block = block;
+								var args = new Arguments (3);
+								args.Add (new Argument(new TypeOf(new TypeExpression(ms.DeclaringType, loc), loc)));
+								args.Add (new Argument(new StringLiteral(ec.BuiltinTypes, ms.Name, loc)));
+								args.Add (new Argument(new SimpleName("args", loc)));
+								var call = new Invocation (new MemberAccess(new MemberAccess(new SimpleName("PlayScript", loc), "Support", loc), "VarArgCall", loc), args);
+								if (ms.ReturnType == ec.BuiltinTypes.Void) {
+									block.AddStatement (new StatementExpression(call));
+								} else {
+									block.AddStatement (new Return(call, loc));
+								}
+								return dynCall.Resolve (ec);
+							} else { 
+								// Otherwise cast to the specific delegate type
+								return new ImplicitDelegateCreation (del_type, mg, loc).Resolve (ec);
+							}
+						}
+					}
 					return null;
 				}
 
@@ -1369,12 +1638,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return null;
 			}
 
+			// Auto convert types to type objects..
+			if (ec.IsPlayScript && expr is FullNamedExpression &&
+			    (target_type.BuiltinType == BuiltinTypeSpec.Type.Type ||
+			    target_type.BuiltinType == BuiltinTypeSpec.Type.Object ||
+			    target_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic)) {
+				FullNamedExpression type_expr = (FullNamedExpression)expr;
+				if (expr_type != null) {
+					if (expr_type.MemberDefinition.Namespace == PsConsts.PsRootNamespace) {
+						switch (expr_type.Name) {
+						case "String":
+							type_expr = new TypeExpression (ec.BuiltinTypes.String, type_expr.Location);
+							break;
+						case "Number":
+							type_expr = new TypeExpression (ec.BuiltinTypes.Double, type_expr.Location);
+							break;
+						case "Boolean":
+							type_expr = new TypeExpression (ec.BuiltinTypes.Bool, type_expr.Location);
+							break;
+						}
+					} else if (expr_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+						type_expr = new TypeExpression (ec.Module.PredefinedTypes.AsExpandoObject.Resolve(), type_expr.Location);
+					}
+				}
+				return new TypeOf (type_expr, expr.Location).Resolve (ec);
+			}
+
 			if (expr_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+
+				e = ImplicitPlayScriptConversion (expr, target_type, ec, upconvert_only);
+				if (e != null)
+					return e;
+
 				switch (target_type.Kind) {
 				case MemberKind.ArrayType:
 				case MemberKind.Class:
 					if (target_type.BuiltinType == BuiltinTypeSpec.Type.Object)
-						return EmptyCast.Create (expr, target_type);
+						return EmptyCast.Create (expr, target_type, ec);
 
 					goto case MemberKind.Struct;
 				case MemberKind.Struct:
@@ -1390,6 +1690,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return null;
 			}
 
+
+
 			if (target_type.IsNullableType)
 				return ImplicitNulableConversion (ec, expr, target_type);
 
@@ -1399,7 +1701,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			Constant c = expr as Constant;
 			if (c != null) {
 				try {
-					c = c.ConvertImplicitly (target_type);
+					c = c.ConvertImplicitly (target_type, ec, upconvert_only);
 				} catch {
 					throw new InternalErrorException ("Conversion error", loc);
 				}
@@ -1407,11 +1709,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return c;
 			}
 
-			e = ImplicitNumericConversion (expr, expr_type, target_type);
+			e = ImplicitNumericConversion (expr, expr_type, target_type, ec, upconvert_only);
 			if (e != null)
 				return e;
 
-			e = ImplicitReferenceConversion (expr, target_type, explicit_cast);
+			e = ImplicitPlayScriptConversion (expr, target_type, ec, upconvert_only);
+			if (e != null)
+				return e;
+
+			e = ImplicitReferenceConversion (expr, target_type, explicit_cast, ec, upconvert_only);
 			if (e != null)
 				return e;
 
@@ -1444,9 +1750,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						return expr;
 
 					if (target_pc.Element.Kind == MemberKind.Void)
-						return EmptyCast.Create (expr, target_type);
-
-						//return null;
+						return EmptyCast.Create (expr, target_type, ec);
 				}
 
 				if (expr_type == InternalType.NullLiteral)
@@ -1455,6 +1759,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			if (expr_type == InternalType.AnonymousMethod){
 				AnonymousMethodExpression ame = (AnonymousMethodExpression) expr;
+				if (ec.IsPlayScript && 
+				    (target_type.IsDynamic || target_type == ec.BuiltinTypes.Delegate)) {
+					var del_type = Delegate.CreateDelegateType (ec, ame.AsParameters, ame.AsReturnType.ResolveAsType(ec), loc);
+					return new Cast(new TypeExpression(del_type, loc), expr, loc).Resolve(ec);
+				}
 				Expression am = ame.Compatible (ec, target_type);
 				if (am != null)
 					return am.Resolve (ec);
@@ -1470,13 +1779,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// dynamic erasure conversion on value types
 			//
 			if (expr_type.IsStruct && TypeSpecComparer.IsEqual (expr_type, target_type))
-				return expr_type == target_type ? expr : EmptyCast.Create (expr, target_type);
-
-			var interpolated_string = expr as InterpolatedString;
-			if (interpolated_string != null) {
-				if (target_type == ec.Module.PredefinedTypes.IFormattable.TypeSpec || target_type == ec.Module.PredefinedTypes.FormattableString.TypeSpec)
-					return interpolated_string.ConvertTo (ec, target_type);
-			}
+				return expr_type == target_type ? expr : EmptyCast.Create (expr, target_type, ec);
 
 			return null;
 		}
@@ -1532,6 +1835,41 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			//
 
 			switch (expr.Type.BuiltinType) {
+			case BuiltinTypeSpec.Type.Bool:
+				//
+				// From bool to sbyte, byte, short,
+				// ushort, int, uint, long, ulong,
+				// char, float or decimal
+				//
+				if (rc.IsPlayScript) {
+					switch (target_type.BuiltinType) {
+					case BuiltinTypeSpec.Type.SByte:
+						return new ConvCast(new Conditional(expr, new IntLiteral(rc.BuiltinTypes, 1, expr.Location), new IntLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc), target_type, ConvCast.Mode.I4_I1);
+					case BuiltinTypeSpec.Type.Byte:
+						return new ConvCast(new Conditional(expr, new UIntLiteral(rc.BuiltinTypes, 1, expr.Location), new UIntLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc), target_type, ConvCast.Mode.U4_U1);
+					case BuiltinTypeSpec.Type.Short:
+						return new ConvCast(new Conditional(expr, new IntLiteral(rc.BuiltinTypes, 1, expr.Location), new IntLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc), target_type, ConvCast.Mode.I4_I2);
+					case BuiltinTypeSpec.Type.UShort:
+						return new ConvCast(new Conditional(expr, new UIntLiteral(rc.BuiltinTypes, 1, expr.Location), new UIntLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc), target_type, ConvCast.Mode.U4_U2);
+					case BuiltinTypeSpec.Type.Int:
+						return new Conditional(expr, new IntLiteral(rc.BuiltinTypes, 1, expr.Location), new IntLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.UInt:
+						return new Conditional(expr, new UIntLiteral(rc.BuiltinTypes, 1, expr.Location), new UIntLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.Long:
+						return new Conditional(expr, new LongLiteral(rc.BuiltinTypes, 1, expr.Location), new LongLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.ULong:
+						return new Conditional(expr, new ULongLiteral(rc.BuiltinTypes, 1, expr.Location), new ULongLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.Char:
+						return new Conditional(expr, new CharLiteral(rc.BuiltinTypes, '1', expr.Location), new CharLiteral(rc.BuiltinTypes, '0', expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.Float:
+						return new Conditional(expr, new FloatLiteral(rc.BuiltinTypes, 1f, expr.Location), new FloatLiteral(rc.BuiltinTypes, 0f, expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.Double:
+						return new Conditional(expr, new DoubleLiteral(rc.BuiltinTypes, 1, expr.Location), new DoubleLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc);
+					case BuiltinTypeSpec.Type.Decimal:
+						return new Conditional(expr, new DecimalLiteral(rc.BuiltinTypes, 1, expr.Location), new DecimalLiteral(rc.BuiltinTypes, 0, expr.Location), expr.Location).Resolve (rc);
+					}
+				}
+				break;
 			case BuiltinTypeSpec.Type.SByte:
 				//
 				// From sbyte to byte, ushort, uint, ulong, char, uintptr
@@ -1551,6 +1889,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				// One of the built-in conversions that belonged in the class library
 				case BuiltinTypeSpec.Type.UIntPtr:
 					return new OperatorCast (new ConvCast (expr, rc.BuiltinTypes.ULong, ConvCast.Mode.I1_U8), target_type, target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new IntLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Byte:
@@ -1562,6 +1906,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.U1_I1);
 				case BuiltinTypeSpec.Type.Char:
 					return new ConvCast (expr, target_type, ConvCast.Mode.U1_CH);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new UIntLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Short:
@@ -1585,6 +1935,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				// One of the built-in conversions that belonged in the class library
 				case BuiltinTypeSpec.Type.UIntPtr:
 					return new OperatorCast (new ConvCast (expr, rc.BuiltinTypes.ULong, ConvCast.Mode.I2_U8), target_type, target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new IntLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.UShort:
@@ -1600,6 +1956,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.U2_I2);
 				case BuiltinTypeSpec.Type.Char:
 					return new ConvCast (expr, target_type, ConvCast.Mode.U2_CH);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new UIntLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Int:
@@ -1625,6 +1987,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				// One of the built-in conversions that belonged in the class library
 				case BuiltinTypeSpec.Type.UIntPtr:
 					return new OperatorCast (new ConvCast (expr, rc.BuiltinTypes.ULong, ConvCast.Mode.I2_U8), target_type, target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new IntLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.UInt:
@@ -1644,6 +2012,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.U4_I4);
 				case BuiltinTypeSpec.Type.Char:
 					return new ConvCast (expr, target_type, ConvCast.Mode.U4_CH);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new UIntLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Long:
@@ -1667,6 +2041,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.I8_U8);
 				case BuiltinTypeSpec.Type.Char:
 					return new ConvCast (expr, target_type, ConvCast.Mode.I8_CH);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new LongLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.ULong:
@@ -1693,7 +2073,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				// One of the built-in conversions that belonged in the class library
 				case BuiltinTypeSpec.Type.IntPtr:
-					return new OperatorCast (EmptyCast.Create (expr, rc.BuiltinTypes.Long), target_type, true);
+					return new OperatorCast (EmptyCast.Create (expr, rc.BuiltinTypes.Long, rc), target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new ULongLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Char:
@@ -1707,6 +2093,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.CH_U1);
 				case BuiltinTypeSpec.Type.Short:
 					return new ConvCast (expr, target_type, ConvCast.Mode.CH_I2);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new CharLiteral(rc.BuiltinTypes, '\x0', expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Float:
@@ -1736,6 +2128,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.R4_CH);
 				case BuiltinTypeSpec.Type.Decimal:
 					return new OperatorCast (expr, target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new FloatLiteral(rc.BuiltinTypes, 0f, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.Double:
@@ -1767,6 +2165,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return new ConvCast (expr, target_type, ConvCast.Mode.R8_R4);
 				case BuiltinTypeSpec.Type.Decimal:
 					return new OperatorCast (expr, target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new DoubleLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 				break;
 			case BuiltinTypeSpec.Type.UIntPtr:
@@ -1781,18 +2185,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				case BuiltinTypeSpec.Type.Short:
 					return new ConvCast (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.UInt, true), target_type, ConvCast.Mode.U4_I2);
 				case BuiltinTypeSpec.Type.Int:
-					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.UInt, true), target_type);
+					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.UInt, true), target_type, rc);
 				case BuiltinTypeSpec.Type.UInt:
 					return new OperatorCast (expr, expr.Type, target_type, true);
 				case BuiltinTypeSpec.Type.Long:
-					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.ULong, true), target_type);
+					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.ULong, true), target_type, rc);
 				}
 				break;
 			case BuiltinTypeSpec.Type.IntPtr:
 				if (target_type.BuiltinType == BuiltinTypeSpec.Type.UInt)
-					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.Int, true), target_type);
+					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.Int, true), target_type, rc);
 				if (target_type.BuiltinType == BuiltinTypeSpec.Type.ULong)
-					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.Long, true), target_type);
+					return EmptyCast.Create (new OperatorCast (expr, expr.Type, rc.BuiltinTypes.Long, true), target_type, rc);
 				
 				break;
 			case BuiltinTypeSpec.Type.Decimal:
@@ -1812,6 +2216,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				case BuiltinTypeSpec.Type.Float:
 				case BuiltinTypeSpec.Type.Double:
 					return new OperatorCast (expr, expr.Type, target_type, true);
+
+				// PlayScript explicit casts..
+				case BuiltinTypeSpec.Type.Bool:
+					if (rc.IsPlayScript)
+						return new Binary(Binary.Operator.Inequality, expr, new DecimalLiteral(rc.BuiltinTypes, 0, expr.Location)).Resolve (rc);
+					break;
 				}
 
 				break;
@@ -1824,9 +2234,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		///  Returns whether an explicit reference conversion can be performed
 		///  from source_type to target_type
 		/// </summary>
-		public static bool ExplicitReferenceConversionExists (TypeSpec source_type, TypeSpec target_type)
+		public static bool ExplicitReferenceConversionExists (TypeSpec source_type, TypeSpec target_type, ResolveContext opt_ec)
 		{
-			Expression e = ExplicitReferenceConversion (null, source_type, target_type);
+			Expression e = ExplicitReferenceConversion (null, source_type, target_type, opt_ec);
 			if (e == null)
 				return false;
 
@@ -1839,7 +2249,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		/// <summary>
 		///   Implements Explicit Reference conversions
 		/// </summary>
-		static Expression ExplicitReferenceConversion (Expression source, TypeSpec source_type, TypeSpec target_type)
+		static Expression ExplicitReferenceConversion (Expression source, TypeSpec source_type, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			//
 			// From object to a generic parameter
@@ -1952,7 +2362,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						if (!TypeSpec.IsReferenceType (target_element))
 							return null;
 
-						if (ExplicitReferenceConversionExists (source_type, target_element))
+						if (ExplicitReferenceConversionExists (source_type, target_element, opt_ec))
 							return source == null ? EmptyExpression.Null : new ClassCast (source, target_type);
 							
 						return null;
@@ -2002,10 +2412,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						//
 						//If TP is covariant, an implicit or explicit identity or reference conversion is required
 						//
-						if (ImplicitReferenceConversionExists (targs_src[i], targs_dst[i]))
+						if (ImplicitReferenceConversionExists (targs_src[i], targs_dst[i], opt_ec, false))
 							continue;
 
-						if (ExplicitReferenceConversionExists (targs_src[i], targs_dst[i]))
+						if (ExplicitReferenceConversionExists (targs_src[i], targs_dst[i], opt_ec))
 							continue;
 
 					} else if (tparams[i].Variance == Variance.Contravariant) {
@@ -2040,18 +2450,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			TypeSpec expr_type = expr.Type;
 
 			// Explicit conversion includes implicit conversion and it used for enum underlying types too
-			Expression ne = ImplicitConversionStandard (ec, expr, target_type, loc, true);
+			Expression ne = ImplicitConversionStandard (ec, expr, target_type, loc, true, false);
 			if (ne != null)
 				return ne;
 
 			if (expr_type.IsEnum) {
 				TypeSpec real_target = target_type.IsEnum ? EnumSpec.GetUnderlyingType (target_type) : target_type;
-				Expression underlying = EmptyCast.Create (expr, EnumSpec.GetUnderlyingType (expr_type));
+				Expression underlying = EmptyCast.Create (expr, EnumSpec.GetUnderlyingType (expr_type), ec);
 				if (underlying.Type == real_target)
 					ne = underlying;
 
 				if (ne == null)
-					ne = ImplicitNumericConversion (underlying, real_target);
+					ne = ImplicitNumericConversion (underlying, real_target, ec, false);
 
 				if (ne == null)
 					ne = ExplicitNumericConversion (ec, underlying, real_target);
@@ -2062,7 +2472,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (ne == null && (real_target.BuiltinType == BuiltinTypeSpec.Type.IntPtr || real_target.BuiltinType == BuiltinTypeSpec.Type.UIntPtr))
 					ne = ExplicitUserConversion (ec, underlying, real_target, loc);
 
-				return ne != null ? EmptyCast.Create (ne, target_type) : null;
+				return ne != null ? EmptyCast.Create (ne, target_type, ec) : null;
 			}
 
 			if (target_type.IsEnum) {
@@ -2075,7 +2485,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				TypeSpec real_target = target_type.IsEnum ? EnumSpec.GetUnderlyingType (target_type) : target_type;
 
 				if (expr_type == real_target)
-					return EmptyCast.Create (expr, target_type);
+					return EmptyCast.Create (expr, target_type, ec);
 
 				Constant c = expr as Constant;
 				if (c != null) {
@@ -2083,13 +2493,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					if (c != null)
 						return c;
 				} else {
-					ne = ImplicitNumericConversion (expr, real_target);
+					ne = ImplicitNumericConversion (expr, real_target, ec, false);
 					if (ne != null)
-						return EmptyCast.Create (ne, target_type);
+						return EmptyCast.Create (ne, target_type, ec);
 
 					ne = ExplicitNumericConversion (ec, expr, real_target);
 					if (ne != null)
-						return EmptyCast.Create (ne, target_type);
+						return EmptyCast.Create (ne, target_type, ec);
 
 					//
 					// LAMESPEC: IntPtr and UIntPtr conversion to any Enum is allowed
@@ -2112,13 +2522,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// null literal explicitly
 			//
 			if (expr_type != InternalType.NullLiteral) {
-				ne = ExplicitReferenceConversion (expr, expr_type, target_type);
+				ne = ExplicitReferenceConversion (expr, expr_type, target_type, ec);
 				if (ne != null)
 					return ne;
 			}
 
 			if (ec.IsUnsafe){
-				ne = ExplicitUnsafe (expr, target_type);
+				ne = ExplicitUnsafe (expr, target_type, ec);
 				if (ne != null)
 					return ne;
 			}
@@ -2126,13 +2536,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return null;
 		}
 
-		public static Expression ExplicitUnsafe (Expression expr, TypeSpec target_type)
+		public static Expression ExplicitUnsafe (Expression expr, TypeSpec target_type, ResolveContext rc)
 		{
 			TypeSpec expr_type = expr.Type;
 
 			if (target_type.IsPointer){
 				if (expr_type.IsPointer)
-					return EmptyCast.Create (expr, target_type);
+					return EmptyCast.Create (expr, target_type, rc);
 
 				switch (expr_type.BuiltinType) {
 				case BuiltinTypeSpec.Type.SByte:
@@ -2194,12 +2604,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (ne != null)
 				return ne;
 
-			ne = ExplicitReferenceConversion (expr, expr.Type, target_type);
+			ne = ExplicitReferenceConversion (expr, expr.Type, target_type, ec);
 			if (ne != null)
 				return ne;
 
 			if (ec.IsUnsafe && expr.Type.IsPointer && target_type.IsPointer && ((PointerContainer)expr.Type).Element.Kind == MemberKind.Void)
-				return EmptyCast.Create (expr, target_type);
+				return EmptyCast.Create (expr, target_type, ec);
 
 			expr.Error_ValueCannotBeConverted (ec, target_type, true);
 			return null;
@@ -2257,7 +2667,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				e = Nullable.Unwrap.Create (expr, false);			
 				e = ExplicitConversionCore (ec, e, target_type, loc);
 				if (e != null)
-					return EmptyCast.Create (e, target_type);
+					return EmptyCast.Create (e, target_type, ec);
 			}
 			
 			e = ExplicitUserConversion (ec, expr, target_type, loc);

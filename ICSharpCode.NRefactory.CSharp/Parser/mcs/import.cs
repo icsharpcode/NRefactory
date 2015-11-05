@@ -23,6 +23,7 @@ using MetaType = System.Type;
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -34,10 +35,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		//
 		protected struct DynamicTypeReader
 		{
-			static readonly bool[] single_attribute = { true };
+			enum TypeFlags
+			{
+				None		= 0,
+				Dynamic		= 1,
+				AsUntyped	= 2,
+
+				All			= Dynamic | AsUntyped,
+			}
+
+			static readonly TypeFlags[] single_dynamic_attribute = { TypeFlags.Dynamic };
 
 			public int Position;
-			bool[] flags;
+			TypeFlags[] flags;
 
 			// There is no common type for CustomAttributeData and we cannot
 			// use ICustomAttributeProvider
@@ -61,7 +71,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				if (provider != null)
 					ReadAttribute ();
 
-				return flags != null && Position < flags.Length && flags[Position];
+				return flags != null && Position < flags.Length && (flags [Position] & TypeFlags.Dynamic) != 0;
 			}
 
 			//
@@ -75,6 +85,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return flags != null;
 			}
 
+			//
+			// Returns true when object at local position has an AsUntypedAttribute
+			//
+			public bool IsAsUntypedObject (MetadataImporter importer)
+			{
+				if (provider != null)
+					ReadAttribute ();
+
+				return flags != null && Position < flags.Length && (flags [Position] & TypeFlags.AsUntyped) != 0;
+
+			}
+				
 			IList<CustomAttributeData> GetCustomAttributes ()
 			{
 				var mi = provider as MemberInfo;
@@ -97,13 +119,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 
 				if (cad.Count > 0) {
+					//
+					// Check for DynamicAttribute
+					//
 					foreach (var ca in cad) {
 						var dt = ca.Constructor.DeclaringType;
 						if (dt.Name != "DynamicAttribute" || dt.Namespace != CompilerServicesNamespace)
 							continue;
 
 						if (ca.ConstructorArguments.Count == 0) {
-							flags = single_attribute;
+							flags = single_dynamic_attribute;
 							break;
 						}
 
@@ -111,12 +136,32 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 						if (arg_type.IsArray && MetaType.GetTypeCode (arg_type.GetElementType ()) == TypeCode.Boolean) {
 							var carg = (IList<CustomAttributeTypedArgument>) ca.ConstructorArguments[0].Value;
-							flags = new bool[carg.Count];
+							flags = new TypeFlags[carg.Count];
 							for (int i = 0; i < flags.Length; ++i) {
-								if (MetaType.GetTypeCode (carg[i].ArgumentType) == TypeCode.Boolean)
-									flags[i] = (bool) carg[i].Value;
+								if (MetaType.GetTypeCode (carg [i].ArgumentType) == TypeCode.Boolean)
+									flags [i] |= (bool)carg [i].Value ? TypeFlags.Dynamic : 0;
 							}
 
+							break;
+						}
+					}
+
+					//
+					// Check for AsUntypedAttribute
+					//
+					if (flags != null) {
+						foreach (var ca in cad) {
+							var dt = ca.Constructor.DeclaringType;
+							if (dt.Name != "AsUntypedAttribute")
+								continue;
+
+							var newFlags = new TypeFlags[flags.Length];
+							for (int i = 0; i < flags.Length; ++i) {
+								newFlags [i] = flags [i];
+								if ((flags [i] & TypeFlags.Dynamic) != 0)
+									newFlags [i] |= TypeFlags.AsUntyped;
+							}
+							flags = newFlags;
 							break;
 						}
 					}
@@ -545,11 +590,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 								if (dt.Namespace != CompilerServicesNamespace)
 									continue;
 
-								if (dt.Name == "CallerLineNumberAttribute" && (ptype.BuiltinType == BuiltinTypeSpec.Type.Int || Convert.ImplicitNumericConversionExists (module.Compiler.BuiltinTypes.Int, ptype)))
+								if (dt.Name == "CallerLineNumberAttribute" && (ptype.BuiltinType == BuiltinTypeSpec.Type.Int || Convert.ImplicitNumericConversionExists (module.Compiler.BuiltinTypes.Int, ptype, null, false)))
 									mod |= Parameter.Modifier.CallerLineNumber;
-								else if (dt.Name == "CallerFilePathAttribute" && Convert.ImplicitReferenceConversionExists (module.Compiler.BuiltinTypes.String, ptype))
+								else if (dt.Name == "CallerFilePathAttribute" && Convert.ImplicitReferenceConversionExists (module.Compiler.BuiltinTypes.String, ptype, null, false))
 									mod |= Parameter.Modifier.CallerFilePath;
-								else if (dt.Name == "CallerMemberNameAttribute" && Convert.ImplicitReferenceConversionExists (module.Compiler.BuiltinTypes.String, ptype))
+								else if (dt.Name == "CallerMemberNameAttribute" && Convert.ImplicitReferenceConversionExists (module.Compiler.BuiltinTypes.String, ptype, null, false))
 									mod |= Parameter.Modifier.CallerMemberName;
 							}
 						} else if (value == Missing.Value) {
@@ -733,6 +778,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			TypeSpec spec;
 			if (import_cache.TryGetValue (type, out spec)) {
 				if (spec.BuiltinType == BuiltinTypeSpec.Type.Object) {
+					if (dtype.IsAsUntypedObject (this))
+						return module.Compiler.BuiltinTypes.AsUntyped;
+
 					if (dtype.IsDynamicObject ())
 						return module.Compiler.BuiltinTypes.Dynamic;
 
@@ -1172,6 +1220,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				throw new NotImplementedException ("Unknown element type " + type.ToString ());
 			}
 
+			//PlayScript Regression area - 1b41e096fe7068d15386edf2f27ec09bd3755c6b
 			TypeSpec compiled_type;
 			if (compiled_types.TryGetValue (type, out compiled_type)) {
 				if (compiled_type.BuiltinType == BuiltinTypeSpec.Type.Object && dtype.IsDynamicObject ())
@@ -1287,6 +1336,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			public string DefaultIndexerName;
 			public bool? CLSAttributeValue;
 			public TypeSpec CoClass;
+
+			// ActionScript - Dynamic attribute defined..
+			public bool AsDynamic;
+			public bool AsBindable;
 
 			static bool HasMissingType (ConstructorInfo ctor)
 			{
@@ -1408,6 +1461,31 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							bag.CoClass = importer.ImportType ((MetaType) a.ConstructorArguments[0].Value);
 							continue;
 						}
+
+						// ActionScript Dynamic Attribute
+						if (name == "DynamicClassAttribute") {
+							if (dt.Namespace != "PlayScript")
+								continue;
+							
+							if (bag == null)
+								bag = new AttributesBag ();
+							
+							bag.AsDynamic = true;
+							continue;
+						}
+
+						// ActionScript Bindable Attribute
+						if (name == "BindableAttribute") {
+							if (dt.Namespace != PsConsts.PsRootNamespace)
+								continue;
+							
+							if (bag == null)
+								bag = new AttributesBag ();
+							
+							bag.AsBindable = true;
+							continue;
+						}
+
 					}
 				}
 
@@ -1834,6 +1912,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		bool ITypeDefinition.IsAsDynamicClass {
+			get {
+				if (cattrs == null)
+					ReadAttributes ();
+
+				return cattrs.AsDynamic;
+			}
+		}
+
+		bool ITypeDefinition.IsAsBindableClass {
+			get {
+				if (cattrs == null)
+					ReadAttributes ();
+				
+				return cattrs.AsBindable;
+			}
+		}
 
 		bool ITypeDefinition.IsPartial {
 			get {
@@ -2281,6 +2376,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 
 		bool ITypeDefinition.IsComImport {
+			get {
+				return false;
+			}
+		}
+
+		bool ITypeDefinition.IsAsDynamicClass {
+			get {
+				return false;
+			}
+		}
+
+		bool ITypeDefinition.IsAsBindableClass {
 			get {
 				return false;
 			}

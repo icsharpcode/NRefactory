@@ -12,7 +12,6 @@
 //
 
 using System;
-using System.Linq;
 using System.IO;
 using System.Text;
 using System.Collections.Generic;
@@ -51,7 +50,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override int GetHashCode ()
 		{
-			return ((object)Item1 ?? 0) .GetHashCode () ^ ((object)Item2 ?? 0).GetHashCode ();
+			return Item1.GetHashCode () ^ Item2.GetHashCode ();
 		}
 
 		#region IEquatable<Tuple<T1,T2>> Members

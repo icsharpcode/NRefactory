@@ -22,7 +22,7 @@ using System.Reflection.Emit;
 
 namespace ICSharpCode.NRefactory.MonoCSharp {
 	
-	public abstract class Statement {
+	public abstract partial class Statement {
 		public Location loc;
 		protected bool reachable;
 
@@ -31,7 +31,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return !reachable;
 			}
 		}
-		
+
+		// The '/dynamic-' command line parameter can be used to disable dynamic in an entire set of files. 
+		// The [AllowDynamic] and [ForbidDynamic] attributes enable/disable dynamic support hierarchically on classes, methods, and packages.  
+		// [assembly:AllowDynamic(package=target)] is used to enable/disable dynamic on packages.			
+
+		// The dynamic ops generated during compilation of the current statement
+		public static DynamicOperation DynamicOps;
+
 		/// <summary>
 		///   Resolves the statement, true means that all sub-statements
 		///   did resolve ok.
@@ -140,7 +147,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public sealed class EmptyStatement : Statement
+	public sealed partial class EmptyStatement : Statement
 	{
 		public EmptyStatement (Location loc)
 		{
@@ -177,7 +184,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class If : Statement {
+	public partial class If : Statement {
 		Expression expr;
 		public Statement TrueStatement;
 		public Statement FalseStatement;
@@ -350,11 +357,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.expr != null)
+					this.expr.Accept (visitor);
+				if (visitor.Continue && this.TrueStatement != null)
+					this.TrueStatement.Accept (visitor);
+				if (visitor.Continue && this.FalseStatement != null)
+					this.FalseStatement.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
-	public class Do : LoopStatement
+	public partial class Do : LoopStatement
 	{
 		public Expression expr;
 		bool iterator_reachable, end_reachable;
@@ -465,7 +487,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+//				if (visitor.Continue && this.EmbeddedStatement != null)
+//					this.EmbeddedStatement.Accept (visitor);
+				if (visitor.Continue && this.expr != null)
+					this.expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 		public override void SetEndReachable ()
@@ -479,7 +514,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class While : LoopStatement
+	public partial class While : LoopStatement
 	{
 		public Expression expr;
 		bool empty, infinite, end_reachable;
@@ -623,7 +658,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.expr != null)
+					this.expr.Accept (visitor);
+				if (visitor.Continue && this.Statement != null)
+					this.Statement.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 		public override void AddEndDefiniteAssignment (FlowAnalysisContext fc)
@@ -643,7 +691,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class For : LoopStatement
+	public partial class For : LoopStatement
 	{
 		bool infinite, empty, iterator_reachable, end_reachable;
 		List<DefiniteAssignmentBitSet> end_reachable_das;
@@ -809,7 +857,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Initializer != null)
+					this.Initializer.Accept (visitor);
+				if (visitor.Continue && this.Condition != null)
+					this.Condition.Accept (visitor);
+				if (visitor.Continue && this.Iterator != null)
+					this.Iterator.Accept (visitor);
+				if (visitor.Continue && this.Statement != null)
+					this.Statement.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 		public override void AddEndDefiniteAssignment (FlowAnalysisContext fc)
@@ -871,7 +936,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 	
-	public class StatementExpression : Statement
+	public partial class StatementExpression : Statement
 	{
 		ExpressionStatement expr;
 		
@@ -925,7 +990,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -970,7 +1046,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -1043,7 +1130,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && statements != null) {
+					foreach (var stmnt in statements) {
+						if (visitor.Continue)
+							stmnt.Accept (visitor);
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -1101,7 +1203,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	/// <summary>
 	///   Implements the return statement
 	/// </summary>
-	public class Return : ExitStatement
+	public partial class Return : ExitStatement
 	{
 		Expression expr;
 
@@ -1135,7 +1237,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			var block_return_type = ec.ReturnType;
 
 			if (expr == null) {
-				if (block_return_type.Kind == MemberKind.Void || block_return_type == InternalType.ErrorType)
+				if (block_return_type.Kind == MemberKind.Void)
 					return true;
 
 				//
@@ -1158,10 +1260,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				if (ec.CurrentIterator != null) {
 					Error_ReturnFromIterator (ec);
-				} else if (block_return_type != InternalType.ErrorType) {
-					ec.Report.Error (126, loc,
-						"An object of a type convertible to `{0}' is required for the return statement",
-						block_return_type.GetSignatureForError ());
+				} else if (ec.ReturnType != InternalType.ErrorType) {
+					if (ec.HasNoReturnType && ec.IsPlayScript) {
+						expr = new MemberAccess(new MemberAccess(new SimpleName("PlayScript", loc), "Undefined", loc), "_undefined", loc).Resolve (ec);
+						return true;
+					} else 
+						ec.Report.Error (126, loc,
+							"An object of a type convertible to `{0}' is required for the return statement",
+							block_return_type.GetSignatureForError ());
 				}
 
 				return false;
@@ -1359,7 +1465,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -1573,7 +1690,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (block != null)
+						block.Accept (visitor);
+				}
+			}
+
+			return ret;
 		}
 	}
 	
@@ -1669,7 +1799,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return false;
 				}
 
-				if (!Convert.ImplicitStandardConversionExists (c, type))
+				if (!Convert.ImplicitStandardConversionExists (c, type, ec))
 					ec.Report.Warning (469, 2, loc,
 						"The `goto case' value is not implicitly convertible to type `{0}'",
 						type.GetSignatureForError ());
@@ -1710,7 +1840,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -1756,7 +1897,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 	
-	public class Throw : Statement {
+	public partial class Throw : Statement {
 		Expression expr;
 		
 		public Throw (Expression expr, Location l)
@@ -1849,11 +1990,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
-	public class Break : LocalExitStatement
+	public partial class Break : LocalExitStatement
 	{		
 		public Break (Location l)
 			: base (l)
@@ -1900,7 +2052,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class Continue : LocalExitStatement
+	public partial class Continue : LocalExitStatement
 	{		
 		public Continue (Location l)
 			: base (l)
@@ -1994,19 +2146,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		bool IsDeclared { get; }
 		bool IsParameter { get; }
 		Location Location { get; }
+		FullNamedExpression TypeExpr { get; set; }
 	}
 
 	public class BlockVariableDeclarator
 	{
 		LocalVariable li;
+		FullNamedExpression type_expr;		
 		Expression initializer;
+		Location loc;
 
-		public BlockVariableDeclarator (LocalVariable li, Expression initializer)
+		public BlockVariableDeclarator (LocalVariable li, Expression initializer, FullNamedExpression type_expr = null)
 		{
 			if (li.Type != null)
 				throw new ArgumentException ("Expected null variable type");
 
 			this.li = li;
+			this.type_expr = type_expr;
+			this.initializer = initializer;
+		}
+
+		public BlockVariableDeclarator (BlockVariableDeclarator clone, Expression initializer)
+		{
+			this.li = clone.li;
+			this.type_expr = clone.type_expr;
 			this.initializer = initializer;
 		}
 
@@ -2027,6 +2190,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public FullNamedExpression TypeExpression {
+			get { 
+				return type_expr; 
+			}
+			set {
+				type_expr = value;
+			}
+		}
+
+		public Location Location {
+			get {
+				return loc;
+			}
+			set {
+				loc = value;
+			}
+		}
+
 		#endregion
 
 		public virtual BlockVariableDeclarator Clone (CloneContext cloneCtx)
@@ -2039,7 +2220,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class BlockVariable : Statement
+	public partial class BlockVariable : Statement
 	{
 		Expression initializer;
 		protected FullNamedExpression type_expr;
@@ -2123,64 +2304,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public bool Resolve (BlockContext bc, bool resolveDeclaratorInitializers)
 		{
 			if (type == null && !li.IsCompilerGenerated) {
-				var vexpr = type_expr as VarExpr;
-
-				//
-				// C# 3.0 introduced contextual keywords (var) which behaves like a type if type with
-				// same name exists or as a keyword when no type was found
-				//
-				if (vexpr != null && !vexpr.IsPossibleTypeOrNamespace (bc)) {
-					if (bc.Module.Compiler.Settings.Version < LanguageVersion.V_3)
-						bc.Report.FeatureIsNotAvailable (bc.Module.Compiler, loc, "implicitly typed local variable");
-
-					if (li.IsFixed) {
-						bc.Report.Error (821, loc, "A fixed statement cannot use an implicitly typed local variable");
-						return false;
-					}
-
-					if (li.IsConstant) {
-						bc.Report.Error (822, loc, "An implicitly typed local variable cannot be a constant");
-						return false;
-					}
-
-					if (Initializer == null) {
-						bc.Report.Error (818, loc, "An implicitly typed local variable declarator must include an initializer");
-						return false;
-					}
-
-					if (declarators != null) {
-						bc.Report.Error (819, loc, "An implicitly typed local variable declaration cannot include multiple declarators");
-						declarators = null;
-					}
-
-					Initializer = Initializer.Resolve (bc);
-					if (Initializer != null) {
-						((VarExpr) type_expr).InferType (bc, Initializer);
-						type = type_expr.Type;
-					} else {
-						// Set error type to indicate the var was placed correctly but could
-						// not be infered
-						//
-						// var a = missing ();
-						//
-						type = InternalType.ErrorType;
-					}
-				}
-
-				if (type == null) {
-					type = type_expr.ResolveAsType (bc);
-					if (type == null)
-						return false;
-
-					if (li.IsConstant && !type.IsConstantCompatible) {
-						Const.Error_InvalidConstantType (type, loc, bc.Report);
-					}
-				}
-
-				if (type.IsStatic)
-					FieldBase.Error_VariableOfStaticClass (loc, li.Name, type, bc.Report);
-
+				Expression resolvedInitializer = null;
+				type = ResolveVariableType(li, type_expr, initializer, out resolvedInitializer, declarators, loc, bc);
+				if (type == null)
+					return false;
 				li.Type = type;
+				if (resolvedInitializer != null)
+					initializer = resolvedInitializer;
 			}
 
 			bool eval_global = bc.Module.Compiler.Settings.StatementMode && bc.CurrentBlock is ToplevelBlock;
@@ -2196,8 +2326,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 
 			if (declarators != null) {
+				var declType = li.Type;
 				foreach (var d in declarators) {
-					d.Variable.Type = li.Type;
+					if (d.TypeExpression == null) {
+						d.Variable.Type = declType;
+					} else {
+						// PlayScript - Declarators can specify their own types (not really declarators, but close enough).
+						Expression declResolvedInitializer = null;
+						declType = ResolveVariableType(d.Variable, d.TypeExpression, d.Initializer, out declResolvedInitializer, null, d.Location, bc);
+						if (declType == null)
+							return false;
+						d.Variable.Type = declType;
+						if (declResolvedInitializer != null)
+							d.Initializer = declResolvedInitializer;
+					}
 					if (eval_global) {
 						CreateEvaluatorVariable (bc, d.Variable);
 					} else if (type != InternalType.ErrorType) {
@@ -2212,6 +2354,74 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 
 			return true;
+		}
+
+		private static TypeSpec ResolveVariableType(LocalVariable li, Expression type_expr, 
+		                                     Expression initializer, out Expression resolvedInitializer, 
+		                                     List<BlockVariableDeclarator> declarators, Location loc, BlockContext bc) 
+		{
+			TypeSpec type = null;
+
+			resolvedInitializer = null;
+
+			var vexpr = type_expr as VarExpr;
+
+			//
+			// C# 3.0 introduced contextual keywords (var) which behaves like a type if type with
+			// same name exists or as a keyword when no type was found
+			//
+			if (vexpr != null && !vexpr.IsPossibleTypeOrNamespace (bc)) {
+				if (bc.Module.Compiler.Settings.Version < LanguageVersion.V_3)
+					bc.Report.FeatureIsNotAvailable (bc.Module.Compiler, loc, "implicitly typed local variable");
+
+				if (li.IsFixed) {
+					bc.Report.Error (821, loc, "A fixed statement cannot use an implicitly typed local variable");
+					return null;
+				}
+
+				if (li.IsConstant) {
+					bc.Report.Error (822, loc, "An implicitly typed local variable cannot be a constant");
+					return null;
+				}
+
+				if (initializer == null) {
+					bc.Report.Error (818, loc, "An implicitly typed local variable declarator must include an initializer");
+					return null;
+				}
+
+				if (declarators != null) {
+					bc.Report.Error (819, loc, "An implicitly typed local variable declaration cannot include multiple declarators");
+					declarators = null;
+				}
+
+				resolvedInitializer = initializer.Resolve (bc);
+				if (resolvedInitializer != null) {
+					((VarExpr) type_expr).InferType (bc, resolvedInitializer);
+					type = type_expr.Type;
+				} else {
+					// Set error type to indicate the var was placed correctly but could
+					// not be infered
+					//
+					// var a = missing ();
+					//
+					type = InternalType.ErrorType;
+				}
+			}
+
+			if (type == null) {
+				type = type_expr.ResolveAsType (bc);
+				if (type == null)
+					return null;
+
+				if (li.IsConstant && !type.IsConstantCompatible) {
+					Const.Error_InvalidConstantType (type, loc, bc.Report);
+				}
+			}
+
+			if (type.IsStatic)
+				FieldBase.Error_VariableOfStaticClass (loc, li.Name, type, bc.Report);
+		
+			return type;
 		}
 
 		protected virtual Expression ResolveInitializer (BlockContext bc, LocalVariable li, Expression initializer)
@@ -2281,7 +2491,31 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (initializer != null) {
+						this.initializer.Accept (visitor);
+					}
+				}
+				if (visitor.Continue) {
+					if (declarators != null) {
+						foreach (var decl in declarators) {
+							if (visitor.Continue) {
+								if (decl.Initializer != null)
+									decl.Initializer.Accept (visitor);
+							}
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -2309,7 +2543,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return null;
 			}
 
-			c = c.ConvertImplicitly (li.Type);
+			c = c.ConvertImplicitly (li.Type, bc);
 			if (c == null) {
 				if (TypeSpec.IsReferenceType (li.Type))
 					initializer.Error_ConstantCanBeInitializedWithNullOnly (bc, li.Type, initializer.Location, li.Name);
@@ -2346,8 +2580,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			FixedVariable = 1 << 6,
 			UsingVariable = 1 << 7,
 			IsLocked = 1 << 8,
+			AsIgnoreMultiple = 1 << 9,  // ActionScript: Should ignore multiple decls
 
-			ReadonlyMask = ForeachVariable | FixedVariable | UsingVariable
+			ReadonlyMask = ForeachVariable | FixedVariable | UsingVariable,
+			CreateBuilderMask = CompilerGenerated | AsIgnoreMultiple
 		}
 
 		TypeSpec type;
@@ -2362,8 +2598,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		LocalBuilder builder;
 
+		// PlayScript - We need a copy of the type expression here to handle default initialization.
+		FullNamedExpression typeExpr;
+
 		public LocalVariable (Block block, string name, Location loc)
 		{
+			// PlayScript local variable hoisting
+			if (loc.SourceFile != null && loc.SourceFile.FileType == SourceFileType.PlayScript && loc.SourceFile.PsExtended == false) {
+				block = block.ParametersBlock;
+			}
+
 			this.block = block;
 			this.name = name;
 			this.loc = loc;
@@ -2403,6 +2647,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 			set {
 				const_value = value;
+			}
+		}
+
+		// ActionScript - Needs type expression to detect when two local declarations are the same declaration.
+		public FullNamedExpression TypeExpr {
+			get { 
+				return typeExpr; 
+			}
+			set { 
+				typeExpr = value; 
 			}
 		}
 
@@ -2490,6 +2744,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public Flags DeclFlags {
+			get {
+				return flags;
+			}
+			set {
+				flags = value;
+			}
+		}
+
 		#endregion
 
 		public void CreateBuilder (EmitContext ec)
@@ -2510,7 +2773,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return;
 
 			if (builder != null) {
-				if ((flags & Flags.CompilerGenerated) != 0)
+				if ((flags & Flags.CreateBuilderMask) != 0)
 					return;
 
 				// To avoid Used warning duplicates
@@ -2543,7 +2806,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public void Emit (EmitContext ec)
 		{
 			// TODO: Need something better for temporary variables
-			if ((flags & Flags.CompilerGenerated) != 0)
+			if ((flags & Flags.CreateBuilderMask) != 0)
 				CreateBuilder (ec);
 
 			ec.Emit (OpCodes.Ldloc, builder);
@@ -2552,9 +2815,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public void EmitAssign (EmitContext ec)
 		{
 			// TODO: Need something better for temporary variables
-			if ((flags & Flags.CompilerGenerated) != 0)
+			if ((flags & Flags.CreateBuilderMask) != 0)
 				CreateBuilder (ec);
 
+			// FIX: Hack for PlayScript .play exception filters due to upstream merge 2ab02d
+			// not creating builder in the correct spot so hack it for now
+			if (builder == null)
+				CreateBuilder (ec);
+			
 			ec.Emit (OpCodes.Stloc, builder);
 		}
 
@@ -2647,7 +2915,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   Top-level blocks derive from Block, and they are called ToplevelBlock
 	///   they contain extra information that is not necessary on normal blocks.
 	/// </remarks>
-	public class Block : Statement {
+	public partial class Block : Statement {
 		[Flags]
 		public enum Flags
 		{
@@ -2694,7 +2962,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public int ID = id++;
 
 		static int clone_id_counter;
+
+#pragma warning disable 0414
 		int clone_id;
+#pragma warning restore 0414
+
 #endif
 
 //		int assignable_slots;
@@ -2896,12 +3168,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			Block prev_block = bc.CurrentBlock;
 			bc.CurrentBlock = this;
 
+			bool allowDynamic = bc.AllowDynamic;
+
 			//
 			// Compiler generated scope statements
 			//
 			if (scope_initializers != null) {
 				for (resolving_init_idx = 0; resolving_init_idx < scope_initializers.Count; ++resolving_init_idx) {
+					//var initializer = scope_initializers [resolving_init_idx.Value];
 					scope_initializers[resolving_init_idx.Value].Resolve (bc);
+//					bc.Statement = initializer;
+//					initializer.Resolve (bc);
+//					if (!allowDynamic && Statement.DynamicOps != 0) 
+//						ErrorIllegalDynamic (bc, initializer.loc);
+//					Statement.DynamicOps = 0;
+//					scope_initializers[resolving_init_idx.Value].Resolve (bc);
 				}
 
 				resolving_init_idx = null;
@@ -2919,12 +3200,35 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 					continue;
 				}
+
+				if (bc.IsPlayScript) {
+					if (!allowDynamic && Statement.DynamicOps != 0) 
+						ErrorIllegalDynamic (bc, s.loc);
+					Statement.DynamicOps = 0;
+
+				}
 			}
 
 			bc.CurrentBlock = prev_block;
 
 			flags |= Flags.Resolved;
 			return ok;
+		}
+
+		protected void ErrorIllegalDynamic(BlockContext bc, Location loc)
+		{
+			System.Text.StringBuilder sb = new System.Text.StringBuilder ();
+			bool first = true;
+			for (uint i = 1u; i <= 1u << 30; i <<= 1) {
+				if (((uint)Statement.DynamicOps & i) != 0u) {
+					if (!first)
+						sb.Append (",");
+					sb.Append (System.Enum.GetName (typeof(DynamicOperation), (int)i));
+					first = false;
+				}
+			}
+
+			bc.Report.Error (7655, loc, "Illegal use of dynamic: '" + sb.ToString () + "'");
 		}
 
 		protected override void DoEmit (EmitContext ec)
@@ -2952,7 +3256,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			if (scope_initializers != null) {
 				foreach (var si in scope_initializers)
-					si.FlowAnalysis (fc);
+					if (si == null)
+						Console.WriteLine ("**** Statement Block scope_initializer is null? ****");
+					else
+						si.FlowAnalysis (fc);
 			}
 
 			return DoFlowAnalysis (fc, 0);	
@@ -3105,7 +3412,32 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (scope_initializers != null) {
+						foreach (var sinit in scope_initializers) {
+							if (visitor.Continue)
+								sinit.Accept (visitor);
+						}
+					}
+				}
+				if (visitor.Continue) {
+					if (statements != null) {
+						foreach (var stmnt in statements) {
+							if (visitor.Continue)
+								stmnt.Accept (visitor);
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -3219,14 +3551,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override void Emit (EmitContext ec)
 		{
-			if (Parent != null)
-				ec.BeginScope ();
-
 			EmitScopeInitialization (ec);
 
 			if (ec.EmitAccurateDebugInfo && !IsCompilerGenerated && ec.Mark (StartLocation)) {
 				ec.Emit (OpCodes.Nop);
 			}
+
+			if (Parent != null)
+				ec.BeginScope ();
 
 			DoEmit (ec);
 
@@ -3279,7 +3611,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				//
 				// We are the first storey on path and 'this' has to be hoisted
 				//
-				if (storey.HoistedThis == null || !(storey.Parent is HoistedStoreyClass)) {
+				if (storey.HoistedThis == null) {
 					foreach (ExplicitBlock ref_block in Original.ParametersBlock.TopBlock.ThisReferencesFromChildrenBlock) {
 						//
 						// ThisReferencesFromChildrenBlock holds all reference even if they
@@ -3467,6 +3799,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			public VariableInfo VariableInfo;
 			bool is_locked;
 
+			private FullNamedExpression typeExpr;
+
 			public ParameterInfo (ParametersBlock block, int index)
 			{
 				this.block = block;
@@ -3523,6 +3857,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			public TypeSpec ParameterType {
 				get {
 					return Parameter.Type;
+				}
+			}
+
+			// ActionScript - Needs type expression to detect when two local declarations are the same declaration.
+			public FullNamedExpression TypeExpr {
+				get {
+					return typeExpr;
+				}
+				set {
+					typeExpr = value;
 				}
 			}
 
@@ -3689,6 +4033,72 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public int TemporaryLocalsCount { get; set; }
 
 		#endregion
+
+		// <summary>
+		//	PlayScript - We need to create an "Array" for our args parameters for ActionScript/PlayScript..
+		// </summary>
+		private void PsCreateVarArgsArray (BlockContext rc)
+		{
+			if (parameters != null && parameters.FixedParameters != null && parameters.FixedParameters.Length > 0) {
+				var param = parameters.FixedParameters [parameters.FixedParameters.Length - 1] as Parameter;
+				if (param != null && (param.ParameterModifier & Parameter.Modifier.PARAMS) != 0) {
+					string argName = param.Name.Substring (2); // Arg should start with "__" (we added it in the parser).
+					var li = new LocalVariable (this, argName, this.loc);
+					var decl = new BlockVariable (new  ICSharpCode.NRefactory.MonoCSharp.TypeExpression(rc.Module.PredefinedTypes.AsArray.Resolve(), this.loc), li);
+					var arguments = new Arguments (1);
+					arguments.Add (new Argument(new SimpleName(param.Name, this.loc)));
+					decl.Initializer = new Invocation (new MemberAccess(new MemberAccess(new SimpleName("PlayScript", this.loc), "Support", this.loc), "CreateArgListArray", this.loc), arguments);
+					this.AddLocalName (li);
+					this.AddScopeStatement (decl);	
+				}
+			}
+		}
+
+		// <summary>
+		//	PlayScript - Need to support non-null default args for object types
+		// </summary>
+		private void PsInitializeDefaultArgs (BlockContext rc)
+		{
+			if (parameters != null && parameters.FixedParameters != null && parameters.FixedParameters.Length > 0) {
+				int n = parameters.FixedParameters.Length;
+				for (int i = 0; i < n; i++) {
+					var param = parameters.FixedParameters [i] as Parameter;
+					if (param == null || !param.HasDefaultValue)
+						continue;
+
+					//
+					// These types are already handled by default, skip over them.
+					//
+					if (param.DefaultValue.IsNull || !TypeSpec.IsReferenceType (param.Type) || param.Type.BuiltinType == BuiltinTypeSpec.Type.String)
+						continue;
+
+					//
+					// Types that aren't supported by the base C# functionality will
+					// be assigned the value System.Reflection.Missing. We insert an if
+					// block at the top of the function which checks for this type, and
+					// then assigns the variable the real default value.
+					//
+					param = param.Clone ();
+					param.ResolveDefaultValue (rc);
+					var value = param.DefaultValue.Child;
+					if (value is BoxedCast)
+						value = ((BoxedCast)value).Child;
+
+					if (value is ILiteralConstant) {
+						var variable = new SimpleName (param.Name, loc);
+						var assign = new StatementExpression (
+							new SimpleAssign (variable, value.Clone (new CloneContext ())));
+						var missing = new MemberAccess (new MemberAccess (
+							new QualifiedAliasMember (QualifiedAliasMember.GlobalAlias, "System", loc), "Reflection", loc), "Missing", loc);
+						var statement = new If (new Is (variable, missing, loc), assign, loc);
+						AddScopeStatement (statement);
+					} else {
+						rc.Report.Error (7013, "Optional parameter `{0}' of type `{1}' can't be initialized with the given value",
+						                 param.Name, param.Type.GetSignatureForError ());
+					}
+				}
+			}
+		}
 
 		//
 		// Checks whether all `out' parameters have been assigned.
@@ -3879,6 +4289,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				// TODO: Should use Parameter only and more block there
 				parameter_info[i] = new ParameterInfo (this, i);
+				if (p is Parameter)
+					parameter_info[i].TypeExpr = ((Parameter)p).TypeExpression;
 				if (p.Name != null)
 					AddLocalName (p.Name, parameter_info[i]);
 			}
@@ -3907,6 +4319,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (bc.HasSet (ResolveContext.Options.ExpressionTreeConversion))
 				flags |= Flags.IsExpressionTree;
 
+			//
+			// PlayScript specific setup
+			//
+			if (bc.IsPlayScript) {
+				PsInitializeDefaultArgs (bc);
+				PsCreateVarArgsArray (bc);
+			}
+
 			try {
 				PrepareAssignmentAnalysis (bc);
 
@@ -3916,7 +4336,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			} catch (Exception e) {
 				if (e is CompletionResult || bc.Report.IsDisabled || e is FatalException || bc.Report.Printer is NullReportPrinter || bc.Module.Compiler.Settings.BreakOnInternalError)
 					throw;
-
 				if (bc.CurrentBlock != null) {
 					bc.Report.Error (584, bc.CurrentBlock.StartLocation, "Internal compiler error: {0}", e.Message);
 				} else {
@@ -3924,6 +4343,25 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				}
 			}
 
+//			if (rc.ReturnType.Kind != MemberKind.Void && !unreachable) {
+//				if (rc.CurrentAnonymousMethod == null) {
+//					// FIXME: Missing FlowAnalysis for generated iterator MoveNext method
+//					if (md is StateMachineMethod) {
+//						unreachable = true;
+//					} else {
+						
+
+			// Support untyped methods
+			// This emulates the as3 behavior with 1 exception: if you specify a
+			//	return type of '*', but not all code paths return a value, PlayScript
+			//		will consider this a compiler error instead of automatically returing
+			//		undefined in those cases. I think this behavior is favorable.
+			if (bc.IsPlayScript && bc.HasNoReturnType) {
+				var ret = new Return (null, EndLocation);
+				ret.Resolve (bc);
+				statements.Add (ret);
+				return true;
+			}
 			//
 			// If an asynchronous body of F is either an expression classified as nothing, or a 
 			// statement block where no return statements have expressions, the inferred return type is Task
@@ -4073,6 +4511,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public int NamesCount {
+			get { 
+				return names.Count; 
+			}
+		}
+
+		public IEnumerable<KeyValuePair<string, object>> Names {
+			get {
+				return names;
+			}
+		}
+
+		public int LabelsCount {
+			get { 
+				return labels.Count;
+			}
+		}
+
+		public IEnumerable<KeyValuePair<string, object>> Labels {
+			get {
+				return labels;
+			}
+		}
+
 		//
 		// Used by anonymous blocks to track references of `this' variable
 		//
@@ -4113,16 +4575,34 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				existing_list = (List<INamedBlockVariable>) value;
 			}
 
+			var variable_block = li.Block.Explicit;
+
+			// Check if we're ActionScript..
+			bool isActionScript = variable_block != null && variable_block.loc.SourceFile != null && 
+				variable_block.loc.SourceFile.FileType == SourceFileType.PlayScript && 
+				!variable_block.loc.SourceFile.PsExtended;
+
 			//
 			// A collision checking between local names
 			//
-			var variable_block = li.Block.Explicit;
 			for (int i = 0; i < existing_list.Count; ++i) {
 				existing = existing_list[i];
 				Block b = existing.Block.Explicit;
 
 				// Collision at same level
 				if (variable_block == b) {
+
+					// If we're ActionScript and two local vars are declared with identical 
+					// declarations, we return the previous declaration var info and discard ours.
+					if (isActionScript && (li.TypeExpr == existing.TypeExpr || (li.TypeExpr != null && existing.TypeExpr != null && 
+					    li.TypeExpr.Equals (existing.TypeExpr)))) {
+
+						li.Block.ParametersBlock.TopBlock.Report.Warning (7138, 1, li.Location,
+							"Variable is declared more than once.");
+
+						return;
+					} 
+
 					li.Block.Error_AlreadyDeclared (name, li);
 					break;
 				}
@@ -4568,7 +5048,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.label != null)
+					this.label.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 		public string GetSignatureForError ()
@@ -4583,7 +5074,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class Switch : LoopStatement
+	public partial class Switch : LoopStatement
 	{
 		// structure used to hold blocks of keys while calculating table switch
 		sealed class LabelsRange : IComparable<LabelsRange>
@@ -4682,13 +5173,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			protected override bool DoFlowAnalysis (FlowAnalysisContext fc)
 			{
-				if (FallOut) {
-					fc.Report.Error (8070, loc, "Control cannot fall out of switch statement through final case label `{0}'",
-						label.GetSignatureForError ());
-				} else {
-					fc.Report.Error (163, loc, "Control cannot fall through from one case label `{0}' to another",
-						label.GetSignatureForError ());
-				}
+				if (!loc.IsPlayScript) // AS allows empty case blocks && AS allows fall throughs
+					if (FallOut) {
+						fc.Report.Error (8070, loc, "Control cannot fall out of switch statement through final case label `{0}'",
+							label.GetSignatureForError ());
+					} else {
+						fc.Report.Error (163, loc, "Control cannot fall through from one case label `{0}' to another",
+							label.GetSignatureForError ());
+					}
 				return true;
 			}
 		}
@@ -5093,6 +5585,25 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return case_default != null && !end_reachable;
 		}
 
+		private List<TypeSpec> GetSwitchCaseTypes(BlockContext ec)
+		{
+			// build type list from all case labels
+			var types = new List<TypeSpec>();
+			foreach (var statement in this.Block.Statements) {
+				if (statement is SwitchLabel) {
+					var caseLabel = statement as SwitchLabel;
+					if (caseLabel.Label != null) {
+						// resolve label type
+						var resolved = caseLabel.Label.Resolve(ec);
+						if (!types.Contains(resolved.Type)) {
+							types.Add(resolved.Type);
+						}
+					}
+				}
+			}
+			return types;
+		}
+
 		public override bool Resolve (BlockContext ec)
 		{
 			Expr = Expr.Resolve (ec);
@@ -5115,6 +5626,35 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					// involving nullable Expr and nullable governing type is
 					//
 					new_expr = SwitchGoverningType (ec, unwrap, true);
+				}
+			}
+
+			if (new_expr == null && ec.FileType == SourceFileType.PlayScript) {
+				// handle implict casting of switch expression
+				// get types of all case labels
+				var caseTypes = GetSwitchCaseTypes(ec); 
+
+				// only handle case where all labels are all the same type
+				if (caseTypes.Count == 1) {
+					// convert expression to case label type
+					new_expr = Convert.ImplicitConversion(ec, Expr, caseTypes[0], Expr.Location, false);
+					if (new_expr == null) {
+						ec.Report.Error (151, loc,
+						                 "A switch expression of type `{0}' cannot be converted to type '{1}'",
+						                 Expr.Type.GetSignatureForError (),
+						                 caseTypes[0].GetSignatureForError()
+						                 );
+					}
+				} else if (caseTypes.Count == 0) {
+					// no case statements (does it matter?)
+					new_expr = new NullLiteral(Expr.Location);
+				} else if (caseTypes.Count > 1) {
+					// multiple case statements, with multiple types
+					ec.Report.Error (151, loc,
+					                 "A switch expression of type `{0}' has multiple types in its case labels, cast it to a specific type first",
+					                 Expr.Type.GetSignatureForError ()
+					                 );
+					return false;
 				}
 			}
 
@@ -5595,7 +6135,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+				if (visitor.Continue && this.Block != null)
+					this.Block.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 		public override void AddEndDefiniteAssignment (FlowAnalysisContext fc)
@@ -6048,7 +6601,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.expr != null)
+					this.expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 	}
@@ -6095,7 +6659,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Block != null)
+					this.Block.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -6141,7 +6716,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Block != null)
+					this.Block.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -6189,7 +6775,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Block != null)
+					this.Block.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -6493,37 +7090,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Statement != null)
+					this.Statement.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
 	public class Catch : Statement
 	{
-		class CatchVariableStore : Statement
-		{
-			readonly Catch ctch;
-
-			public CatchVariableStore (Catch ctch)
-			{
-				this.ctch = ctch;
-			}
-
-			protected override void CloneTo (CloneContext clonectx, Statement target)
-			{
-			}
-
-			protected override void DoEmit (EmitContext ec)
-			{
-				// Emits catch variable debug information inside correct block
-				ctch.EmitCatchVariableStore (ec);
-			}
-
-			protected override bool DoFlowAnalysis (FlowAnalysisContext fc)
-			{
-				return true;
-			}
-		}
-
 		class FilterStatement : Statement
 		{
 			readonly Catch ctch;
@@ -6597,6 +7180,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		TypeSpec type;
 		LocalTemporary hoisted_temp;
 
+		// The PlayScript error variable (if we're converting from Exception to Error).
+		LocalVariable psErrorLi;
+
 		public Catch (ExplicitBlock block, Location loc)
 		{
 			this.block = block;
@@ -6653,6 +7239,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				ec.BeginExceptionFilterBlock ();
 				ec.Emit (OpCodes.Isinst, IsGeneral ? ec.BuiltinTypes.Object : CatchType);
 
+				if (li != null)
+					EmitCatchVariableStore (ec);
+
 				if (Block.HasAwait) {
 					Block.EmitScopeInitialization (ec);
 				} else {
@@ -6667,15 +7256,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			else
 				ec.BeginCatchBlock (CatchType);
 
-			if (li == null)
-				ec.Emit (OpCodes.Pop);
-
-			if (Block.HasAwait) {
-				if (li != null)
-					EmitCatchVariableStore (ec);
+			if (li != null) {
+				EmitCatchVariableStore (ec);
 			} else {
-				Block.Emit (ec);
+				ec.Emit (OpCodes.Pop);
 			}
+
+			if (psErrorLi != null)
+				psErrorLi.CreateBuilder (ec);
+		
+			if (!Block.HasAwait)
+				Block.Emit (ec);
 		}
 
 		void EmitCatchVariableStore (EmitContext ec)
@@ -6683,9 +7274,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			li.CreateBuilder (ec);
 
 			//
-			// For hoisted catch variable we have to use a temporary local variable
-			// for captured variable initialization during storey setup because variable
-			// needs to be on the stack after storey instance for stfld operation
+			// Special case hoisted catch variable, we have to use a temporary variable
+			// to pass via anonymous storey initialization with the value still on top
+			// of the stack
 			//
 			if (li.HoistedVariant != null) {
 				hoisted_temp = new LocalTemporary (li.Type);
@@ -6701,9 +7292,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			using (bc.Set (ResolveContext.Options.CatchScope)) {
 				if (type_expr == null) {
 					if (CreateExceptionVariable (bc.Module.Compiler.BuiltinTypes.Object)) {
-						if (!block.HasAwait || Filter != null)
-							block.AddScopeStatement (new CatchVariableStore (this));
-
 						Expression source = new EmptyExpression (li.Type);
 						assign = new CompilerAssign (new LocalVariableReference (li, Location.Null), source, Location.Null);
 						Block.AddScopeStatement (new StatementExpression (assign, Location.Null));
@@ -6719,6 +7307,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					if (type.BuiltinType != BuiltinTypeSpec.Type.Exception && !TypeSpec.IsBaseClass (type, bc.BuiltinTypes.Exception, false)) {
 						bc.Report.Error (155, loc, "The type caught or thrown must be derived from System.Exception");
 					} else if (li != null) {
+
+						// For PlayScript catch (e:Error) { convert to catch (Exception __e), then convert to Error in catch block..
+						if (bc.IsPlayScript && type == bc.Module.PredefinedTypes.AsError.Resolve ()) {
+
+							// Save old error var so we can use it below
+							psErrorLi = li;
+							psErrorLi.Type = type;
+							psErrorLi.PrepareAssignmentAnalysis (bc);
+
+							// Switch to "Exception"
+							type = bc.BuiltinTypes.Exception;
+							li = new LocalVariable (block, "__" + this.Variable.Name , Location.Null);
+							li.TypeExpr = new TypeExpression(bc.BuiltinTypes.Exception, Location.Null);
+							li.Type = bc.BuiltinTypes.Exception;
+							block.AddLocalName (li);
+						}
+
 						li.Type = type;
 						li.PrepareAssignmentAnalysis (bc);
 
@@ -6727,14 +7332,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						if (li.Type.IsGenericParameter)
 							source = new UnboxCast (source, li.Type);
 
-						if (!block.HasAwait || Filter != null)
-							block.AddScopeStatement (new CatchVariableStore (this));
-
 						//
 						// Uses Location.Null to hide from symbol file
 						//
 						assign = new CompilerAssign (new LocalVariableReference (li, Location.Null), source, Location.Null);
 						Block.AddScopeStatement (new StatementExpression (assign, Location.Null));
+
+						// Convert Exception to PlayScript/ActionScript Error type if needed						
+						if (psErrorLi != null) {
+							// PlayScript - Generate the code "err = __err as Error ?? new DotNetError(_err)"
+							var newArgs = new Arguments (1);
+							newArgs.Add (new Argument (new LocalVariableReference (li, Location.Null)));
+							var asExpr = new As (new LocalVariableReference (li, Location.Null), new TypeExpression (bc.Module.PredefinedTypes.AsError.Resolve (), Location.Null), Location.Null);
+							var newExpr = new New (new TypeExpression (bc.Module.PredefinedTypes.AsDotNetError.Resolve (), Location.Null), newArgs, Location.Null);
+
+							var errAssign = new CompilerAssign (psErrorLi.CreateReferenceExpression (bc, Location.Null), 
+								new Nullable.NullCoalescingOperator (asExpr, newExpr), Location.Null);
+							block.AddScopeStatement (new StatementExpression(errAssign, Location.Null));
+						}
 					}
 				}
 
@@ -7061,7 +7676,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Statement != null)
+					this.Statement.Accept (visitor);
+				if (visitor.Continue && this.fini != null)
+					this.fini.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -7288,7 +7916,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Block != null)
+					this.Block.Accept (visitor);
+				if (visitor.Continue) {
+					if (clauses != null) {
+						foreach (var claus in clauses) {
+							if (visitor.Continue)
+								claus.Accept (visitor);
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -7574,8 +8221,39 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+				if (visitor.Continue && this.Statement != null)
+					this.Statement.Accept (visitor);
+			}
+
+			return ret;
 		}
+	}
+
+	/// <summary>
+	/// PlayScript ForEach type.
+	/// </summary>/
+	public enum AsForEachType {
+		/// <summary>
+		/// Generate a normal cs foreach statement.
+		/// </summary>
+		CSharpForEach,
+		/// <summary>
+		/// Generate an PlayScript for (var a in collection) statement.  Yields keys.
+		/// </summary>
+		ForEachKey,
+		/// <summary>
+		/// Generate an PlayScript for each (var a in collection) statement.  Yields values.
+		/// </summary>
+		ForEachValue
 	}
 
 	/// <summary>
@@ -7639,6 +8317,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			public override bool Resolve (BlockContext ec)
 			{
+				if (ec.FileType == SourceFileType.PlayScript &&
+				    for_each.AsForEachType == AsForEachType.ForEachKey) {
+					ec.Report.Error (7018, loc, "for(in) statement cannot be used with arrays.");
+					return false;
+				}
+
 				Block variables_block = for_each.variable.Block;
 				copy = TemporaryVariableReference.Create (for_each.expr.Type, variables_block, loc);
 				copy.Resolve (ec);
@@ -7791,10 +8475,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			TemporaryVariableReference enumerator_variable;
 			bool ambiguous_getenumerator_name;
 
-			public CollectionForeach (Foreach @foreach, LocalVariable var, Expression expr)
+			public CollectionForeach (Foreach @foreach, LocalVariable @var, Expression expr)
 				: base (@foreach)
 			{
-				this.variable = var;
+				this.variable = @var;
 				this.expr = expr;
 			}
 
@@ -7884,6 +8568,65 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return mg;
 			}
 
+			MethodGroupExpr ResolveGetKeyEnumerator (ResolveContext rc)
+			{
+				//
+				// Option 1: Try to match by name GetKeyEnumerator first
+				//
+				var mexpr = Expression.MemberLookup (rc, false, expr.Type,
+				                                     "GetKeyEnumerator", 0, Expression.MemberLookupRestrictions.ExactArity, loc);		// TODO: What if CS0229 ?
+				
+				var mg = mexpr as MethodGroupExpr;
+				if (mg != null) {
+					mg.InstanceExpression = expr;
+					Arguments args = new Arguments (0);
+					mg = mg.OverloadResolve (rc, ref args, this, OverloadResolver.Restrictions.ProbingOnly);
+					
+					// For ambiguous GetEnumerator name warning CS0278 was reported, but Option 2 could still apply
+					if (ambiguous_getenumerator_name)
+						mg = null;
+					
+					if (mg != null && args.Count == 0 && !mg.BestCandidate.IsStatic && mg.BestCandidate.IsPublic) {
+						return mg;
+					}
+				}
+				
+				//
+				// Option 2: Try to match using IKeyEnumerable interfaces
+				//
+				var t = expr.Type;
+				PredefinedMember<MethodSpec> iface_candidate = null;
+				rc.Module.PredefinedTypes.AsIKeyEnumerable.Define();
+
+				var ifaces = t.Interfaces;
+				if (ifaces != null) {
+					foreach (var iface in ifaces) {
+						if (iface == rc.Module.PredefinedTypes.AsIKeyEnumerable.TypeSpec && iface_candidate == null) {
+							iface_candidate = rc.Module.PredefinedMembers.AsIKeyEnumerableGetKeyEnumerator;
+						}
+					}
+				}
+				
+				if (iface_candidate == null) {
+					if (expr.Type != InternalType.ErrorType) {
+						rc.Report.Error (1579, loc,
+						                 "for statement cannot operate on variables of type `{0}' because it does not contain a definition for `{1}' or is inaccessible",
+						                 expr.Type.GetSignatureForError (), "GetKeyEnumerator");
+					}
+					
+					return null;
+				}
+				
+				var method = iface_candidate.Resolve (loc);
+				if (method == null)
+					return null;
+				
+				mg = MethodGroupExpr.CreatePredefined (method, expr.Type, loc);
+				mg.InstanceExpression = expr;
+				return mg;
+			}
+
+
 			MethodGroupExpr ResolveMoveNext (ResolveContext rc, MethodSpec enumerator)
 			{
 				var ms = MemberCache.FindMember (enumerator.ReturnType,
@@ -7912,20 +8655,64 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return ps;
 			}
 
+			PropertySpec ResolveKVPairKey (ResolveContext rc, TypeSpec kvPairType)
+			{
+				var ps = MemberCache.FindMember (kvPairType,
+					MemberFilter.Property ("Key", null),
+					BindingRestriction.InstanceOnly) as PropertySpec;
+
+				if (ps == null || !ps.IsPublic) {
+					return null;
+				}
+
+				return ps;
+			}
+
+			PropertySpec ResolveKVPairValue (ResolveContext rc, TypeSpec kvPairType)
+			{
+				var ps = MemberCache.FindMember (kvPairType,
+					MemberFilter.Property ("Value", null),
+					BindingRestriction.InstanceOnly) as PropertySpec;
+
+				if (ps == null || !ps.IsPublic) {
+					return null;
+				}
+
+				return ps;
+			}
+
 			public override bool Resolve (BlockContext ec)
 			{
 				bool is_dynamic = expr.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic;
 
-				if (is_dynamic) {
-					expr = Convert.ImplicitConversionRequired (ec, expr, ec.BuiltinTypes.IEnumerable, loc);
-				} else if (expr.Type.IsNullableType) {
-					expr = new Nullable.UnwrapCall (expr).Resolve (ec);
+				MethodGroupExpr get_enumerator_mg = null;;
+
+				if (for_each.AsForEachType == AsForEachType.ForEachKey) {
+					// key enumeration
+					if (is_dynamic) {
+						ec.Module.PredefinedTypes.AsIKeyEnumerable.Define();
+						expr = Convert.ImplicitConversionRequired (ec, expr, ec.Module.PredefinedTypes.AsIKeyEnumerable.TypeSpec, loc);
+					} else if (expr.Type.IsNullableType) {
+						expr = new Nullable.UnwrapCall (expr).Resolve (ec);
+					}
+
+					get_enumerator_mg = ResolveGetKeyEnumerator (ec);
+
+				} else	{
+					// value enumeration
+					if (is_dynamic) {
+						expr = Convert.ImplicitConversionRequired (ec, expr, ec.BuiltinTypes.IEnumerable, loc);
+					} else if (expr.Type.IsNullableType) {
+						expr = new Nullable.UnwrapCall (expr).Resolve (ec);
+					}
+
+					get_enumerator_mg = ResolveGetEnumerator (ec);
 				}
 
-				var get_enumerator_mg = ResolveGetEnumerator (ec);
 				if (get_enumerator_mg == null) {
 					return false;
 				}
+
 
 				var get_enumerator = get_enumerator_mg.BestCandidate;
 				enumerator_variable = TemporaryVariableReference.Create (get_enumerator.ReturnType, variable.Block, loc);
@@ -7949,6 +8736,38 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (current_pe == null)
 					return false;
 
+				// Handle PlayScript Key for (.. in .. ) and value for each (.. in ..) statements.
+				if (ec.FileType == SourceFileType.PlayScript) {
+					var infTypeSpec = current_pe.Type as InflatedTypeSpec;
+					if (infTypeSpec != null) {
+						var defTypeSpec = infTypeSpec.GetDefinition();
+						var keyValueTypeSpec = ec.Module.PredefinedTypes.KeyValuePair.Resolve ();
+					    if (defTypeSpec.Equals(keyValueTypeSpec)) {
+							if (for_each.AsForEachType == AsForEachType.ForEachKey) {
+								var key_prop = ResolveKVPairKey(ec, current_pe.Type);
+								if (key_prop == null) 
+									return false;
+								current_pe = new PropertyExpr(key_prop, loc) { InstanceExpression = current_pe }.Resolve (ec);
+							} else {
+								var value_prop = ResolveKVPairValue(ec, current_pe.Type);
+								if (value_prop == null)
+									return false;
+								current_pe = new PropertyExpr(value_prop, loc) { InstanceExpression = current_pe }.Resolve (ec);
+							}
+						}
+					}
+					// Actually, for(in) statements iterate over array values too in PlayScript.
+//					else {  
+//						if (for_each.AsForEachType == AsForEachType.ForEachKey) {
+//							ec.Report.Error (7017, loc, "for(in) statement cannot operate on keys of non dictionary collections.");
+//							return false;
+//						}
+//					}
+					if (current_pe == null)
+						return false;
+				}
+
+
 				VarExpr ve = for_each.type as VarExpr;
 
 				if (ve != null) {
@@ -7962,7 +8781,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				} else {
 					if (is_dynamic) {
 						// Explicit cast of dynamic collection elements has to be done at runtime
-						current_pe = EmptyCast.Create (current_pe, ec.BuiltinTypes.Dynamic);
+						current_pe = EmptyCast.Create (current_pe, ec.BuiltinTypes.Dynamic, ec);
 					}
 
 					variable.Type = for_each.type.ResolveAsType (ec);
@@ -8060,10 +8879,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			#endregion
 		}
 
+		FullNamedExpression varRef;
 		Expression type;
 		LocalVariable variable;
 		Expression expr;
 		Block body;
+		AsForEachType asForEachType = AsForEachType.CSharpForEach;
 
 		public Foreach (Expression type, LocalVariable var, Expression expr, Statement stmt, Block body, Location l)
 			: base (stmt)
@@ -8075,8 +8896,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			loc = l;
 		}
 
+		public Foreach (Expression type, LocalVariable var, Expression expr, Statement stmt, Block body, AsForEachType asType, Location l) 
+			: this(type, var, expr, stmt, body, l)
+		{
+			asForEachType = asType;
+		}
+
+		public Foreach (FullNamedExpression varRef, Expression expr, Statement stmt, Block body, AsForEachType asType, Location l)
+			: base (stmt)
+		{
+			this.varRef = varRef;
+			this.expr = expr;
+			this.Statement = stmt;
+			this.body = body;
+			asForEachType = asType;
+			loc = l;
+		}
+
 		public Expression Expr {
 			get { return expr; }
+		}
+
+		//Fixed for(in) with local var.
+		public FullNamedExpression VariableRef {
+			get { return varRef; }
 		}
 
 		public Expression TypeExpression {
@@ -8085,6 +8928,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public LocalVariable Variable {
 			get { return variable; }
+		}
+
+		public AsForEachType AsForEachType {
+			get { return asForEachType; }
 		}
 
 		public override Reachability MarkReachable (Reachability rc)
@@ -8098,6 +8945,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override bool Resolve (BlockContext ec)
 		{
+			// Actionscript can specify a block scope local variable instead of declaring a new local variable.
+			if (varRef != null) {
+				var locVarRef = varRef.Resolve (ec) as LocalVariableReference;
+				if (locVarRef == null) {
+					ec.Report.Error (7037, loc, "For each must reference an accessible local variable.");
+					return false;
+				}
+				variable = locVarRef.local_info;
+				type = new TypeExpression(variable.Type, loc);
+			}
+
 			expr = expr.Resolve (ec);
 			if (expr == null)
 				return false;
@@ -8123,6 +8981,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				Statement = new CollectionForeach (this, variable, expr);
 			}
 
+			// PlayScript - always check if var is enumerable before doing loop
+			if (ec.IsPlayScript && expr != null && 
+			    (expr.Type.IsClass || expr.Type.IsInterface || expr.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic)) {
+
+				//
+				// For dynamics, check that it's enumerable. For classes, just check
+				// against null.
+				//
+				if (expr.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+					if (asForEachType == AsForEachType.ForEachKey)
+						Statement = new If (new Is (expr, new TypeExpression (ec.Module.PredefinedTypes.AsIKeyEnumerable.Resolve (), loc), loc), Statement, loc);
+					else
+						Statement = new If (new Is (expr, new TypeExpression (ec.Module.Compiler.BuiltinTypes.IEnumerable, loc), loc), Statement, loc);
+				} else {
+					Statement = new If (new Binary(Binary.Operator.Inequality, expr, new NullLiteral(loc)), Statement, loc);
+				}
+			}
+
 			return base.Resolve (ec);
 		}
 
@@ -8135,7 +9011,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (!(Statement is Block))
 				ec.BeginCompilerScope ();
 
-			variable.CreateBuilder (ec);
+			// Only create variable if we aren't referencing a var (PlayScript only).
+			if (varRef == null)
+				variable.CreateBuilder (ec);
 
 			Statement.Emit (ec);
 
@@ -8168,7 +9046,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+//				if (visitor.Continue && this.Statement != null)
+//					this.Statement.Accept (visitor);
+				if (visitor.Continue && this.body != null)
+					this.body.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
+
 }

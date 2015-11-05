@@ -21,6 +21,9 @@ using System.Text;
 using System.Globalization;
 using System.Diagnostics;
 using System.Threading;
+using ICSharpCode.NRefactory.MonoCSharp;
+using Linq = ICSharpCode.NRefactory.MonoCSharp.Linq;
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -57,15 +60,28 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				SeekableStreamReader reader = new SeekableStreamReader (input, ctx.Settings.Encoding);
 				var file = new CompilationSourceFile (module, sourceFile);
 
-				Tokenizer lexer = new Tokenizer (reader, file, session, ctx.Report);
-				int token, tokens = 0, errors = 0;
+				if (sourceFile.FileType == SourceFileType.CSharp) {
+					Tokenizer lexer = new Tokenizer (reader, file, session, ctx.Report);
+					int token, tokens = 0, errors = 0;
 
-				while ((token = lexer.token ()) != Token.EOF){
-					tokens++;
-					if (token == Token.ERROR)
-						errors++;
+					while ((token = lexer.token ()) != Token.EOF){
+						tokens++;
+						if (token == Token.ERROR)
+							errors++;
+					}
+					Console.WriteLine ("Tokenized: " + tokens + " found " + errors + " errors");
+				} else {
+					Mono.PlayScript.Tokenizer lexer = new Mono.PlayScript.Tokenizer (reader, file, session, ctx.Report);
+					lexer.ParsingPlayScript = sourceFile.PsExtended;
+					int token, tokens = 0, errors = 0;
+	
+					while ((token = lexer.token ()) != Mono.PlayScript.Token.EOF){
+						tokens++;
+						if (token == Mono.PlayScript.Token.ERROR)
+							errors++;
+					}
+					Console.WriteLine ("Tokenized: " + tokens + " found " + errors + " errors");
 				}
-				Console.WriteLine ("Tokenized: " + tokens + " found " + errors + " errors");
 			}
 			
 			return;
@@ -80,8 +96,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			var session = new ParserSession {
 				UseJayGlobalArrays = true,
-				LocatedTokens = new LocatedToken[15000]
+				LocatedTokens = new LocatedToken[15000],
+				AsLocatedTokens = new Mono.PlayScript.LocatedToken[15000]
 			};
+
+			bool has_playscript_files = false;
 
 			for (int i = 0; i < sources.Count; ++i) {
 				if (tokenize_only) {
@@ -89,6 +108,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				} else {
 					Parse (sources[i], module, session, Report);
 				}
+				if (sources[i].FileType == SourceFileType.PlayScript) {
+					has_playscript_files = true;
+				}
+			}
+
+			// PlayScript needs to add generated code after parsing.
+			if (has_playscript_files) {
+				Mono.PlayScript.CodeGenerator.GenerateCode(module, session, Report);
 			}
 		}
 
@@ -161,12 +188,28 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			input.Close ();
 		}
 
-		public static CSharpParser Parse (SeekableStreamReader reader, SourceFile sourceFile, ModuleContainer module, ParserSession session, Report report, int lineModifier = 0, int colModifier = 0)
+		public static void Parse (SeekableStreamReader reader, SourceFile sourceFile, ModuleContainer module, ParserSession session, Report report)
 		{
 			var file = new CompilationSourceFile (module, sourceFile);
-			module.AddTypeContainer(file);
+			module.AddTypeContainer (file);
 
-			CSharpParser parser = new CSharpParser (reader, file, report, session);
+			if (sourceFile.FileType == SourceFileType.CSharp) {
+				CSharpParser parser = new CSharpParser (reader, file, report, session);
+				parser.parse ();
+			} else {
+				PlayScriptParser parser = new PlayScriptParser (reader, file, report, session);
+				parser.parsing_playscript = sourceFile.PsExtended;
+				parser.parse ();
+			}
+		}
+
+		public static PlayScriptParser PsParse (SeekableStreamReader reader, SourceFile sourceFile, ModuleContainer module, ParserSession session, Report report, int lineModifier = 0, int colModifier = 0)
+		{
+			var file = new CompilationSourceFile (module, sourceFile);
+			module.AddTypeContainer (file);
+
+			var parser = new PlayScriptParser (reader, file, report, session);
+			parser.parsing_playscript = sourceFile.PsExtended;
 			parser.Lexer.Line += lineModifier;
 			parser.Lexer.Column += colModifier;
 			parser.Lexer.sbag = new SpecialsBag ();
@@ -388,7 +431,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			assembly.Emit ();
 			tr.Stop (TimeReporter.TimerType.EmitTotal);
 
-			if (Report.Errors > 0){
+			if (Report.Errors > 0 && (settings.Target & Target.IsTextTarget) == 0) {
 				return false;
 			}
 
@@ -400,8 +443,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (!settings.WriteMetadataOnly)
 				assembly.EmbedResources ();
 			tr.Stop (TimeReporter.TimerType.Resouces);
-
-			if (Report.Errors > 0)
+			
+			if (Report.Errors > 0 && (settings.Target & Target.IsTextTarget) == 0)
 				return false;
 
 			assembly.Save ();
@@ -427,8 +470,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	//
 	// This is the only public entry point
 	//
-	public class CompilerCallableEntryPoint : MarshalByRefObject
-	{
+	public class CompilerCallableEntryPoint : MarshalByRefObject {
 		public static bool InvokeCompiler (string [] args, TextWriter error)
 		{
 			try {
@@ -471,5 +513,4 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			TypeInfo.Reset ();
 		}
 	}
-	
 }

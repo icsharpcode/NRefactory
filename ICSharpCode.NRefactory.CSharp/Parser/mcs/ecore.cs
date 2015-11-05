@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	/// <remarks>
 	///   Base class for expressions
 	/// </remarks>
-	public abstract class Expression {
+	public abstract partial class Expression {
 		public ExprClass eclass;
 		protected TypeSpec type;
 		protected Location loc;
@@ -236,6 +236,31 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				e.Error_UnexpectedKind (rc, ResolveFlags.Type, loc);
 
 			return null;
+		}
+
+		//
+		// This is used to do a resolve but provides a typespec as a 'hint'
+		// The hint is used to coerce the resolving code to produce an expression of that type.
+		// The resolve doesnt necessarily have to respect the hint if it doesnt want to.
+		// This hint is useful to produce the most optimal code generation (for example, if only
+		// a Boolean is required then dont do expensive coalescing)
+		// Expressions should override DoResolveWithTypeHint below
+		//
+		public Expression ResolveWithTypeHint (ResolveContext rc, TypeSpec typeHint)
+		{
+			if ((rc.FileType == SourceFileType.PlayScript) && rc.Module.Compiler.Settings.NewDynamicRuntime_TypeHint && (typeHint != null)) {
+				// resolve with type hint
+				return this.DoResolveWithTypeHint(rc, typeHint);
+			} else {
+				// dont use the type hint
+				return this.Resolve(rc);
+			}
+		}
+
+		protected virtual Expression DoResolveWithTypeHint (ResolveContext rc, TypeSpec typeHint)
+		{
+			// by default most expressions ignore the type hint
+			return this.Resolve(rc);
 		}
 
 		public static void ErrorIsInaccesible (IMemberContext rc, string member, Location loc)
@@ -486,13 +511,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		/// </remarks>
 		public Expression Resolve (ResolveContext ec, ResolveFlags flags)
 		{
-			if (eclass != ExprClass.Unresolved) {
-				if ((flags & ExprClassToResolveFlags) == 0) {
-					Error_UnexpectedKind (ec, flags, loc);
-					return null;
-				}
-
+			if (eclass != ExprClass.Unresolved)
 				return this;
+			
+			if (ec != null) {
+				if (this.Location.SourceFile != null) {
+					ec.FileType = this.Location.SourceFile.FileType;
+				}
 			}
 			
 			Expression e;
@@ -503,6 +528,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return null;
 
 				if ((flags & e.ExprClassToResolveFlags) == 0) {
+					// We automatically do a typeof(type) in PlayScript for type values..
+					if (ec.FileType == SourceFileType.PlayScript && 
+					  (e is TypeExpr) && (flags & ResolveFlags.VariableOrValue) != 0) {
+						return Convert.ImplicitConversion (ec, e, ec.BuiltinTypes.Type, e.loc).Resolve (ec);
+					}
 					e.Error_UnexpectedKind (ec, flags, loc);
 					return null;
 				}
@@ -821,6 +851,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			IgnoreArity = 1 << 5,
 			IgnoreAmbiguity = 1 << 6,
 			NameOfExcluded = 1 << 7,
+			PreferStatic = 1 << 8,     // Used to filter static/non-static for PlayScript
+			PreferInstance = 1 << 9,   // Used to filter static/non-static for PlayScript
+			AsTypeCast = 1 << 10
 		}
 
 		//
@@ -833,117 +866,130 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (members == null)
 				return null;
 
-			Expression expr;
-			do {
-				expr = MemberLookupToExpression (rc, members, errorMode, queried_type, name, arity, restrictions, loc);
-				if (expr != null)
-					return expr;
-
-				if (members [0].DeclaringType.BaseType == null)
-					members = null;
-				else
-					members = MemberCache.FindMembers (members [0].DeclaringType.BaseType, name, false);
-			} while (members != null);
-
-			return expr;
-		}
-
-		public static Expression MemberLookupToExpression (IMemberContext rc, IList<MemberSpec> members, bool errorMode, TypeSpec queried_type, string name, int arity, MemberLookupRestrictions restrictions, Location loc)
-		{
 			MemberSpec non_method = null;
 			MemberSpec ambig_non_method = null;
+			do {
+				for (int i = 0; i < members.Count; ++i) {
+					var member = members[i];
 
-			for (int i = 0; i < members.Count; ++i) {
-				var member = members [i];
-
-				// HACK: for events because +=/-= can appear at same class only, should use OverrideToBase there
-				if ((member.Modifiers & Modifiers.OVERRIDE) != 0 && member.Kind != MemberKind.Event)
-					continue;
-
-				if ((member.Modifiers & Modifiers.BACKING_FIELD) != 0 || member.Kind == MemberKind.Operator)
-					continue;
-
-				if ((arity > 0 || (restrictions & MemberLookupRestrictions.ExactArity) != 0) && member.Arity != arity)
-					continue;
-
-				if (!errorMode) {
-					if (!member.IsAccessible (rc))
+					// HACK: for events because +=/-= can appear at same class only, should use OverrideToBase there
+					if ((member.Modifiers & Modifiers.OVERRIDE) != 0 && member.Kind != MemberKind.Event)
 						continue;
 
-					//
-					// With runtime binder we can have a situation where queried type is inaccessible
-					// because it came via dynamic object, the check about inconsisted accessibility
-					// had no effect as the type was unknown during compilation
-					//
-					// class A {
-					//		private class N { }
-					//
-					//		public dynamic Foo ()
-					//		{
-					//			return new N ();
-					//		}
-					//	}
-					//
-					if (rc.Module.Compiler.IsRuntimeBinder && !member.DeclaringType.IsAccessible (rc))
+					if ((member.Modifiers & Modifiers.BACKING_FIELD) != 0 || member.Kind == MemberKind.Operator)
 						continue;
-				}
 
-				if ((restrictions & MemberLookupRestrictions.InvocableOnly) != 0) {
-					if (member is MethodSpec) {
+					if ((arity > 0 || (restrictions & MemberLookupRestrictions.ExactArity) != 0) && member.Arity != arity)
+						continue;
+
+					if (!errorMode) {
+						if (!member.IsAccessible (rc))
+							continue;
+
 						//
-						// Interface members that are hidden by class members are removed from the set. This
-						// step only has an effect if T is a type parameter and T has both an effective base 
-						// class other than object and a non-empty effective interface set
+						// With runtime binder we can have a situation where queried type is inaccessible
+						// because it came via dynamic object, the check about inconsisted accessibility
+						// had no effect as the type was unknown during compilation
+						//
+						// class A {
+						//		private class N { }
+						//
+						//		public dynamic Foo ()
+						//		{
+						//			return new N ();
+						//		}
+						//	}
+						//
+						if (rc.Module.Compiler.IsRuntimeBinder && !member.DeclaringType.IsAccessible (rc))
+							continue;
+					}
+
+					if ((restrictions & MemberLookupRestrictions.InvocableOnly) != 0) {
+						if (member is MethodSpec) {
+							//
+							// Interface members that are hidden by class members are removed from the set. This
+							// step only has an effect if T is a type parameter and T has both an effective base 
+							// class other than object and a non-empty effective interface set
+							//
+							var tps = queried_type as TypeParameterSpec;
+							if (tps != null && tps.HasTypeConstraint)
+								members = RemoveHiddenTypeParameterMethods (members);
+
+							return new MethodGroupExpr (members, queried_type, loc);
+						}
+
+						if (!Invocation.IsMemberInvocable (member, rc as ResolveContext))
+							continue;
+					}
+
+					if (non_method == null || member is MethodSpec || non_method.IsNotCSharpCompatible) {
+						non_method = member;
+					} else if (!errorMode && !member.IsNotCSharpCompatible) {
+						//
+						// Interface members that are hidden by class members are removed from the set when T is a type parameter and
+						// T has both an effective base class other than object and a non-empty effective interface set.
+						//
+						// The spec has more complex rules but we simply remove all members declared in an interface declaration.
 						//
 						var tps = queried_type as TypeParameterSpec;
-						if (tps != null && tps.HasTypeConstraint)
-							members = RemoveHiddenTypeParameterMethods (members);
+						if (tps != null && tps.HasTypeConstraint) {
+							if (non_method.DeclaringType.IsClass && member.DeclaringType.IsInterface)
+								continue;
 
-						return new MethodGroupExpr (members, queried_type, loc);
-					}
-
-					if (!Invocation.IsMemberInvocable (member))
-						continue;
-				}
-
-				if (non_method == null || member is MethodSpec || non_method.IsNotCSharpCompatible) {
-					non_method = member;
-				} else if (!errorMode && !member.IsNotCSharpCompatible) {
-					//
-					// Interface members that are hidden by class members are removed from the set when T is a type parameter and
-					// T has both an effective base class other than object and a non-empty effective interface set.
-					//
-					// The spec has more complex rules but we simply remove all members declared in an interface declaration.
-					//
-					var tps = queried_type as TypeParameterSpec;
-					if (tps != null && tps.HasTypeConstraint) {
-						if (non_method.DeclaringType.IsClass && member.DeclaringType.IsInterface)
-							continue;
-
-						if (non_method.DeclaringType.IsInterface && member.DeclaringType.IsInterface) {
-							non_method = member;
-							continue;
+							if (non_method.DeclaringType.IsInterface && member.DeclaringType.IsInterface) {
+								non_method = member;
+								continue;
+							}
 						}
+
+						ambig_non_method = member;
 					}
-
-					ambig_non_method = member;
-				}
-			}
-
-			if (non_method != null) {
-				if (ambig_non_method != null && rc != null && (restrictions & MemberLookupRestrictions.IgnoreAmbiguity) == 0) {
-					var report = rc.Module.Compiler.Report;
-					report.SymbolRelatedToPreviousError (non_method);
-					report.SymbolRelatedToPreviousError (ambig_non_method);
-					report.Error (229, loc, "Ambiguity between `{0}' and `{1}'",
-						non_method.GetSignatureForError (), ambig_non_method.GetSignatureForError ());
 				}
 
-				if (non_method is MethodSpec)
-					return new MethodGroupExpr (members, queried_type, loc);
+				if (non_method != null) {
+					if (!loc.IsPlayScript)
+						if (ambig_non_method != null && rc != null && (restrictions & MemberLookupRestrictions.IgnoreAmbiguity) == 0) {
+							var report = rc.Module.Compiler.Report;
+							report.SymbolRelatedToPreviousError (non_method);
+							report.SymbolRelatedToPreviousError (ambig_non_method);
+							report.Error (229, loc, "Ambiguity between `{0}' and `{1}'",
+								non_method.GetSignatureForError (), ambig_non_method.GetSignatureForError ());
+						}
 
-				return ExprClassFromMemberInfo (non_method, loc);
-			}
+					if (loc.IsPlayScript)
+						if (ambig_non_method != null && rc != null) {
+							// PlayScript - we resolve ambiguity between identically named static/instance methods based on preference passed
+							// from the caller (which checks to see if a TypeName.blah is used).  This allows us to have identically named 
+							// properties/member vars.
+							// ./as/test-as-StaticVsInstanceSameName.as
+							// ./as/test-as-StaticVsInstanceSameNameProp.as
+							if ((restrictions & MemberLookupRestrictions.PreferStatic) != 0 && 
+							    		((non_method.Modifiers & Modifiers.STATIC) != (ambig_non_method.Modifiers & Modifiers.STATIC))) {
+								non_method = (non_method.Modifiers & Modifiers.STATIC) != 0 ? non_method : ambig_non_method;
+							} else if ((restrictions & MemberLookupRestrictions.PreferInstance) != 0 && 
+							           	((non_method.Modifiers & Modifiers.STATIC) != (ambig_non_method.Modifiers & Modifiers.STATIC))) {
+								non_method = (non_method.Modifiers & Modifiers.STATIC) == 0 ? non_method : ambig_non_method;
+							} else {
+								var report = rc.Module.Compiler.Report;
+								report.SymbolRelatedToPreviousError (non_method);
+								report.SymbolRelatedToPreviousError (ambig_non_method);
+								report.Error (229, loc, "Ambiguity between `{0}' and `{1}'",
+									non_method.GetSignatureForError (), ambig_non_method.GetSignatureForError ());
+							}
+						}
+
+					if (non_method is MethodSpec)
+						return new MethodGroupExpr (members, queried_type, loc);
+
+					return ExprClassFromMemberInfo (non_method, loc);
+				}
+
+				if (members[0].DeclaringType.BaseType == null)
+					members = null;
+				else
+					members = MemberCache.FindMembers (members[0].DeclaringType.BaseType, name, false);
+
+			} while (members != null);
 
 			return null;
 		}
@@ -1291,7 +1337,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   being that they would support an extra Emition interface that
 	///   does not leave a result on the stack.
 	/// </summary>
-	public abstract class ExpressionStatement : Expression
+	public abstract partial class ExpressionStatement : Expression
 	{
 		public virtual void MarkReachable (Reachability rc)
 		{
@@ -1384,7 +1430,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   would be "unsigned int".
 	///
 	/// </summary>
-	public abstract class TypeCast : Expression
+	public abstract partial class TypeCast : Expression
 	{
 		protected readonly Expression child;
 
@@ -1458,13 +1504,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class EmptyCast : TypeCast {
+	public partial class EmptyCast : TypeCast {
 		EmptyCast (Expression child, TypeSpec target_type)
 			: base (child, target_type)
 		{
+			if (child.Type == null || child.eclass == ExprClass.Unresolved) {
+				throw new InvalidOperationException("Unresolved type in EmptyCast");
+			}
 		}
 
-		public static Expression Create (Expression child, TypeSpec type)
+		public static Expression Create (Expression child, TypeSpec type, ResolveContext opt_ec)
 		{
 			Constant c = child as Constant;
 			if (c != null) {
@@ -1476,7 +1525,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					if (c.Type == type)
 						return c;
 
-					var res = c.ConvertImplicitly (type);
+					var res = c.ConvertImplicitly (type, opt_ec, false);
 					if (res != null)
 						return res;
 				}
@@ -1489,6 +1538,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return new EmptyCast (child, type);
 		}
 
+		public static Expression RemoveDynamic(ResolveContext rc, Expression child)
+		{
+			if (child.Type.IsDynamic) {
+				if (child.eclass == ExprClass.Unresolved) {
+					// dont really like this, but sometimes its needed
+					return new BoxedCast(child, rc.BuiltinTypes.Object);
+				} else {
+					return EmptyCast.Create(child, rc.BuiltinTypes.Object, rc);
+				}
+			}
+			return child;
+		}
+
 		public override void EmitBranchable (EmitContext ec, Label label, bool on_true)
 		{
 			child.EmitBranchable (ec, label, on_true);
@@ -1498,6 +1560,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			child.EmitSideEffect (ec);
 		}
+
 	}
 
 	//
@@ -1566,13 +1629,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			this.type = type;
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			if (child.Type == target_type)
 				return child;
 
 			// FIXME: check that 'type' can be converted to 'target_type' first
-			return child.ConvertExplicitly (in_checked_context, target_type);
+			return child.ConvertExplicitly (in_checked_context, target_type, opt_ec);
 		}
 
 		public override Expression CreateExpressionTree (ResolveContext ec)
@@ -1647,16 +1710,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return child.GetValueAsLong ();
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec target_type)
+		public override Constant ConvertImplicitly (TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
 		{
 			if (type == target_type)
 				return this;
 
 			// FIXME: Do we need to check user conversions?
-			if (!Convert.ImplicitStandardConversionExists (this, target_type))
+			if (!Convert.ImplicitStandardConversionExists (this, target_type, opt_ec))
 				return null;
 
-			return child.ConvertImplicitly (target_type);
+			return child.ConvertImplicitly (target_type, opt_ec, upconvert_only);
 		}
 	}
 
@@ -1762,25 +1825,25 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			if (Child.Type == target_type)
 				return Child;
 
-			return Child.ConvertExplicitly (in_checked_context, target_type);
+			return Child.ConvertExplicitly (in_checked_context, target_type, opt_ec);
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec type)
+		public override Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only)
 		{
 			if (this.type == type) {
 				return this;
 			}
 
-			if (!Convert.ImplicitStandardConversionExists (this, type)){
+			if (!Convert.ImplicitStandardConversionExists (this, type, opt_ec)){
 				return null;
 			}
 
-			return Child.ConvertImplicitly (type);
+			return Child.ConvertImplicitly (type, opt_ec);
 		}
 	}
 
@@ -1821,7 +1884,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Emit (EmitContext ec)
 		{
 			base.Emit (ec);
-			
 			ec.Emit (OpCodes.Box, child.Type);
 		}
 
@@ -2085,7 +2147,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 	
-	class OpcodeCast : TypeCast
+	partial class OpcodeCast : TypeCast
 	{
 		readonly OpCode op;
 		
@@ -2189,15 +2251,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				this.orig_expr = orig_expr;
 			}
 
-			public Expression OriginalExpression {
-				get {
-					return orig_expr;
-				}
-			}
+                        public Expression OriginalExpression {
+                                get {
+                                        return orig_expr;
+                                }
+                        }
 
-			public override Constant ConvertImplicitly (TypeSpec target_type)
+			public override Constant ConvertImplicitly (TypeSpec target_type, ResolveContext opt_ec, bool upconvert_only)
 			{
-				Constant c = base.ConvertImplicitly (target_type);
+				Constant c = base.ConvertImplicitly (target_type, opt_ec, upconvert_only);
 				if (c != null)
 					c = new ReducedConstantExpression (c, orig_expr);
 
@@ -2209,9 +2271,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return orig_expr.CreateExpressionTree (ec);
 			}
 
-			public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+			public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 			{
-				Constant c = base.ConvertExplicitly (in_checked_context, target_type);
+				Constant c = base.ConvertExplicitly (in_checked_context, target_type, opt_ec);
 				if (c != null)
 					c = new ReducedConstantExpression (c, orig_expr);
 				return c;
@@ -2614,7 +2676,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   SimpleName expressions are formed of a single word and only happen at the beginning 
 	///   of a dotted-name.
 	/// </summary>
-	public class SimpleName : ATypeNameExpression
+	public partial class SimpleName : ATypeNameExpression
 	{
 		public SimpleName (string name, Location l)
 			: base (name, l)
@@ -2721,7 +2783,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return fne;
 			}
 
-			if (Arity == 0 && Name == "dynamic" && !(mc is NamespaceContainer) && mc.Module.Compiler.Settings.Version > LanguageVersion.V_3) {
+			if (Arity == 0 && Name == "dynamic" && mc.Module.Compiler.Settings.Version > LanguageVersion.V_3) {
 				if (!mc.Module.PredefinedAttributes.Dynamic.IsDefined) {
 					mc.Module.Compiler.Report.Error (1980, Location,
 						"Dynamic keyword requires `{0}' to be defined. Are you missing System.Core.dll assembly reference?",
@@ -2744,6 +2806,36 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return mc.LookupNamespaceOrType (Name, Arity, LookupMode.Probing, loc) != null;
 		}
 
+		public Expression LookupPackageLevelFunction (ResolveContext rc)
+		{
+			bool errorMode = false;
+
+			FullNamedExpression fne = rc.LookupNamespaceOrType (Name + "_fn", 0, LookupMode.Normal, loc);
+//			if (fne == null || fne is Namespace) {
+			if (fne == null) {
+				return null;
+			}
+
+			TypeSpec member_type = fne.ResolveAsType (rc);
+			if (member_type == null) {
+				return null;
+			}
+
+			Expression e = MemberLookup (rc, errorMode, member_type, Name, Arity, MemberLookupRestrictions.InvocableOnly, loc);
+			if (e == null)
+				return null;
+
+			var me = e as MemberExpr;
+			me = me.ResolveMemberAccess (rc, null, null);
+
+			if (Arity > 0) {
+				targs.Resolve (rc, false);
+				me.SetTypeArguments (rc, targs);
+			}
+
+			return me;
+		}
+
 		public override Expression LookupNameExpression (ResolveContext rc, MemberLookupRestrictions restrictions)
 		{
 			int lookup_arity = Arity;
@@ -2752,25 +2844,57 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			Block current_block = rc.CurrentBlock;
 			INamedBlockVariable variable = null;
 			bool variable_found = false;
+			var name = Name;
+
+			bool is_playscript = rc.FileType == SourceFileType.PlayScript;
 
 			while (true) {
+
+				//
+				// PlayScript: Perform member renaming
+				//
+				if (is_playscript) {
+					if (name == "toString") {
+						name = "ToString";
+					}
+				}
+
 				//
 				// Stage 1: binding to local variables or parameters
 				//
 				// LAMESPEC: It should take invocableOnly into account but that would break csc compatibility
 				//
 				if (current_block != null && lookup_arity == 0) {
-					if (current_block.ParametersBlock.TopBlock.GetLocalName (Name, current_block.Original, ref variable)) {
+					if (current_block.ParametersBlock.TopBlock.GetLocalName (name, current_block.Original, ref variable)) {
+						// In PlayScript we allow unassigned variables.  It's technically bad coding but not much we can do about it.
 						if (!variable.IsDeclared) {
-							// We found local name in accessible block but it's not
-							// initialized yet, maybe the user wanted to bind to something else
-							errorMode = true;
-							variable_found = true;
+							if (is_playscript && !rc.PsExtended) {
+								rc.Report.Warning(7156, 1, loc, "Use of local variable before declaration");
+								if (variable is LocalVariable) {
+									var locVar = variable as LocalVariable;
+									if (locVar.Type == null && locVar.TypeExpr != null) {
+										locVar.DeclFlags |= LocalVariable.Flags.AsIgnoreMultiple;
+										locVar.Type = locVar.TypeExpr.ResolveAsType(rc);
+									}
+								}
+								e = variable.CreateReferenceExpression (rc, loc);
+								if (e != null) {
+									if (Arity > 0)
+										Error_TypeArgumentsCannotBeUsed (rc, "variable", name, loc);
+									
+									return e;
+								}
+							} else {
+								// We found local name in accessible block but it's not
+								// initialized yet, maybe the user wanted to bind to something else
+								errorMode = true;
+								variable_found = true;
+							}
 						} else {
 							e = variable.CreateReferenceExpression (rc, loc);
 							if (e != null) {
 								if (Arity > 0)
-									Error_TypeArgumentsCannotBeUsed (rc, "variable", Name, loc);
+									Error_TypeArgumentsCannotBeUsed (rc, "variable", name, loc);
 
 								return e;
 							}
@@ -2783,7 +2907,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				//
 				TypeSpec member_type = rc.CurrentType;
 				for (; member_type != null; member_type = member_type.DeclaringType) {
-					e = MemberLookup (rc, errorMode, member_type, Name, lookup_arity, restrictions, loc);
+					e = MemberLookup (rc, errorMode, member_type, name, lookup_arity, restrictions, loc);
 					if (e == null)
 						continue;
 
@@ -2801,7 +2925,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 							if (me is FieldExpr || me is ConstantExpr || me is EventExpr || me is PropertyExpr) {
 								rc.Report.Error (844, loc,
 									"A local variable `{0}' cannot be used before it is declared. Consider renaming the local variable when it hides the member `{1}'",
-									Name, me.GetSignatureForError ());
+									name, me.GetSignatureForError ());
 							} else {
 								break;
 							}
@@ -2814,8 +2938,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					} else {
 						// LAMESPEC: again, ignores InvocableOnly
 						if (variable != null) {
-							rc.Report.SymbolRelatedToPreviousError (variable.Location, Name);
-							rc.Report.Error (135, loc, "`{0}' conflicts with a declaration in a child block", Name);
+							rc.Report.SymbolRelatedToPreviousError (variable.Location, name);
+							rc.Report.Error (135, loc, "`{0}' conflicts with a declaration in a child block", name);
 						}
 
 						//
@@ -2852,29 +2976,81 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				}
 
 				//
+				// Check for "Object" type if PlayScript
+				//
+				if (is_playscript && !variable_found) {
+					if (name == "Object") {
+						return new TypeExpression(rc.BuiltinTypes.Dynamic, loc);
+					}
+				}
+
+				//
 				// Stage 3: Lookup nested types, namespaces and type parameters in the context
 				//
 				if ((restrictions & MemberLookupRestrictions.InvocableOnly) == 0 && !variable_found) {
 					if (IsPossibleTypeOrNamespace (rc)) {
 						if (variable != null) {
-							rc.Report.SymbolRelatedToPreviousError (variable.Location, Name);
-							rc.Report.Error (135, loc, "`{0}' conflicts with a declaration in a child block", Name);
+							rc.Report.SymbolRelatedToPreviousError (variable.Location, name);
+							rc.Report.Error (135, loc, "`{0}' conflicts with a declaration in a child block", name);
 						}
 
-						return ResolveAsTypeOrNamespace (rc, false);
+						return ResolveAsTypeOrNamespace (rc, true);
 					}
 				}
 
-				var expr = NamespaceContainer.LookupStaticUsings (rc, Name, Arity, loc);
-				if (expr != null) {
+				//
+				// Stage 4: If PlayScript, lookup package level functions.
+				//
+				if (is_playscript && 
+				    (restrictions & MemberLookupRestrictions.InvocableOnly) != 0 && !variable_found) {
+
+					// Is this a package level function?
+					Expression pkgFn = LookupPackageLevelFunction(rc);
+					if (pkgFn != null)
+						return pkgFn;
+
+					// Is this a function style PlayScript cast.
+					if ((restrictions & MemberLookupRestrictions.AsTypeCast) != 0 && IsPossibleTypeOrNamespace (rc)) {
+						if (variable != null) {
+							rc.Report.SymbolRelatedToPreviousError (variable.Location, name);
+							rc.Report.Error (135, loc, "`{0}' conflicts with a declaration in a child block", name);
+						}
+
+						return ResolveAsTypeOrNamespace (rc, true);
+					}
+				}
+
+				//
+				// Stage 5: handle actionscript builtin uppercase names (Not keywords).
+				//
+				if (is_playscript && !variable_found) {
+					if (name == "NaN") {
+						return new DoubleLiteral (rc.BuiltinTypes, double.NaN, loc);
+					} else if (name == "Infinity") {
+						return new DoubleLiteral (rc.BuiltinTypes, double.PositiveInfinity, loc);
+					} else if (name == "String") {
+						return new TypeExpression(rc.BuiltinTypes.String, loc);
+					} else if (name == "Boolean") {
+						return new TypeExpression(rc.BuiltinTypes.Bool, loc);
+					} else if (name == "Number") {
+						return new TypeExpression(rc.BuiltinTypes.Double, loc);
+					} else if (name == "Function") {
+						return new TypeExpression(rc.BuiltinTypes.Delegate, loc);
+					} else if (name == "Class") {
+						return new TypeExpression(rc.BuiltinTypes.Type, loc);
+					} else if (name == "arguments" && rc is BlockContext) {
+						rc.Report.Error (7009, loc, "The `arguments' magic variable is not currently supported in PlayScript");
+						return null;
+					}
+				}
+
+				var mg = NamespaceContainer.LookupStaticUsings (rc, Name, Arity, loc);
+				if (mg != null) {
 					if (Arity > 0) {
 						targs.Resolve (rc, false);
-
-						var me = expr as MemberExpr;
-						if (me != null)
-							me.SetTypeArguments (rc, targs);
+						mg.SetTypeArguments (rc, targs);
 					}
-					return expr;
+					return mg;
 				}
 
 				if ((restrictions & MemberLookupRestrictions.NameOfExcluded) == 0 && Name == "nameof")
@@ -2882,13 +3058,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				if (errorMode) {
 					if (variable_found) {
-						rc.Report.Error (841, loc, "A local variable `{0}' cannot be used before it is declared", Name);
+						rc.Report.Error (841, loc, "A local variable `{0}' cannot be used before it is declared", name);
 					} else {
 						if (Arity > 0) {
 							var tparams = rc.CurrentTypeParameters;
 							if (tparams != null) {
-								if (tparams.Find (Name) != null) {
-									Error_TypeArgumentsCannotBeUsed (rc, "type parameter", Name, loc);
+								if (tparams.Find (name) != null) {
+									Error_TypeArgumentsCannotBeUsed (rc, "type parameter", name, loc);
 									return null;
 								}
 							}
@@ -2897,8 +3073,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 							do {
 								if (ct.MemberDefinition.TypeParametersCount > 0) {
 									foreach (var ctp in ct.MemberDefinition.TypeParameters) {
-										if (ctp.Name == Name) {
-											Error_TypeArgumentsCannotBeUsed (rc, "type parameter", Name, loc);
+										if (ctp.Name == name) {
+											Error_TypeArgumentsCannotBeUsed (rc, "type parameter", name, loc);
 											return null;
 										}
 									}
@@ -2909,21 +3085,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						}
 
 						if ((restrictions & MemberLookupRestrictions.InvocableOnly) == 0) {
-							e = rc.LookupNamespaceOrType (Name, Arity, LookupMode.IgnoreAccessibility, loc);
+							e = rc.LookupNamespaceOrType (name, Arity, LookupMode.IgnoreAccessibility, loc);
 							if (e != null) {
 								rc.Report.SymbolRelatedToPreviousError (e.Type);
 								ErrorIsInaccesible (rc, e.GetSignatureForError (), loc);
 								return e;
 							}
 						} else {
-							var me = MemberLookup (rc, false, rc.CurrentType, Name, Arity, restrictions & ~MemberLookupRestrictions.InvocableOnly, loc) as MemberExpr;
+							var me = MemberLookup (rc, false, rc.CurrentType, name, Arity, restrictions & ~MemberLookupRestrictions.InvocableOnly, loc) as MemberExpr;
 							if (me != null) {
 								Error_UnexpectedKind (rc, me, "method group", me.KindName, loc);
 								return ErrorExpression.Instance;
 							}
 						}
 
-						e = rc.LookupNamespaceOrType (Name, -System.Math.Max (1, Arity), LookupMode.Probing, loc);
+						e = rc.LookupNamespaceOrType (name, -System.Math.Max (1, Arity), LookupMode.Probing, loc);
 						if (e != null) {
 							if (e.Type.Arity != Arity && (restrictions & MemberLookupRestrictions.IgnoreArity) == 0) {
 								Error_TypeArgumentsCannotBeUsed (rc, e.Type, loc);
@@ -2946,7 +3122,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				}
 
 				if (rc.Module.Evaluator != null) {
-					var fi = rc.Module.Evaluator.LookupField (Name);
+					var fi = rc.Module.Evaluator.LookupField (name);
 					if (fi != null)
 						return new FieldExpr (fi.Item1, loc);
 				}
@@ -2963,9 +3139,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (e == null)
 				return null;
 
-			if (e is FullNamedExpression && e.eclass != ExprClass.Unresolved) {
-				Error_UnexpectedKind (ec, e, "variable", e.ExprClassName, loc);
-				return e;
+			// Skip : error CS0118: 'xxx' is a `type' but a `variable' was expected
+			if (ec.FileType != SourceFileType.PlayScript) {
+				if (e is FullNamedExpression && e.eclass != ExprClass.Unresolved) {
+					Error_UnexpectedKind (ec, e, "variable", e.ExprClassName, loc);
+					return e;
+				}
 			}
 
 			if (right_side != null) {
@@ -2976,7 +3155,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			return e;
 		}
-		
+
 		public override object Accept (StructuralVisitor visitor)
 		{
 			return visitor.Visit (this);
@@ -2987,7 +3166,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   Represents a namespace or a type.  The name of the class was inspired by
 	///   section 10.8.1 (Fully Qualified Names).
 	/// </summary>
-	public abstract class FullNamedExpression : Expression
+	public abstract partial class FullNamedExpression : Expression
 	{
 		protected override void CloneTo (CloneContext clonectx, Expression target)
 		{
@@ -3107,11 +3286,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public sealed override TypeSpec ResolveAsType (IMemberContext mc, bool allowUnboundTypeArguments = false)
 		{
 			return type;
-		}
-
-		public override object Accept (StructuralVisitor visitor)
-		{
-			return visitor.Visit (this);
 		}
 	}
 
@@ -3241,6 +3415,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		// non-static member
 		//
 		public Expression InstanceExpression;
+
+		//
+		// Allow lookup to specify additional overload restrictions (PlayScript needs this to pass the 
+		// StaticOnly/InstanceOnly restrictions).
+		//
+		public OverloadResolver.Restrictions OverloadRestrictions;
 
 		/// <summary>
 		///   The name of this member.
@@ -3559,7 +3739,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 							t = t.DeclaringType;
 						} while (t != null);
-					} else {
+					} else if (rc.FileType != SourceFileType.PlayScript) {
 						var runtime_expr = InstanceExpression as RuntimeValueExpression;
 						if (runtime_expr == null || !runtime_expr.IsSuggestionOnly) {
 							rc.Report.Error (176, loc,
@@ -3755,16 +3935,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			//
 			return argType == extensionType ||
 				TypeSpecComparer.IsEqual (argType, extensionType) ||
-				Convert.ImplicitReferenceConversionExists (argType, extensionType, false) ||
+				Convert.ImplicitReferenceConversionExists (argType, extensionType, false, null, false) ||
 				Convert.ImplicitBoxingConversion (null, argType, extensionType) != null;
 		}
 
 		public bool ResolveNameOf (ResolveContext rc, MemberAccess ma)
 		{
-			rc.Report.Error (8093, ma.Location, "An argument to nameof operator cannot be extension method group");
-
-			// Not included in C#6
-			/*
 			ExtensionExpression = ExtensionExpression.Resolve (rc);
 			if (ExtensionExpression == null)
 				return false;
@@ -3778,7 +3954,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// TODO: Scan full hierarchy
 
 			ma.Error_TypeDoesNotContainDefinition (rc, argType, ma.Name);
-			*/
 			return false;
 		}
 
@@ -3824,6 +3999,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return this;
 		}
 
+		public override Expression DoResolveLValue (ResolveContext rc, Expression right_side)
+		{
+			// Handle extension setters for PlayScript
+			if (rc.FileType == SourceFileType.PlayScript) {
+				var args = new Arguments(1);
+				args.Add(new Argument(right_side));
+				return new Invocation(new MemberAccess(ExtensionExpression, Name, type_arguments, Location), args).Resolve (rc);
+			} else {
+				return base.DoResolveLValue (rc, right_side);
+			}
+		}
+
 		#region IErrorHandler Members
 
 		bool OverloadResolver.IErrorHandler.AmbiguousCandidates (ResolveContext rc, MemberSpec best, MemberSpec ambiguous)
@@ -3865,7 +4052,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   MethodGroupExpr represents a group of method candidates which
 	///   can be resolved to the best method overload
 	/// </summary>
-	public class MethodGroupExpr : MemberExpr, OverloadResolver.IBaseMembersProvider
+	public partial class MethodGroupExpr : MemberExpr, OverloadResolver.IBaseMembersProvider
 	{
 		static readonly MemberSpec[] Excluded = new MemberSpec[0];
 
@@ -4248,7 +4435,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			CovariantDelegate = 1 << 2,
 			NoBaseMembers = 1 << 3,
 			BaseMembersIncluded = 1 << 4,
-			GetEnumeratorLookup = 1 << 5
+			GetEnumeratorLookup = 1 << 5,
+			StaticOnly = 1 << 6,           // PlayScript - we need to be able to filter by static or instance, as we can have both with the same name.
+			InstanceOnly = 1 << 7,
 		}
 
 		public interface IBaseMembersProvider
@@ -4585,8 +4774,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			Expression p_tmp = new EmptyExpression (p);
 			Expression q_tmp = new EmptyExpression (q);
 
-			bool p_to_q = Convert.ImplicitConversionExists (ec, p_tmp, q);
-			bool q_to_p = Convert.ImplicitConversionExists (ec, q_tmp, p);
+			// PlayScript - upconvert_only = true
+			bool p_to_q = Convert.ImplicitConversionExists (ec, p_tmp, q, true);
+			bool q_to_p = Convert.ImplicitConversionExists (ec, q_tmp, p, true);
 
 			if (p_to_q && !q_to_p)
 				return 1;
@@ -4771,6 +4961,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			if (specific_at_least_once)
 				return true;
+
+			if (ec.FileType == SourceFileType.PlayScript) {
+				// if one is static and one is not, choose the non static version
+				if (candidate.IsStatic != best.IsStatic) {
+					if (!candidate.IsStatic) {
+						// use the candidate because it is non-static
+						return true;
+					}
+				}
+			}
 
 			return false;
 		}
@@ -5351,6 +5551,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 								instance_qualifier != null && !instance_qualifier.CheckProtectedMemberAccess (rc, member)) {
 								continue;
 							}
+
+							// PlayScript - We need to be able to filter by isntance or static.  Playscript can have both with the same name.
+							if ((restrictions & Restrictions.InstanceOnly) != 0 && (member.Modifiers & Modifiers.STATIC) != 0)
+								continue;
+
+							// PlayScript - We need to be able to filter by isntance or static.  Playscript can have both with the same name.
+							if ((restrictions & Restrictions.StaticOnly) != 0 && (member.Modifiers & Modifiers.STATIC) == 0)
+								continue;
 						}
 
 						IParametersMember pm = member as IParametersMember;
@@ -5358,7 +5566,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 							//
 							// Will use it later to report ambiguity between best method and invocable member
 							//
-							if (Invocation.IsMemberInvocable (member))
+							if (Invocation.IsMemberInvocable (member, rc))
 								invocable_member = member;
 
 							continue;
@@ -5881,7 +6089,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					if (a.Expr.Type == pt || TypeSpecComparer.IsEqual (a.Expr.Type, pt)) {
 						conv = a.Expr;
 					} else {
-						conv = Convert.ImplicitReferenceConversion (a.Expr, pt, false);
+						conv = Convert.ImplicitReferenceConversion (a.Expr, pt, false, ec, false);
 						if (conv == null)
 							conv = Convert.ImplicitBoxingConversion (a.Expr, a.Expr.Type, pt);
 					}
@@ -6037,7 +6245,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	//
 	// Fully resolved expression that references a Field
 	//
-	public class FieldExpr : MemberExpr, IDynamicAssign, IMemoryLocation, IVariableReference
+	public partial class FieldExpr : MemberExpr, IDynamicAssign, IMemoryLocation, IVariableReference
 	{
 		protected FieldSpec spec;
 		VariableInfo variable_info;
@@ -6654,7 +6862,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	// This is not an LValue because we need to re-write the expression. We
 	// can not take data from the stack and store it.
 	//
-	sealed class PropertyExpr : PropertyOrIndexerExpr<PropertySpec>
+	sealed partial class PropertyExpr : PropertyOrIndexerExpr<PropertySpec>
 	{
 		Arguments arguments;
 		FieldExpr backing_field;
@@ -7022,7 +7230,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	abstract class PropertyOrIndexerExpr<T> : MemberExpr, IDynamicAssign where T : PropertySpec
+	abstract partial class PropertyOrIndexerExpr<T> : MemberExpr, IDynamicAssign where T : PropertySpec
 	{
 		// getter and setter can be different for base calls
 		MethodSpec getter, setter;
@@ -7200,11 +7408,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		bool ResolveGetter (ResolveContext rc)
 		{
-			if (!best_candidate.HasGet) {
+			if (best_candidate == null || !best_candidate.HasGet) {
 				if (InstanceExpression != EmptyExpression.Null) {
-					rc.Report.SymbolRelatedToPreviousError (best_candidate);
-					rc.Report.Error (154, loc, "The property or indexer `{0}' cannot be used in this context because it lacks the `get' accessor",
-						best_candidate.GetSignatureForError ());
+					MemberSpec ms = (MemberSpec)best_candidate;
+					if (ms != null) {
+						rc.Report.SymbolRelatedToPreviousError (ms);
+						rc.Report.Error (154, loc, "The property or indexer `{0}' cannot be used in this context because it lacks the `get' accessor",
+						                 ms.GetSignatureForError ());
+					} else if (rc.FileType == SourceFileType.PlayScript) {
+						ReportNoIndexerError (rc);
+					}
 					return false;
 				}
 			} else if (!best_candidate.Get.IsAccessible (rc) || !best_candidate.Get.DeclaringType.IsAccessible (rc)) {
@@ -7229,6 +7442,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		protected virtual bool ResolveAutopropertyAssignment (ResolveContext rc, Expression rhs)
 		{
 			return false;
+		}
+
+		private void ReportNoIndexerError(ResolveContext rc) {
+			rc.Report.Error (7163, loc, "Target is not dynamic class Object or Dictionary and there is no user defined accessor");
 		}
 	}
 
@@ -7419,7 +7636,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class TemporaryVariableReference : VariableReference
+	public partial class TemporaryVariableReference : VariableReference
 	{
 		public class Declarator : Statement
 		{
@@ -7574,6 +7791,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return false;
 			}
 
+			//
+			// We provide a mechanism to use single precision floats instead of
+			// doubles for the PlayScript Number type via the [NumberIsFloat]
+			// attribute. For VarExpr types we must do the conversion from double
+			// to float here.
+			//
+			if (ec.PsNumberIsFloat && type.BuiltinType == BuiltinTypeSpec.Type.Double)
+				type = ec.BuiltinTypes.Float;
+
 			eclass = ExprClass.Variable;
 			return true;
 		}
@@ -7586,39 +7812,39 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				ec.Module.Compiler.Report.Error (825, loc, "The contextual keyword `var' may only appear within a local variable declaration");
 		}
 	}
-	
+
 	public class InvalidStatementExpression : Statement
 	{
 		public Expression Expression {
 			get;
 			private set;
 		}
-		
+
 		public InvalidStatementExpression (Expression expr)
 		{
 			this.Expression = expr;
 		}
-		
+
 		public override void Emit (EmitContext ec)
 		{
 			// nothing
 		}
-		
+
 		protected override void DoEmit (EmitContext ec)
 		{
 			// nothing
 		}
-		
+
 		protected override void CloneTo (CloneContext clonectx, Statement target)
 		{
 			// nothing
 		}
-		
+
 		public override ICSharpCode.NRefactory.MonoCSharp.Expression CreateExpressionTree (ResolveContext ec)
 		{
 			return null;
 		}
-		
+
 		public override object Accept (ICSharpCode.NRefactory.MonoCSharp.StructuralVisitor visitor)
 		{
 			return visitor.Visit (this);
@@ -7629,4 +7855,5 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return false;
 		}
 	}
+
 }	

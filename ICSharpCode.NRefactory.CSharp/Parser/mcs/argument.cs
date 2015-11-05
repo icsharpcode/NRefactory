@@ -18,6 +18,7 @@ using IKVM.Reflection.Emit;
 #else
 using System.Reflection.Emit;
 #endif
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -43,6 +44,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public readonly AType ArgType;
 		public Expression Expr;
+
+		// For PlayScript array/object initializer type inference.
+		public AsArrayInitializer InferArrayInitializer;
+		public AsObjectInitializer InferObjInitializer;
 
 		public Argument (Expression expr, AType type)
 		{
@@ -192,6 +197,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public void Resolve (ResolveContext ec)
 		{
+			// Keep track of the array initializer, we need it to do array type inference when searching for
+			// a matching method.
+			if (ec.IsPlayScript) {
+				if (Expr is AsArrayInitializer) {
+					InferArrayInitializer = (AsArrayInitializer)Expr;
+				} else if (Expr is AsObjectInitializer) {
+					InferObjInitializer = (AsObjectInitializer)Expr;
+				} else if (Expr is AnonymousMethodExpression) {
+					Expr = new Cast(new TypeExpression(ec.BuiltinTypes.Delegate, Expr.Location), Expr, Expr.Location);
+				}
+			}
+
 			// Verify that the argument is readable
 			if (ArgType != AType.Out)
 				Expr = Expr.Resolve (ec);
@@ -275,7 +292,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 	}
 	
-	public class Arguments
+	public partial class Arguments
 	{
 		sealed class ArgumentsOrdered : Arguments
 		{
@@ -354,7 +371,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			Location loc = Location.Null;
 			var all = new ArrayInitializer (args.Count, loc);
 
-			MemberAccess binder = DynamicExpressionStatement.GetBinderNamespace (loc);
+			MemberAccess binder = DynamicExpressionStatement.GetBinderNamespace (rc, loc);
 
 			foreach (Argument a in args) {
 				Arguments dargs = new Arguments (2);
@@ -381,21 +398,49 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						new MemberAccess (new MemberAccess (binder, info_flags_enum, loc), "IsStaticType", loc));
 				}
 
-				var arg_type = a.Expr.Type;
+				TypeSpec arg_type;
+
+				if (rc.FileType == SourceFileType.PlayScript &&
+				    a.Expr is ArrayInitializer || a.Expr is AsObjectInitializer) {
+					if (a.Expr is ArrayInitializer) {
+						arg_type = rc.Module.PredefinedTypes.AsArray.Resolve();
+					} else {
+						arg_type = rc.Module.PredefinedTypes.AsExpandoObject.Resolve();
+					}
+				} else {
+					arg_type = a.Expr.Type;
+				}
 
 				if (arg_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic && arg_type != InternalType.NullLiteral) {
 					MethodGroupExpr mg = a.Expr as MethodGroupExpr;
-					if (mg != null) {
-						rc.Report.Error (1976, a.Expr.Location,
-							"The method group `{0}' cannot be used as an argument of dynamic operation. Consider using parentheses to invoke the method",
-							mg.Name);
-					} else if (arg_type == InternalType.AnonymousMethod) {
-						rc.Report.Error (1977, a.Expr.Location,
-							"An anonymous method or lambda expression cannot be used as an argument of dynamic operation. Consider using a cast");
-					} else if (arg_type.Kind == MemberKind.Void || arg_type == InternalType.Arglist || arg_type.IsPointer) {
-						rc.Report.Error (1978, a.Expr.Location,
-							"An expression of type `{0}' cannot be used as an argument of dynamic operation",
-							arg_type.GetSignatureForError ());
+
+					bool wasConverted = false;
+
+					// In PlayScript, we try to implicity convert to dynamic, which handles conversions of method groups to delegates, and
+					// anon methods to delegates.
+					if (rc.FileType == SourceFileType.PlayScript && (mg != null || arg_type == InternalType.AnonymousMethod)) {
+						var expr = Convert.ImplicitConversion (rc, a.Expr, rc.BuiltinTypes.Dynamic, loc);
+						if (expr != null) {
+							a.Expr = expr;
+							arg_type = rc.BuiltinTypes.Dynamic;
+							wasConverted = true;
+						}
+					}
+
+					// Failed.. check the C# error
+					if (!wasConverted) {
+						if (mg != null) {
+							rc.Report.Error (1976, a.Expr.Location,
+								"The method group `{0}' cannot be used as an argument of dynamic operation. Consider using parentheses to invoke the method",
+								mg.Name);
+						} else if (arg_type == InternalType.AnonymousMethod) {
+							rc.Report.Error (1977, a.Expr.Location,
+								"An anonymous method or lambda expression cannot be used as an argument of dynamic operation. Consider using a cast");
+						} else if (arg_type.Kind == MemberKind.Void || arg_type == InternalType.Arglist || arg_type.IsPointer) {
+							rc.Report.Error (1978, a.Expr.Location,
+								"An expression of type `{0}' cannot be used as an argument of dynamic operation",
+								arg_type.GetSignatureForError ());
+						}
 					}
 
 					info_flags = new Binary (Binary.Operator.BitwiseOr, info_flags,
@@ -669,6 +714,116 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public Argument this [int index] {
 			get { return args [index]; }
 			set { args [index] = value; }
+		}
+
+		public void CastDynamicArgs(ResolveContext rc)
+		{
+			for (int i = 0; i < args.Count; ++i) {
+				Argument a = args[i];
+				// remove dynamic
+				a.Expr = EmptyCast.RemoveDynamic(rc, a.Expr);
+			}
+		}
+
+		public bool AsTryResolveDynamicArgs (ResolveContext ec, MemberSpec memberSpec)
+		{
+			AParametersCollection parameters = null;
+			int fixedArgsLen = 0;
+
+			if (memberSpec is MethodSpec) {
+				MethodSpec methodSpec = memberSpec as MethodSpec;
+				parameters = methodSpec.Parameters;
+				fixedArgsLen = parameters.FixedParameters.Length;
+				if (methodSpec.IsExtensionMethod)
+					fixedArgsLen--;
+			} else if (memberSpec is IndexerSpec) {
+				IndexerSpec indexerSpec = memberSpec as IndexerSpec;
+				parameters = indexerSpec.Parameters;
+				fixedArgsLen = parameters.FixedParameters.Length;
+			}
+
+			if (parameters == null) {
+				return false;
+			}
+
+			if (fixedArgsLen < args.Count) {
+				// too many arguments
+				return false;
+			}
+
+			for (var i = 0; i < args.Count; i++) {
+				var arg = args [i];
+				var paramType = parameters.Types [i];
+				if (arg.Expr.Type.IsDynamic) {
+					var parCastType = paramType.BuiltinType == BuiltinTypeSpec.Type.Dynamic ? ec.BuiltinTypes.Object : paramType;
+					var new_arg = new Argument (new Cast (
+						new TypeExpression (parCastType, arg.Expr.Location), 
+						arg.Expr, arg.Expr.Location), arg.ArgType);
+					new_arg.Resolve (ec);
+					args [i] = new_arg;
+				}
+			}
+			return true;
+		}
+
+
+		// Resolve any dynamic params to the type of the target parameters list (for PlayScript only).
+		public bool AsTryResolveDynamicArgs (ResolveContext ec, IList<MemberSpec> candidates)
+		{
+			if (candidates.Count == 0) {
+				return false;
+			}
+
+			if (candidates.Count == 1) {
+				// if there's a single candidate, then use it
+				return AsTryResolveDynamicArgs(ec, candidates[0]); 
+			}
+
+			AParametersCollection parameters = null;
+
+			foreach (MemberSpec memberSpec in candidates) {
+
+				AParametersCollection possibleParams = null;
+				int fixedArgsLen = 0;
+
+				if (memberSpec is MethodSpec) {
+					MethodSpec methodSpec = memberSpec as MethodSpec;
+					possibleParams = methodSpec.Parameters;
+					fixedArgsLen = possibleParams.FixedParameters.Length;
+					if (methodSpec.IsExtensionMethod)
+						fixedArgsLen--;
+				} else if (memberSpec is IndexerSpec) {
+					IndexerSpec indexerSpec = memberSpec as IndexerSpec;
+					possibleParams = indexerSpec.Parameters;
+					fixedArgsLen = possibleParams.FixedParameters.Length;
+				}
+
+				if (fixedArgsLen == args.Count) {
+					if (parameters != null) {
+						parameters = null;	// Can't be more than one - or we give up and do a dynamic call..
+						break;
+					}
+					parameters = possibleParams;
+				}
+			}
+
+			if (parameters != null) {
+				for (var i = 0; i < args.Count; i++) {
+					var arg = args [i];
+					var paramType = parameters.Types [i];
+					if (arg.Expr.Type.IsDynamic) {
+						var parCastType = paramType.BuiltinType == BuiltinTypeSpec.Type.Dynamic ? ec.BuiltinTypes.Object : paramType;
+						var new_arg = new Argument (new Cast (
+							new TypeExpression (parCastType, arg.Expr.Location), 
+							arg.Expr, arg.Expr.Location), arg.ArgType);
+						new_arg.Resolve (ec);
+						args [i] = new_arg;
+					}
+				}
+				return true;
+			}
+
+			return false;
 		}
 	}
 }

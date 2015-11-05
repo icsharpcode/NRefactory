@@ -18,12 +18,12 @@ using System.Diagnostics;
 #if STATIC
 using IKVM.Reflection;
 using IKVM.Reflection.Emit;
-using System.Diagnostics;
 #else
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
+// ICSharpCode.NRefactory.MonoCSharp
 namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	public abstract class CompilerGeneratedContainer : ClassOrStruct
@@ -956,10 +956,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public ParametersBlock Block;
 
-		public AnonymousMethodExpression (Location loc)
+		// PlayScript requires us to remember both parameters and return type.  (Will be null in C#)
+		public ParametersCompiled AsParameters;
+		public FullNamedExpression AsReturnType;
+
+		public AnonymousMethodExpression (Location loc, ParametersCompiled asParameters = null, FullNamedExpression asReturnType = null)
 		{
 			this.loc = loc;
 			this.compatibles = new Dictionary<TypeSpec, Expression> ();
+
+			// Actionscript anon function declarations include concrete parameter types and return types.
+			this.AsParameters = asParameters;
+			this.AsReturnType = asReturnType;
 		}
 
 		#region Properties
@@ -1362,6 +1370,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (!DoResolveParameters (rc))
 				return null;
 
+			// Cast to Delgate for PlayScript (forces implicit conversion to Func<> or Action<> delegate types).
+			if (rc.IsPlayScript) {
+				return new Cast(new TypeExpression(rc.BuiltinTypes.Delegate, this.Location), this, this.Location).Resolve (rc);
+			}
+
 			return this;
 		}
 
@@ -1427,7 +1440,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Continue && this.Block != null)
+					this.Block.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 

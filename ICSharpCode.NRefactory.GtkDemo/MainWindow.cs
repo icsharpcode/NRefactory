@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.GtkDemo
 //			this.treeviewNodes.HeadersVisible = false;
 			this.textview1.ModifyFont (Pango.FontDescription.FromString ("Mono 14"));
 			this.textview1.MoveCursor += HandleMoveCursor;
-			string path = System.IO.Path.Combine (System.IO.Path.GetDirectoryName (Assembly.GetExecutingAssembly ().Location), "CSharpDemo.cs");
+			string path = System.IO.Path.Combine (System.IO.Path.GetDirectoryName (Assembly.GetExecutingAssembly ().Location), "ActionScript.as");
 			this.textview1.Buffer.Text = File.ReadAllText (path);
 			buttonParse.Clicked += HandleClicked;
 			buttonGenerate.Clicked += CSharpGenerateCodeButtonClick;
@@ -122,13 +122,14 @@ namespace ICSharpCode.NRefactory.GtkDemo
 			this.textview1.MoveCursor -= HandleMoveCursor;
 			if (node.StartLocation.IsEmpty || node.EndLocation.IsEmpty)
 				return;
-			var textIter = this.textview1.Buffer.GetIterAtLineOffset (node.StartLocation.Line - 1, node.StartLocation.Column - 1);
+//			var textIter = this.textview1.Buffer.GetIterAtLineOffset (node.StartLocation.Line - 1, node.StartLocation.Column - 1);
+			var textIter = this.textview1.Buffer.GetIterAtLineOffset (node.StartLocation.Line - 1, 1); // node.StartLocation.Column - 1);
 			this.textview1.ScrollToIter (textIter, 0, false, 0, 0);
 			this.textview1.Buffer.PlaceCursor (textIter);
-			this.textview1.Buffer.SelectRange (textIter, this.textview1.Buffer.GetIterAtLineOffset (node.EndLocation.Line -1, node.EndLocation.Column - 1));
+//			this.textview1.Buffer.SelectRange (textIter, this.textview1.Buffer.GetIterAtLineOffset (node.EndLocation.Line -1, node.EndLocation.Column - 1));
+			this.textview1.Buffer.SelectRange (textIter, this.textview1.Buffer.GetIterAtLineOffset (node.EndLocation.Line -1, 1)); // node.EndLocation.Column - 1));
 			this.textview1.MoveCursor += HandleMoveCursor;
 		}
-
 
 		public void ShowUnit (SyntaxTree unit, CSharpAstResolver visitor)
 		{

@@ -1,9 +1,10 @@
 //
-// cs-tokenizer.cs: The Tokenizer for the C# compiler
+// cs-tokenizer.cs: The Tokenizer for the PlayScript compiler
 //                  This also implements the preprocessor
 //
 // Author: Miguel de Icaza (miguel@gnu.org)
 //         Marek Safar (marek.safar@gmail.com)
+//         Ben Cooley (bcooley@zynga.com)
 //
 // Dual licensed under the terms of the MIT X11 or GNU GPL
 //
@@ -18,8 +19,10 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Diagnostics;
 using System.Collections;
+//using Mono.CSharp;
+using ICSharpCode.NRefactory.MonoCSharp;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace Mono.PlayScript
 {
 	//
 	// This class has to be used by parser only, it reuses token
@@ -124,7 +127,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			{
 				return Create (null, file, row, column);
 			}
-
+			
 			public LocatedToken Create (string value, SourceFile file, int row, int column)
 			{
 				//
@@ -187,9 +190,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		readonly SeekableStreamReader reader;
 		readonly CompilationSourceFile source_file;
+		public CompilationSourceFile SourceFile { get { return source_file; } }
 		readonly CompilerContext context;
 		readonly Report Report;
-
 
 		SourceFile current_source;
 		Location hidden_block_start;
@@ -197,17 +200,38 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		int line = 1;
 		int col = 0;
 		int previous_col;
+		int prev_token;
+		int prev_token_line;
 		int current_token;
+		int current_token_line;
+		int putback_token = -1;
+		int parse_regex_xml = 0;
+		int parse_colon = 0;
+		bool prev_allow_auto_semi = true;
+		bool allow_auto_semi = true;
+		int allow_auto_semi_after = 0;
+		bool has_temp_auto_semi_after_tokens = false;
+		List<int> temp_auto_semi_after_tokens = new List<int>();
 		readonly int tab_size;
+		bool parsing_playscript = false;
+		bool handle_namespace = true;
 		bool handle_get_set = false;
+		bool handle_dynamic = true;
+		bool handle_each = false;
 		bool handle_remove_add = false;
-		bool handle_where;
-		bool lambda_arguments_parsing;
+		bool handle_where = false;
+//		bool handle_typeof = false;
+		bool handle_for_in = false;
+		bool eat_block = false;
+		int eat_block_braces = 0;
 		List<Location> escaped_identifiers;
 		int parsing_generic_less_than;
 		readonly bool doc_processing;
 		readonly LocatedTokenBuffer ltb;
-		
+
+		private static BitArray allowed_auto_semi_tokens = new BitArray(750, false);  
+		private static BitArray disallowed_next_auto_semi_tokens = new BitArray(750, false);  
+
 		//
 		// Used mainly for parser optimizations. Some expressions for instance
 		// can appear only in block (including initializer, base initializer)
@@ -251,7 +275,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public const int EvalCompilationUnitParserCharacter = 0x100001;
 		public const int EvalUsingDeclarationsParserCharacter = 0x100002;
 		public const int DocumentationXref = 0x100003;
-
+		
 		const int UnicodeLS = 0x2028;
 		const int UnicodePS = 0x2029;
 		
@@ -304,16 +328,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		static readonly char[] line_default = "default".ToCharArray ();
 
 		static readonly char[] simple_whitespaces = new char[] { ' ', '\t' };
+		internal SpecialsBag sbag;
 
-		public int Column {
-			get {
-				return col;
-			}
-			set {
-				col = value;
-			}
+		public bool ParsingPlayScript {
+			get { return parsing_playscript; }
+			set { parsing_playscript = value; }
 		}
-			
+
+		public bool NamespaceParsing {
+			get { return handle_namespace; }
+			set { handle_namespace = value; }
+		}
+
 		public bool PropertyParsing {
 			get { return handle_get_set; }
 			set { handle_get_set = value; }
@@ -328,7 +354,67 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			get { return handle_where; }
 			set { handle_where = value; }
 		}
-	
+
+//		public bool TypeOfParsing {
+//			get { return handle_typeof; }
+//			set { handle_typeof = value; }
+//		}
+
+		public bool ForInParsing {
+			get { return handle_for_in; }
+			set { handle_for_in = value; }
+		}
+
+		public bool DynamicParsing {
+			get { return handle_dynamic; }
+			set { handle_dynamic = value; }
+		}
+
+		public bool AutoSemiInsertion {
+			get { return allow_auto_semi; }
+			set { 
+				prev_allow_auto_semi = allow_auto_semi;
+				allow_auto_semi = value; 
+				allow_auto_semi_after = 0; 
+			}
+		}
+
+		public bool PrevAutoSemiInsertion {
+			get { return prev_allow_auto_semi; }
+		}
+
+		public int AutoSemiInsertionAfter 
+		{
+			get { return allow_auto_semi_after; }
+			set { 
+				allow_auto_semi = true;
+				allow_auto_semi_after = value + 1;
+			}
+		}
+
+		public void AllowAutoSemiAfterToken (int token, bool allow)
+		{
+			allowed_auto_semi_tokens.Set (token, allow);
+			if (true) {
+				has_temp_auto_semi_after_tokens = true;
+				temp_auto_semi_after_tokens.Add (token);
+			}
+		}
+
+		public bool RegexXmlParsing {
+			get { return parse_regex_xml > 0; }
+		}
+
+		public bool EatBlock {
+			get { return eat_block; }
+			set { 
+				eat_block = value; 
+				if (eat_block) {
+					eat_block_braces = 0; 
+				}
+			}
+		}
+
 		public XmlCommentState doc_state {
 			get { return xml_doc_state; }
 			set {
@@ -395,6 +481,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		public int Column {
+			get {
+				return col;
+			}
+			set {
+				col = value;
+			}
+		}
+
 		//
 		// This is used when the tokenizer needs to save
 		// the current position as it needs to do some parsing
@@ -413,8 +508,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			public int previous_col;
 			public Stack<int> ifstack;
 			public int parsing_generic_less_than;
-			public int current_token;
+			public int parse_regex_xml;
+			public int parse_colon;
+			public bool prev_allow_auto_semi;
+			public bool allow_auto_semi;
+			public int allow_auto_semi_after;
 			public object val;
+			public int prev_token;
+			public int prev_token_line;
+			public int current_token;
+			public int current_token_line;
+			public int putback_token;
 
 			public Position (Tokenizer t)
 			{
@@ -433,7 +537,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					ifstack = new Stack<int> (clone);
 				}
 				parsing_generic_less_than = t.parsing_generic_less_than;
+				parse_regex_xml = t.parse_regex_xml;
+				parse_colon = t.parse_colon;
+				prev_allow_auto_semi = t.prev_allow_auto_semi;
+				allow_auto_semi = t.allow_auto_semi;
+				allow_auto_semi_after = t.allow_auto_semi_after;
+				prev_token = t.prev_token;
+				prev_token_line = t.prev_token_line;
 				current_token = t.current_token;
+				current_token_line = t.current_token_line;
+				putback_token = t.putback_token;
 				val = t.val;
 			}
 		}
@@ -441,12 +554,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public Tokenizer (SeekableStreamReader input, CompilationSourceFile file, ParserSession session, Report report)
 		{
 			this.source_file = file;
+			// SourceFile will be null if we are running in the repl;
+			// TODO: Determine if REPL should allow Extended PlayScript language, 
+			// for now to run Tamarin tests, only ActionScript
+			if (file.SourceFile != null) {
+				this.parsing_playscript = file.SourceFile.PsExtended;
+			}
 			this.context = file.Compiler;
 			this.current_source = file.SourceFile;
 			this.identifiers = session.Identifiers;
 			this.id_builder = session.IDBuilder;
 			this.number_builder = session.NumberBuilder;
-			this.ltb = new LocatedTokenBuffer (session.LocatedTokens);
+			this.ltb = new LocatedTokenBuffer (session.AsLocatedTokens);
 			this.Report = report;
 
 			reader = input;
@@ -477,7 +596,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			previous_col = p.previous_col;
 			ifstack = p.ifstack;
 			parsing_generic_less_than = p.parsing_generic_less_than;
+			parse_regex_xml = p.parse_regex_xml;
+			parse_colon = p.parse_colon;
+			prev_token = p.prev_token;
+			prev_token_line = p.prev_token_line;
+			prev_allow_auto_semi = p.prev_allow_auto_semi;
+			allow_auto_semi = p.allow_auto_semi;
+			allow_auto_semi_after = p.allow_auto_semi_after;
 			current_token = p.current_token;
+			current_token_line = p.current_token_line;
+			putback_token = p.putback_token;
 			val = p.val;
 		}
 
@@ -520,6 +648,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			kwe.Next = new KeywordEntry<T> (kw, token);
 		}
 
+		static void AddAllowedAutoSemiTokens(int[] tokens) {
+			var len = tokens.Length;
+			for (var i = 0; i < len; i++) {
+				allowed_auto_semi_tokens.Set (tokens[i], true);
+			}
+		}
+
+		static void AddDisallowedNextAutoSemiTokens(int[] tokens) {
+			var len = tokens.Length;
+			for (var i = 0; i < len; i++) {
+				disallowed_next_auto_semi_tokens.Set (tokens[i], true);
+			}
+		}
+
 		//
 		// Class initializer
 		// 
@@ -527,18 +669,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			keyword_strings = new HashSet<string> ();
 
-			// 11 is the length of the longest keyword for now
-			keywords = new KeywordEntry<int>[11][];
+			// 13 is the length of the longest keyword for now
+			keywords = new KeywordEntry<int>[13][];
 
-			AddKeyword ("__arglist", Token.ARGLIST);
-			AddKeyword ("__makeref", Token.MAKEREF);
-			AddKeyword ("__reftype", Token.REFTYPE);
-			AddKeyword ("__refvalue", Token.REFVALUE);
 			AddKeyword ("abstract", Token.ABSTRACT);
 			AddKeyword ("as", Token.AS);
 			AddKeyword ("add", Token.ADD);
-			AddKeyword ("base", Token.BASE);
 			AddKeyword ("bool", Token.BOOL);
+			AddKeyword ("boolean", Token.BOOLEAN);
 			AddKeyword ("break", Token.BREAK);
 			AddKeyword ("byte", Token.BYTE);
 			AddKeyword ("case", Token.CASE);
@@ -551,24 +689,39 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			AddKeyword ("decimal", Token.DECIMAL);
 			AddKeyword ("default", Token.DEFAULT);
 			AddKeyword ("delegate", Token.DELEGATE);
+			AddKeyword ("delete", Token.DELETE);
 			AddKeyword ("do", Token.DO);
 			AddKeyword ("double", Token.DOUBLE);
+			AddKeyword ("double2", Token.DOUBLE2);
+			AddKeyword ("double3", Token.DOUBLE3);
+			AddKeyword ("double4", Token.DOUBLE4);
+			AddKeyword ("dynamic", Token.DYNAMIC);
+			AddKeyword ("each", Token.EACH);
 			AddKeyword ("else", Token.ELSE);
 			AddKeyword ("enum", Token.ENUM);
 			AddKeyword ("event", Token.EVENT);
 			AddKeyword ("explicit", Token.EXPLICIT);
+			AddKeyword ("extends", Token.EXTENDS);
 			AddKeyword ("extern", Token.EXTERN);
 			AddKeyword ("false", Token.FALSE);
+			AddKeyword ("final", Token.FINAL);
 			AddKeyword ("finally", Token.FINALLY);
 			AddKeyword ("fixed", Token.FIXED);
 			AddKeyword ("float", Token.FLOAT);
+			AddKeyword ("float2", Token.FLOAT2);
+			AddKeyword ("float3", Token.FLOAT3);
+			AddKeyword ("float4", Token.FLOAT4);
 			AddKeyword ("for", Token.FOR);
-			AddKeyword ("foreach", Token.FOREACH);
+			AddKeyword ("function", Token.FUNCTION);
 			AddKeyword ("goto", Token.GOTO);
 			AddKeyword ("get", Token.GET);
 			AddKeyword ("if", Token.IF);
+			AddKeyword ("implements", Token.IMPLEMENTS);
 			AddKeyword ("implicit", Token.IMPLICIT);
+			AddKeyword ("import", Token.IMPORT);
 			AddKeyword ("in", Token.IN);
+			AddKeyword ("indexer", Token.INDEXER);
+			AddKeyword ("instanceof", Token.INSTANCEOF);
 			AddKeyword ("int", Token.INT);
 			AddKeyword ("interface", Token.INTERFACE);
 			AddKeyword ("internal", Token.INTERNAL);
@@ -576,13 +729,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			AddKeyword ("lock", Token.LOCK);
 			AddKeyword ("long", Token.LONG);
 			AddKeyword ("namespace", Token.NAMESPACE);
+			AddKeyword ("native", Token.NATIVE);
 			AddKeyword ("new", Token.NEW);
 			AddKeyword ("null", Token.NULL);
 			AddKeyword ("object", Token.OBJECT);
 			AddKeyword ("operator", Token.OPERATOR);
 			AddKeyword ("out", Token.OUT);
 			AddKeyword ("override", Token.OVERRIDE);
+			AddKeyword ("overload", Token.OVERLOAD);
+			AddKeyword ("package", Token.PACKAGE);
 			AddKeyword ("params", Token.PARAMS);
+			AddKeyword ("property", Token.PROPERTY);
 			AddKeyword ("private", Token.PRIVATE);
 			AddKeyword ("protected", Token.PROTECTED);
 			AddKeyword ("public", Token.PUBLIC);
@@ -591,7 +748,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			AddKeyword ("remove", Token.REMOVE);
 			AddKeyword ("return", Token.RETURN);
 			AddKeyword ("sbyte", Token.SBYTE);
-			AddKeyword ("sealed", Token.SEALED);
 			AddKeyword ("set", Token.SET);
 			AddKeyword ("short", Token.SHORT);
 			AddKeyword ("sizeof", Token.SIZEOF);
@@ -599,6 +755,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			AddKeyword ("static", Token.STATIC);
 			AddKeyword ("string", Token.STRING);
 			AddKeyword ("struct", Token.STRUCT);
+			AddKeyword ("super", Token.SUPER);
 			AddKeyword ("switch", Token.SWITCH);
 			AddKeyword ("this", Token.THIS);
 			AddKeyword ("throw", Token.THROW);
@@ -608,9 +765,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			AddKeyword ("uint", Token.UINT);
 			AddKeyword ("ulong", Token.ULONG);
 			AddKeyword ("unchecked", Token.UNCHECKED);
+			AddKeyword ("undefined", Token.UNDEFINED);
 			AddKeyword ("unsafe", Token.UNSAFE);
+			AddKeyword ("use", Token.USE);
 			AddKeyword ("ushort", Token.USHORT);
 			AddKeyword ("using", Token.USING);
+			AddKeyword ("var", Token.VAR);
 			AddKeyword ("virtual", Token.VIRTUAL);
 			AddKeyword ("void", Token.VOID);
 			AddKeyword ("volatile", Token.VOLATILE);
@@ -651,6 +811,104 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			AddPreprocessorKeyword ("pragma", PreprocessorDirective.Pragma);
 			AddPreprocessorKeyword ("line", PreprocessorDirective.Line);
 
+			// Semicolons will be auto-inserted after these tokens by default (unless manually disabled by the parser).
+			AddAllowedAutoSemiTokens(new int [] {
+				Token.CLOSE_BRACKET,
+				Token.CLOSE_PARENS,
+				Token.IDENTIFIER,
+				Token.LITERAL,
+				Token.OP_INC,
+				Token.OP_DEC,
+				Token.TRUE,
+				Token.FALSE,
+				Token.UNDEFINED,
+				Token.NULL,
+				Token.CHAR,
+				Token.INT,
+				Token.UINT,
+				Token.OBJECT,
+				Token.DECIMAL,
+				Token.BYTE,
+				Token.SBYTE,
+				Token.LONG,
+				Token.ULONG,
+				Token.VOID,
+				Token.DOUBLE,
+				Token.DOUBLE2,
+				Token.DOUBLE3,
+				Token.DOUBLE4,
+				Token.FLOAT,
+				Token.FLOAT2,
+				Token.FLOAT3,
+				Token.FLOAT4,
+				Token.STRING,
+				Token.BOOL,
+				Token.BOOLEAN,
+				Token.SHORT,
+				Token.USHORT,
+				Token.BREAK,
+				Token.CONTINUE,
+				Token.RETURN,
+				Token.STAR,
+				Token.OP_GENERICS_GT
+			});
+
+			AddDisallowedNextAutoSemiTokens(new int [] {
+				Token.PLUS,
+				Token.MINUS,
+				Token.DIV,
+				Token.PERCENT,
+				Token.STAR,
+				Token.DOT,
+				Token.DOT_AT,
+				Token.DOT_STAR,
+				Token.DOTDOT,
+				Token.DOTDOT_AT,
+				Token.DOTDOT_STAR,
+				Token.OP_SHIFT_LEFT,
+				Token.OP_SHIFT_RIGHT,
+				Token.OP_USHIFT_RIGHT,
+				Token.LOGICAL_AND_ASSIGN,
+				Token.LOGICAL_OR_ASSIGN,
+				Token.CLOSE_BRACKET,
+				Token.CLOSE_PARENS,
+				Token.OP_ADD_ASSIGN,
+				Token.OP_AT,
+				Token.OP_IN,
+				Token.AS,
+				Token.IN,
+				Token.ARROW,
+				Token.ASSIGN,
+				Token.COLON,
+				Token.COMMA,
+				Token.OP_ADD_ASSIGN,
+				Token.OP_SUB_ASSIGN,
+				Token.OP_MOD_ASSIGN,
+				Token.OP_MULT_ASSIGN,
+				Token.OP_DIV_ASSIGN,
+				Token.OP_COALESCING,
+				Token.OP_AND_ASSIGN,
+				Token.OP_OR_ASSIGN,
+				Token.OP_XOR_ASSIGN,
+				Token.OP_SHIFT_LEFT_ASSIGN,
+				Token.OP_SHIFT_RIGHT_ASSIGN,
+				Token.OP_USHIFT_RIGHT_ASSIGN,
+				Token.OP_EQ,
+				Token.OP_NE,
+				Token.OP_STRICT_EQ,
+				Token.OP_STRICT_NE,
+				Token.OP_LT,
+				Token.OP_GT,
+				Token.OP_GE,
+				Token.OP_LE,
+				Token.OP_AND,
+				Token.OP_OR,
+				Token.BITWISE_AND,
+				Token.BITWISE_OR,
+				Token.CARRET,
+				Token.INTERR
+			});
+
 			csharp_format_info = NumberFormatInfo.InvariantInfo;
 			styles = NumberStyles.Float;
 		}
@@ -689,19 +947,64 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			int next_token;
 			switch (res) {
+			case Token.FOR:
+				this.handle_each = true;
+				next_token = peek_token ();
+				if (next_token == Token.EACH) {
+					token ();
+					res = Token.FOR_EACH;
+				}
+				this.handle_each = false;
+				break;
+			case Token.FUNCTION:
+				parsing_modifiers = false;
+				this.AutoSemiInsertion = false;
+				PushPosition();
+				var fn_token = token ();
+				if (fn_token == Token.IDENTIFIER)
+				{
+					var get_set = (string)((LocatedToken)val).Value;
+					if (get_set == "get" || get_set == "set") {
+						fn_token = token ();
+						if (fn_token == Token.IDENTIFIER) {
+							res = (get_set == "get") ? Token.FUNCTION_GET : Token.FUNCTION_SET;
+						}
+					}
+				}
+				PopPosition ();
+				if (res != Token.FUNCTION) 
+					token ();
+				break;
 			case Token.GET:
 			case Token.SET:
 				if (!handle_get_set)
 					res = -1;
 				break;
+			case Token.IF:
+			case Token.WHILE:
+			case Token.DO:
+			case Token.TRY:
+			case Token.CATCH:
+			case Token.SWITCH:
+			case Token.CASE:
+				this.AutoSemiInsertion = false;
+				break;
+			case Token.DYNAMIC:
+				if (!handle_dynamic)
+					res = -1;
+				break;
+			case Token.EACH:
+				if (!handle_each)
+					res = -1;
+				break;
 			case Token.REMOVE:
 			case Token.ADD:
-				if (!handle_remove_add)
+				if (!handle_remove_add || !parsing_playscript)
 					res = -1;
 				break;
 			case Token.EXTERN:
-				if (parsing_declaration == 0)
-					res = Token.EXTERN_ALIAS;
+				if (parsing_declaration != 0 || !parsing_playscript)
+					res = -1;
 				break;
 			case Token.DEFAULT:
 				if (peek_token () == Token.COLON) {
@@ -710,7 +1013,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 				break;
 			case Token.WHERE:
-				if (!(handle_where && current_token != Token.COLON) && !query_parsing)
+				if (!handle_where && !query_parsing || !parsing_playscript)
 					res = -1;
 				break;
 			case Token.FROM:
@@ -718,12 +1021,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				// A query expression is any expression that starts with `from identifier'
 				// followed by any token except ; , =
 				// 
-				if (!query_parsing) {
-					if (lambda_arguments_parsing || parsing_block == 0) {
-						res = -1;
-						break;
-					}
-
+				if (!parsing_playscript) {
+					res = -1;
+				} else if (!query_parsing) {
 					PushPosition ();
 					// HACK: to disable generics micro-parser, because PushPosition does not
 					// store identifiers array
@@ -735,7 +1035,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					case Token.BYTE:
 					case Token.CHAR:
 					case Token.DECIMAL:
-					case Token.DOUBLE:
 					case Token.FLOAT:
 					case Token.LONG:
 					case Token.OBJECT:
@@ -743,7 +1042,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					case Token.UINT:
 					case Token.ULONG:
 						next_token = xtoken ();
-						if (next_token == Token.SEMICOLON || next_token == Token.COMMA || next_token == Token.EQUALS || next_token == Token.ASSIGN)
+						if (next_token == Token.SEMICOLON || next_token == Token.COMMA || next_token == Token.EQUALS)
 							goto default;
 						
 						res = Token.FROM_FIRST;
@@ -775,19 +1074,32 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			case Token.ASCENDING:
 			case Token.DESCENDING:
 			case Token.INTO:
-				if (!query_parsing)
+				if (!query_parsing || !parsing_playscript)
 					res = -1;
 				break;
-				
+
+			case Token.IN:
+				if (!handle_for_in)
+					res = Token.OP_IN;
+				break;
+
+			case Token.USE:
+				handle_namespace = true;
+				break;
 			case Token.USING:
-			case Token.NAMESPACE:
 				// TODO: some explanation needed
 				check_incorrect_doc_comment ();
-				parsing_modifiers = false;
+				break;
+			case Token.NAMESPACE:
+				// TODO: some explanation needed
+				if (!handle_namespace)
+					res = -1;
+				else 
+					check_incorrect_doc_comment ();
 				break;
 				
 			case Token.PARTIAL:
-				if (parsing_block > 0) {
+				if (parsing_block > 0 || !parsing_playscript) {
 					res = -1;
 					break;
 				}
@@ -817,22 +1129,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					Report.Error (267, Location,
 						"The `partial' modifier can be used only immediately before `class', `struct', `interface', or `void' keyword");
 					return token ();
-				}
+				}					
 
-				// HACK: A token is not a keyword so we need to restore identifiers buffer
-				// which has been overwritten before we grabbed the identifier
-				id_builder[0] = 'p';
-				id_builder[1] = 'a';
-				id_builder[2] = 'r';
-				id_builder[3] = 't';
-				id_builder[4] = 'i';
-				id_builder[5] = 'a';
-				id_builder[6] = 'l';
 				res = -1;
 				break;
 
 			case Token.ASYNC:
-				if (parsing_modifiers) {
+				if (!parsing_playscript) {
+					return -1;
+				} else if (parsing_modifiers) {
 					//
 					// Skip attributes section or constructor called async
 					//
@@ -844,22 +1149,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				} else if (parsing_block > 0) {
 					switch (peek_token ()) {
 					case Token.DELEGATE:
-					case Token.OPEN_PARENS_LAMBDA:
 						// async is keyword
 						break;
 					case Token.IDENTIFIER:
 						PushPosition ();
 						xtoken ();
-						if (xtoken () != Token.ARROW) {
-							PopPosition ();
-							goto default;
-						}
+						if (xtoken () != Token.ARROW)
+							res = -1;
 
 						PopPosition ();
 						break;
 					default:
-						// peek_token could overwrite id_buffer
-						id_builder [0] = 'a'; id_builder [1] = 's'; id_builder [2] = 'y'; id_builder [3] = 'n'; id_builder [4] = 'c';
 						res = -1;
 						break;
 					}
@@ -874,10 +1174,81 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				break;
 
 			case Token.AWAIT:
-				if (parsing_block == 0)
+				if (parsing_block == 0 || !parsing_playscript)
 					res = -1;
 
 				break;
+
+				// PLAYSCRIPT Extension Type keywords
+			case Token.BOOL:
+			case Token.CHAR:
+			case Token.BYTE:
+			case Token.SBYTE:
+			case Token.DECIMAL:
+			case Token.OBJECT:
+			case Token.STRING:
+			case Token.LONG:
+			case Token.ULONG:
+			case Token.SHORT:
+			case Token.USHORT:
+			case Token.FLOAT:
+			case Token.FLOAT2:
+			case Token.FLOAT3:
+			case Token.FLOAT4:
+			case Token.DOUBLE:
+			case Token.DOUBLE2:
+			case Token.DOUBLE3:
+			case Token.DOUBLE4:
+				if (!parsing_playscript)
+					res = -1;
+
+				break;
+
+				// PLAYSCRIPT Extension keywords
+			case Token.CHECKED:
+			case Token.EXPLICIT:
+			case Token.IMPLICIT:
+			case Token.OVERLOAD:
+			case Token.LOCK:
+			case Token.OUT:
+			case Token.PARAMS:
+			case Token.READONLY:
+			case Token.REF:
+			case Token.UNCHECKED:
+			case Token.UNSAFE:
+			case Token.FIXED:
+			case Token.GOTO:
+				if (!parsing_playscript)
+					res = -1;
+
+				break;
+
+			case Token.EVENT:
+			case Token.INDEXER:
+			case Token.OPERATOR:
+			case Token.PROPERTY:
+				if (!parsing_playscript)
+					res = -1;
+				else
+					parsing_modifiers = false;
+				
+				break;
+
+			case Token.STRUCT:
+			case Token.DELEGATE:
+			case Token.ENUM:
+				if (!parsing_playscript)
+					res = -1;
+				else
+					parsing_modifiers = handle_namespace = false;
+				
+				break;
+
+			case Token.CLASS:
+			case Token.INTERFACE:
+				parsing_modifiers = handle_namespace = false;
+				break;
+
 			}
 
 
@@ -924,7 +1295,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		static bool is_identifier_start_character (int c)
 		{
-			return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || Char.IsLetter ((char)c);
+			return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == '$' || Char.IsLetter ((char)c);
 		}
 
 		static bool is_identifier_part_character (char c)
@@ -935,33 +1306,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (c >= 'A' && c <= 'Z')
 				return true;
 
-			if (c == '_' || (c >= '0' && c <= '9'))
+			if (c == '_' || c == '$' || (c >= '0' && c <= '9'))
 				return true;
 
 			if (c < 0x80)
 				return false;
 
-			return is_identifier_part_character_slow_part (c);
-		}
-
-		static bool is_identifier_part_character_slow_part (char c)
-		{
-			if (Char.IsLetter (c))
-				return true;
-
-			switch (Char.GetUnicodeCategory (c)) {
-				case UnicodeCategory.ConnectorPunctuation:
-
-				// combining-character: A Unicode character of classes Mn or Mc
-				case UnicodeCategory.NonSpacingMark:
-				case UnicodeCategory.SpacingCombiningMark:
-
-				// decimal-digit-character: A Unicode character of the class Nd 
-				case UnicodeCategory.DecimalDigitNumber:
-				return true;
-			}
-
-			return false;
+			return Char.IsLetter (c) || Char.GetUnicodeCategory (c) == UnicodeCategory.ConnectorPunctuation;
 		}
 
 		public static bool IsKeyword (string s)
@@ -970,171 +1321,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 
 		//
-		// Open parens micro parser. Detects both lambda and cast ambiguity.
+		// Open parens micro parser. Only detects simple open parens at the moment.
 		//	
 		int TokenizeOpenParens ()
 		{
-			int ptoken;
-			current_token = -1;
-
-			int bracket_level = 0;
-			bool is_type = false;
-			bool can_be_type = false;
-			
-			while (true) {
-				ptoken = current_token;
-				token ();
-
-				switch (current_token) {
-				case Token.CLOSE_PARENS:
-					token ();
-					
-					//
-					// Expression inside parens is lambda, (int i) => 
-					//
-					if (current_token == Token.ARROW)
-						return Token.OPEN_PARENS_LAMBDA;
-
-					//
-					// Expression inside parens is single type, (int[])
-					//
-					if (is_type) {
-						if (current_token == Token.SEMICOLON)
-							return Token.OPEN_PARENS;
-
-						return Token.OPEN_PARENS_CAST;
-					}
-
-					//
-					// Expression is possible cast, look at next token, (T)null
-					//
-					if (can_be_type) {
-						switch (current_token) {
-						case Token.OPEN_PARENS:
-						case Token.BANG:
-						case Token.TILDE:
-						case Token.IDENTIFIER:
-						case Token.LITERAL:
-						case Token.BASE:
-						case Token.CHECKED:
-						case Token.DELEGATE:
-						case Token.FALSE:
-						case Token.FIXED:
-						case Token.NEW:
-						case Token.NULL:
-						case Token.SIZEOF:
-						case Token.THIS:
-						case Token.THROW:
-						case Token.TRUE:
-						case Token.TYPEOF:
-						case Token.UNCHECKED:
-						case Token.UNSAFE:
-						case Token.DEFAULT:
-						case Token.AWAIT:
-
-						//
-						// These can be part of a member access
-						//
-						case Token.INT:
-						case Token.UINT:
-						case Token.SHORT:
-						case Token.USHORT:
-						case Token.LONG:
-						case Token.ULONG:
-						case Token.DOUBLE:
-						case Token.FLOAT:
-						case Token.CHAR:
-						case Token.BYTE:
-						case Token.DECIMAL:
-						case Token.BOOL:
-						case Token.STRING:
-							return Token.OPEN_PARENS_CAST;
-						}
-					}
-					return Token.OPEN_PARENS;
-					
-				case Token.DOT:
-				case Token.DOUBLE_COLON:
-					if (ptoken != Token.IDENTIFIER && ptoken != Token.OP_GENERICS_GT)
-						goto default;
-
-					continue;
-
-				case Token.IDENTIFIER:
-				case Token.AWAIT:
-					switch (ptoken) {
-					case Token.DOT:
-						if (bracket_level == 0) {
-							is_type = false;
-							can_be_type = true;
-						}
-
-						continue;
-					case Token.OP_GENERICS_LT:
-					case Token.COMMA:
-					case Token.DOUBLE_COLON:
-					case -1:
-						if (bracket_level == 0)
-							can_be_type = true;
-						continue;
-					default:
-						can_be_type = is_type = false;
-						continue;
-					}
-
-				case Token.OBJECT:
-				case Token.STRING:
-				case Token.BOOL:
-				case Token.DECIMAL:
-				case Token.FLOAT:
-				case Token.DOUBLE:
-				case Token.SBYTE:
-				case Token.BYTE:
-				case Token.SHORT:
-				case Token.USHORT:
-				case Token.INT:
-				case Token.UINT:
-				case Token.LONG:
-				case Token.ULONG:
-				case Token.CHAR:
-				case Token.VOID:
-					if (bracket_level == 0)
-						is_type = true;
-					continue;
-
-				case Token.COMMA:
-					if (bracket_level == 0) {
-						bracket_level = 100;
-						can_be_type = is_type = false;
-					}
-					continue;
-
-				case Token.OP_GENERICS_LT:
-				case Token.OPEN_BRACKET:
-					if (bracket_level++ == 0)
-						is_type = true;
-					continue;
-
-				case Token.OP_GENERICS_GT:
-				case Token.CLOSE_BRACKET:
-					--bracket_level;
-					continue;
-
-				case Token.INTERR_NULLABLE:
-				case Token.STAR:
-					if (bracket_level == 0)
-						is_type = true;
-					continue;
-
-				case Token.REF:
-				case Token.OUT:
-					can_be_type = is_type = false;
-					continue;
-
-				default:
-					return Token.OPEN_PARENS;
-				}
-			}
+			return Token.OPEN_PARENS;
 		}
 
 		public static bool IsValidIdentifier (string s)
@@ -1152,19 +1343,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return true;
 		}
 
+//		bool parse_less_than ()
 		bool parse_less_than (ref int genericDimension)
 		{
 		start:
 			int the_token = token ();
 			if (the_token == Token.OPEN_BRACKET) {
-				while (true) {
+				do {
 					the_token = token ();
-					if (the_token == Token.EOF)
-						return true;
-
-					if (the_token == Token.CLOSE_BRACKET)
-						break;
-				}
+				} while (the_token != Token.CLOSE_BRACKET);
 				the_token = token ();
 			} else if (the_token == Token.IN || the_token == Token.OUT) {
 				the_token = token ();
@@ -1235,6 +1422,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return false;
 		}
 
+		bool parse_generic_dimension (out int dimension)
+		{
+			dimension = 1;
+
+		again:
+			int the_token = token ();
+			if (the_token == Token.OP_GENERICS_GT)
+				return true;
+			else if (the_token == Token.COMMA) {
+				dimension++;
+				goto again;
+			}
+
+			return false;
+		}
+		
 		public int peek_token ()
 		{
 			int the_token;
@@ -1265,8 +1468,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return Token.OP_COALESCING;
 			}
 
-			if (d == '.') {
-				return Token.INTERR_OPERATOR;
+			switch (current_token) {
+			case Token.CLOSE_PARENS:
+			case Token.TRUE:
+			case Token.FALSE:
+			case Token.NULL:
+			case Token.LITERAL:
+				return Token.INTERR;
 			}
 
 			if (d != ' ') {
@@ -1277,18 +1485,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			PushPosition ();
-			current_token = Token.NONE;
+//			current_token = Token.NONE;  // Doesn't work with auto semi-insertion - needs prev token history always
 			int next_token;
-			int parens = 0;
-			int generics = 0;
-			int brackets = 0;
-
-			var nt = xtoken ();
-			switch (nt) {
-			case Token.DOT:
-			case Token.OPEN_BRACKET_EXPR:
-				next_token = Token.INTERR_OPERATOR;
-				break;
+			switch (xtoken ()) {
 			case Token.LITERAL:
 			case Token.TRUE:
 			case Token.FALSE:
@@ -1304,25 +1503,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			case Token.OPEN_BRACKET:
 			case Token.OP_GENERICS_GT:
 			case Token.INTERR:
-			case Token.OP_COALESCING:
-			case Token.COLON:
 				next_token = Token.INTERR_NULLABLE;
 				break;
-
-			case Token.OPEN_PARENS:
-			case Token.OPEN_PARENS_CAST:
-			case Token.OPEN_PARENS_LAMBDA:
-				next_token = -1;
-				++parens;
-				break;
-
-			case Token.OP_GENERICS_LT:
-			case Token.OP_GENERICS_LT_DECL:
-			case Token.GENERIC_DIMENSION:
-				next_token = -1;
-				++generics;
-				break;
-
+				
 			default:
 				next_token = -1;
 				break;
@@ -1333,40 +1516,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				case Token.COMMA:
 				case Token.SEMICOLON:
 				case Token.OPEN_BRACE:
+				case Token.CLOSE_PARENS:
 				case Token.IN:
 					next_token = Token.INTERR_NULLABLE;
 					break;
 					
 				case Token.COLON:
 					next_token = Token.INTERR;
-					break;
-
-				case Token.OPEN_PARENS:
-				case Token.OPEN_PARENS_CAST:
-				case Token.OPEN_PARENS_LAMBDA:
-					++parens;
-					goto default;
-
-				case Token.OPEN_BRACKET:
-				case Token.OPEN_BRACKET_EXPR:
-					++brackets;
-					goto default;
-
-				case Token.CLOSE_PARENS:
-					--parens;
-					goto default;
-
-				case Token.OP_GENERICS_LT:
-				case Token.OP_GENERICS_LT_DECL:
-				case Token.GENERIC_DIMENSION:
-					++generics;
-					goto default;
-
+					break;							
+					
 				default:
 					int ntoken;
 					int interrs = 1;
 					int colons = 0;
 					int braces = 0;
+					int parens = 0;
 					//
 					// All shorcuts failed, do it hard way
 					//
@@ -1376,42 +1540,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							++braces;
 							continue;
 						case Token.OPEN_PARENS:
-						case Token.OPEN_PARENS_CAST:
-						case Token.OPEN_PARENS_LAMBDA:
 							++parens;
 							continue;
 						case Token.CLOSE_BRACE:
 							--braces;
 							continue;
-						case Token.OP_GENERICS_LT:
-						case Token.OP_GENERICS_LT_DECL:
-						case Token.GENERIC_DIMENSION:
-							++generics;
-							continue;
-						case Token.OPEN_BRACKET:
-						case Token.OPEN_BRACKET_EXPR:
-							++brackets;
-							continue;
-						case Token.CLOSE_BRACKET:
-							--brackets;
-							continue;
 						case Token.CLOSE_PARENS:
-							if (parens > 0) {
+							if (parens > 0)
 								--parens;
-								continue;
-							}
-
-							PopPosition ();
-							return Token.INTERR_NULLABLE;
-
-						case Token.OP_GENERICS_GT:
-							if (generics > 0) {
-								--generics;
-								continue;
-							}
-
-							PopPosition ();
-							return Token.INTERR_NULLABLE;
+							continue;
 						}
 
 						if (braces != 0)
@@ -1423,14 +1560,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						if (parens != 0)
 							continue;
 
-						if (ntoken == Token.COMMA) {
-							if (generics != 0 || brackets != 0)
-								continue;
-
-							PopPosition ();
-							return Token.INTERR_NULLABLE;
-						}
-						
 						if (ntoken == Token.COLON) {
 							if (++colons == interrs)
 								break;
@@ -1522,7 +1651,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							// if we have not seen anything in between
 							// report this error
 							//
-							Report.Warning (78, 4, Location, "The `l' suffix is easily confused with the digit `1' (use `L' for clarity)");
+							Report.Warning (78, 4, Location, "The 'l' suffix is easily confused with the digit '1' (use 'L' for clarity)");
 						}
 
 						goto case 'L';
@@ -1678,13 +1807,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		//
 		// Invoked if we know we have .digits or digits
 		//
-		int is_number (int c, bool dotLead)
+		int is_number (int c)
 		{
 			ILiteralConstant res;
 
 #if FULL_AST
 			int read_start = reader.Position - 1;
-			if (dotLead) {
+			if (c == '.') {
 				//
 				// Caller did peek_char
 				//
@@ -1694,7 +1823,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			number_pos = 0;
 			var loc = Location;
 
-			if (!dotLead){
+			if (c >= '0' && c <= '9'){
 				if (c == '0'){
 					int peek = peek_char ();
 
@@ -1708,7 +1837,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					}
 				}
 				decimal_digits (c);
-				c = peek_char ();
+				c = get_char ();
 			}
 
 			//
@@ -1717,12 +1846,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			//
 			bool is_real = false;
 			if (c == '.'){
-				if (!dotLead)
-					get_char ();
-
 				if (decimal_digits ('.')){
 					is_real = true;
-					c = peek_char ();
+					c = get_char ();
 				} else {
 					putback ('.');
 					number_pos--;
@@ -1737,7 +1863,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			
 			if (c == 'e' || c == 'E'){
 				is_real = true;
-				get_char ();
 				if (number_pos == MaxNumberLength)
 					Error_NumericConstantTooLong ();
 				number_builder [number_pos++] = (char) c;
@@ -1760,17 +1885,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 					
 				decimal_digits (c);
-				c = peek_char ();
+				c = get_char ();
 			}
 
 			var type = real_type_suffix (c);
 			if (type == TypeCode.Empty && !is_real) {
+				putback (c);
 				res = adjust_int (c, loc);
 			} else {
 				is_real = true;
 
-				if (type != TypeCode.Empty) {
-					get_char ();
+				if (type == TypeCode.Empty) {
+					putback (c);
 				}
 
 				res = adjust_real (type, loc);
@@ -1867,6 +1993,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				v = '\r'; break;
 			case '\\':
 				v = '\\'; break;
+			case '/':
+				v = '/'; break;
 			case 'f':
 				v = '\f'; break;
 			case '0':
@@ -1998,11 +2126,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public int token ()
 		{
-			current_token = xtoken ();
+			prev_token = current_token;
+			prev_token_line = current_token_line;
+			
+			current_token = xtoken (true);
+			current_token_line = line;
+
 			return current_token;
 		}
 
-		int TokenizePreprocessorKeyword (out int c)
+		public void token_putback (int token)
+		{
+			if (putback_token != -1)
+				throw new Exception("Can't put back token twice.'");
+			putback_token = token;
+		}
+
+		int TokenizePreprocessorIdentifier (out int c)
 		{
 			// skip over white space
 			do {
@@ -2039,7 +2179,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			tokens_seen = false;
 			arg = "";
 
-			var cmd = GetPreprocessorDirective (id_builder, TokenizePreprocessorKeyword (out c));
+			var cmd = GetPreprocessorDirective (id_builder, TokenizePreprocessorIdentifier (out c));
 
 			if ((cmd & PreprocessorDirective.CustomArgumentsParsing) != 0)
 				return cmd;
@@ -2111,7 +2251,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			int c;
 
-			int length = TokenizePreprocessorKeyword (out c);
+			int length = TokenizePreprocessorIdentifier (out c);
 			if (length == line_default.Length) {
 				if (!IsTokenIdentifierEqual (line_default))
 					return false;
@@ -2388,7 +2528,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 
 				file.SetChecksum (guid_bytes, chsum);
-				current_source.AutoGenerated = true;
+			current_source.AutoGenerated = true;
 			}
 
 			return true;
@@ -2444,60 +2584,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return string_builder.ToString ();
 		}
 
-		int TokenizePragmaWarningIdentifier (ref int c, ref bool identifier)
+		int TokenizePragmaNumber (ref int c)
 		{
+			number_pos = 0;
 
-			if ((c >= '0' && c <= '9') || is_identifier_start_character (c)) {
-				int number;
+			int number;
 
-				if (c >= '0' && c <= '9') {
-					number_pos = 0;
-					number = TokenizeNumber (c);
+			if (c >= '0' && c <= '9') {
+				number = TokenizeNumber (c);
 
-					c = get_char ();
-
-					if (c != ' ' && c != '\t' && c != ',' && c != '\n' && c != -1 && c != UnicodeLS && c != UnicodePS) {
-						return ReadPragmaWarningComment (c);
-					}
-				} else {
-					//
-					// LAMESPEC v6: No spec what identifier really is in this context, it seems keywords are allowed too
-					//
-					int pos = 0;
-					number = -1;
-					id_builder [pos++] = (char)c;
-					while (c < MaxIdentifierLength) {
-						c = reader.Read ();
-						id_builder [pos] = (char)c;
-
-						if (c >= '0' && c <= '9') {
-							if (pos == 6 && id_builder [0] == 'C' && id_builder [1] == 'S') {
-								// Recognize CSXXXX as C# XXXX warning
-								number = 0;
-								int pow = 1000;
-								for (int i = 0; i < 4; ++i) {
-									var ch = id_builder [i + 2];
-									if (ch < '0' || ch > '9') {
-										number = -1;
-										break;
-									}
-
-									number += (ch - '0') * pow;
-									pow /= 10;
-								}
-							}
-						} else if ((c < 'a' || c > 'z') && (c < 'A' || c > 'Z') && c != '_') {
-							break;
-						}
-
-						++pos;
-					}
-
-					if (number < 0) {
-						identifier = true;
-						number = pos;
-					}
-				}
+				c = get_char ();
 
 				// skip over white space
 				while (c == ' ' || c == '\t')
@@ -2510,25 +2606,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				// skip over white space
 				while (c == ' ' || c == '\t')
 					c = get_char ();
-
-				return number;
-			}
-
-			return ReadPragmaWarningComment (c);
-		}
-
-		int ReadPragmaWarningComment (int c)
-		{
-			if (c == '/') {
-				ReadSingleLineComment ();
 			} else {
-				Report.Warning (1692, 1, Location, "Invalid number");
+				number = -1;
+				if (c == '/') {
+					ReadSingleLineComment ();
+				} else {
+					Report.Warning (1692, 1, Location, "Invalid number");
 
-				// Read everything till the end of the line or file
-				ReadToEndOfLine ();
+					// Read everything till the end of the line or file
+					ReadToEndOfLine ();
+				}
 			}
 
-			return -1;
+			return number;
 		}
 
 		void ReadToEndOfLine ()
@@ -2554,9 +2644,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		void ParsePragmaDirective ()
 		{
 			int c;
-			int length = TokenizePreprocessorKeyword (out c);
+			int length = TokenizePreprocessorIdentifier (out c);
 			if (length == pragma_warning.Length && IsTokenIdentifierEqual (pragma_warning)) {
-				length = TokenizePreprocessorKeyword (out c);
+				length = TokenizePreprocessorIdentifier (out c);
 
 				//
 				// #pragma warning disable
@@ -2589,12 +2679,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							//
 							int code;
 							do {
-								bool identifier = false;
-								code = TokenizePragmaWarningIdentifier (ref c, ref identifier);
+								code = TokenizePragmaNumber (ref c);
 								if (code > 0) {
-									if (identifier) {
-										// no-op, custom warnings cannot occur in mcs
-									} else if (disable) {
+									if (disable) {
 										Report.RegisterWarningRegion (loc).WarningDisable (loc, code, context.Report);
 									} else {
 										Report.RegisterWarningRegion (loc).WarningEnable (loc, code, context);
@@ -2983,8 +3070,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 			case PreprocessorDirective.Define:
 				if (any_token_seen){
-					if (caller_is_taking)
-						Error_TokensSeen ();
+					Error_TokensSeen ();
 					return caller_is_taking;
 				}
 				PreProcessDefinition (true, arg, caller_is_taking);
@@ -2992,8 +3078,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			case PreprocessorDirective.Undef:
 				if (any_token_seen){
-					if (caller_is_taking)
-						Error_TokensSeen ();
+					Error_TokensSeen ();
 					return caller_is_taking;
 				}
 				PreProcessDefinition (false, arg, caller_is_taking);
@@ -3038,7 +3123,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			throw new NotImplementedException (directive.ToString ());
 		}
 
-		private int consume_string (bool quoted)
+		private int consume_string (bool quoted, char quoteChar = '"')
 		{
 			int c;
 			int pos = 0;
@@ -3050,19 +3135,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			int reader_pos = reader.Position;
 #endif
 
-			while (true){
-				// Cannot use get_char because of \r in quoted strings
-				if (putback_char != -1) {
-					c = putback_char;
-					putback_char = -1;
-				} else {
-					c = reader.Read ();
-				}
-
-				if (c == '"') {
-					++col;
-
-					if (quoted && peek_char () == '"') {
+			while (true) {
+				c = get_char ();
+				if (c == quoteChar) {
+					if (quoted && peek_char () == quoteChar) {
 						if (pos == value_builder.Length)
 							Array.Resize (ref value_builder, pos * 2);
 
@@ -3132,9 +3208,147 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-		private int consume_identifier (int s)
+		private int consume_regex ()
 		{
-			int res = consume_identifier (s, false);
+			int c;
+			int pos = 0;
+			Location start_location = Location;
+
+#if FULL_AST
+			int reader_pos = reader.Position;
+#endif
+
+			StringBuilder opt_builder = null;
+
+			while (true) {
+				c = get_char ();
+				if (c == '\\') {
+					if (pos == value_builder.Length)
+						Array.Resize (ref value_builder, pos * 2);
+					value_builder[pos++] = (char) c;
+					c = get_char ();
+					// c will be added automatically at the end of this block
+				} else if (c == '/') {
+
+					c = peek_char();
+					while (c == 'g' || c == 'i' || c == 'm' || c == 's' || c == 'x') {
+						if (opt_builder == null)
+							opt_builder = new StringBuilder();
+						opt_builder.Append((char) get_char ());
+						c = peek_char ();
+					}
+
+					string s;
+					if (pos == 0)
+						s = string.Empty;
+					else
+						s = new string (value_builder, 0, pos);
+
+					ILiteralConstant res = new RegexLiteral (context.BuiltinTypes, s, 
+					                                         opt_builder != null ? opt_builder.ToString() : null, 
+					                                         start_location);
+					val = res;
+#if FULL_AST
+//					res.ParsedValue = quoted ?
+//						reader.ReadChars (reader_pos - 2, reader.Position - 1) :
+//						reader.ReadChars (reader_pos - 1, reader.Position);
+#endif
+
+					return Token.LITERAL;
+				}
+
+				if (c == '\n') {
+					Report.Error (7027, Location, "Newline in regex constant");
+					val = new StringLiteral (context.BuiltinTypes, new string (value_builder, 0, pos), start_location);
+					return Token.LITERAL;
+				} /* else if (c == '\\') {
+					c = get_char();
+					if (c != -1) {
+						if (pos == value_builder.Length)
+							Array.Resize (ref value_builder, pos * 2);
+						value_builder[pos++] = (char) c;
+					}
+				} */
+
+				if (c == -1) {
+					Report.Error (7028, Location, "Unterminated regex literal");
+					return Token.EOF;
+				}
+
+				if (pos == value_builder.Length)
+					Array.Resize (ref value_builder, pos * 2);
+
+				value_builder[pos++] = (char) c;
+			}
+		}
+
+		private int consume_xml ()
+		{
+			int c;
+			int pos = 0;
+			Location start_location = Location;
+			
+#if FULL_AST
+			int reader_pos = reader.Position;
+#endif
+			
+			if (pos == value_builder.Length)
+				Array.Resize (ref value_builder, pos * 2);
+			value_builder[pos++] = (char) '<';
+
+			while (true) {
+
+				c = get_char ();
+				if (c == '>') {
+
+					if (pos == value_builder.Length)
+						Array.Resize (ref value_builder, pos * 2);
+					value_builder[pos++] = (char) c;
+
+					c = peek_char();
+					while (c == ' ' || c == '\t') {
+						c = get_char ();
+						if (pos == value_builder.Length)
+							Array.Resize (ref value_builder, pos * 2);
+						value_builder[pos++] = (char) c;
+					}
+
+					// TODO: This is a pretty ghetto way to identify the end of the xml literal.  Probably will
+					// work most of the time, but is not a general solution.  FIXME
+					if (c == ';' || c == '.' || c == ',' || c == ')' || c == '}' || c == ']') {
+
+						string s;
+						if (pos == 0)
+							s = string.Empty;
+						else
+							s = new string (value_builder, 0, pos);
+						
+						ILiteralConstant res = new XmlLiteral (context.BuiltinTypes, s, start_location);
+						val = res;
+#if FULL_AST
+//						res.ParsedValue = quoted ?
+//							reader.ReadChars (reader_pos - 2, reader.Position - 1) :
+//								reader.ReadChars (reader_pos - 1, reader.Position);
+#endif
+						
+						return Token.LITERAL;
+					}
+				}
+				
+				if (c == -1) {
+					Report.Error (7029, Location, "Unterminated xml literal");
+					return Token.EOF;
+				}
+				
+				if (pos == value_builder.Length)
+					Array.Resize (ref value_builder, pos * 2);
+				value_builder[pos++] = (char) c;
+			}
+		}
+
+		private int consume_identifier (bool parse_token, int s)
+		{
+			int res = consume_identifier (parse_token, s, false);
 
 			if (doc_state == XmlCommentState.Allowed)
 				doc_state = XmlCommentState.NotAllowed;
@@ -3142,7 +3356,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return res;
 		}
 
-		int consume_identifier (int c, bool quoted) 
+		int consume_identifier (bool parse_token, int c, bool quoted) 
 		{
 			//
 			// This method is very performance sensitive. It accounts
@@ -3165,13 +3379,34 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			id_builder [pos++] = (char) c;
 
+			bool is_config_ident = false;
+
 			try {
 				while (true) {
 					c = reader.Read ();
 
-					if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || (c >= '0' && c <= '9')) {
+					if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || (c >= '0' && c <= '9') || c == '$') {
 						id_builder [pos++] = (char) c;
 						continue;
+					}
+
+					if (parsing_block == 0 && c == ':' && !is_config_ident) {
+						var colonPos = reader.Position;
+						c = reader.Read ();
+						if (c == ':') { 
+							c = reader.Read ();
+							if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_' || c == '$') {
+								is_config_ident = true;
+								id_builder [pos++] = ':';
+								id_builder [pos++] = ':';
+								id_builder [pos++] = (char) c;
+								continue;
+							} 
+						}
+						if (!is_config_ident) {
+							reader.Position = colonPos;
+							c = ':';
+						}
 					}
 
 					if (c < 0x80) {
@@ -3187,7 +3422,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 							continue;
 						}
-					} else if (is_identifier_part_character_slow_part ((char) c)) {
+					} else if (Char.IsLetter ((char) c) || Char.GetUnicodeCategory ((char) c) == UnicodeCategory.ConnectorPunctuation) {
 						id_builder [pos++] = (char) c;
 						continue;
 					}
@@ -3207,20 +3442,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			// Optimization: avoids doing the keyword lookup
 			// on uppercase letters
 			//
-			if (id_builder [0] >= '_' && !quoted) {
+			if (!quoted && !is_config_ident && id_builder [0] >= '_') {
 				int keyword = GetKeyword (id_builder, pos);
 				if (keyword != -1) {
 					val = ltb.Create (keyword == Token.AWAIT ? "await" : null, current_source, ref_line, column);
+					if (keyword == Token.ELSE && do_auto_semi_insertion(parse_token, line, -1, keyword)) 
+						return Token.SEMICOLON;
 					return keyword;
 				}
 			}
 
 			string s = InternIdentifier (id_builder, pos);
+
 			val = ltb.Create (s, current_source, ref_line, column);
 			if (quoted && parsing_attribute_section)
 				AddEscapedIdentifier (((LocatedToken) val).Location);
 
-			return Token.IDENTIFIER;
+			return is_config_ident ? Token.IDENTIFIER_CONFIG : 
+				((parsing_modifiers && !parsing_attribute_section) ? Token.IDENTIFIER_MODIFIER : Token.IDENTIFIER);
 		}
 
 		string InternIdentifier (char[] charBuffer, int length)
@@ -3251,9 +3490,44 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return s;
 		}
 		
-		public int xtoken ()
+		public int xtoken (bool parse_token = false)
 		{
-			int d, c;
+			int d, c, next;
+
+			// Allow next token to be pushed back if we insert semicolons
+			if (putback_token != -1) {
+				next = putback_token;
+				putback_token = -1;
+				return next;
+			}
+
+			// Decrement parse regex counter (allows regex literals to follow 1 token after 
+			// symbols '=', ':', '(', '[', and ',')
+			if (parse_regex_xml > 0)
+				parse_regex_xml--;
+
+			// Decrement parse colon counter (allows us to disambiguate ident:*=value from *= operator)
+			if (parse_colon > 0)
+				parse_colon--;
+
+			// Decrement allow auto semi counter (allows us to allow semicolon insertion only after next x symbols)
+			if (allow_auto_semi_after > 0)
+				allow_auto_semi_after--;
+
+			// Eat all tokens until we get to final end brace
+			if (eat_block) {
+				eat_block = false;
+				eat_block_braces = 1;
+				do {
+					next = xtoken (parse_token);
+					if (next == Token.OPEN_BRACE || next == Token.OPEN_BRACE_INIT) {
+						eat_block_braces++;
+					} else if (next == Token.CLOSE_BRACE) {
+						eat_block_braces--;
+					}
+				} while (eat_block_braces > 0 && next != Token.EOF);
+				return next;
+			}
 
 			// Whether we have seen comments on the current line
 			bool comments_seen = false;
@@ -3284,12 +3558,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 */
 				case '\\':
 					tokens_seen = true;
-					return consume_identifier (c);
+					return consume_identifier (parse_token, c);
 
 				case '{':
 					val = ltb.Create (current_source, ref_line, col);
+					if (current_token == Token.OPEN_PARENS || 
+					  current_token == Token.ASSIGN ||
+					  current_token == Token.COMMA ||
+					  current_token == Token.COLON ||
+					  current_token == Token.OPEN_BRACKET ||
+					  current_token == Token.OPEN_BRACKET_EXPR ||
+					  current_token == Token.RETURN ||
+					  current_token == Token.OP_OR ||
+					  current_token == Token.LOGICAL_OR_ASSIGN ||
+					  current_token == Token.INTERR ||
+					  current_token == Token.INTERR_NULLABLE) {
+						bool isInit = true;
+						PushPosition();
+						this.AutoSemiInsertion = false;
+						next = token ();
+						if (next != Token.CLOSE_BRACE) {
+							if (next != Token.IDENTIFIER && next != Token.LITERAL) {
+								isInit = false;
+							} else {
+								next = token ();
+								if (next != Token.COLON) {
+									isInit = false;
+								}
+							}
+						}
+						PopPosition();
+						if (isInit) 
+							return Token.OPEN_BRACE_INIT;
+					}
 					return Token.OPEN_BRACE;
 				case '}':
+					if (do_auto_semi_insertion (parse_token, line, c, -1))
+						return Token.SEMICOLON;
 					val = ltb.Create (current_source, ref_line, col);
 					return Token.CLOSE_BRACE;
 				case '[':
@@ -3299,10 +3604,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 					val = ltb.Create (current_source, ref_line, col);
 
-					if (parsing_block == 0 || lambda_arguments_parsing)
+					parse_regex_xml = 2;  // regex literals may be included in array initializers.
+
+					if (parsing_block == 0)
 						return Token.OPEN_BRACKET;
 
-					int next = peek_char ();
+					next = peek_char ();
 					switch (next) {
 					case ']':
 					case ',':
@@ -3329,10 +3636,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					return Token.CLOSE_BRACKET;
 				case '(':
 					val = ltb.Create (current_source, ref_line, col);
+					parse_regex_xml = 2; // regex literals may follow open parens (method param, expressions).
 					//
 					// An expression versions of parens can appear in block context only
 					//
-					if (parsing_block != 0 && !lambda_arguments_parsing) {
+					if (parsing_block != 0) {
 						
 						//
 						// Optmize most common case where we know that parens
@@ -3342,10 +3650,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						case Token.IDENTIFIER:
 						case Token.IF:
 						case Token.FOR:
-						case Token.FOREACH:
+						case Token.FOR_EACH:
 						case Token.TYPEOF:
 						case Token.WHILE:
-						case Token.SWITCH:
 						case Token.USING:
 						case Token.DEFAULT:
 						case Token.DELEGATE:
@@ -3364,20 +3671,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							return Token.OPEN_PARENS;
 						}
 
-						lambda_arguments_parsing = true;
 						PushPosition ();
 						d = TokenizeOpenParens ();
 						PopPosition ();
-						lambda_arguments_parsing = false;
 						return d;
 					}
 
 					return Token.OPEN_PARENS;
 				case ')':
+//					d = peek_char ();
+//					if (d == '.') {
+//						get_char ();
+//						return Token.CLOSE_PARENS_DOT;
+//					}
 					ltb.CreateOptional (current_source, ref_line, col, ref val);
 					return Token.CLOSE_PARENS;
 				case ',':
 					ltb.CreateOptional (current_source, ref_line, col, ref val);
+					parse_regex_xml = 2; // Regex literals may follow commas, (method param, initializer element)
 					return Token.COMMA;
 				case ';':
 					ltb.CreateOptional (current_source, ref_line, col, ref val);
@@ -3388,25 +3699,45 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				case '?':
 					val = ltb.Create (current_source, ref_line, col);
 					return TokenizePossibleNullableType ();
+
 				case '<':
 					val = ltb.Create (current_source, ref_line, col);
-					if (parsing_generic_less_than++ > 0)
-						return Token.OP_GENERICS_LT;
+					d = peek_char ();
 
-					return TokenizeLessThan ();
+					if (d == '=') {
+						get_char ();
+						return Token.OP_LE;
+					}
+
+					if (d == '<') {
+						get_char ();
+						d = peek_char ();
+
+						if (d == '=') {
+							get_char ();
+							return Token.OP_SHIFT_LEFT_ASSIGN;
+						}
+						return Token.OP_SHIFT_LEFT;
+					}
+
+					if (parse_regex_xml > 0 && char.IsLetter ((char)d)) {
+						return consume_xml();
+					}
+
+					return Token.OP_LT;
 
 				case '>':
 					val = ltb.Create (current_source, ref_line, col);
 					d = peek_char ();
 
-					if (d == '='){
-						get_char ();
-						return Token.OP_GE;
-					}
-
 					if (parsing_generic_less_than > 1 || (parsing_generic_less_than == 1 && d != '>')) {
 						parsing_generic_less_than--;
 						return Token.OP_GENERICS_GT;
+					}
+
+					if (d == '=') {
+						get_char ();
+						return Token.OP_GE;
 					}
 
 					if (d == '>') {
@@ -3416,6 +3747,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						if (d == '=') {
 							get_char ();
 							return Token.OP_SHIFT_RIGHT_ASSIGN;
+						}
+
+						if (d == '>') {
+							get_char ();
+							d = peek_char ();
+
+							if (d == '=') {
+								get_char ();
+								return Token.OP_USHIFT_RIGHT_ASSIGN;
+							}
+
+							return Token.OP_USHIFT_RIGHT;
 						}
 						return Token.OP_SHIFT_RIGHT;
 					}
@@ -3452,8 +3795,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				case '!':
 					val = ltb.Create (current_source, ref_line, col);
-					if (peek_char () == '='){
+					if (peek_char () == '=') {
 						get_char ();
+						if (peek_char () == '=') {
+							get_char ();
+							return Token.OP_STRICT_NE;
+						}
 						return Token.OP_NE;
 					}
 					return Token.BANG;
@@ -3461,25 +3808,37 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				case '=':
 					val = ltb.Create (current_source, ref_line, col);
 					d = peek_char ();
-					if (d == '='){
+					if (d == '=') {
+						parse_regex_xml = 2; // Regex literals may follow equality test operators.
 						get_char ();
+						d = peek_char ();
+						if (d == '=') {
+							get_char ();
+							return Token.OP_STRICT_EQ;
+						}
 						return Token.OP_EQ;
 					}
-					if (d == '>'){
+					if (d == '>' && parsing_playscript) {
 						get_char ();
 						return Token.ARROW;
 					}
 
+					parse_regex_xml = 2; // Regex literals may follow assignment op '='
 					return Token.ASSIGN;
 
 				case '&':
 					val = ltb.Create (current_source, ref_line, col);
 					d = peek_char ();
-					if (d == '&'){
+					if (d == '&') {
 						get_char ();
+						d = peek_char ();
+						if (d == '=') {
+							get_char ();
+							return Token.LOGICAL_AND_ASSIGN;
+						}
 						return Token.OP_AND;
 					}
-					if (d == '='){
+					if (d == '=') {
 						get_char ();
 						return Token.OP_AND_ASSIGN;
 					}
@@ -3488,11 +3847,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				case '|':
 					val = ltb.Create (current_source, ref_line, col);
 					d = peek_char ();
-					if (d == '|'){
+					if (d == '|') {
 						get_char ();
+						d = peek_char ();
+						if (d == '=') {
+							get_char ();
+							return Token.LOGICAL_OR_ASSIGN;
+						}
 						return Token.OP_OR;
 					}
-					if (d == '='){
+					if (d == '=') {
 						get_char ();
 						return Token.OP_OR_ASSIGN;
 					}
@@ -3500,7 +3864,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				case '*':
 					val = ltb.Create (current_source, ref_line, col);
-					if (peek_char () == '='){
+					if (peek_char () == '=' && parse_colon == 0) {
 						get_char ();
 						return Token.OP_MULT_ASSIGN;
 					}
@@ -3508,14 +3872,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				case '/':
 					d = peek_char ();
-					if (d == '='){
+					if (d == '=') {
 						val = ltb.Create (current_source, ref_line, col);
 						get_char ();
 						return Token.OP_DIV_ASSIGN;
 					}
 
 					// Handle double-slash comments.
-					if (d == '/'){
+					if (d == '/') {
 						get_char ();
 						if (doc_processing) {
 							if (peek_char () == '/') {
@@ -3533,14 +3897,34 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							}
 						}
 
-						ReadToEndOfLine ();
+						while ((d = get_char ()) != -1 && d != '\n' && d != UnicodeLS && d != UnicodePS);
+
+						if (d == '\n' || d == UnicodeLS || d == UnicodePS)
+							putback (d);
 
 						any_token_seen |= tokens_seen;
 						tokens_seen = false;
 						comments_seen = false;
 						continue;
-					} else if (d == '*'){
+					} else if (d == '*') {
 						get_char ();
+						// Handle /*@asx conditional comment
+						if (peek_char () == '@') {
+							PushPosition();
+							get_char ();
+							if (peek_char() == 'a') {
+								get_char ();
+								if (peek_char () == 's') {
+									get_char ();
+									if (peek_char () == 'x') {
+										get_char ();
+										DiscardPosition();
+										continue;
+									}
+								}
+							}
+							PopPosition();
+						}
 						bool docAppend = false;
 						if (doc_processing && peek_char () == '*') {
 							get_char ();
@@ -3562,14 +3946,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							xml_comment_buffer.Append (Environment.NewLine);
 						}
 
-						while ((d = get_char ()) != -1){
-							if (d == '*' && peek_char () == '/'){
+						while ((d = get_char ()) != -1) {
+							if (d == '*' && peek_char () == '/') {
 								get_char ();
 								comments_seen = true;
 								break;
 							}
 							if (docAppend)
-								xml_comment_buffer.Append ((char) d);
+								xml_comment_buffer.Append ((char)d);
 							
 							if (d == '\n' || d == UnicodeLS || d == UnicodePS){
 								any_token_seen |= tokens_seen;
@@ -3587,13 +3971,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						if (docAppend)
 							update_formatted_doc_comment (current_comment_start);
 						continue;
+					} else if (parse_regex_xml > 0) {
+						// A regex literal may follow an '=', '==', '===' '(' ',' ':' or '['. 
+						return consume_regex();
 					}
 					val = ltb.Create (current_source, ref_line, col);
 					return Token.DIV;
 
 				case '%':
 					val = ltb.Create (current_source, ref_line, col);
-					if (peek_char () == '='){
+					if (peek_char () == '=') {
 						get_char ();
 						return Token.OP_MOD_ASSIGN;
 					}
@@ -3601,7 +3988,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				case '^':
 					val = ltb.Create (current_source, ref_line, col);
-					if (peek_char () == '='){
+					if (peek_char () == '=') {
 						get_char ();
 						return Token.OP_XOR_ASSIGN;
 					}
@@ -3613,16 +4000,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						get_char ();
 						return Token.DOUBLE_COLON;
 					}
+					parse_regex_xml = 2;  // Regex literals may follow colons in object initializers.
+					parse_colon = 2;  // Don't parse *= after a colon 
 					return Token.COLON;
 
 				case '0': case '1': case '2': case '3': case '4':
 				case '5': case '6': case '7': case '8': case '9':
 					tokens_seen = true;
-					return is_number (c, false);
+					return is_number (c);
 
 				case '\n': // white space
 				case UnicodeLS:
 				case UnicodePS:
+					if (do_auto_semi_insertion (parse_token, line - 1, c, -1))
+						return Token.SEMICOLON;
 					any_token_seen |= tokens_seen;
 					tokens_seen = false;
 					comments_seen = false;
@@ -3631,11 +4022,57 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				case '.':
 					tokens_seen = true;
 					d = peek_char ();
-					if (d >= '0' && d <= '9')
-						return is_number (c, true);
+					if (d >= '0' && d <= '9') 
+						return is_number (c);
+
+					if (d == '@') {
+						get_char ();
+						return Token.DOT_AT;
+					}
+
+					if (d == '*') {
+						get_char ();
+						return Token.DOT_STAR;
+					}
+
+//					if (d == '(') {
+//						get_char ();
+//						return Token.DOT_OPEN_PARENS;
+//					}
+
+					if (d == '.') {
+						get_char ();
+						d = peek_char ();
+						if (d == '.') {
+							get_char ();
+							return Token.DOTDOTDOT;
+						}
+						if (d == '@') {
+							get_char ();
+							return Token.DOTDOT_AT;
+						}
+						if (d == '*') {
+							get_char ();
+							return Token.DOTDOT_STAR;
+						}
+						return Token.DOTDOT;
+					}
 
 					ltb.CreateOptional (current_source, ref_line, col, ref val);
-					return Token.DOT;
+					if (d != '<') {
+						return Token.DOT;
+					}
+					get_char ();
+					parsing_generic_less_than++;
+					int dim;
+					PushPosition ();
+					if (parse_generic_dimension (out dim)) {
+						val = dim;
+						DiscardPosition ();
+						return Token.GENERIC_DIMENSION;
+					}
+					PopPosition ();
+					return Token.OP_GENERICS_LT;
 				
 				case '#':
 					if (tokens_seen || comments_seen) {
@@ -3677,20 +4114,45 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					return Token.EOF;
 				
 				case '"':
-					return consume_string (false);
-
+					return consume_string (false, '"');
 				case '\'':
-					return TokenizeBackslash ();
+					return consume_string (false, '\'');
+
+//				case '\'':
+//					return TokenizeBackslash ();
 				
 				case '@':
+					if (!parsing_playscript)
+						return Token.OP_AT;
+
 					c = get_char ();
 					if (c == '"') {
 						tokens_seen = true;
 						return consume_string (true);
 					}
 
+					// Handle end @asx*/ conditional comment
+					PushPosition();
+					if (c == 'a') {
+						if (peek_char () == 's') {
+							get_char ();
+							if (peek_char () == 'x') {
+								get_char ();
+								if (peek_char () == '*') {
+									get_char ();
+									if (peek_char () == '/') {
+										get_char ();
+										DiscardPosition();
+										continue;
+									}
+								}
+							}
+						}
+					}
+					PopPosition();
+
 					if (is_identifier_start_character (c)){
-						return consume_identifier (c, true);
+						return consume_identifier (parse_token, c, true);
 					}
 
 					Report.Error (1646, Location, "Keyword, identifier, or string expected after verbatim specifier: @");
@@ -3708,7 +4170,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				if (is_identifier_start_character (c)) {
 					tokens_seen = true;
-					return consume_identifier (c);
+					return consume_identifier (parse_token, c);
 				}
 
 				if (char.IsWhiteSpace ((char) c))
@@ -3729,97 +4191,53 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return Token.EOF;
 		}
 
-		int TokenizeBackslash ()
-		{
-#if FULL_AST
-			int read_start = reader.Position;
-#endif
-			Location start_location = Location;
-			int c = get_char ();
-			tokens_seen = true;
-			if (c == '\'') {
-				val = new CharLiteral (context.BuiltinTypes, (char) c, start_location);
-				Report.Error (1011, start_location, "Empty character literal");
-				return Token.LITERAL;
-			}
+//		int TokenizeBackslash ()
+//		{
+//#if FULL_AST
+//			int read_start = reader.Position;
+//#endif
+//			Location start_location = Location;
+//			int c = get_char ();
+//			tokens_seen = true;
+//			if (c == '\'') {
+//				val = new CharLiteral (context.BuiltinTypes, (char) c, start_location);
+//				Report.Error (1011, start_location, "Empty character literal");
+//				return Token.LITERAL;
+//			}
+//
+//			if (c == '\n' || c == UnicodeLS || c == UnicodePS) {
+//				Report.Error (1010, start_location, "Newline in constant");
+//				return Token.ERROR;
+//			}
+//
+//			int d;
+//			c = escape (c, out d);
+//			if (c == -1)
+//				return Token.ERROR;
+//			if (d != 0)
+//				throw new NotImplementedException ();
+//
+//			ILiteralConstant res = new CharLiteral (context.BuiltinTypes, (char) c, start_location);
+//			val = res;
+//			c = get_char ();
+//
+//			if (c != '\'') {
+//				Report.Error (1012, start_location, "Too many characters in character literal");
+//
+//				// Try to recover, read until newline or next "'"
+//				while ((c = get_char ()) != -1) {
+//					if (c == '\n' || c == '\'')
+//						break;
+//				}
+//			}
+//
+//#if FULL_AST
+//			res.ParsedValue = reader.ReadChars (read_start - 1, reader.Position);
+//#endif
+//
+//			return Token.LITERAL;
+//		}
 
-			if (c == '\n' || c == UnicodeLS || c == UnicodePS) {
-				Report.Error (1010, start_location, "Newline in constant");
-				return Token.ERROR;
-			}
-
-			int d;
-			c = escape (c, out d);
-			if (c == -1)
-				return Token.ERROR;
-			if (d != 0)
-				throw new NotImplementedException ();
-
-			ILiteralConstant res = new CharLiteral (context.BuiltinTypes, (char) c, start_location);
-			val = res;
-			c = get_char ();
-
-			if (c != '\'') {
-				Report.Error (1012, start_location, "Too many characters in character literal");
-
-				// Try to recover, read until newline or next "'"
-				while ((c = get_char ()) != -1) {
-					if (c == '\n' || c == '\'' || c == UnicodeLS || c == UnicodePS)
-						break;
-				}
-			}
-
-#if FULL_AST
-			res.ParsedValue = reader.ReadChars (read_start - 1, reader.Position);
-#endif
-
-			return Token.LITERAL;
-		}
-
-		int TokenizeLessThan ()
-		{
-			int d;
-
-			// Save current position and parse next token.
-			PushPosition ();
-			int generic_dimension = 0;
-			if (parse_less_than (ref generic_dimension)) {
-				if (parsing_generic_declaration && (parsing_generic_declaration_doc || token () != Token.DOT)) {
-					d = Token.OP_GENERICS_LT_DECL;
-				} else {
-					if (generic_dimension > 0) {
-						val = generic_dimension;
-						DiscardPosition ();
-						return Token.GENERIC_DIMENSION;
-					}
-
-					d = Token.OP_GENERICS_LT;
-				}
-				PopPosition ();
-				return d;
-			}
-
-			PopPosition ();
-			parsing_generic_less_than = 0;
-
-			d = peek_char ();
-			if (d == '<') {
-				get_char ();
-				d = peek_char ();
-
-				if (d == '=') {
-					get_char ();
-					return Token.OP_SHIFT_LEFT_ASSIGN;
-				}
-				return Token.OP_SHIFT_LEFT;
-			}
-
-			if (d == '=') {
-				get_char ();
-				return Token.OP_LE;
-			}
-			return Token.OP_LT;
-		}
 
 		//
 		// Handles one line xml comment
@@ -3894,6 +4312,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		void reset_doc_comment ()
 		{
 			xml_comment_buffer.Length = 0;
+		}
+
+		bool do_auto_semi_insertion (bool parse_token, int line, int c, int t)
+		{
+			bool insert_semi = false;
+			if (parse_token && prev_token_line == line && prev_token != Token.SEMICOLON && !parsing_playscript && allow_auto_semi && 
+			    allow_auto_semi_after == 0 && allowed_auto_semi_tokens[prev_token]) {
+				PushPosition ();
+				int next = xtoken ();
+				PopPosition ();
+				if (!disallowed_next_auto_semi_tokens[next]) {
+					if (c != -1)
+						putback (c);
+					else
+						token_putback (t);
+					warn_semi_inserted (Location);
+					insert_semi = true;
+				}
+			}
+			if (parse_token && has_temp_auto_semi_after_tokens)
+				clear_temp_auto_semi_tokens ();
+			return insert_semi;
+		}
+
+		void warn_semi_inserted (Location loc) 
+		{
+			Report.Warning (7093, 4, loc, "Semicolon automatically inserted on unterminated line.");
+		}
+
+		void clear_temp_auto_semi_tokens ()
+		{
+			var len = temp_auto_semi_after_tokens.Count;
+			for (var i = 0; i < len; i++) {
+				int token = temp_auto_semi_after_tokens[i];
+				allowed_auto_semi_tokens.Set (token, false);
+			}
+			has_temp_auto_semi_after_tokens = false;
 		}
 
 		public void cleanup ()

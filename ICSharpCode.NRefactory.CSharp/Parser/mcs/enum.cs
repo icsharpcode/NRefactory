@@ -75,7 +75,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 
 			if (expr == null)
-				expr = New.Constantify (underlying, Location);
+				expr = New.Constantify (underlying, Location, rc.FileType);
 
 			return new EnumConstant (expr, MemberType);
 		}
@@ -133,7 +133,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			{
 				// We are the first member
 				if (prev == null) {
-					return New.Constantify (current.Parent.Definition, Location);
+					return New.Constantify (current.Parent.Definition, Location, rc.FileType);
 				}
 
 				var c = ((ConstSpec) prev.Spec).GetConstant (rc) as EnumConstant;
@@ -144,7 +144,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						"The enumerator value `{0}' is outside the range of enumerator underlying type `{1}'",
 						current.GetSignatureForError (), ((Enum) current.Parent).UnderlyingType.GetSignatureForError ());
 
-					return New.Constantify (current.Parent.Definition, current.Location);
+					return New.Constantify (current.Parent.Definition, current.Location, rc.FileType);
 				}
 			}
 
@@ -205,6 +205,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && Members != null && Members.Count > 0) {
+					foreach (var member in Members) {
+						if (visitor.Continue)
+							member.Accept (visitor);
+					}
+				}
+			}
 		}
 
 		public void AddEnumMember (EnumMember em)
@@ -273,7 +286,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			base_class = null;
 			return null;
 		}
-		
+
 		protected override bool VerifyClsCompliance ()
 		{
 			if (!base.VerifyClsCompliance ())
@@ -289,7 +302,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 
 			return true;
-		}
+		}	
 	}
 
 	class EnumSpec : TypeSpec
@@ -311,6 +324,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					throw new InternalErrorException ("UnderlyingType reset");
 
 				underlying = value;
+			}
+		}
+
+		public override bool IsNumeric {
+			get {
+				if (underlying != null)
+					return underlying.IsNumeric;
+				return base.IsNumeric;
 			}
 		}
 

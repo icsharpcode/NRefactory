@@ -30,6 +30,7 @@ using System.IO;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.MonoCSharp;
 using ICSharpCode.NRefactory.TypeSystem;
+//using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.CSharp
 {
@@ -94,7 +95,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					
 					if (nspace.Usings != null) {
 						foreach (var us in nspace.Usings) {
-							us.Accept(this);
+//							us.Accept(this);
 						}
 					}
 					
@@ -469,7 +470,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				AddToNamespace(ud);
 			}
 
-			public override void Visit(UsingClause un)
+			public void Visit(UsingClause un)
 			{
 				var ud = new UsingDeclaration();
 				var loc = LocationsBag.GetLocations(un);
@@ -1661,7 +1662,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				return result;
 			}
 
-			public override object Visit(InvalidStatementExpression invalidStatementExpression)
+			public object Visit(InvalidStatementExpression invalidStatementExpression)
 			{
 				var result = new ExpressionStatement();
 				if (invalidStatementExpression.Expression == null)
@@ -4017,7 +4018,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				var session = new ParserSession();
 				session.LocationsBag = new LocationsBag();
 				var report = new Report(ctx, errorReportPrinter);
-				var parser = Driver.Parse(reader, file, module, session, report, initialLine - 1, initialColumn - 1);
+				var parser = Driver.PsParse(reader, file, module, session, report, initialLine - 1, initialColumn - 1);
 				var top = new CompilerCompilationUnit {
 					ModuleCompiled = module,
 					LocationsBag = session.LocationsBag,
@@ -4133,7 +4134,8 @@ namespace ICSharpCode.NRefactory.CSharp
 				var report = new Report(ctx, errorReportPrinter);
 				var session = new ParserSession();
 				session.LocationsBag = new LocationsBag();
-				var parser = new ICSharpCode.NRefactory.MonoCSharp.CSharpParser(reader, source_file, report, session);
+//				var parser = new ICSharpCode.NRefactory.MonoCSharp.CSharpParser(reader, source_file, report, session);
+				var parser = new Mono.PlayScript.PlayScriptParser(reader, source_file, report, session);
 				parser.Lexer.Line += initialLocation.Line - 1;
 				parser.Lexer.Column += initialLocation.Column - 1;
 				parser.Lexer.putback_char = Tokenizer.DocumentationXref;

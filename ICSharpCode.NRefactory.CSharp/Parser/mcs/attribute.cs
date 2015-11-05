@@ -31,6 +31,7 @@ using BadImageFormat = System.BadImageFormatException;
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp {
 
@@ -47,11 +48,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			if (attrs == null)
 				return;
-		
+
 			if (attributes == null)
 				attributes = attrs;
 			else
 				attributes.AddAttributes (attrs.Attrs);
+
 			attrs.AttachTo (this, context);
 		}
 
@@ -155,6 +157,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public ATypeNameExpression TypeNameExpression {
+			get {
+				return expression;
+			}
+		}
+
 		void AddModuleCharSet (ResolveContext rc)
 		{
 			const string dll_import_char_set = "CharSet";
@@ -185,7 +193,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 
 		//
-		// When the same attribute is attached to multiple fiels
+		// When the same attribute is attached to multiple fields
 		// we use @target field as a list of targets. The attribute
 		// has to be resolved only once but emitted for each target.
 		//
@@ -451,12 +459,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		// TODO: Don't use this ambiguous value
 		public string Name {
 			get { return expression.Name; }
-		}
-
-		public ATypeNameExpression TypeNameExpression {
-			get {
-				return expression;
-			}
 		}
 
 		public Report Report {
@@ -1203,29 +1205,29 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 	
-	public class Attributes
+	public partial class Attributes
 	{
 		public readonly List<Attribute> Attrs;
-#if FULL_AST
+		#if FULL_AST
 		public readonly List<List<Attribute>> Sections = new List<List<Attribute>> ();
-#endif
+		#endif
 
 		public Attributes (Attribute a)
 		{
 			Attrs = new List<Attribute> ();
 			Attrs.Add (a);
-			
-#if FULL_AST
+			#if FULL_AST
 			Sections.Add (Attrs);
-#endif
+			#endif
+
 		}
 
 		public Attributes (List<Attribute> attrs)
 		{
 			Attrs = attrs ?? new List<Attribute> ();
-#if FULL_AST
+			#if FULL_AST
 			Sections.Add (attrs);
-#endif
+			#endif
 		}
 
 		public void AddAttribute (Attribute attr)
@@ -1235,11 +1237,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public void AddAttributes (List<Attribute> attrs)
 		{
-#if FULL_AST
+			#if FULL_AST
 			Sections.Add (attrs);
-#else
+			#else
 			Attrs.AddRange (attrs);
-#endif
+			#endif
 		}
 
 		public void AttachTo (Attributable attributable, IMemberContext context)
@@ -1749,8 +1751,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public readonly PredefinedAttribute CallerLineNumberAttribute;
 		public readonly PredefinedAttribute CallerFilePathAttribute;
 
+		// ActionScript attributes
+		public readonly PredefinedAttribute AsDynamicClassAttribute;
+		public readonly PredefinedAsUntypedAttribute AsUntypedAttribute;
+		public readonly PredefinedAttribute AsBindableAttribute;
+		public readonly PredefinedAttribute AsAllowDynamicAttribute;
+		public readonly PredefinedAttribute AsForbidDynamicAttribute;
+
+		public readonly PredefinedAttribute NumberIsFloatAttribute;
+
+		// Mono.Optimization attributes
+		public readonly PredefinedAttribute InlineAttribute;
+
+		ModuleContainer module;
+
 		public PredefinedAttributes (ModuleContainer module)
 		{
+			this.module = module;
+
 			ParamArray = new PredefinedAttribute (module, "System", "ParamArrayAttribute");
 			Out = new PredefinedAttribute (module, "System.Runtime.InteropServices", "OutAttribute");
 			ParamArray.Resolve ();
@@ -1812,12 +1830,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			CallerLineNumberAttribute = new PredefinedAttribute (module, "System.Runtime.CompilerServices", "CallerLineNumberAttribute");
 			CallerFilePathAttribute = new PredefinedAttribute (module, "System.Runtime.CompilerServices", "CallerFilePathAttribute");
 
+			// ActionScript
+			AsDynamicClassAttribute = new PredefinedAttribute (module, "PlayScript", "DynamicClassAttribute");
+			AsUntypedAttribute = new PredefinedAsUntypedAttribute (module, "PlayScript", "AsUntypedAttribute");
+			AsBindableAttribute = new PredefinedAttribute (module, PsConsts.PsRootNamespace, "BindableAttribute");
+			AsAllowDynamicAttribute = new PredefinedAttribute (module, PsConsts.PsRootNamespace, "AllowDynamicAttribute");
+			AsForbidDynamicAttribute = new PredefinedAttribute (module, PsConsts.PsRootNamespace, "ForbidDynamicAttribute");
+
+			NumberIsFloatAttribute = new PredefinedAttribute (module, "PlayScript", "NumberIsFloatAttribute");
+
+			// Mono.Optimization
+			InlineAttribute = new PredefinedAttribute (module, "Mono.Optimization", "InlineAttribute");
+
 			// TODO: Should define only attributes which are used for comparison
 			const System.Reflection.BindingFlags all_fields = System.Reflection.BindingFlags.Public |
 				System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.DeclaredOnly;
 
 			foreach (var fi in GetType ().GetFields (all_fields)) {
 				((PredefinedAttribute) fi.GetValue (this)).Define ();
+			}
+		}
+
+		public ModuleContainer Module {
+			get {
+				return module;
 			}
 		}
 	}
@@ -1965,7 +2001,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return;
 
 			MethodSpec ctor = null;
-			foreach (MethodSpec m in MemberCache.FindMembers (atype.TypeSpec, MonoCSharp.Constructor.ConstructorName, true)) {
+			foreach (MethodSpec m in MemberCache.FindMembers (atype.TypeSpec, ICSharpCode.NRefactory.MonoCSharp.Constructor.ConstructorName, true)) {
 				if (m.Parameters.Count != 1)
 					continue;
 
@@ -2158,8 +2194,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (tctor != null)
 				return true;
 
-			tctor = module.PredefinedMembers.DynamicAttributeCtor.Resolve (loc);
+			tctor = GetTransformationCtor ().Resolve (loc);
 			return tctor != null;
+		}
+
+		virtual protected PredefinedMember<MethodSpec> GetTransformationCtor ()
+		{
+			return module.PredefinedMembers.DynamicAttributeCtor;
+		}
+	}
+
+	public class PredefinedAsUntypedAttribute : PredefinedDynamicAttribute
+	{
+		public PredefinedAsUntypedAttribute (ModuleContainer module, string ns, string name)
+			: base (module, ns, name)
+		{
+		}
+
+		override protected PredefinedMember<MethodSpec> GetTransformationCtor ()
+		{
+			return module.PredefinedMembers.AsUntypedAttributeCtor;
 		}
 	}
 }

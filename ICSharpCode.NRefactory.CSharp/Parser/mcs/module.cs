@@ -30,7 +30,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	//
 	// Module (top-level type) container
 	//
-	public sealed class ModuleContainer : TypeContainer
+	public sealed partial class ModuleContainer : TypeContainer
 	{
 #if STATIC
 		//
@@ -321,8 +321,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-		public int CounterAnonymousTypes { get; set; }
-
 		public AssemblyDefinition DeclaringAssembly {
 			get {
 				return assembly;
@@ -418,6 +416,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				foreach (var cont in containers) {
+					if (visitor.Continue && visitor.Depth >= VisitDepth.Namespaces && cont != null)
+						cont.Accept (visitor);
+				}
+			}
 		}
 
 		public void AddAnonymousType (AnonymousTypeClass type)
@@ -535,9 +544,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			DefineContainer ();
 
+			if (Compiler.Settings.AutoSeal) {
+				AutoSealTypes ();
+			}
+
 			ExpandBaseInterfaces ();
 
 			base.Define ();
+
+			ApplyAssemblyAttributes ();
 
 			HasTypesFullyDefined = true;
 
@@ -554,6 +569,541 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public void EnableRedefinition ()
 		{
 			is_defined = false;
+		}
+
+		private void ApplyAssemblyAttributes ()
+		{
+			if (OptAttributes != null) {
+				foreach (Attribute a in OptAttributes.Attrs) {
+					// cannot rely on any resolve-based members before you call Resolve
+					if (a.ExplicitTarget != "assembly")
+						continue;
+
+					if ((a.Name == "AllowDynamic" || a.Name == "ForbidDynamic") && a.NamedArguments != null && 
+					    a.NamedArguments.Count == 1 && a.NamedArguments[0].Expr is StringLiteral) {
+						string nsName = (a.NamedArguments [0].Expr as StringLiteral).GetValue() as string;
+						Namespace ns = GlobalRootNamespace.GetNamespace (nsName, false);
+						if (ns != null) {
+							ns.AllowDynamic = (a.Name == "AllowDynamic");
+						}
+					}
+				}
+			}
+
+		}
+
+		private class AutoSealVisitor : StructuralVisitor 
+		{
+			public enum Pass
+			{
+				/// <summary>
+				/// We are going through all classes and methods, properties and indexers and add them to the cache
+				/// </summary>
+				DiscoverClassesAndMethods,
+				/// <summary>
+				/// Once the methods are discovered, we set all the virtual types accordingly.
+				/// </summary>
+				SetVirtualTypes,
+				/// <summary>
+				/// Once all the virtual types have been discovered, we can promote the FirstAndOnlyVirtual to NotVirtual.
+				/// </summary>
+				FinalizeModifierFlags,	
+			}
+
+			enum VirtualType
+			{
+				/// <summary>
+				/// We know the function is not virtual. It can be inlined.
+				/// </summary>
+				NotVirtual,
+				/// <summary>
+				/// This is the first virtual function, and there are overrides. It can't be inlined (unless called explicitly).
+				/// </summary>
+				FirstVirtual,
+				/// <summary>
+				/// This is an override of a virtual function. It can't be inlined (unless called explicitly).
+				/// </summary>
+				OverrideVirtual,
+				/// <summary>
+				/// This is the first virtual function, and there may or may not be overrides.
+				/// It will be changed at some later point to NotVirtual if not overriden, or FirstVirtual if overriden.
+				/// </summary>
+				FirstAndOnlyVirtual,
+				/// <summary>
+				/// Placeholder in the method cache during Pass.DiscoverMethods, will be set correctly during Pass.SetVirtualTypes.
+				/// </summary>
+				Unknown,
+			}
+
+			class MethodInfo
+			{
+				public MethodInfo(MemberCore member)
+				{
+					Member = member;
+				}
+				public VirtualType Type
+				{
+					get
+					{
+						return type;
+					}
+					set
+					{
+						//Console.WriteLine("[Auto-sealing] Setting method {0} virtual type to {1}.", Member.GetSignatureForError(), value.ToString());
+						type = value;
+					}
+				}
+				public MemberCore Member;
+
+				private VirtualType type = VirtualType.Unknown;
+			}
+
+			HashSet<TypeSpec> baseTypes = new HashSet<TypeSpec>();
+			Dictionary<TypeSpec, Dictionary<string, MethodInfo>> methodsByTypes = new Dictionary<TypeSpec, Dictionary<string, MethodInfo>>();
+			HashSet<Class> visitedClasses = new HashSet<Class>();
+			Pass currentPass = Pass.DiscoverClassesAndMethods;
+			bool verbose = false;
+
+			public AutoSealVisitor(bool verbose) 
+			{
+				AutoVisit = true;
+				Depth = VisitDepth.Members;
+				this.verbose = verbose;
+			}
+
+			public Pass CurrentPass
+			{
+				get { return currentPass; } set { currentPass = value; visitedClasses.Clear(); }
+			}
+
+			public override void Visit (MemberCore member)
+			{
+				if (member is TypeContainer) {
+					var tc = member as TypeContainer;
+					foreach (var container in tc.Containers) {
+						container.Accept (this);
+					}
+				}
+			}
+
+			public override void Visit (Class c)
+			{
+				VisitClass(c);
+			}
+
+			private void VisitClass(Class c)
+			{
+				if (visitedClasses.Contains(c)) {
+					Skip = true;
+					return;
+				}
+				visitedClasses.Add(c);
+
+				switch (CurrentPass) {
+					case Pass.DiscoverClassesAndMethods: {
+						TypeSpec baseType = c.BaseType;
+						if (baseType != null) {
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Found parent class {0} for class {1}.", baseType.GetSignatureForError(), c.GetSignatureForError());
+							}
+							baseTypes.Add (baseType);
+
+							if (baseType.MemberDefinition is ImportedTypeDefinition) {
+								// The base class is coming from another assembly - It will not be visited as part of this assembly
+								// But we still have to get some of its information recursively
+								// and visit all the methods
+
+								// TODO: Do the parsing work
+							}
+						}
+						break;
+					}
+
+					case Pass.FinalizeModifierFlags:
+						// Last class of a hierarchy are auto-sealed if they are not static
+						if (IsLeafClass(c.CurrentType) && ((c.ModFlags & Modifiers.STATIC) == 0)) {
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Making class {0} sealed.", c.GetSignatureForError());
+							}
+
+							// When we seal here, we get proper compile error, however the class does not seem to be marked as sealed in IL
+							//c.ModFlags |= Modifiers.SEALED;
+						}
+						break;
+				}
+			}
+
+			/// <summary>
+			/// Visits the method.
+			/// Create a specific version with a different name to avoid unexpected overrides.
+			/// </summary>
+			/// <param name="m">The method to visit.</param>
+			private void VisitMethod(MemberCore m, bool updateModFlags)
+			{
+				switch (CurrentPass) {
+					case Pass.DiscoverClassesAndMethods:
+						AddMethodToCache(m);
+						break;
+					case Pass.SetVirtualTypes:
+						DetermineVirtualState(m);
+						break;
+					case Pass.FinalizeModifierFlags:
+						FinalizeVirtualState(m, updateModFlags);
+						break;
+				}
+			}
+
+			public override void Visit (Method m)
+			{
+				VisitMethod(m, true);
+			}
+
+			public void VisitProperty (PropertyBase p)
+			{
+				if (p.Get != null)
+					VisitMethod(p.Get, false);		// We don't change the state of getter and setter
+				if (p.Set != null)
+					VisitMethod(p.Set, false);
+
+				//Do we need to update some state on the property?
+				switch (CurrentPass) {
+					case Pass.DiscoverClassesAndMethods:
+						break;
+
+					case Pass.SetVirtualTypes:
+						break;
+
+					case Pass.FinalizeModifierFlags: {
+						bool hasVirtual = false;
+						bool hasOverride = false;
+						if (p.Get != null) {
+							MethodInfo methodInfo = GetMethodInfoFromCache(p.Get);
+							if (methodInfo != null) {
+								switch (methodInfo.Type) {
+									case VirtualType.NotVirtual:
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] get property {0} is not virtual.", p.Get.GetSignatureForError());
+										}
+										break;
+									case VirtualType.FirstVirtual:
+										hasVirtual = true;
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] get property {0} is first virtual.", p.Get.GetSignatureForError());
+										}
+										break;
+									case VirtualType.OverrideVirtual:
+										hasOverride = true;
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] get property {0} is override.", p.Get.GetSignatureForError());
+										}
+										break;
+									default:
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] Unexpected virtual type in get property {0}.", p.Get.GetSignatureForError());
+										}
+										break;
+								}
+							}
+						}
+						if (p.Set != null) {
+							MethodInfo methodInfo = GetMethodInfoFromCache(p.Set);
+							if (methodInfo != null) {
+								switch (methodInfo.Type) {
+									case VirtualType.NotVirtual:
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] set property {0} is not virtual.", p.Set.GetSignatureForError());
+										}
+										break;
+									case VirtualType.FirstVirtual:
+										hasVirtual = true;
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] set property {0} is first virtual.", p.Set.GetSignatureForError());
+										}
+										break;
+									case VirtualType.OverrideVirtual:
+										hasOverride = true;
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] set property {0} is override.", p.Set.GetSignatureForError());
+										}
+										break;
+									default:
+										if (verbose) {
+											Console.WriteLine("[Auto-sealing] Unexpected virtual type in set property {0}.", p.Set.GetSignatureForError());
+										}
+										break;
+								}
+							}
+						}
+
+						if (hasVirtual) {
+							p.ModFlags &= ~Modifiers.OVERRIDE;
+							p.ModFlags |= Modifiers.VIRTUAL;
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Make property {0} virtual.", p.GetSignatureForError());
+							}
+						} else if (hasOverride) {
+							p.ModFlags &= ~Modifiers.VIRTUAL;
+							p.ModFlags |= Modifiers.OVERRIDE;
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Make property {0} override.", p.GetSignatureForError());
+							}
+						} else {
+							p.ModFlags &= ~(Modifiers.VIRTUAL | Modifiers.OVERRIDE);
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Remove virtual and override on property {0}.", p.GetSignatureForError());
+							}
+						}
+						break;
+					}
+				}
+			}
+
+			public override void Visit (Property p)
+			{
+				VisitProperty(p);
+			}
+
+			public override void Visit (Indexer i)
+			{
+				VisitProperty(i);
+			}
+
+			private void AddMethodToCache(MemberCore m)
+			{
+				TypeSpec containerType = m.Parent.CurrentType;
+				Dictionary<string, MethodInfo> listOfMethods;
+				if (methodsByTypes.TryGetValue(containerType, out listOfMethods) == false) {
+					listOfMethods = new Dictionary<string, MethodInfo>();
+					methodsByTypes.Add(containerType, listOfMethods);
+				}
+				string signature = GetSignature(m);
+				MethodInfo methodInfo = new MethodInfo(m);
+				listOfMethods[signature] = methodInfo;			// Note that a method can be visited several times
+			}
+
+			private MethodInfo GetMethodInfoFromCache(MemberCore m)
+			{
+				string signature;
+				return GetMethodInfoFromCache(m, out signature);
+			}
+
+			private MethodInfo GetMethodInfoFromCache(MemberCore m, out string signature)
+			{
+				signature = "unknown";
+
+				TypeSpec containerType = m.Parent.CurrentType;
+				Dictionary<string, MethodInfo> listOfMethods;
+				if (methodsByTypes.TryGetValue(containerType, out listOfMethods) == false) {
+					return null;
+				}
+
+				signature = GetSignature(m);
+				MethodInfo methodInfo = listOfMethods[signature];
+				if (methodInfo == null) {
+					if (verbose) {
+						Console.WriteLine("[Auto-sealing] Error when looking for method {0}.", m.GetSignatureForError());
+					}
+				} else if (methodInfo.Member != m) {
+					if (verbose) {
+						Console.WriteLine("[Auto-sealing] Error when matching method {0}.", m.GetSignatureForError());
+					}
+				}
+				return methodInfo;
+			}
+
+			private MethodInfo GetMethodInfoFromCache(TypeSpec containerType, string signature)
+			{
+				Dictionary<string, MethodInfo> listOfMethods;
+				if (methodsByTypes.TryGetValue(containerType, out listOfMethods) == false) {
+					return null;
+				}
+
+				MethodInfo methodInfo;
+				listOfMethods.TryGetValue(signature, out methodInfo);
+				return methodInfo;
+			}
+
+			private bool DetermineVirtualState(MemberCore m)
+			{
+				// We should find the method in the cache
+				string signature;
+				MethodInfo methodInfo = GetMethodInfoFromCache(m, out signature);
+				if (methodInfo != null) {
+					return DetermineVirtualState(signature, methodInfo);
+				} else {
+					return false;
+				}
+			}
+
+			private bool DetermineVirtualState(string signature, MethodInfo methodInfo)
+			{
+				if (methodInfo.Type != VirtualType.Unknown) {
+					// Has been already determined, no further work needed (parent methods have been scanned too)
+					return (methodInfo.Type != VirtualType.NotVirtual);
+				}
+
+				bool isVirtual = ((methodInfo.Member.ModFlags & Modifiers.VIRTUAL) != 0);
+				if (methodInfo.Member is PropertyBase.PropertyMethod) {
+					// If property (or indexer), we also look at the property itself
+					isVirtual |= (((PropertyBase.PropertyMethod)(methodInfo.Member)).Property.ModFlags & Modifiers.VIRTUAL) != 0;
+				}
+				bool isOverride = ((methodInfo.Member.ModFlags & Modifiers.OVERRIDE) != 0);
+				if (methodInfo.Member is PropertyBase.PropertyMethod) {
+					// If property (or indexer), we also look at the property itself
+					isOverride |= (((PropertyBase.PropertyMethod)(methodInfo.Member)).Property.ModFlags & Modifiers.OVERRIDE) != 0;
+				}
+
+				if (isVirtual || isOverride) {
+					methodInfo.Type = VirtualType.FirstAndOnlyVirtual;		// Initial state if virtual
+
+					// Now we need to recursively go up the base classes, and find methods with the same signature
+					// And if there is one and it was already virtual, we need to change the current method to VirtualType.OverrideVirtual.
+					// We have to double-check if a class skip a level
+					TypeSpec parentType = methodInfo.Member.Parent.CurrentType.BaseType;
+					while (parentType != null)	{
+						MethodInfo parentMethodInfo = GetMethodInfoFromCache(parentType, signature);
+						if (parentMethodInfo != null) {
+							// Recurse here, it will go through each base method, one parent class at a time
+							bool isParentVirtual = DetermineVirtualState(signature, parentMethodInfo);
+							// We should expect the base method to be virtual as this method is virtual
+							if (isParentVirtual == false) {
+								if (verbose) {
+									Console.WriteLine("[Auto-sealing] Error with method {0}. Base method is not virtual, child method is.", parentMethodInfo.Member.GetSignatureForError());
+								}
+							}
+							if (parentMethodInfo.Type == VirtualType.FirstAndOnlyVirtual) {
+								// The parent method is actually not the the only virtual in the tree, mark it as top of the tree
+								parentMethodInfo.Type = VirtualType.FirstVirtual;
+							}
+
+							// But in any case, we know that the current method is overriden (we don't support new, just override)
+							methodInfo.Type = VirtualType.OverrideVirtual;
+							break;		// No need to continue with all the base types as they have been already parsed
+						} else {
+							// No parent method, we keep the state FirstAndOnlyVirtual for the moment
+							// But we have to go through all parents to make sure
+
+							if (parentType.MemberDefinition is ImportedTypeDefinition) {
+								// Due to the lack of full parsing of imported types (to be done later),
+								// There is only one case where we rely on the flags of the method.
+								// If the base type is imported and the current method is override, we assume that it is true,
+								// And up the chain one method was FirstVirtual (but it won't be visited)
+								if (isOverride) {
+									methodInfo.Type = VirtualType.OverrideVirtual;
+
+									if (verbose) {
+										Console.WriteLine("[Auto-sealing] Assume method {0} is override due to imported base class {1}", methodInfo.Member.GetSignatureForError(), parentType.GetSignatureForError());
+									}
+								}
+								// We stop at the first imported type, as we won't get more information going further up the chain
+								// as visited types have not been visited
+								break;
+							}
+						}
+
+						parentType = parentType.BaseType;
+					}
+					return true;
+				} else {
+					methodInfo.Type = VirtualType.NotVirtual;
+					return false;
+				}
+			}
+
+			private void FinalizeVirtualState(MemberCore m, bool updateModFlags)
+			{
+				string signature;
+				MethodInfo methodInfo = GetMethodInfoFromCache(m, out signature);
+				if (methodInfo != null) {
+					switch (methodInfo.Type) {
+						case VirtualType.Unknown:
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Error with method {0}. Still has an unknown virtual type.", methodInfo.Member.GetSignatureForError());
+							}
+							break;
+						case VirtualType.FirstAndOnlyVirtual:
+							// This the first and only virtual, it is as if the method was not virtual at all
+							if (updateModFlags) {
+								m.ModFlags &= ~Modifiers.VIRTUAL;
+								methodInfo.Member.ModFlags &= ~Modifiers.VIRTUAL;
+							}
+							methodInfo.Type = VirtualType.NotVirtual;
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Remove virtual on {0}", m.GetSignatureForError());
+							}
+							break;
+						case VirtualType.OverrideVirtual:
+							// Set the override flag in case it was not set
+							if (updateModFlags) {
+								m.ModFlags &= ~Modifiers.VIRTUAL;
+								m.ModFlags |= Modifiers.OVERRIDE;
+							}
+							if (verbose) {
+								Console.WriteLine("[Auto-sealing] Make override on {0}", m.GetSignatureForError());
+							}
+							break;
+						case VirtualType.FirstVirtual:
+							if ((m.Parent.ModFlags & Modifiers.SEALED) != 0) {
+								// This case can happen if we could not track correctly the method earlier
+								if (verbose) {
+									Console.WriteLine("[Auto-sealing] Remove virtual (due to sealed class) on {0}", m.GetSignatureForError());
+								}
+								m.ModFlags &= ~Modifiers.VIRTUAL;
+							}
+							break;
+					}
+				}
+			}
+
+			private bool IsLeafClass(TypeSpec type)
+			{
+				return (!baseTypes.Contains(type) && (type.Modifiers & Modifiers.ABSTRACT) == 0);
+			}
+
+
+			private string GetSignature(MemberCore m)
+			{
+				// We want the signature without any class info
+				signatureBuilder.Length = 0;
+				signatureBuilder.Append(m.MemberName.Basename);
+				signatureBuilder.Append('(');
+				if (m.CurrentTypeParameters != null) {
+					bool passedFirstParameter = false;
+					foreach (TypeParameterSpec parameter in m.CurrentTypeParameters.Types) {
+						if (passedFirstParameter) {
+							signatureBuilder.Append(',');
+						}
+						signatureBuilder.Append(parameter.Name);
+					}
+				}
+				signatureBuilder.Append(')');
+				return signatureBuilder.ToString();
+			}
+
+			private System.Text.StringBuilder signatureBuilder = new System.Text.StringBuilder();
+		}
+
+		private void AutoSealTypes ()
+		{
+			bool verbose = Compiler.Settings.AutoSealVerbosity;
+			var visitor = new AutoSealVisitor (verbose);
+			visitor.CurrentPass = AutoSealVisitor.Pass.DiscoverClassesAndMethods;
+			if (verbose) {
+				Console.WriteLine("[Auto-sealing] Pass {0}.", visitor.CurrentPass);
+			}
+			this.Accept (visitor);
+
+			visitor.CurrentPass = AutoSealVisitor.Pass.SetVirtualTypes;
+			if (verbose) {
+				Console.WriteLine("[Auto-sealing] Pass {0}.", visitor.CurrentPass);
+			}
+			this.Accept (visitor);
+
+			visitor.CurrentPass = AutoSealVisitor.Pass.FinalizeModifierFlags;
+			if (verbose) {
+				Console.WriteLine("[Auto-sealing] Pass {0}.", visitor.CurrentPass);
+			}
+			this.Accept (visitor );
 		}
 
 		public override void EmitContainer ()

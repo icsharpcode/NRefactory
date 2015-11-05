@@ -23,22 +23,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	[Flags]
 	public enum Modifiers
 	{
-		PROTECTED = 0x0001,
-		PUBLIC    = 0x0002,
-		PRIVATE   = 0x0004,
-		INTERNAL  = 0x0008,
-		NEW       = 0x0010,
-		ABSTRACT  = 0x0020,
-		SEALED    = 0x0040,
-		STATIC    = 0x0080,
-		READONLY  = 0x0100,
-		VIRTUAL   = 0x0200,
-		OVERRIDE  = 0x0400,
-		EXTERN    = 0x0800,
-		VOLATILE  = 0x1000,
-		UNSAFE    = 0x2000,
-		ASYNC     = 0x4000,
-		TOP       = 0x8000,
+		PROTECTED	= 0x0001,
+		PUBLIC		= 0x0002,
+		PRIVATE		= 0x0004,
+		INTERNAL	= 0x0008,
+		NEW			= 0x0010,
+		ABSTRACT	= 0x0020,
+		SEALED		= 0x0040,
+		STATIC		= 0x0080,
+		READONLY	= 0x0100,
+		VIRTUAL		= 0x0200,
+		OVERRIDE	= 0x0400,
+		EXTERN		= 0x0800,
+		VOLATILE	= 0x1000,
+		UNSAFE		= 0x2000,
+		ASYNC		= 0x4000,
+		AS_DYNAMIC	= 0x8000,	// ActionScript dynamic classes
+		AS_UNTYPED	= 0x10000,	// ActionScript "*" type
+		TOP			= 0x20000,
 
 		//
 		// Compiler specific flags
@@ -112,6 +114,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				s = "unsafe"; break;
 			case Modifiers.ASYNC:
 				s = "async"; break;
+			case Modifiers.AS_DYNAMIC:
+				s = "dynamic"; break;
+			case Modifiers.AS_UNTYPED:
+				s = "*"; break;
 			}
 
 			return s;

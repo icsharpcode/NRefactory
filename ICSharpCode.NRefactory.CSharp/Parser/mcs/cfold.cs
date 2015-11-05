@@ -22,6 +22,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			};
 		}
 
+		public static TypeSpec[] CreateAsBinaryPromotionsTypes (BuiltinTypes types)
+		{
+			return new TypeSpec[] { 
+				types.Bool, types.Decimal, types.Double, types.Float,
+				types.ULong, types.Long, types.UInt 
+			};
+		}
+
 		//
 		// Performs the numeric promotions on the left and right expresions
 		// and deposits the results on `lc' and `rc'.
@@ -37,7 +45,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			TypeSpec ltype = left.Type;
 			TypeSpec rtype = right.Type;
 
-			foreach (TypeSpec t in rc.BuiltinTypes.BinaryPromotionsTypes) {
+			// PlayScript - AS has bool as an additional binary promotion type.
+			TypeSpec[] binaryPromotionsTypes = (rc.FileType == SourceFileType.PlayScript ? 
+			                                    rc.BuiltinTypes.AsBinaryPromotionsTypes : rc.BuiltinTypes.BinaryPromotionsTypes);
+
+			foreach (TypeSpec t in binaryPromotionsTypes) {
 				if (t == ltype)
 					return t == rtype || ConvertPromotion (rc, ref right, ref left, t);
 
@@ -45,14 +57,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return t == ltype || ConvertPromotion (rc, ref left, ref right, t);
 			}
 
-			left = left.ConvertImplicitly (rc.BuiltinTypes.Int);
-			right = right.ConvertImplicitly (rc.BuiltinTypes.Int);
+			left = left.ConvertImplicitly (rc.BuiltinTypes.Int, rc);
+			right = right.ConvertImplicitly (rc.BuiltinTypes.Int, rc);
 			return left != null && right != null;
 		}
 
 		static bool ConvertPromotion (ResolveContext rc, ref Constant prim, ref Constant second, TypeSpec type)
 		{
-			Constant c = prim.ConvertImplicitly (type);
+			Constant c = prim.ConvertImplicitly (type, rc);
 			if (c != null) {
 				prim = c;
 				return true;
@@ -60,8 +72,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			if (type.BuiltinType == BuiltinTypeSpec.Type.UInt) {
 				type = rc.BuiltinTypes.Long;
-				prim = prim.ConvertImplicitly (type);
-				second = second.ConvertImplicitly (type);
+				prim = prim.ConvertImplicitly (type, rc);
+				second = second.ConvertImplicitly (type, rc);
 				return prim != null && second != null;
 			}
 
@@ -300,14 +312,33 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			case Binary.Operator.Addition:
 				//
+				// In PlayScript, null has the string value "null". In C#, it is the empty string.
+				//
+#if !DISABLE_AS3_NULL_STRINGS
+				var nullString = ec.IsPlayScript ? "null" : "";
+#else
+				var nullString = "";
+#endif
+
+				//
 				// If both sides are strings, then concatenate
 				//
 				// string operator + (string x, string y)
 				//
-				if (lt.BuiltinType == BuiltinTypeSpec.Type.String || rt.BuiltinType == BuiltinTypeSpec.Type.String){
-					if (lt == rt)
-						return new StringConstant (ec.BuiltinTypes, (string)left.GetValue () + (string)right.GetValue (),
-							left.Location);
+				if (lt.BuiltinType == BuiltinTypeSpec.Type.String || rt.BuiltinType == BuiltinTypeSpec.Type.String) {
+					if (lt == rt) {
+						var leftValue = left.GetValue () ?? nullString;
+						var rightValue = right.GetValue () ?? nullString;
+						return new StringConstant (ec.BuiltinTypes, (string)leftValue + (string)rightValue, left.Location);
+					}
+
+					if (ec.IsPlayScript) {
+						if (lt == InternalType.NullLiteral)
+							return new StringConstant (ec.BuiltinTypes, nullString + right.GetValue (), left.Location);
+
+						if (rt == InternalType.NullLiteral)
+							return new StringConstant (ec.BuiltinTypes, left.GetValue () + nullString, left.Location);
+					}
 
 					if (lt == InternalType.NullLiteral || left.IsNull)
 						return new StringConstant (ec.BuiltinTypes, "" + right.GetValue (), left.Location);
@@ -323,7 +354,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				//
 				if (lt == InternalType.NullLiteral) {
 					if (rt.BuiltinType == BuiltinTypeSpec.Type.Object)
-						return new StringConstant (ec.BuiltinTypes, "" + right.GetValue (), left.Location);
+						return new StringConstant (ec.BuiltinTypes, nullString + right.GetValue (), left.Location);
 
 					if (lt == rt) {
 						ec.Report.Error (34, loc, "Operator `{0}' is ambiguous on operands of type `{1}' and `{2}'",
@@ -339,7 +370,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				//
 				if (rt == InternalType.NullLiteral) {
 					if (lt.BuiltinType == BuiltinTypeSpec.Type.Object)
-						return new StringConstant (ec.BuiltinTypes, right.GetValue () + "", left.Location);
+						return new StringConstant (ec.BuiltinTypes, left.GetValue () + nullString, left.Location);
 	
 					return left;
 				}
@@ -358,7 +389,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					}
 
 					// U has to be implicitly convetible to E.base
-					right = right.ConvertImplicitly (lc.Child.Type);
+					right = right.ConvertImplicitly (lc.Child.Type, ec);
 					if (right == null)
 						return null;
 
@@ -477,7 +508,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					}
 
 					// U has to be implicitly convetible to E.base
-					right = right.ConvertImplicitly (lc.Child.Type);
+					right = right.ConvertImplicitly (lc.Child.Type, ec);
 					if (right == null)
 						return null;
 
@@ -894,7 +925,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return (Constant) new Binary (oper, lifted_int, right).ResolveOperator (ec);
 				}
 
-				IntConstant ic = right.ConvertImplicitly (ec.BuiltinTypes.Int) as IntConstant;
+				IntConstant ic = right.ConvertImplicitly (ec.BuiltinTypes.Int, ec) as IntConstant;
 				if (ic == null){
 					return null;
 				}
@@ -913,7 +944,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (left is NullLiteral)
 					return (Constant) new Binary (oper, left, right).ResolveOperator (ec);
 
-				left = left.ConvertImplicitly (ec.BuiltinTypes.Int);
+				left = left.ConvertImplicitly (ec.BuiltinTypes.Int, ec);
 				if (left.Type.BuiltinType == BuiltinTypeSpec.Type.Int)
 					return new IntConstant (ec.BuiltinTypes, ((IntConstant) left).Value << lshift_val, left.Location);
 
@@ -929,7 +960,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					return (Constant) new Binary (oper, lifted_int, right).ResolveOperator (ec);
 				}
 
-				IntConstant sic = right.ConvertImplicitly (ec.BuiltinTypes.Int) as IntConstant;
+				IntConstant sic = right.ConvertImplicitly (ec.BuiltinTypes.Int, ec) as IntConstant;
 				if (sic == null){
 					return null;
 				}
@@ -947,7 +978,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (left is NullLiteral)
 					return (Constant) new Binary (oper, left, right).ResolveOperator (ec);
 
-				left = left.ConvertImplicitly (ec.BuiltinTypes.Int);
+				left = left.ConvertImplicitly (ec.BuiltinTypes.Int, ec);
 				if (left.Type.BuiltinType == BuiltinTypeSpec.Type.Int)
 					return new IntConstant (ec.BuiltinTypes, ((IntConstant) left).Value >> rshift_val, left.Location);
 

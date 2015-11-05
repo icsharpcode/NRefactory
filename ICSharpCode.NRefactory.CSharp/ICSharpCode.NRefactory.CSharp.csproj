@@ -389,6 +389,10 @@
     <Compile Include="Analysis\AnnotationNames.cs" />
     <Compile Include="Formatter\ConstructFixer.cs" />
     <Compile Include="Util\CloneableStack.cs" />
+    <Compile Include="Parser\mcs\ps-codegen.cs" />
+    <Compile Include="Parser\mcs\ps-lang.cs" />
+    <Compile Include="Parser\mcs\ps-parser.cs" />
+    <Compile Include="Parser\mcs\ps-tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
@@ -412,6 +416,7 @@
   </ProjectExtensions>
   <ItemGroup>
     <None Include="Parser\mcs\cs-parser.jay" />
+    <None Include="Parser\mcs\ps-parser.jay" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="PatternMatching\" />

@@ -434,7 +434,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				if (atype == pa.CallerMemberNameAttribute) {
 					caller_type = rc.BuiltinTypes.String;
-					if (caller_type != parameter_type && !Convert.ImplicitReferenceConversionExists (caller_type, parameter_type)) {
+					if (caller_type != parameter_type && !Convert.ImplicitReferenceConversionExists (caller_type, parameter_type, rc, false)) {
 						rc.Report.Error (4019, attr.Location,
 							"The CallerMemberName attribute cannot be applied because there is no standard conversion from `{0}' to `{1}'",
 							caller_type.GetSignatureForError (), parameter_type.GetSignatureForError ());
@@ -453,7 +453,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				if (atype == pa.CallerLineNumberAttribute) {
 					caller_type = rc.BuiltinTypes.Int;
-					if (caller_type != parameter_type && !Convert.ImplicitStandardConversionExists (new IntConstant (caller_type, int.MaxValue, Location.Null), parameter_type)) {
+					if (caller_type != parameter_type && !Convert.ImplicitStandardConversionExists (new IntConstant (caller_type, int.MaxValue, Location.Null), parameter_type, rc, false)) {
 						rc.Report.Error (4017, attr.Location,
 							"The CallerLineNumberAttribute attribute cannot be applied because there is no standard conversion from `{0}' to `{1}'",
 							caller_type.GetSignatureForError (), parameter_type.GetSignatureForError ());
@@ -471,7 +471,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				if (atype == pa.CallerFilePathAttribute) {
 					caller_type = rc.BuiltinTypes.String;
-					if (caller_type != parameter_type && !Convert.ImplicitReferenceConversionExists (caller_type, parameter_type)) {
+					if (caller_type != parameter_type && !Convert.ImplicitReferenceConversionExists (caller_type, parameter_type, rc, false)) {
 						rc.Report.Error (4018, attr.Location,
 							"The CallerFilePath attribute cannot be applied because there is no standard conversion from `{0}' to `{1}'",
 							caller_type.GetSignatureForError (), parameter_type.GetSignatureForError ());
@@ -712,6 +712,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 
 			if (parameter_type != null) {
+				if (parameter_type == pa.Module.Compiler.BuiltinTypes.AsUntyped)
+					pa.AsUntypedAttribute.EmitAttribute (builder);
+
 				if (parameter_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
 					pa.Dynamic.EmitAttribute (builder);
 				} else if (parameter_type.HasDynamicElement) {
@@ -1096,7 +1099,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	/// <summary>
 	///   Represents the methods parameters
 	/// </summary>
-	public class ParametersCompiled : AParametersCollection
+	public partial class ParametersCompiled : AParametersCollection
 	{
 		public static readonly ParametersCompiled EmptyReadOnlyParameters = new ParametersCompiled ();
 		
@@ -1418,19 +1421,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			expr = Child;
 
-			if (!(expr is Constant || expr is DefaultValueExpression || (expr is New && ((New) expr).IsGeneratedStructConstructor))) {
-				if (!(expr is ErrorExpression)) {
-					rc.Report.Error (1736, Location,
-						"The expression being assigned to optional parameter `{0}' must be a constant or default value",
-						p.Name);
-				}
-
-				return;
-			}
-
 			var parameter_type = p.Type;
 			if (type == parameter_type)
 				return;
+
+			// ActionScript allows * and Object types to have default values as well.
+			bool param_is_as_obj = rc.IsPlayScript &&
+				(parameter_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic ||
+				 parameter_type.BuiltinType == BuiltinTypeSpec.Type.Object);
+
+			if (!param_is_as_obj) { // PlayScript - see check above - tested via as/test-debug-UntypedParameterTest.as
+				if (!(expr is Constant || expr is DefaultValueExpression || (expr is New && ((New)expr).IsGeneratedStructConstructor))) {
+					if (!(expr is ErrorExpression)) {
+						rc.Report.Error (1736, Location,
+							"The expression being assigned to optional parameter `{0}' must be a constant or default value",
+							p.Name);
+
+						return;
+					}
+				}
+			}
 
 			var res = Convert.ImplicitConversionStandard (rc, expr, parameter_type, Location);
 			if (res != null) {
@@ -1445,7 +1455,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					}
 				}
 
-				if (!expr.IsNull && TypeSpec.IsReferenceType (parameter_type) && parameter_type.BuiltinType != BuiltinTypeSpec.Type.String) {
+				if (!expr.IsNull && TypeSpec.IsReferenceType (parameter_type) && parameter_type.BuiltinType != BuiltinTypeSpec.Type.String && !param_is_as_obj) {
 					rc.Report.Error (1763, Location,
 						"Optional parameter `{0}' of type `{1}' can only be initialized with `null'",
 						p.Name, parameter_type.GetSignatureForError ());
@@ -1468,5 +1478,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			return visitor.Visit (this);
 		}
+
 	}
 }

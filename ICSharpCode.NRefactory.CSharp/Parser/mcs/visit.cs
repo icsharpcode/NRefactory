@@ -12,32 +12,59 @@
 
 using System;
 using System.Diagnostics;
+using System.Collections.Generic;
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
+	public enum VisitDepth
+	{
+		Namespaces 		= 1,	// Namespaces
+		Types 			= 2,	// Types
+		Members 		= 3,	// Member declarations
+		Initializers 	= 4,	// Field, const initializers
+		MethodBodies 	= 5,	// Method,constructor,property bodies
+		All				= 6		// Everything
+	}
+
 	public abstract class StructuralVisitor
 	{
+		// True to automatically visit all children, false to manually implement traversal in visit methods
+		public bool AutoVisit;
+		// True to continue auto traversal, false exits immediately
+		public bool Continue = true;
+		// True to skip children of this element and continue to next element
+		public bool Skip;
+		// Maximum depth for visitor
+		public VisitDepth Depth = VisitDepth.All;
+
 		public virtual void Visit (MemberCore member)
 		{
 			Debug.Fail ("unknown member type: " + member.GetType ());
 		}
 
-		public virtual void Visit (ModuleContainer mc)
+		void VisitTypeContainer (TypeContainer tc)
 		{
-			foreach (var container in mc.Containers) {
+			foreach (var container in tc.Containers) {
 				container.Accept (this);
 			}
 		}
 
-		void VisitTypeDefinition (TypeDefinition tc)
+		void VisitTypeContainer (TypeDefinition tc)
 		{
 			foreach (var member in tc.Members) {
 				member.Accept (this);
 			}
 		}
 
-		public virtual void Visit (NamespaceContainer ns)
+		public virtual void Visit (UsingClause usingClause)
 		{
+		}
+
+		public virtual void Visit (ModuleContainer module)
+		{
+			if (!AutoVisit)
+				VisitTypeContainer (module);
 		}
 
 		public virtual void Visit (UsingNamespace un)
@@ -52,28 +79,34 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 		}
 
-		public virtual void Visit (UsingClause usingClause)
+		public virtual void Visit (NamespaceContainer ns)
 		{
+			if (!AutoVisit)
+				VisitTypeContainer (ns);
 		}
 
 		public virtual void Visit (CompilationSourceFile csf)
 		{
+			VisitTypeContainer (csf);
 		}
 
 		public virtual void Visit (Class c)
 		{
-			VisitTypeDefinition (c);
+			if (!AutoVisit)
+				VisitTypeContainer (c);
 		}
 
 		public virtual void Visit (Struct s)
 		{
-			VisitTypeDefinition (s);
+			if (!AutoVisit)
+				VisitTypeContainer (s);
 		}
 
 
 		public virtual void Visit (Interface i)
 		{
-			VisitTypeDefinition (i);
+			if (!AutoVisit)
+				VisitTypeContainer (i);
 		}
 
 		public virtual void Visit (Delegate d)
@@ -82,7 +115,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public virtual void Visit (Enum e)
 		{
-			VisitTypeDefinition (e);
+			if (!AutoVisit)
+				VisitTypeContainer (e);
 		}
 
 		public virtual void Visit (FixedField f)
@@ -131,14 +165,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public virtual void Visit (EnumMember em)
 		{
 		}
-		
+
 		public virtual object Visit (Statement stmt)
 		{
 			Debug.Fail ("unknown statement:" + stmt);
 			return null;
 		}
 		
-		public virtual object Visit (BlockVariable blockVariableDeclaration)
+		public virtual object Visit (BlockVariable blockVariable)
 		{
 			return null;
 		}
@@ -312,11 +346,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 
 		public virtual object Visit (YieldBreak yieldBreakStatement)
-		{
-			return null;
-		}
-		
-		public virtual object Visit (InvalidStatementExpression invalidStatementExpression)
 		{
 			return null;
 		}
@@ -592,7 +621,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			return null;
 		}
-		
+
 		public virtual object Visit (Linq.ThenByDescending thenByDescending)
 		{
 			return null;
@@ -618,5 +647,58 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			return null;
 		}
+
+		// ActionScript/PlayScript Expressions
+
+		public virtual object Visit (AsObjectInitializer initializer)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsArrayInitializer initializer)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsNew newExpression)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsDelete deleteExpr)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsTypeOf typeOfExpr)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsIn inExpr)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsLocalFunction localFunc)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsUseNamespaceStatement useNamespace)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsNonAssignStatementExpression asStmntExpr)
+		{
+			return null;
+		}
+
+		public virtual object Visit (AsXmlQueryExpression xmlQueryExpr)
+		{
+			return null;
+		}
+
 	}
 }

@@ -132,20 +132,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec type)
+		public override Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only = false)
 		{
 			//
 			// The 0 literal can be converted to an enum value
 			//
 			if (Value == 0 && type.IsEnum) {
-				Constant c = ConvertImplicitly (EnumSpec.GetUnderlyingType (type));
+				Constant c = ConvertImplicitly (EnumSpec.GetUnderlyingType (type), opt_ec, upconvert_only);
 				if (c == null)
 					return null;
 
 				return new EnumConstant (c, type);
 			}
 
-			return base.ConvertImplicitly (type);
+			return base.ConvertImplicitly (type, opt_ec, upconvert_only);
 		}
 
 		public override bool IsLiteral {
@@ -310,7 +310,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 	}
 
-	public class StringLiteral : StringConstant, ILiteralConstant
+	public partial class StringLiteral : StringConstant, ILiteralConstant
 	{
 		public StringLiteral (BuiltinTypes types, string s, Location loc)
 			: base (types, s, loc)

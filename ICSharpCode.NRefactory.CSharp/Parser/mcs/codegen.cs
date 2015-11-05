@@ -74,7 +74,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		///  Whether we are inside an anonymous method.
 		/// </summary>
 		public AnonymousExpression CurrentAnonymousMethod;
-		
+
+
+		// <summary>
+		//  MSIL Intrinsic context information.
+		// </summary>
+//		public MsilIntrinsicContext IntrinsicContext;
+
 		readonly IMemberContext member_context;
 
 		readonly SourceMethodBuilder methodSymbols;
@@ -259,7 +265,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return false;
 
 			var sf = loc.SourceFile;
-			if (sf.IsHiddenLocation (loc))
+			if (sf == null || sf.IsHiddenLocation (loc))
 				return false;
 
 #if NET_4_0

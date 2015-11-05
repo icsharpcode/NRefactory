@@ -38,6 +38,7 @@ using SecurityType = System.Collections.Generic.Dictionary<System.Security.Permi
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp {
 
@@ -47,7 +48,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		protected ToplevelBlock block;
 		protected MethodSpec spec;
 
-		protected MethodCore (TypeDefinition parent, FullNamedExpression type, Modifiers mod, Modifiers allowed_mod,
+		protected bool isInlinable;
+		protected bool? allowDynamic;
+
+		public MethodCore (TypeDefinition parent, FullNamedExpression type, Modifiers mod, Modifiers allowed_mod,
 			MemberName name, Attributes attrs, ParametersCompiled parameters)
 			: base (parent, type, mod, allowed_mod, name, attrs)
 		{
@@ -102,6 +106,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public bool? AllowDynamic {
+			get {
+				if (allowDynamic != null) {
+					return allowDynamic;
+				} else if (Parent != null) {
+					return Parent.AllowDynamic;
+				} else {
+					return true;
+				}
+			}
+			set {
+				allowDynamic = value;
+			}
+		}
+
 		protected override bool CheckOverrideAgainstBase (MemberSpec base_member)
 		{
 			bool res = base.CheckOverrideAgainstBase (base_member);
@@ -132,6 +151,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override string DocCommentHeader 
 		{
 			get { return "M:"; }
+		}
+
+		public bool IsInlinable {
+			get {
+				return isInlinable;
+			}
 		}
 
 		public override void Emit ()
@@ -527,7 +552,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public abstract class MethodOrOperator : MethodCore, IMethodData, IMethodDefinition
+	public abstract partial class MethodOrOperator : MethodCore, IMethodData, IMethodDefinition
 	{
 		ReturnParameter return_attributes;
 		SecurityType declarative_security;
@@ -618,6 +643,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (!CheckBase ())
 				return false;
 
+			allowDynamic = CheckAllowDynamic ();
+
 			MemberKind kind;
 			if (this is Operator)
 				kind = MemberKind.Operator;
@@ -655,7 +682,54 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			Parent.MemberCache.AddMember (this, explicit_name, spec);
 
+			ApplyAggressiveInlining ();
+
+//			if (Compiler.Settings.Inlining != InliningMode.None)
+//				isInlinable = Inliner.DetermineIsInlinable (Compiler, this);
+
 			return true;
+		}
+
+		/// <summary>
+		/// Checks for inline attribute and converts it to MethodImplAttribute(MethodImplOptions.AggressiveInlining)
+		/// if parsing a PlayScript file.
+		/// </summary>
+		public void ApplyAggressiveInlining ()
+		{
+			if ((this.FileType != SourceFileType.PlayScript) || (this.OptAttributes == null)
+			    || (!System.Enum.IsDefined(typeof(MethodImplOptions), "AggressiveInlining"))) {
+				return;
+			}
+
+			bool hasInlineAttribute = false;
+
+			foreach (var attr in this.OptAttributes.Attrs) {
+				if (String.Compare (attr.Name, "inline", StringComparison.OrdinalIgnoreCase) == 0) {
+					hasInlineAttribute = true;
+					break;
+				}
+			}
+
+			if (hasInlineAttribute) {
+				var system = new SimpleName ("System", Location.Null);
+				var runtime = new MemberAccess (system, "Runtime", Location.Null);
+				var compilerServices = new MemberAccess (runtime, "CompilerServices", Location.Null);
+				var methodImplOptions = new MemberAccess (compilerServices, "MethodImplOptions", Location.Null);
+
+				var args = new Arguments (0);
+				var aggressiveInlinning = new MemberAccess (methodImplOptions, "AggressiveInlining", Location.Null);
+				args.Add (new Argument (aggressiveInlinning));
+
+				var argsArray = new Arguments[2];
+				argsArray [0] = args;
+				argsArray [1] = null;
+
+				var methodImplAttribute = new MemberAccess (compilerServices, "MethodImplAttribute", Location.Null);
+				var inlineAttribute = new Attribute (null, methodImplAttribute, argsArray, Location.Null, false);
+				inlineAttribute.AttachTo (this, this);
+
+				this.OptAttributes.AddAttribute (inlineAttribute);
+			}
 		}
 
 		protected override void DoMemberTypeIndependentChecks ()
@@ -696,11 +770,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if ((ModFlags & Modifiers.DEBUGGER_STEP_THROUGH) != 0)
 				Module.PredefinedAttributes.DebuggerStepThrough.EmitAttribute (MethodBuilder);
 
-			if (ReturnType.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+			if (ReturnType == Module.Compiler.BuiltinTypes.AsUntyped) {
 				return_attributes = new ReturnParameter (this, MethodBuilder, Location);
+				Module.PredefinedAttributes.AsUntypedAttribute.EmitAttribute (return_attributes.Builder);
+			}
+
+			if (ReturnType.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+				return_attributes = return_attributes ?? new ReturnParameter (this, MethodBuilder, Location);
 				Module.PredefinedAttributes.Dynamic.EmitAttribute (return_attributes.Builder);
 			} else if (ReturnType.HasDynamicElement) {
-				return_attributes = new ReturnParameter (this, MethodBuilder, Location);
+				return_attributes = return_attributes ?? new ReturnParameter (this, MethodBuilder, Location);
 				Module.PredefinedAttributes.Dynamic.EmitAttribute (return_attributes.Builder, ReturnType, Location);
 			}
 
@@ -850,7 +929,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class Method : MethodOrOperator, IGenericMethodDefinition
+	public partial class Method : MethodOrOperator, IGenericMethodDefinition
 	{
 		Method partialMethodImplementation;
 
@@ -861,12 +940,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				AllowedModifiersClass | Modifiers.ASYNC,
 				name, attrs, parameters)
 		{
+			HasNoReturnType = false;
 		}
 
 		protected Method (TypeDefinition parent, FullNamedExpression return_type, Modifiers mod, Modifiers amod,
 					MemberName name, ParametersCompiled parameters, Attributes attrs)
 			: base (parent, return_type, mod, amod, name, attrs, parameters)
 		{
+			HasNoReturnType = false;
 		}
 
 		#region Properties
@@ -889,11 +970,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public bool HasNoReturnType { get; set; }
+
 		#endregion
 
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && visitor.Depth >= VisitDepth.MethodBodies && this.block != null)
+					this.block.Accept (visitor);
+			}
 		}
 
 		public static Method Create (TypeDefinition parent, FullNamedExpression returnType, Modifiers mod,
@@ -1230,6 +1322,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				DefineTypeParameters ();
 			}
 
+			// PlayScript - Create a varargs array for this method
+//			if (Parent.FileType == SourceFileType.PlayScript && !PsExtended && block != null) {
+//				block.ParametersBlock.PsCreateVarArgsArray (Parent.Module);
+//			}
+
 			if (block != null) {
 				if (block.IsIterator) {
 					//
@@ -1442,7 +1539,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		Arguments argument_list;
 		MethodSpec base_ctor;
 
-		protected ConstructorInitializer (Arguments argument_list, Location loc)
+		// PlayScript: Initializer is explicitly called via super() call in constructor method.
+		public bool IsAsExplicitSuperCall;
+
+		public ConstructorInitializer (Arguments argument_list, Location loc)
 		{
 			this.argument_list = argument_list;
 			this.loc = loc;
@@ -1478,6 +1578,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (argument_list != null) {
 					bool dynamic;
 					argument_list.Resolve (ec, out dynamic);
+
+					// If actionscript, convert dynamic constructor arguments to type System.Object.
+					if (dynamic && ec.FileType == SourceFileType.PlayScript) {
+						var ctors = MemberCache.FindMembers (ec.CurrentType.BaseType, Constructor.ConstructorName, true);
+						if (ctors != null) {
+							if (argument_list.AsTryResolveDynamicArgs(ec, ctors)) {
+								dynamic = false;
+							}
+						}
+					}
 
 					if (dynamic) {
 						ec.Report.Error (1975, loc,
@@ -1635,6 +1745,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Continue && visitor.Depth >= VisitDepth.MethodBodies && this.block != null)
+					this.block.Accept (visitor);
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -1698,11 +1813,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				}
 			}
 
-			if ((ModFlags & Modifiers.EXTERN) != 0 && Initializer != null) {
-				Report.Error (8091, Location, "`{0}': Contructors cannot be extern and have a constructor initializer",
-					GetSignatureForError ());
-			}
-
 			var ca = ModifiersExtensions.MethodAttr (ModFlags) | MethodAttributes.RTSpecialName | MethodAttributes.SpecialName;
 
 			ConstructorBuilder = Parent.TypeBuilder.DefineConstructor (
@@ -1712,7 +1822,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			spec = new MethodSpec (MemberKind.Constructor, Parent.Definition, this, Compiler.BuiltinTypes.Void, parameters, ModFlags);
 			
 			Parent.MemberCache.AddMember (spec);
-			
+
+			// PlayScript - Create a varargs array for this method
+//			if (Parent.FileType == SourceFileType.PlayScript && !PsExtended && block != null) {
+//				block.ParametersBlock.PsCreateVarArgsArray (Parent.Module);
+//			}
+
 			if (block != null) {
 				// It's here only to report an error
 				if (block.IsIterator) {
@@ -1778,7 +1893,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						Initializer = new GeneratedBaseInitializer (Location, null);
 					}
 
-					if (Initializer != null) {
+					if (Initializer != null && 
+					    !(bc.FileType == SourceFileType.PlayScript && Initializer.IsAsExplicitSuperCall)) {
 						//
 						// mdb format does not support reqions. Try to workaround this by emitting the
 						// sequence point at initializer. Any breakpoint at constructor header should
@@ -1909,13 +2025,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		Attributes OptAttributes { get; }
 		ToplevelBlock Block { get; set; }
 
+		bool IsInlinable { get; }
+
 		EmitContext CreateEmitContext (ILGenerator ig, SourceMethodBuilder sourceMethod);
 	}
 
 	//
 	// Encapsulates most of the Method's state
 	//
-	public class MethodData
+	public partial class MethodData
 	{
 		public readonly IMethodData method;
 
@@ -2216,7 +2334,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get;
 			set;
 		}
-		
+
 		public Destructor (TypeDefinition parent, Modifiers mod, ParametersCompiled parameters, Attributes attrs, Location l)
 			: base (parent, null, mod, AllowedModifiers, new MemberName (MetadataName, l), attrs, parameters)
 		{
@@ -2227,6 +2345,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && this.block != null)
+					this.block.Accept (visitor);
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -2238,7 +2365,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			base.ApplyAttributeBuilder (a, ctor, cdata, pa);
 		}
-		
+
 		protected override bool CheckBase ()
 		{
 			if ((caching_flags & Flags.MethodOverloadsExist) != 0)
@@ -2316,6 +2443,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		protected MethodData method_data;
 		protected ToplevelBlock block;
 		protected SecurityType declarative_security;
+		protected bool isInlinable;
 
 		protected readonly string prefix;
 
@@ -2363,6 +2491,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public bool IsAccessor {
 			get {
 				return true;
+			}
+		}
+
+		public bool IsInlinable {
+			get {
+				return isInlinable;
 			}
 		}
 
@@ -2421,6 +2555,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		protected virtual void ApplyToExtraTarget (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
 		{
+			// We ignore this error in AS as attributes are always applied to getters/setters (seems like a missing feature in C#).
+			if (a.Location.SourceFile != null && a.Location.SourceFile.FileType == SourceFileType.PlayScript)
+				return;
+
 			throw new NotSupportedException ("You forgot to define special attribute target handling");
 		}
 
@@ -2439,11 +2577,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (((ModFlags & Modifiers.DEBUGGER_HIDDEN) != 0))
 				Module.PredefinedAttributes.DebuggerHidden.EmitAttribute (method_data.MethodBuilder);
 
-			if (ReturnType.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+			if (ReturnType == Module.Compiler.BuiltinTypes.AsUntyped) {
 				return_attributes = new ReturnParameter (this, method_data.MethodBuilder, Location);
+				Module.PredefinedAttributes.AsUntypedAttribute.EmitAttribute (return_attributes.Builder);
+			}
+
+			if (ReturnType.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+				return_attributes = return_attributes ?? new ReturnParameter (this, method_data.MethodBuilder, Location);
 				Module.PredefinedAttributes.Dynamic.EmitAttribute (return_attributes.Builder);
 			} else if (ReturnType.HasDynamicElement) {
-				return_attributes = new ReturnParameter (this, method_data.MethodBuilder, Location);
+				return_attributes = return_attributes ?? new ReturnParameter (this, method_data.MethodBuilder, Location);
 				Module.PredefinedAttributes.Dynamic.EmitAttribute (return_attributes.Builder, ReturnType, Location);
 			}
 
@@ -2556,6 +2699,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			GreaterThanOrEqual,
 			LessThanOrEqual,
 
+			// PlayScript binary operators
+			AsIn, 			// PlayScript "in" operator
+			AsURightShift, 	// PlayScript unsigned shift right
+
 			// Implicit and Explicit
 			Implicit,
 			Explicit,
@@ -2598,6 +2745,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			names [(int) OpType.LessThan] = new string [] { "<", "op_LessThan" };
 			names [(int) OpType.GreaterThanOrEqual] = new string [] { ">=", "op_GreaterThanOrEqual" };
 			names [(int) OpType.LessThanOrEqual] = new string [] { "<=", "op_LessThanOrEqual" };
+			names [(int) OpType.AsIn] = new string [] { "in", "op_In" };
+			names [(int) OpType.AsURightShift] = new string [] { ">>>", "op_UnsignedRightShift" };
 			names [(int) OpType.Implicit] = new string [] { "implicit", "op_Implicit" };
 			names [(int) OpType.Explicit] = new string [] { "explicit", "op_Explicit" };
 			names [(int) OpType.Is] = new string[] { "is", "op_Is" };
@@ -2614,6 +2763,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && this.block != null)
+					this.block.Accept (visitor);
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -2716,7 +2874,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						return false;
 					}
 				}
-			} else if (OperatorType == OpType.LeftShift || OperatorType == OpType.RightShift) {
+			} else if (OperatorType == OpType.LeftShift || OperatorType == OpType.RightShift || OperatorType == OpType.AsURightShift) {
 				if (first_arg_type != declaring_type || parameters.Types[1].BuiltinType != BuiltinTypeSpec.Type.Int) {
 					Report.Error (564, Location, "Overloaded shift operator must have the type of the first operand be the containing type, and the type of the second operand must be int");
 					return false;
@@ -2843,6 +3001,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return OpType.LessThanOrEqual;
 			case OpType.LessThanOrEqual:
 				return OpType.GreaterThanOrEqual;
+			case OpType.AsIn:  // PlayScript "in" operator
+				return OpType.AsIn;
 			default:
 				return OpType.TOP;
 			}

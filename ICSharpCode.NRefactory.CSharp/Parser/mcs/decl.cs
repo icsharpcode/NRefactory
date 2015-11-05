@@ -214,7 +214,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   of Name, Location and Modifier flags, and handling Attributes.
 	/// </summary>
 	[System.Diagnostics.DebuggerDisplay ("{GetSignatureForError()}")]
-	public abstract class MemberCore : Attributable, IMemberContext, IMemberDefinition
+	public abstract partial class MemberCore : Attributable, IMemberContext, IMemberDefinition
 	{
 		string IMemberDefinition.Name {
 			get {
@@ -255,7 +255,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		///   Location where this declaration happens
 		/// </summary>
 		public Location Location {
-			get { return member_name.Location; }
+			get { return member_name != null ? member_name.Location : new Location(); }
 		}
 
 		/// <summary>
@@ -268,6 +268,32 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		///   for each member types.
 		/// </summary>
 		public abstract string DocCommentHeader { get; }
+
+		/// <summary>
+		/// Gets the type of the file.
+		/// </summary>
+		/// <value>The type of the file.</value>
+		public virtual SourceFileType FileType { 
+			get {
+				return member_name.Location.SourceFile != null ? member_name.Location.SourceFile.FileType : SourceFileType.CSharp;
+			}
+		}
+
+		/// <summary>
+		/// Gets whether this is an extended syntax PlayScript file.
+		/// </summary>
+		/// <value>The type of the file.</value>
+		public virtual bool PsExtended { 
+			get {
+				// member_name will be null if we are running in the repl;
+				// TODO: Determine if REPL should allow Extended PlayScript language, 
+				// for now to run Tamarin tests, only ActionScript
+				if (member_name != null)
+					return member_name.Location.SourceFile != null ? member_name.Location.SourceFile.PsExtended : false;
+				else
+					return false;
+			}
+		}
 
 		[Flags]
 		public enum Flags {
@@ -314,6 +340,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public virtual void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+		}
+
+		public bool? CheckAllowDynamic ()
+		{
+			if (OptAttributes != null) {
+				if (OptAttributes.Contains (Module.PredefinedAttributes.AsAllowDynamicAttribute)) {
+					return true;
+				} else if (OptAttributes.Contains (Module.PredefinedAttributes.AsForbidDynamicAttribute)) {
+					return false;
+				}
+			}
+			return null;
 		}
 
 		protected bool CheckAbstractAndExtern (bool has_block)
@@ -691,7 +729,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public virtual FullNamedExpression LookupNamespaceOrType (string name, int arity, LookupMode mode, Location loc)
 		{
-			return Parent.LookupNamespaceOrType (name, arity, mode, loc);
+			if (Parent != null) {
+				return Parent.LookupNamespaceOrType (name, arity, mode, loc);
+			} else {
+				return null;
+			}
 		}
 
 		/// <summary>
@@ -852,6 +894,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public virtual void WriteDebugSymbol (MonoSymbolFile file)
 		{
+		}
+
+		public void RenameMember(MemberName newName)
+		{
+			member_name = newName;
 		}
 
 		#region IMemberContext Members

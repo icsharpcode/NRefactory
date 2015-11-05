@@ -48,11 +48,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Linq
 		protected override string MethodName {
 			get { throw new NotSupportedException (); }
 		}
-		
-		public override object Accept (StructuralVisitor visitor)
-		{
-			return visitor.Visit (this);
-		}
 	}
 
 	public abstract class AQueryClause : ShimExpression
@@ -281,13 +276,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Linq
 		}
 
 		protected RangeVariable identifier;
-		
+
 		public RangeVariable  IntoVariable {
 			get {
 				return identifier;
 			}
 		}
-		
+
 		protected ARangeVariableQueryClause (QueryBlock block, RangeVariable identifier, Expression expr, Location loc)
 			: base (block, expr, loc)
 		{
@@ -376,6 +371,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Linq
 
 		public string Name { get; private set; }
 
+		// PlayScript - Not used.
+		FullNamedExpression INamedBlockVariable.TypeExpr {
+			get { return null; }
+			set { }
+		}
+
 		#endregion
 
 		public Expression CreateReferenceExpression (ResolveContext rc, Location loc)
@@ -447,13 +448,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Linq
 		protected override string MethodName {
 			get { throw new NotSupportedException (); }
 		}
-		
-		public override object Accept (StructuralVisitor visitor)
-		{
-			return visitor.Visit (this);
-		}
 	}
-
 
 	public class GroupBy : AQueryClause
 	{
@@ -524,7 +519,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Linq
 		public RangeVariable JoinVariable {
 			get { return this.GetIntoVariable (); }
 		}
-		
+			
 		public Join (QueryBlock block, RangeVariable lt, Expression inner, QueryBlock outerSelector, QueryBlock innerSelector, Location loc)
 			: base (block, lt, inner, loc)
 		{

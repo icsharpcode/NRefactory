@@ -122,7 +122,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		readonly Location loc;
 		bool resolved;
 		bool resolving;
-		
+
 		public IEnumerable<FullNamedExpression> ConstraintExpressions {
 			get {
 				return constraints;
@@ -474,6 +474,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 
 		bool ITypeDefinition.IsComImport {
+			get {
+				return false;
+			}
+		}
+
+		bool ITypeDefinition.IsAsDynamicClass {
+			get {
+				return false;
+			}
+		}
+
+		bool ITypeDefinition.IsAsBindableClass {
 			get {
 				return false;
 			}
@@ -1064,15 +1076,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			if (HasTypeConstraint)
 				types [types.Length - 1] = BaseType;
-
-			return effective_base = Convert.FindMostEncompassedType (types);
+			return effective_base = Convert.FindMostEncompassedType (types, null);
 		}
 
-		public override string GetSignatureForDocumentation (bool explicitName)
+		public override string GetSignatureForDocumentation ()
 		{
-			if (explicitName)
-				return Name;
-
 			var prefix = IsMethodOwned ? "``" : "`";
 			return prefix + DeclaredPosition;
 		}
@@ -2717,7 +2725,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						return true;
 				}
 			} else {
-				if (Convert.ImplicitReferenceConversionExists (atype, ttype) || Convert.ImplicitBoxingConversion (null, atype, ttype) != null)
+				ResolveContext opt_ec = mc as ResolveContext;
+				if (Convert.ImplicitReferenceConversionExists (atype, ttype, false, opt_ec, false) || Convert.ImplicitBoxingConversion (null, atype, ttype) != null)
 					return true;
 			}
 

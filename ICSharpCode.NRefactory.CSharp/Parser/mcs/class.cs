@@ -35,13 +35,14 @@ using SecurityType = System.Collections.Generic.Dictionary<System.Security.Permi
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
 	//
 	// General types container, used as a base class for all constructs which can hold types
 	//
-	public abstract class TypeContainer : MemberCore
+	public abstract partial class TypeContainer : MemberCore
 	{
 		public readonly MemberKind Kind;
 
@@ -51,8 +52,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		protected Dictionary<string, MemberCore> defined_names;
 
+		// Playscript "static" and "instance" names
+		protected Dictionary<string, MemberCore> defined_static_names;
+		protected Dictionary<string, MemberCore> defined_instance_names;
+
 		protected bool is_defined;
 
+		// Should dynamic code be allowed in this container?
+		protected bool? allow_dynamic;
+
+		public int CounterAnonymousTypes { get; set; }
 		public int CounterAnonymousMethods { get; set; }
 		public int CounterAnonymousContainers { get; set; }
 		public int CounterSwitchTypes { get; set; }
@@ -62,6 +71,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			this.Kind = kind;
 			defined_names = new Dictionary<string, MemberCore> ();
+			defined_static_names = new Dictionary<string, MemberCore> ();
+			defined_instance_names = new Dictionary<string, MemberCore> ();
 		}
 
 		public override TypeSpec CurrentType {
@@ -73,6 +84,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public Dictionary<string, MemberCore> DefinedNames {
 			get {
 				return defined_names;
+			}
+		}
+
+		public Dictionary<string, MemberCore> DefinedStaticNames {
+			get {
+				return defined_static_names;
+			}
+		}
+
+		public Dictionary<string, MemberCore> DefinedInstanceNames {
+			get {
+				return defined_instance_names;
 			}
 		}
 
@@ -88,6 +111,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public IList<TypeContainer> Containers {
 			get {
 				return containers;
+			}
+		}
+
+		public virtual bool? AllowDynamic {
+			get {
+				if (allow_dynamic != null) {
+					return allow_dynamic;
+				} else if (this.Parent != null) {
+					return this.Parent.AllowDynamic;
+				} else {
+					return Compiler.Settings.AllowDynamic;
+				}
+			}
+			set {
+				allow_dynamic = value;
 			}
 		}
 
@@ -254,8 +292,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			// Release cache used by parser only
 			if (Module.Evaluator == null) {
 				defined_names = null;
+				defined_static_names = null;
+				defined_instance_names = null;
 			} else {
 				defined_names.Clear ();
+				defined_static_names.Clear ();
+				defined_instance_names.Clear ();
 			}
 
 			return true;
@@ -359,8 +401,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return MemberName.GetSignatureForError ();
 		}
 
-		public virtual string GetSignatureForMetadata ()
+		public string GetSignatureForMetadata ()
 		{
+			if (Parent is TypeDefinition) {
+				return Parent.GetSignatureForMetadata () + "+" + TypeNameParser.Escape (MemberName.Basename);
+			}
+
 			var sb = new StringBuilder ();
 			CreateMetadataName (sb);
 			return sb.ToString ();
@@ -391,9 +437,37 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 			}
 		}
+
+		protected void AcceptChildContainers (StructuralVisitor visitor)
+		{
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && containers != null && containers.Count > 0) {
+					foreach (var container in containers) {
+						if (visitor.Continue) {
+							if (container is TypeDefinition && visitor.Depth >= VisitDepth.Types)
+								container.Accept (visitor);
+							else if (container is NamespaceContainer && visitor.Depth >= VisitDepth.Namespaces)
+								container.Accept (visitor);
+						}
+					}
+				}
+			}
+		}
+
+		public override void Accept (StructuralVisitor visitor)
+		{
+			visitor.Visit (this);
+
+			AcceptChildContainers (visitor);
+		}
+
 	}
 
-	public abstract class TypeDefinition : TypeContainer, ITypeDefinition
+	public abstract partial class TypeDefinition : TypeContainer, ITypeDefinition
 	{
 		//
 		// Different context is needed when resolving type container base
@@ -470,6 +544,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 
 				return tc.Parent.LookupNamespaceOrType (name, arity, mode, loc);
+			}
+
+			public SourceFileType FileType 
+			{ 
+				get {
+					return tc.Location.SourceFile != null ? tc.Location.SourceFile.FileType : SourceFileType.CSharp;
+				}
 			}
 
 			#endregion
@@ -626,7 +707,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return members_defined;
 			}
 		}
-		
+
 		public List<FullNamedExpression> TypeBaseExpressions {
 			get {
 				return type_bases;
@@ -747,28 +828,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-#if FULL_AST
-		public bool HasOptionalSemicolon {
-			get;
-			private set;
-		}
-		Location optionalSemicolon;
-		public Location OptionalSemicolon {
-			get {
-				return optionalSemicolon;
-			}
-			set {
-				optionalSemicolon = value;
-				HasOptionalSemicolon = true;
-			}
-		}
-#endif
-
 		#endregion
 
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue)
+					AcceptChildContainers (visitor);
+				if (visitor.Continue && members != null && members.Count > 0 && visitor.Depth >= VisitDepth.Members) {
+					foreach (var member in members) {
+						if (visitor.Continue && (visitor.Depth & VisitDepth.Members) != 0)
+							member.Accept (visitor);
+					}
+				}
+			}
 		}
 
 		public void AddMember (MemberCore symbol)
@@ -783,6 +862,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			AddNameToContainer (symbol, symbol.MemberName.Name);
 			members.Add (symbol);
+		}
+
+		public void ReplaceMember (MemberCore oldsymbol, MemberCore newsymbol)
+		{
+			var i = members.IndexOf (oldsymbol);
+			if (i == -1)
+				throw new InvalidOperationException("No member to replace");
+			members[i] = newsymbol;
+			ReplaceNameInContainer (newsymbol, newsymbol.MemberName.Basename);
 		}
 
 		public override void AddTypeContainer (TypeContainer tc)
@@ -811,9 +899,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return;
 
 			MemberCore mc;
-			if (!PartialContainer.defined_names.TryGetValue (name, out mc)) {
-				PartialContainer.defined_names.Add (name, symbol);
-				return;
+
+			if (this.FileType == SourceFileType.PlayScript && symbol is MethodCore || symbol is Property) {
+				if (!PartialContainer.defined_names.TryGetValue (name, out mc)) {
+					PartialContainer.defined_names.Add (name, symbol);
+				}
+				var inst_or_static_names = (symbol.ModFlags & Modifiers.STATIC) != 0 ? 
+					PartialContainer.defined_static_names : PartialContainer.defined_instance_names;
+				if (!inst_or_static_names.TryGetValue (name, out mc)) {
+					inst_or_static_names.Add (name, symbol);
+					return;
+				}
+			} else {
+				if (!PartialContainer.defined_names.TryGetValue (name, out mc)) {
+					PartialContainer.defined_names.Add (name, symbol);
+					return;
+				}
 			}
 
 			if (symbol.EnableOverloadChecks (mc))
@@ -839,6 +940,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			return;
+		}
+	
+		//
+		// Replaces the member in the defined_names table.
+		//
+		public virtual void ReplaceNameInContainer (MemberCore newsymbol, string name)
+		{
+			if (((ModFlags | newsymbol.ModFlags) & Modifiers.COMPILER_GENERATED) != 0)
+				return;
+			
+			MemberCore mc;
+			if (PartialContainer.defined_names.TryGetValue (name, out mc)) {
+				PartialContainer.defined_names[name] = newsymbol;
+			}
+
+			// Handle static/instance name dictionaries for PlayScript
+			if (this.FileType == SourceFileType.PlayScript) {
+				var inst_or_static_names = (newsymbol.ModFlags & Modifiers.STATIC) != 0 ? 
+					PartialContainer.defined_static_names : PartialContainer.defined_instance_names;
+				if (inst_or_static_names.TryGetValue (name, out mc))
+					inst_or_static_names.Add (name, newsymbol);
+			}
+		}
+
+		public MemberCore LookupNameInContainer(string name, Modifiers modifiers) {
+			MemberCore mc = null;
+			if (this.FileType == SourceFileType.PlayScript) {
+				if ((modifiers & Modifiers.STATIC) != 0) {
+					PartialContainer.defined_static_names.TryGetValue (name, out mc);
+				} else {
+					PartialContainer.defined_instance_names.TryGetValue (name, out mc);
+				}
+			} else {
+				PartialContainer.defined_names.TryGetValue (name, out mc);
+			}
+
+			return mc;
 		}
 
 		public void AddConstructor (Constructor c)
@@ -979,6 +1117,44 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					return false;
 
 				return OptAttributes.Contains (Module.PredefinedAttributes.ComImport);
+			}
+		}
+
+		// Is this an ActionScript dynamic class?
+		public bool IsAsDynamicClass {
+			get {
+				if (base_type != null) {
+					if (base_type.IsAsDynamicClass) 
+						return true;
+				}
+
+				if (OptAttributes == null)
+					return false;
+
+				if (Module.PredefinedAttributes != null) {
+					return OptAttributes.Contains (Module.PredefinedAttributes.AsDynamicClassAttribute);
+				} else {
+					foreach (var attr in OptAttributes.Attrs) {
+						var memAcc = attr.TypeExpression as MemberAccess;
+						if (memAcc != null) {
+							var simpName = memAcc.LeftExpression as SimpleName;
+							if (simpName != null && simpName.Name == "PlayScript" && memAcc.Name == "DynamicClassAttribute") {
+								return true;
+							}
+						}
+					}
+					return false;
+				}
+			}
+		}
+
+		// Is this an actionscript bindable class?
+		public bool IsAsBindableClass {
+			get {
+				if (OptAttributes == null)
+					return false;
+				
+				return OptAttributes.Contains (Module.PredefinedAttributes.AsBindableAttribute);
 			}
 		}
 
@@ -1145,13 +1321,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-		public override string GetSignatureForMetadata ()
+		public virtual void AddBaseForPart (FullNamedExpression aBase)
 		{
-			if (Parent is TypeDefinition) {
-				return Parent.GetSignatureForMetadata () + "+" + TypeNameParser.Escape (FilterNestedName (MemberName.Basename));
+			if (type_bases == null)
+				type_bases = new List<FullNamedExpression> ();
+			type_bases.Add (aBase);
+		}		
+		
+		public virtual void AddBasesForPart (List<FullNamedExpression> bases)
+		{
+			if (bases.Count > 0) {
+				if (type_bases == null)
+					type_bases = new List<FullNamedExpression> ();
+				type_bases.AddRange (bases);
 			}
-
-			return base.GetSignatureForMetadata ();
 		}
 
 		public virtual void SetBaseTypes (List<FullNamedExpression> baseTypes)
@@ -1171,7 +1354,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		/// </summary>
 		protected virtual TypeSpec[] ResolveBaseTypes (out FullNamedExpression base_class)
 		{
-			base_class = null;
+			// PlayScript will default to the "_root.Object" base class.. not null.
+			if (this.Location.SourceFile != null &&
+			    this.Location.SourceFile.FileType == SourceFileType.PlayScript &&
+			    this is Class && !this.IsStatic) {
+				base_class = new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "Object");
+				base_type = base_class.ResolveAsType (new BaseContext (this));
+				if (base_type == null)
+					base_class = null;
+			} else {
+				base_class = null;
+			}
+
 			if (type_bases == null)
 				return null;
 
@@ -1807,6 +2001,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		protected override void DoDefineContainer ()
 		{
+			allow_dynamic = CheckAllowDynamic ();
+
 			DefineBaseTypes ();
 
 			DoResolveTypeParameters ();
@@ -2010,6 +2206,34 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			var count = members.Count;		
+
+			// PlayScript: Switch non null "const" fields to vars.
+			if (this.Location.SourceFile != null && this.Location.SourceFile.FileType == SourceFileType.PlayScript) {
+				for (int i = 0; i < count; ++i) {
+					var c = members[i] as Const;
+					if (c == null)
+						continue;
+
+					var t = c.TypeExpression.ResolveAsType (this);
+					if (t.IsStruct || t.BuiltinType == BuiltinTypeSpec.Type.String)
+						continue;
+
+					if (c.Initializer == null || (c.Initializer is NullConstant) || (c.Initializer is NullLiteral))
+						continue;
+
+					var f = new Field(this, c.TypeExpression, c.ModFlags | Modifiers.READONLY, c.MemberName, c.OptAttributes);
+					if (c.Initializer != null) {
+						if (c.Initializer is ConstInitializer) {
+							f.Initializer = ((ConstInitializer)c.Initializer).Expr;
+						} else {
+							f.Initializer = c.Initializer;
+						}
+					}
+
+					ReplaceMember (c, f);
+				}
+			}
+
 			for (int i = 0; i < count; ++i) {
 				var mc = members[i] as InterfaceMemberBase;
 				if (mc == null || !mc.IsExplicitImpl)
@@ -2191,11 +2415,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			base.VerifyMembers ();
 		}
 
-		public override void Emit ()
+		private void ValidateEmit ()
 		{
-			if (OptAttributes != null)
-				OptAttributes.Emit ();
-
 			if (!IsCompilerGenerated) {
 				if (!IsTopLevel) {
 					MemberSpec candidate;
@@ -2231,6 +2452,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					}
 				}
 			}
+		}
+
+		public override void Emit ()
+		{
+			if (OptAttributes != null)
+				OptAttributes.Emit ();
+
+			ValidateEmit ();
 
 			if (all_tp_builders != null) {
 				int current_starts_index = CurrentTypeParametersStartIndex;
@@ -2269,7 +2498,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (pending != null)
 				pending.VerifyPendingMethods ();
 		}
-
 
 		void CheckAttributeClsCompliance ()
 		{
@@ -2344,6 +2572,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			const Modifiers nv = (Modifiers.NEW | Modifiers.VIRTUAL);
 			bool ok = true;
 			var flags = mc.ModFlags;
+            var isPlay = this.Location.SourceFile != null && this.Location.SourceFile.FileType == SourceFileType.PlayScript;
 			
 			//
 			// At most one of static, virtual or override
@@ -2391,7 +2620,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 			}
 
-			if ((flags & Modifiers.PRIVATE) != 0){
+            if (!isPlay && (flags & Modifiers.PRIVATE) != 0){
 				if ((flags & vao) != 0){
 					Report.Error (621, mc.Location, "`{0}': virtual or abstract members cannot be private", mc.GetSignatureForError ());
 					ok = false;
@@ -2609,7 +2838,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 	}
 
-	public abstract class ClassOrStruct : TypeDefinition
+	public abstract partial class ClassOrStruct : TypeDefinition
 	{
 		public const TypeAttributes StaticClassAttribute = TypeAttributes.Abstract | TypeAttributes.Sealed;
 
@@ -2774,8 +3003,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 	}
 
-
-	public sealed class Class : ClassOrStruct
+	public sealed partial class Class : ClassOrStruct
 	{
 		const Modifiers AllowedModifiers =
 			Modifiers.NEW |
@@ -2792,13 +3020,64 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			: base (parent, name, attrs, MemberKind.Class)
 		{
 			var accmods = IsTopLevel ? Modifiers.INTERNAL : Modifiers.PRIVATE;
-			this.ModFlags = ModifiersExtensions.Check (AllowedModifiers, mod, accmods, Location, Report);
+			var allowedMods = AllowedModifiers;
+			// Modify allowed modifiers for classes in PlayScript
+			if (this.Location.SourceFile != null && this.Location.SourceFile.FileType == SourceFileType.PlayScript) {
+				allowedMods = allowedMods | Modifiers.AS_DYNAMIC & ~Modifiers.UNSAFE; // Dynamic classes yes, but no unsafe code in AS
+				if (!this.Location.SourceFile.PsExtended) { // Normal AS does not support STATIC or ABSTRACT classes either
+					allowedMods &= ~(Modifiers.ABSTRACT | Modifiers.NEW);
+					if (!name.Basename.EndsWith("_fn"))
+						allowedMods &= ~Modifiers.STATIC;  // Only function classes can be static in standard AS
+				}
+
+				// Add "Dynamic" attribute for dynamic classes
+				if ((mod & Modifiers.AS_DYNAMIC) != 0) {
+
+					// Check if attribute was already added..
+					bool attribute_exists = false;
+					if (attributes != null) {
+						foreach (var checkAttr in attributes.Attrs) {
+							var memberAcc = checkAttr.TypeExpression as MemberAccess;
+							if (memberAcc != null) {
+								var simpName = memberAcc.LeftExpression as SimpleName;
+								if (simpName != null && simpName.Name == "PlayScript" && memberAcc.Name == "DynamicClassAttribute") {
+									attribute_exists = true;
+									break;
+								}
+							}
+						}
+					}
+
+					// No?  Then add it.
+					if (!attribute_exists) {
+						var attr = new Attribute(null, new MemberAccess(new SimpleName("PlayScript", parent.Location), 
+						                                                "DynamicClassAttribute", parent.Location), null, parent.Location, false);
+						AddAttributes(new Attributes(attr), this);
+					}
+				}
+			}
+			this.ModFlags = ModifiersExtensions.Check (allowedMods, mod, accmods, Location, Report);
 			spec = new TypeSpec (Kind, null, this, null, ModFlags);
 		}
 
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue)
+					AcceptChildContainers (visitor);
+				if (visitor.Continue && Members != null && Members.Count > 0 && visitor.Depth >= VisitDepth.Members) {
+					foreach (var member in Members) {
+						if (visitor.Continue)
+							member.Accept (visitor);
+					}
+				}
+			}
 		}
 
 		public override void SetBaseTypes (List<FullNamedExpression> baseTypes)
@@ -2848,6 +3127,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		protected override bool DoDefineMembers ()
 		{
+			//
+			// We provide a mechanism to use single precision floats instead of
+			// doubles for the PlayScript Number type via the [NumberIsFloat]
+			// attribute. This is a class/interface level attribute that we apply
+			// recursively using a visitor.
+			//
+			if (OptAttributes != null && OptAttributes.Contains (Module.PredefinedAttributes.NumberIsFloatAttribute))
+				Accept (new DoubleToFloatConverter (this));
+
 			if ((ModFlags & Modifiers.ABSTRACT) == Modifiers.ABSTRACT && (ModFlags & (Modifiers.SEALED | Modifiers.STATIC)) != 0) {
 				Report.Error (418, Location, "`{0}': an abstract class cannot be sealed or static", GetSignatureForError ());
 			}
@@ -2999,7 +3287,106 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 	}
 
-	public sealed class Struct : ClassOrStruct
+	public sealed class DoubleToFloatConverter : StructuralVisitor
+	{
+		TypeContainer tc;
+
+		public DoubleToFloatConverter (TypeContainer root)
+		{
+			AutoVisit = true;
+			tc = root;
+		}
+
+		public override void Visit (Constructor c)
+		{
+			base.Visit (c);
+
+			if (c.ParameterInfo != null)
+				VisitParameters (c.ParameterInfo.FixedParameters as Parameter[]);
+		}
+
+		public override void Visit (Field f)
+		{
+			base.Visit (f);
+
+			if (ConvertToFloat (f.TypeExpression))
+				ConvertToFloat (f.Initializer);
+		}
+
+		public override void Visit (Const c)
+		{
+			base.Visit (c);
+
+			if (ConvertToFloat (c.TypeExpression)) {
+				if (c.Initializer is ConstInitializer) {
+					var initializer = c.Initializer as ConstInitializer;
+					ConvertToFloat (initializer.Expr);
+				}
+			}
+		}
+
+		public override void Visit (Property p)
+		{
+			base.Visit (p);
+
+			ConvertToFloat (p.TypeExpression);
+			if (p.Get != null && p.Get.ParameterInfo != null)
+				VisitParameters (p.Get.ParameterInfo.FixedParameters as Parameter[]);
+			if (p.Set != null && p.Set.ParameterInfo != null)
+				VisitParameters (p.Set.ParameterInfo.FixedParameters as Parameter[]);
+		}
+
+		public override void Visit (Method m)
+		{
+			base.Visit (m);
+
+			ConvertToFloat (m.TypeExpression);
+			if (m.ParameterInfo != null)
+				VisitParameters (m.ParameterInfo.FixedParameters as Parameter[]);
+		}
+
+		private void VisitParameters (Parameter[] parameters)
+		{
+			if (parameters != null) {
+				foreach (Parameter param in parameters)
+					ConvertToFloat (param.TypeExpression);
+			}
+		}
+
+		public override object Visit (BlockVariable b)
+		{
+			var result = base.Visit (b);
+
+			ConvertToFloat (b.TypeExpression);
+			if (b.Declarators != null) {
+				foreach (BlockVariableDeclarator declarator in b.Declarators)
+					ConvertToFloat (declarator.TypeExpression);
+			}
+
+			return result;
+		}
+
+		public override object Visit (BlockConstant b)
+		{
+			var result = base.Visit (b);
+
+			ConvertToFloat (b.TypeExpression);
+			ConvertToFloat (b.Initializer);
+
+			return result;
+		}
+
+		private bool ConvertToFloat (Expression e)
+		{
+			if (e != null && e.Type != null && e.Type.BuiltinType == BuiltinTypeSpec.Type.Double) {
+				e.Type = tc.Compiler.BuiltinTypes.Float;
+				return true;
+			}
+			return false;
+		}
+	}
+
+	public sealed partial class Struct : ClassOrStruct
 	{
 		bool is_unmanaged, has_unmanaged_check_done;
 		bool InTransit;
@@ -3032,6 +3419,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue)
+					AcceptChildContainers (visitor);
+				if (visitor.Continue && Members != null && Members.Count > 0 && visitor.Depth >= VisitDepth.Members) {
+					foreach (var member in Members) {
+						if (visitor.Continue)
+							member.Accept (visitor);
+					}
+				}
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -3245,9 +3647,38 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		#endregion
 
+		protected override bool DoDefineMembers ()
+		{
+			//
+			// We provide a mechanism to use single precision floats instead of
+			// doubles for the PlayScript Number type via the [NumberIsFloat]
+			// attribute. This is a class/interface level attribute that we apply
+			// recursively using a visitor.
+			//
+			if (OptAttributes != null && OptAttributes.Contains (Module.PredefinedAttributes.NumberIsFloatAttribute))
+				Accept (new DoubleToFloatConverter (this));
+
+			return base.DoDefineMembers ();
+		}
+
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue)
+					AcceptChildContainers (visitor);
+				if (visitor.Continue && Members != null && Members.Count > 0 && visitor.Depth >= VisitDepth.Members) {
+					foreach (var member in Members) {
+						if (visitor.Continue)
+							member.Accept (visitor);
+					}
+				}
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -3280,7 +3711,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 	}
 
-	public abstract class InterfaceMemberBase : MemberBase
+	public abstract partial class InterfaceMemberBase : MemberBase
 	{
 		//
 		// Common modifiers allowed in a class declaration
@@ -3376,27 +3807,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			if ((ModFlags & Modifiers.OVERRIDE) != 0) {
 				if (base_member == null) {
-					if (candidate == null) {
-						if (this is Method && ((Method)this).ParameterInfo.IsEmpty && MemberName.Name == Destructor.MetadataName && MemberName.Arity == 0) {
-							Report.Error (249, Location, "Do not override `{0}'. Use destructor syntax instead",
-								"object.Finalize()");
-						} else {
-							Report.Error (115, Location, "`{0}' is marked as an override but no suitable {1} found to override",
-								GetSignatureForError (), SimpleName.GetMemberType (this));
-						}
-					} else {
-						Report.SymbolRelatedToPreviousError (candidate);
-						if (this is Event)
-							Report.Error (72, Location, "`{0}': cannot override because `{1}' is not an event",
-								GetSignatureForError (), TypeManager.GetFullNameSignature (candidate));
-						else if (this is PropertyBase)
-							Report.Error (544, Location, "`{0}': cannot override because `{1}' is not a property",
-								GetSignatureForError (), TypeManager.GetFullNameSignature (candidate));
-						else
-							Report.Error (505, Location, "`{0}': cannot override because `{1}' is not a method",
-								GetSignatureForError (), TypeManager.GetFullNameSignature (candidate));
-					}
-
+					Error_OverrideWithoutBase (candidate);
 					return false;
 				}
 
@@ -3640,7 +4051,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			VarianceDecl.CheckTypeVariance (MemberType, ExpectedMemberTypeVariance, this);
 		}
 
-		public override void Emit()
+		private void CheckExternImpl ()
 		{
 			// for extern static method must be specified either DllImport attribute or MethodImplAttribute.
 			// We are more strict than csc and report this as an error because SRE does not allow emit that
@@ -3654,6 +4065,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						GetSignatureForError ());
 				}
 			}
+		}
+
+		public override void Emit()
+		{
+			CheckExternImpl ();
 
 			base.Emit ();
 		}
@@ -3690,6 +4106,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				member.GetSignatureForError (),
 				ModifiersExtensions.AccessibilityName (base_modifiers),
 				base_member.GetSignatureForError ());
+		}
+
+		protected virtual void Error_OverrideWithoutBase (MemberSpec candidate)
+		{
+			if (candidate == null) {
+				if (this is Method && ((Method) this).ParameterInfo.IsEmpty && MemberName.Name == Destructor.MetadataName && MemberName.Arity == 0) {
+					Report.Error (249, Location, "Do not override `{0}'. Use destructor syntax instead",
+					              "object.Finalize()");
+				} else {
+					Report.Error (115, Location, "`{0}' is marked as an override but no suitable {1} found to override",
+					              GetSignatureForError (), SimpleName.GetMemberType (this));
+				}
+			} else {
+				Report.SymbolRelatedToPreviousError (candidate);
+				if (this is Event)
+					Report.Error (72, Location, "`{0}': cannot override because `{1}' is not an event",
+					              GetSignatureForError (), TypeManager.GetFullNameSignature (candidate));
+				else if (this is PropertyBase)
+					Report.Error (544, Location, "`{0}': cannot override because `{1}' is not a property",
+					              GetSignatureForError (), TypeManager.GetFullNameSignature (candidate));
+				else
+					Report.Error (505, Location, "`{0}': cannot override because `{1}' is not a method",
+					              GetSignatureForError (), TypeManager.GetFullNameSignature (candidate));
+			}
 		}
 
 		protected void Error_StaticReturnType ()
@@ -3742,7 +4182,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override string GetSignatureForDocumentation ()
 		{
 			if (IsExplicitImpl)
-				return Parent.GetSignatureForDocumentation () + "." + InterfaceType.GetSignatureForDocumentation (true) + "#" + ShortName;
+				return Parent.GetSignatureForDocumentation () + "." + InterfaceType.GetExplicitNameSignatureForDocumentation () + "#" + ShortName;
 
 			return Parent.GetSignatureForDocumentation () + "." + ShortName;
 		}
@@ -3903,6 +4343,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				throw new InternalErrorException ("Multi-resolve");
 
 			member_type = type_expr.ResolveAsType (this);
+
+			//
+			// Switch the type from dynamic to "*" if the AsUntyped attribute is present.
+			// This is required to use the "*" type in C# code.
+			//
+			if (member_type == Module.Compiler.BuiltinTypes.Dynamic) {
+				if (OptAttributes != null) {
+					var a = OptAttributes.Search (Module.PredefinedAttributes.AsUntypedAttribute);
+					if (a != null && a.ExplicitTarget == "return")
+						member_type = Module.Compiler.BuiltinTypes.AsUntyped;
+				}
+			}
+
 			return member_type != null;
 		}
 	}

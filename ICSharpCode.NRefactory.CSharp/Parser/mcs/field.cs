@@ -36,13 +36,33 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			this.Initializer = initializer;
 		}
 
+		// PlayScript - field declarators have types
+		public FieldDeclarator (SimpleMemberName name, Expression initializer, FullNamedExpression type_expr)
+		{
+			this.Name = name;
+			this.TypeExpression = type_expr;
+			this.Initializer = initializer;
+		}
+
 		#region Properties
 
 		public SimpleMemberName Name { get; private set; }
+		public FullNamedExpression TypeExpression { get; private set; }
+		public TypeSpec Type { get; private set; }
 		public Expression Initializer { get; private set; }
 
 		#endregion
 
+		public bool ResolveType(IMemberContext mc, TypeSpec defaultType)
+		{
+			if (TypeExpression != null)
+				this.Type = TypeExpression.ResolveAsType (mc);
+			else
+				this.Type = defaultType;
+
+			return this.Type != null;
+		}
+			
 		public virtual FullNamedExpression GetFieldTypeExpression (FieldBase field)
 		{
 			return new TypeExpression (field.MemberType, Name.Location); 
@@ -52,7 +72,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	//
 	// Abstract class for all fields
 	//
-	abstract public class FieldBase : MemberBase
+	abstract public partial class FieldBase : MemberBase
 	{
 		protected FieldBuilder FieldBuilder;
 		protected FieldSpec spec;
@@ -82,6 +102,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		public List<FieldDeclarator> Declarators {
+			get {
+				return this.declarators;
+			}
+		}
+
 		public Expression Initializer {
 			get {
 				return initializer;
@@ -108,12 +134,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return attribute_targets;
 			}
 		}
-		
-		public List<FieldDeclarator> Declarators {
-			get {
-				return this.declarators;
-			}
-		}
+
 		#endregion
 
 		public void AddDeclarator (FieldDeclarator declarator)
@@ -209,7 +230,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public virtual Constant ConvertInitializer (ResolveContext rc, Constant expr)
 		{
-			return expr.ConvertImplicitly (MemberType);
+			return expr.ConvertImplicitly (MemberType, rc);
 		}
 
 		protected override void DoMemberTypeDependentChecks ()
@@ -237,6 +258,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override void Emit ()
 		{
+			if (member_type == Module.Compiler.BuiltinTypes.AsUntyped)
+				Module.PredefinedAttributes.AsUntypedAttribute.EmitAttribute (FieldBuilder);
+
 			if (member_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
 				Module.PredefinedAttributes.Dynamic.EmitAttribute (FieldBuilder);
 			} else if (!Parent.IsCompilerGenerated && member_type.HasDynamicElement) {
@@ -278,6 +302,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					GetSignatureForError ());
 			}
 			return true;
+		}
+
+		protected override bool ResolveMemberType ()
+		{
+			if (base.ResolveMemberType()) {
+				if (declarators != null) {
+					foreach (var decl in declarators) {
+						if (!decl.ResolveType (this, MemberType)) 
+							return false;
+					}
+				}
+				return true;
+			}
+			return false;
 		}
 	}
 
@@ -451,11 +489,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				Report.Error (1642, Location, "`{0}': Fixed size buffer fields may only be members of structs",
 					GetSignatureForError ());
 			}
-		}
-		
-		public override void Accept (StructuralVisitor visitor)
-		{
-			visitor.Visit (this);
 		}
 
 		public override void Emit()
@@ -632,6 +665,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && this.Initializer != null && visitor.Depth >= VisitDepth.Initializers)
+					this.Initializer.Accept (visitor);
+				if (visitor.Continue && declarators != null && visitor.Depth >= VisitDepth.Initializers) {
+					foreach (var decl in declarators) {
+						if (visitor.Continue && decl.Initializer != null) {
+							decl.Initializer.Accept (visitor);
+						}
+					}
+				}
+			}
 		}
 		
 		public override bool Define ()
@@ -665,7 +714,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			if (declarators != null) {
 				foreach (var d in declarators) {
-					var f = new Field (Parent, d.GetFieldTypeExpression (this), ModFlags, new MemberName (d.Name.Value, d.Name.Location), OptAttributes);
+					var f = new Field (Parent, d.TypeExpression ?? d.GetFieldTypeExpression (this), ModFlags, new MemberName (d.Name.Value, d.Name.Location), OptAttributes);
 					if (d.Initializer != null)
 						f.initializer = d.Initializer;
 

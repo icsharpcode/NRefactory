@@ -118,6 +118,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		Dictionary<string, TypeSpec> cached_types;
 		bool cls_checked;
 
+		public readonly MemberName MemberName;
+
+		protected bool? allow_dynamic;
+
 		/// <summary>
 		///   Constructor Takes the current namespace and the
 		///   name.  This is bootstrapped with parent == null
@@ -169,6 +173,25 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		/// </summary>
 		public Namespace Parent {
 			get { return parent; }
+		}
+
+		/// <summary>
+		/// Gets or sets whether dynamic code is allowed in this namespace.  If null, the default value set in CompilerSettings should be used.
+		/// </summary>
+		/// <value>The allow dynamic value.</value>
+		public bool? AllowDynamic {
+			get {
+				if (allow_dynamic != null) {
+					return allow_dynamic;
+				} else if (this.Parent != null) {
+					return this.Parent.AllowDynamic;
+				} else {
+					return null;
+				}
+			}
+			set {
+				allow_dynamic = value;
+			}
 		}
 
 		#endregion
@@ -323,6 +346,76 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return best;
 		}
 
+		public TypeExpr LookupAsType (IMemberContext ctx, string name, int arity, LookupMode mode, Location loc)
+		{
+			if (types == null)
+				return null;
+
+			TypeExpr te;
+
+			IList<TypeSpec> found;
+			if (!types.TryGetValue (name, out found))
+				return null;
+
+			TypeSpec best = null;
+			foreach (var ts in found) {
+				if (ts.Arity == arity) {
+					if (best == null) {
+						if ((ts.Modifiers & Modifiers.INTERNAL) != 0 && !ts.MemberDefinition.IsInternalAsPublic (ctx.Module.DeclaringAssembly) && mode != LookupMode.IgnoreAccessibility)
+							continue;
+
+						best = ts;
+						continue;
+					}
+
+					if (best.MemberDefinition.IsImported && ts.MemberDefinition.IsImported) {
+						if (mode == LookupMode.Normal) {
+							ctx.Module.Compiler.Report.SymbolRelatedToPreviousError (best);
+							ctx.Module.Compiler.Report.SymbolRelatedToPreviousError (ts);
+							ctx.Module.Compiler.Report.Error (433, loc, "The imported type `{0}' is defined multiple times", ts.GetSignatureForError ());
+						}
+						break;
+					}
+
+					if (best.MemberDefinition.IsImported)
+						best = ts;
+
+					if ((best.Modifiers & Modifiers.INTERNAL) != 0 && !best.MemberDefinition.IsInternalAsPublic (ctx.Module.DeclaringAssembly))
+						continue;
+
+					if (mode != LookupMode.Normal)
+						continue;
+
+					if (ts.MemberDefinition.IsImported) {
+						ctx.Module.Compiler.Report.SymbolRelatedToPreviousError (best);
+						ctx.Module.Compiler.Report.SymbolRelatedToPreviousError (ts);
+					}
+
+					ctx.Module.Compiler.Report.Warning (436, 2, loc,
+						"The type `{0}' conflicts with the imported type of same name'. Ignoring the imported type definition",
+						best.GetSignatureForError ());
+				}
+
+				//
+				// Lookup for the best candidate with the closest arity match
+				//
+				if (arity < 0) {
+					if (best == null) {
+						best = ts;
+					} else if (System.Math.Abs (ts.Arity + arity) < System.Math.Abs (best.Arity + arity)) {
+						best = ts;
+					}
+				}
+			}
+
+			if (best == null)
+				return null;
+
+			te = new TypeExpression (best, Location.Null);
+
+			return te;
+		}
+
 		public FullNamedExpression LookupTypeOrNamespace (IMemberContext ctx, string name, int arity, LookupMode mode, Location loc)
 		{
 			var texpr = LookupType (ctx, name, arity, mode, loc);
@@ -348,6 +441,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return null;
 
 			return new TypeExpression (texpr, loc);
+		}
+
+		public ATypeNameExpression MakeTypeNameExpression(Location loc) 
+		{
+			string[] names = Name.Split(new [] {'.'});
+
+			ATypeNameExpression exp = null;
+			for (var i = 0; i < names.Length; i++) {
+				var name = names[i];
+				if (exp == null) {
+					exp = new SimpleName (name, loc);
+				} else {
+					exp = new MemberAccess(exp, name, loc);
+				}
+			}
+
+			return exp;
 		}
 
 		//
@@ -665,6 +775,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			var si = file.CreateSymbolInfo (symwriter);
 			comp_unit = new CompileUnitEntry (symwriter, si);
 
+			if (comp_unit == null)
+				return;
+
 			if (include_files != null) {
 				foreach (SourceFile include in include_files.Values) {
 					si = include.CreateSymbolInfo (symwriter);
@@ -688,6 +801,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return Compiler.Settings.IsConditionalSymbolDefined (value);
 		}
 
+		public string GetConditionalValue (string value)
+		{
+			if (conditionals != null) {
+				bool res;
+				if (conditionals.TryGetValue (value, out res))
+					return res ? "true" : "false";
+			}
+
+			return Compiler.Settings.GetConditionalSymbolValue (value);
+		}
+
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
@@ -698,23 +822,29 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	//
 	// Namespace block as created by the parser
 	//
-	public class NamespaceContainer : TypeContainer, IMemberContext
+	public partial class NamespaceContainer : TypeContainer, IMemberContext
 	{
 		static readonly Namespace[] empty_namespaces = new Namespace[0];
+		static readonly Tuple<TypeExpr,TypeSpec>[] empty_types = new Tuple<TypeExpr,TypeSpec>[0]; /* AS SUPPORT */
 
 		readonly Namespace ns;
 
 		public new readonly NamespaceContainer Parent;
 
-		List<UsingClause> clauses;
+		List<UsingNamespace> clauses;
 
 		// Used by parsed to check for parser errors
 		public bool DeclarationFound;
 
 		Namespace[] namespace_using_table;
+
+		Tuple<TypeExpr,TypeSpec>[] type_using_table; /* AS SUPPORT */
+
 		TypeSpec[] types_using_table;
 		Dictionary<string, UsingAliasNamespace> aliases;
 		public readonly MemberName RealMemberName;
+
+		CompilationSourceFile compSourceFile;
 
 		public NamespaceContainer (MemberName name, NamespaceContainer parent)
 			: base (parent, name, null, MemberKind.Namespace)
@@ -724,6 +854,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			this.ns = parent.NS.AddNamespace (name);
 
 			containers = new List<TypeContainer> ();
+
+			var topParent = this;
+			while (topParent.Parent != null) {
+				topParent = topParent.Parent;
+			}
+			compSourceFile = topParent as CompilationSourceFile;
 		}
 
 		protected NamespaceContainer (ModuleContainer parent)
@@ -734,6 +870,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 
 		#region Properties
+
+		public CompilationSourceFile CompilationSourceFile {
+			get {
+				return compSourceFile;
+			}
+		}
 
 		public override AttributeTargets AttributeTargets {
 			get {
@@ -752,8 +894,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return ns;
 			}
 		}
-
-		public List<UsingClause> Usings {
+			
+		public List<UsingNamespace> Usings {
 			get {
 				return clauses;
 			}
@@ -765,16 +907,40 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
+		public override SourceFileType FileType {
+			get {
+				return compSourceFile != null ? compSourceFile.SourceFile.FileType : SourceFileType.CSharp;
+			}
+		}
+
+		public override bool? AllowDynamic {
+			get {
+				bool? allowed = ns.AllowDynamic;
+				if (allowed != null) {
+					return allowed;
+				} else {
+					return Compiler.Settings.AllowDynamic;
+				}
+			}
+			set {
+				ns.AllowDynamic = value;
+			}
+		}
+
 		#endregion
 
-		public void AddUsing (UsingClause un)
+		public void AddUsing (UsingNamespace un, bool forceAppend = false)
 		{
-			if (DeclarationFound){
+			bool isPlayScript = this.CompilationSourceFile != null &&
+				this.CompilationSourceFile.SourceFile != null && 
+				this.CompilationSourceFile.SourceFile.FileType == ICSharpCode.NRefactory.MonoCSharp.SourceFileType.PlayScript;
+
+			if (DeclarationFound && !forceAppend && !isPlayScript){
 				Compiler.Report.Error (1529, un.Location, "A using clause must precede all other namespace elements except extern alias declarations");
 			}
 
 			if (clauses == null)
-				clauses = new List<UsingClause> ();
+				clauses = new List<UsingNamespace> ();
 
 			clauses.Add (un);
 		}
@@ -791,7 +957,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		void AddAlias (UsingAliasNamespace un)
 		{
 			if (clauses == null) {
-				clauses = new List<UsingClause> ();
+				clauses = new List<UsingNamespace> ();
 			} else {
 				foreach (var entry in clauses) {
 					var a = entry as UsingAliasNamespace;
@@ -985,6 +1151,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override FullNamedExpression LookupNamespaceOrType (string name, int arity, LookupMode mode, Location loc)
 		{
+			// PlayScript - use absolute namespace resolution, not relative
+			bool absolute_ns = loc.SourceFile != null && loc.SourceFile.FileType == SourceFileType.PlayScript;
+
 			//
 			// Only simple names (no dots) will be looked up with this function
 			//
@@ -997,7 +1166,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				var container_ns = container.ns.Parent;
 				var mn = container.MemberName.Left;
 				while (mn != null) {
-					resolved = container_ns.LookupTypeOrNamespace (this, name, arity, mode, loc);
+					// If PlayScript/ActionScript we need to avoid lookup up the first identifier in a namespace relatively.  This means we only
+					// do namespace lookup for the first identifier from the global namespace.
+					if (absolute_ns) 
+						resolved = container_ns.LookupAsType (this, name, arity, mode, loc);
+					else
+						resolved = container_ns.LookupTypeOrNamespace (this, name, arity, mode, loc);
 					if (resolved != null)
 						return resolved;
 
@@ -1078,10 +1252,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		FullNamedExpression Lookup (string name, int arity, LookupMode mode, Location loc)
 		{
+			// PlayScript - use absolute namespace resolution, not relative
+			bool absolute_ns = loc.SourceFile != null && loc.SourceFile.FileType == SourceFileType.PlayScript;
+
 			//
 			// Check whether it's in the namespace.
 			//
-			FullNamedExpression fne = ns.LookupTypeOrNamespace (this, name, arity, mode, loc);
+
+			FullNamedExpression fne;
+
+			// For PlayScript/ActionScript we only search for namespaces for simple names when we're at the top level namespace.  ActionScript does not
+			// use relative package name resolution.
+			if (absolute_ns && this.MemberName != null && this.MemberName.Left != null)
+				fne = ns.LookupAsType (this, name, arity, mode, loc);
+			else
+				fne = ns.LookupTypeOrNamespace (this, name, arity, mode, loc);
 
 			//
 			// Check aliases. 
@@ -1111,11 +1296,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (namespace_using_table == null) {
 				DoDefineNamespace ();
 			}
+			
+			FullNamedExpression match = null;
 
+			//
+			// Check using types.
+			//
+			foreach (Tuple<TypeExpr,TypeSpec> using_type in type_using_table) {
+				var texpr = using_type.Item1;
+				var tspec = using_type.Item2;
+				if (tspec.Name == name && tspec.Arity == arity) {
+					match = texpr;
+				}
+			}
+			
 			//
 			// Check using entries.
 			//
-			FullNamedExpression match = null;
 			foreach (Namespace using_ns in namespace_using_table) {
 				//
 				// A using directive imports only types contained in the namespace, it
@@ -1161,7 +1358,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return match;
 		}
 
-		public static Expression LookupStaticUsings (IMemberContext mc, string name, int arity, Location loc)
+		public static MethodGroupExpr LookupStaticUsings (IMemberContext mc, string name, int arity, Location loc)
 		{
 			for (var m = mc.CurrentMemberDefinition; m != null; m = m.Parent) {
 
@@ -1175,15 +1372,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						var members = MemberCache.FindMembers (using_type, name, true);
 						if (members != null) {
 							foreach (var member in members) {
-								if ((member.Kind & MemberKind.NestedMask) != 0) {
-									// non-static nested type is included with using static
-								} else {
-									if ((member.Modifiers & Modifiers.STATIC) == 0)
-										continue;
-
-									if ((member.Modifiers & Modifiers.METHOD_EXTENSION) != 0)
-										continue;
-								}
+								if ((member.Modifiers & Modifiers.METHOD_EXTENSION) != 0)
+									continue;
 
 								if (arity > 0 && member.Arity != arity)
 									continue;
@@ -1197,11 +1387,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					}
 				}
 
-				if (candidates != null) {
-					var expr = Expression.MemberLookupToExpression (mc, candidates, false, null, name, arity, Expression.MemberLookupRestrictions.None, loc);
-					if (expr != null)
-						return expr;
-				}
+				if (candidates != null)
+					return new MethodGroupExpr (candidates, null, loc);
 			}
 
 			return null;
@@ -1218,15 +1405,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		void DoDefineNamespace ()
 		{
 			namespace_using_table = empty_namespaces;
+			type_using_table = empty_types; /* AS SUPPORT */
 
 			if (clauses != null) {
+				var t_list = new List<Tuple<TypeExpr,TypeSpec>> (clauses.Count); /* AS SUPPORT */
+
+				var list = new List<Namespace> (clauses.Count);
+
 				List<Namespace> namespaces = null;
 				List<TypeSpec> types = null;
 
 				bool post_process_using_aliases = false;
 
+
 				for (int i = 0; i < clauses.Count; ++i) {
-					var entry = clauses[i];
+					var entry = clauses [i];
 
 					if (entry.Alias != null) {
 						if (aliases == null)
@@ -1239,7 +1432,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						if (entry is UsingExternAlias) {
 							entry.Define (this);
 							if (entry.ResolvedExpression != null)
-								aliases.Add (entry.Alias.Value, (UsingExternAlias) entry);
+								aliases.Add (entry.Alias.Value, (UsingExternAlias)entry);
 
 							clauses.RemoveAt (i--);
 						} else {
@@ -1260,10 +1453,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						continue;
 					}
 
+					var ut_entry = entry as UsingType;
+					if (ut_entry != null) { /* AS SUPPORT */
+						
+						TypeExpr using_te = ut_entry.ResolvedExpression as TypeExpr;
+						TypeSpec using_ts = ut_entry.ResolvedType as TypeSpec;
+						
+						if (using_te != null && using_ts != null) {
+							if (t_list.Find (t => t.Item1 == using_te) != null) {
+								// Ensure we don't report the warning multiple times in repl
+								clauses.RemoveAt (i--);
+		
+								Compiler.Report.Warning (105, 3, entry.Location,
+									"The using directive for `{0}' appeared previously in this namespace", using_te.GetSignatureForError ());
+							} else {
+								t_list.Add (new Tuple<TypeExpr, TypeSpec> (using_te, using_ts));
+							}
+						}
+						continue;
+					}
+
 					var using_ns = entry.ResolvedExpression as NamespaceExpression;
 					if (using_ns == null) {
 
-						var type = entry.ResolvedExpression.Type;
+						var type = ((TypeExpr)entry.ResolvedExpression).Type;
 
 						if (types == null)
 							types = new List<TypeSpec> ();
@@ -1287,6 +1500,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 						}
 					}
 				}
+
+				namespace_using_table = list.ToArray ();
+				type_using_table = t_list.ToArray (); /* AS SUPPORT */
 
 				namespace_using_table = namespaces == null ? new Namespace [0] : namespaces.ToArray ();
 				if (types != null)
@@ -1347,7 +1563,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return false;
 		}
 
-		void Warning_DuplicateEntry (UsingClause entry)
+		void Warning_DuplicateEntry (UsingNamespace entry)
 		{
 			Compiler.Report.Warning (105, 3, entry.Location,
 				"The using directive for `{0}' appeared previously in this namespace",
@@ -1360,17 +1576,54 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class UsingNamespace : UsingClause
+	public class UsingNamespace
 	{
+		readonly ATypeNameExpression expr;
+		readonly Location loc;
+		protected FullNamedExpression resolved;
+
 		public UsingNamespace (ATypeNameExpression expr, Location loc)
-			: base (expr, loc)
 		{
+			this.expr = expr;
+			this.loc = loc;
 		}
 
-		public override void Define (NamespaceContainer ctx)
-		{
-			base.Define (ctx);
+		#region Properties
 
+		public virtual SimpleMemberName Alias {
+			get {
+				return null;
+			}
+		}
+
+		public Location Location {
+			get {
+				return loc;
+			}
+		}
+
+		public ATypeNameExpression NamespaceExpression	{
+			get {
+				return expr;
+			}
+		}
+
+		public FullNamedExpression ResolvedExpression {
+			get {
+				return resolved;
+			}
+		}
+
+		#endregion
+
+		public string GetSignatureForError ()
+		{
+			return expr.GetSignatureForError ();
+		}
+
+		public virtual void Define (NamespaceContainer ctx)
+		{
+			resolved = expr.ResolveAsTypeOrNamespace (ctx, false);
 			var ns = resolved as NamespaceExpression;
 			if (ns != null)
 				return;
@@ -1378,43 +1631,32 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (resolved != null) {
 				var compiler = ctx.Module.Compiler;
 				var type = resolved.Type;
+				if (compiler.Settings.Version >= LanguageVersion.V_6) {
+					if (!type.IsClass || !type.IsStatic) {
+						compiler.Report.SymbolRelatedToPreviousError (type);
+						compiler.Report.Error (7007, Location,
+							"`{0}' is not a static class. A using namespace directive can only be applied to static classes or namespace",
+							GetSignatureForError ());
+					}
+
+					return;
+				}
 
 				compiler.Report.SymbolRelatedToPreviousError (type);
 				compiler.Report.Error (138, Location,
-					"A `using' directive can only be applied to namespaces but `{0}' denotes a type. Consider using a `using static' instead",
-					type.GetSignatureForError ());
+					"`{0}' is a type not a namespace. A using namespace directive can only be applied to namespaces",
+					GetSignatureForError ());
 			}
 		}
-	}
 
-	public class UsingType : UsingClause
-	{
-		public UsingType (ATypeNameExpression expr, Location loc)
-			: base (expr, loc)
+		public virtual void Accept (StructuralVisitor visitor)
 		{
+			visitor.Visit (this);
 		}
 
-		public override void Define (NamespaceContainer ctx)
+		public override string ToString()
 		{
-			base.Define (ctx);
-
-			if (resolved == null)
-				return;
-
-			var ns = resolved as NamespaceExpression;
-			if (ns != null) {
-				var compiler = ctx.Module.Compiler;
-				compiler.Report.Error (7007, Location,
-					"A 'using static' directive can only be applied to types but `{0}' denotes a namespace. Consider using a `using' directive instead",
-					ns.GetSignatureForError ());
-				return;
-			}
-
-			// TODO: Need to move it to post_process_using_aliases
-			//ObsoleteAttribute obsolete_attr = resolved.Type.GetAttributeObsolete ();
-			//if (obsolete_attr != null) {
-			//	AttributeTester.Report_ObsoleteMessage (obsolete_attr, resolved.GetSignatureForError (), Location, ctx.Compiler.Report);
-			//}
+			return resolved.ToString();
 		}
 	}
 
@@ -1467,7 +1709,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			resolved = expr.ResolveAsTypeOrNamespace (ctx, false);
 		}
-		
+
 		public virtual void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
@@ -1498,13 +1740,31 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			resolved = new NamespaceExpression (ns, Location);
 		}
+	}
+
+	public class UsingType : UsingNamespace
+	{
+		protected TypeSpec resolvedType;
 		
-		public override void Accept (StructuralVisitor visitor)
+		public UsingType (ATypeNameExpression expr, Location loc)
+			: base (expr, loc)
 		{
-			visitor.Visit (this);
+		}
+
+		public override void Define (NamespaceContainer ctx)
+		{
+			resolved = NamespaceExpression.ResolveAsTypeOrNamespace (ctx, false);
+			if (resolved != null) {
+				resolvedType = resolved.ResolveAsType (ctx);
+			}
+		}
+		
+		public TypeSpec ResolvedType {
+			get { return resolvedType; }
 		}
 	}
 
+		
 	public class UsingAliasNamespace : UsingNamespace
 	{
 		readonly SimpleMemberName alias;
@@ -1604,6 +1864,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			{
 				return ns.LookupNamespaceAlias (name);
 			}
+
+			public SourceFileType FileType {
+				get { return ns.FileType; }
+			}
 		}
 
 		public UsingAliasNamespace (SimpleMemberName alias, ATypeNameExpression expr, Location loc)
@@ -1631,11 +1895,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// namespace or type resolve calls to parent namespace
 			//
 			resolved = NamespaceExpression.ResolveAsTypeOrNamespace (new AliasContext (ctx), false);
-		}
-		
-		public override void Accept (StructuralVisitor visitor)
-		{
-			visitor.Visit (this);
 		}
 	}
 }

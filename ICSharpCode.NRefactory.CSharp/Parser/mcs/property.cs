@@ -186,9 +186,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	// Properties and Indexers both generate PropertyBuilders, we use this to share 
 	// their common bits.
 	//
-	abstract public class PropertyBase : PropertyBasedMember {
+	abstract public partial class PropertyBase : PropertyBasedMember {
 
-		public class GetMethod : PropertyMethod
+		public partial class GetMethod : PropertyMethod
 		{
 			static readonly string[] attribute_targets = new string [] { "method", "return" };
 
@@ -229,7 +229,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-		public class SetMethod : PropertyMethod {
+		public partial class SetMethod : PropertyMethod {
 
 			static readonly string[] attribute_targets = new string[] { "method", "param", "return" };
 
@@ -250,7 +250,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					return;
 				}
 
-				base.ApplyToExtraTarget (a, ctor, cdata, pa);
+				// NOTE: This is probably a stack overflow in C# as well, but we only see it happening in PlayScript, so disable it there.
+				if (this.Location.SourceFile == null || this.Location.SourceFile.FileType != SourceFileType.PlayScript)
+					base.ApplyToExtraTarget (a, ctor, cdata, pa);
+
 			}
 
 			public override ParametersCompiled ParameterInfo {
@@ -337,22 +340,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					ModFlags |= method.ModFlags;
 					flags = method.flags;
 				} else {
+					if (container.Kind == MemberKind.Interface)
+						Report.Error (275, Location, "`{0}': accessibility modifiers may not be used on accessors in an interface",
+							GetSignatureForError ());
+					else if ((method.ModFlags & Modifiers.ABSTRACT) != 0 && (ModFlags & Modifiers.PRIVATE) != 0) {
+						Report.Error (442, Location, "`{0}': abstract properties cannot have private accessors", GetSignatureForError ());
+					}
+
 					CheckModifiers (ModFlags);
 					ModFlags |= (method.ModFlags & (~Modifiers.AccessibilityMask));
 					ModFlags |= Modifiers.PROPERTY_CUSTOM;
-
-					if (container.Kind == MemberKind.Interface) {
-						Report.Error (275, Location, "`{0}': accessibility modifiers may not be used on accessors in an interface",
-							GetSignatureForError ());
-					} else if ((ModFlags & Modifiers.PRIVATE) != 0) {
-						if ((method.ModFlags & Modifiers.ABSTRACT) != 0) {
-							Report.Error (442, Location, "`{0}': abstract properties cannot have private accessors", GetSignatureForError ());
-						}
-
-						ModFlags &= ~Modifiers.VIRTUAL;
-					}
-
-					flags = ModifiersExtensions.MethodAttr (ModFlags) | MethodAttributes.SpecialName;
+					flags = ModifiersExtensions.MethodAttr (ModFlags);
+					flags |= (method.flags & (~MethodAttributes.MemberAccessMask));
 				}
 
 				CheckAbstractAndExtern (block != null);
@@ -535,12 +534,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						ok = false;
 					}
 				} else if (Get.HasCustomAccessModifier || base_prop.HasDifferentAccessibility) {
-					if (!base_prop.Get.IsAccessible (this)) {
-						// Same as csc but it should be different error code
-						Report.Error (115, Get.Location, "`{0}' is marked as an override but no accessible `get' accessor found to override",
-							GetSignatureForError ());
-						ok = false;
-					} else if (!CheckAccessModifiers (Get, base_prop.Get)) {
+					if (!CheckAccessModifiers (Get, base_prop.Get)) {
 						Error_CannotChangeAccessModifiers (Get, base_prop.Get);
 						ok = false;
 					}
@@ -556,12 +550,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						GetSignatureForError (), base_prop.GetSignatureForError ());
 					ok = false;
 				}
-
-				if (Get.IsCompilerGenerated) {
-					Report.Error (8080, Location, "`{0}': Auto-implemented properties must override all accessors of the overridden property",
-						GetSignatureForError ());
-					ok = false;
-				}
 			} else {
 				if (!base_prop.HasSet) {
 					if (ok) {
@@ -572,12 +560,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						ok = false;
 					}
 				} else if (Set.HasCustomAccessModifier || base_prop.HasDifferentAccessibility) {
-					if (!base_prop.Set.IsAccessible (this)) {
-						// Same as csc but it should be different error code
-						Report.Error (115, Set.Location, "`{0}' is marked as an override but no accessible `set' accessor found to override",
-							GetSignatureForError ());
-						ok = false;
-					} else if (!CheckAccessModifiers (Set, base_prop.Set)) {
+					if (!CheckAccessModifiers (Set, base_prop.Set)) {
 						Error_CannotChangeAccessModifiers (Set, base_prop.Set);
 						ok = false;
 					}
@@ -602,6 +585,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			if (MemberType.IsStatic)
 				Error_StaticReturnType ();
+
+			// Check to make sure property method return types match (PlayScript).
+			if (this.Location.SourceFile.FileType == SourceFileType.PlayScript && this.Get != null && this.Set != null) {
+				if (this.Set.ParameterTypes == null)
+					this.Set.ParameterInfo.Resolve(this.Set);
+				int valueParamIdx = this.Set.ParameterInfo.Count - 1;
+				if (this.Get.ReturnType != this.Set.ParameterTypes[valueParamIdx]) {
+					Report.Error (7002, Location, "Type of property getter and setter must match");
+				}
+			}
 		}
 
 		protected override void DoMemberTypeIndependentChecks ()
@@ -674,6 +667,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			if (OptAttributes != null)
 				OptAttributes.Emit ();
+
+			if (member_type == Module.Compiler.BuiltinTypes.AsUntyped)
+				Module.PredefinedAttributes.AsUntypedAttribute.EmitAttribute (PropertyBuilder);
 
 			if (member_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
 				Module.PredefinedAttributes.Dynamic.EmitAttribute (PropertyBuilder);
@@ -793,6 +789,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit && visitor.Depth >= VisitDepth.MethodBodies) {
+				if (visitor.Continue && Get != null && visitor.Depth >= VisitDepth.MethodBodies)
+					Get.Accept (visitor);
+				if (visitor.Continue && Set != null && visitor.Depth >= VisitDepth.MethodBodies)
+					Set.Accept (visitor);
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -842,7 +845,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				Set.ModFlags |= Modifiers.COMPILER_GENERATED;
 			}
 		}
-		
+
 		public override bool Define ()
 		{
 			if (!base.Define ())
@@ -1150,6 +1153,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && this.initializer != null && visitor.Depth >= VisitDepth.Initializers) {
+					initializer.Accept (visitor);
+				}
+
+				if (visitor.Continue && declarators != null && visitor.Depth >= VisitDepth.Initializers) {
+					foreach (var decl in declarators) {
+						if (visitor.Continue && decl.Initializer != null) {
+							decl.Initializer.Accept (visitor);
+						}
+					}
+				}
+			}
 		}
 
 		public void AddDeclarator (FieldDeclarator declarator)
@@ -1225,6 +1246,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			return true;
 		}
+
+		protected override bool ResolveMemberType ()
+		{
+			if (base.ResolveMemberType()) {
+				if (declarators != null) {
+					foreach (var decl in declarators) {
+						if (!decl.ResolveType (this, MemberType)) 
+							return false;
+					}
+				}
+				return true;
+			}
+			return false;
+		}
 	}
 
 	public abstract class Event : PropertyBasedMember
@@ -1267,7 +1302,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					return;
 				}
 
-				base.ApplyToExtraTarget (a, ctor, cdata, pa);
+				// NOTE: This is probably a stack overflow in C# as well, but we only see it happening in PlayScript, so disable it there.
+				if (this.Location.SourceFile == null || this.Location.SourceFile.FileType != SourceFileType.PlayScript)
+					base.ApplyToExtraTarget (a, ctor, cdata, pa);
 			}
 
 			public override AttributeTargets AttributeTargets {
@@ -1651,6 +1688,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && Get != null && visitor.Depth >= VisitDepth.MethodBodies)
+					Get.Accept (visitor);
+				if (visitor.Continue && Set != null && visitor.Depth >= VisitDepth.MethodBodies)
+					Set.Accept (visitor);
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -1667,7 +1715,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			return Parent.MemberCache.CheckExistingMembersOverloads (this, parameters);
 		}
-		
+
 		public override bool Define ()
 		{
 			if (!base.Define ())

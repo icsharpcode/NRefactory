@@ -68,6 +68,103 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			spec = new TypeSpec (Kind, null, this, null, ModFlags | Modifiers.SEALED);
 		}
 
+		public static TypeSpec CreateDelegateType (ResolveContext rc, AParametersCollection parameters, TypeSpec returnType, Location loc)
+		{
+			Namespace type_ns;
+			string paramsSuffix = "";
+			TypeSpec[] paramTypes = parameters.Types;
+			type_ns = rc.Module.GlobalRootNamespace.GetNamespace ("System", true);
+
+			// Do we have a PARAMS argument as the final argument?  (Only supported in PlayScript)
+			if (rc.FileType == SourceFileType.PlayScript && parameters.FixedParameters.Length > 0 && 
+				(parameters.FixedParameters [parameters.FixedParameters.Length - 1].ModFlags & Parameter.Modifier.PARAMS) != 0) {
+				paramsSuffix = "P";
+				TypeSpec[] newTypes = new TypeSpec[paramTypes.Length - 1];
+				Array.Copy (paramTypes, 0, newTypes, 0, newTypes.Length);
+				paramTypes = newTypes;
+				type_ns = rc.Module.GlobalRootNamespace.GetNamespace ("PlayScript", true);
+			}
+
+			if (type_ns == null) {
+				return null;
+			}
+
+			if (returnType == rc.BuiltinTypes.Void) {
+				var actArgs = paramTypes;
+				var actionType = type_ns.LookupAsType (rc.Module, "Action" + paramsSuffix, actArgs.Length, LookupMode.Normal, loc);
+				if (actionType == null) {
+					return rc.BuiltinTypes.Delegate;
+				}
+				var actionSpec = actionType.ResolveAsType(rc);
+				if (actionSpec == null) {
+					return null;
+				}
+				if (actArgs.Length == 0)
+					return actionSpec;
+				else
+					return actionSpec.MakeGenericType(rc, actArgs);
+			} else {
+				TypeSpec[] funcArgs = new TypeSpec[paramTypes.Length + 1];
+				paramTypes.CopyTo(funcArgs, 0);
+				funcArgs[paramTypes.Length] = returnType;
+				var funcSpec = type_ns.LookupAsType (rc.Module, "Func" + paramsSuffix, funcArgs.Length, LookupMode.Normal, loc).ResolveAsType(rc);
+				if (funcSpec == null) {
+					return rc.BuiltinTypes.Delegate;
+				}
+				return funcSpec.MakeGenericType(rc, funcArgs);
+			}
+		}
+
+		public static FullNamedExpression CreateDelegateTypeExpression (BuiltinTypes builtinTypes, ParametersCompiled parameters, FullNamedExpression retType, Location loc){
+
+			// Setup
+			bool hasParams = parameters != null && parameters.Count > 0;
+			int paramCount = hasParams ? parameters.Count : 0;
+			string ns = "System";
+			string paramSuffix = "";
+
+			// If last parameter is a PARAMS paramter, use the params versions of the delegate types
+			if (hasParams && (parameters.FixedParameters [parameters.FixedParameters.Length - 1].ModFlags & Parameter.Modifier.PARAMS) != 0) {
+				ns = "PlayScript";
+				paramSuffix = "P";
+				paramCount--;
+			}
+
+			// Check if this is Func or Action
+			bool hasRetType = !(retType is TypeExpression && ((TypeExpression)retType).Type == builtinTypes.Void);
+			int typeParamCount = paramCount;
+			if (hasRetType)
+				typeParamCount++;
+
+			// Create arguments list
+			TypeArguments typeArgs = null;
+			if (typeParamCount > 0) {
+				var typeArgArray = new FullNamedExpression[typeParamCount];
+				for (var i = 0; i < typeParamCount; i++) {
+					if (i < paramCount) {
+						var param = parameters.FixedParameters[i] as Parameter;
+						typeArgArray[i] = param.TypeExpression;
+					} else {
+						typeArgArray[i] = retType;
+					}
+				}
+				typeArgs = new TypeArguments (typeArgArray);
+			}
+
+			// Return the expression for the type we want
+			if (!hasRetType) {
+				return new MemberAccess(new SimpleName(ns, loc), "Action" + paramSuffix, typeArgs, loc);
+			} else {
+				return new MemberAccess(new SimpleName(ns, loc), "Func" + paramSuffix, typeArgs, loc);
+			}
+		}
+
+
+		public static TypeSpec CreateDelegateTypeFromMethodSpec (ResolveContext rc, MethodSpec ms, Location loc)
+		{
+			return CreateDelegateType (rc, ms.Parameters, ms.ReturnType, loc);
+		}
+
 		#region Properties
 		public TypeSpec MemberType {
 			get {
@@ -92,6 +189,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Accept (StructuralVisitor visitor)
 		{
 			visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return;
+				}
+				if (visitor.Continue && Members != null && Members.Count > 0) {
+					foreach (var member in Members) {
+						if (visitor.Continue)
+							member.Accept (visitor);
+					}
+				}
+			}
 		}
 
 		public override void ApplyAttributeBuilder (Attribute a, MethodSpec ctor, byte[] cdata, PredefinedAttributes pa)
@@ -313,11 +423,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			base.Emit ();
 
 			if (ReturnType.Type != null) {
-				if (ReturnType.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+				if (ReturnType.Type == Module.Compiler.BuiltinTypes.AsUntyped) {
 					return_attributes = new ReturnParameter (this, InvokeBuilder.MethodBuilder, Location);
+					Module.PredefinedAttributes.AsUntypedAttribute.EmitAttribute (return_attributes.Builder);
+				}
+
+				if (ReturnType.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+					return_attributes = return_attributes ?? new ReturnParameter (this, InvokeBuilder.MethodBuilder, Location);
 					Module.PredefinedAttributes.Dynamic.EmitAttribute (return_attributes.Builder);
 				} else if (ReturnType.Type.HasDynamicElement) {
-					return_attributes = new ReturnParameter (this, InvokeBuilder.MethodBuilder, Location);
+					return_attributes = return_attributes ?? new ReturnParameter (this, InvokeBuilder.MethodBuilder, Location);
 					Module.PredefinedAttributes.Dynamic.EmitAttribute (return_attributes.Builder, ReturnType.Type, Location);
 				}
 
@@ -419,7 +534,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (a.IsGenericParameter && b.IsGenericParameter)
 				return a == b;
 
-			return Convert.ImplicitReferenceConversionExists (a, b);
+			return Convert.ImplicitReferenceConversionExists (a, b, null, false);
 		}
 
 		public static string FullDelegateDesc (MethodSpec invoke_method)

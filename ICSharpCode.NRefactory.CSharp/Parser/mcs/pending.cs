@@ -122,6 +122,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			throw new NotImplementedException ();
 		}
+
+		public SourceFileType FileType {
+			get { return container.FileType; }
+		}
 	}
 
 	public class PendingImplementation

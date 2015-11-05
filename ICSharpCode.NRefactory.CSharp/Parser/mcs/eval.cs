@@ -20,6 +20,8 @@ using System.Reflection.Emit;
 using System.IO;
 using System.Text;
 using System.Linq;
+using Mono.CSharp;
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -103,6 +105,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			var loader = new DynamicLoader (importer, ctx);
 
+			CompilerCallableEntryPoint.Reset ();
 			RootContext.ToplevelTypes = module;
 
 			//var startup_files = new List<string> ();
@@ -131,6 +134,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		void Reset ()
 		{
+			CompilerCallableEntryPoint.PartialReset ();
+			
 			Location.Reset ();
 			Location.Initialize (ctx.SourceFiles);
 		}
@@ -159,7 +164,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		///
 		///   This is the base class that will host the code
 		///   executed by the Evaluator.  By default
-		///   this is the ICSharpCode.NRefactory.MonoCSharp.InteractiveBase class
+		///   this is the Mono.CSharp.InteractiveBase class
 		///   which is useful for interactive use.
 		///
 		///   By changing this property you can control the
@@ -235,8 +240,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 
 				bool partial_input;
+#if !PLAYSCRIPT_REPL
 				CSharpParser parser = ParseString (ParseMode.Silent, input, out partial_input);
-
+#else
+				PlayScriptParser parser = ParseString (ParseMode.Silent, input, out partial_input);
+#endif
 				// Terse mode, try to provide the trailing semicolon automatically.
 				if (parser == null && Terse && partial_input){
 					bool ignore;
@@ -399,7 +407,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					Init ();
 				
 				bool partial_input;
+#if !PLAYSCRIPT_REPL
 				CSharpParser parser = ParseString (ParseMode.GetCompletions, input, out partial_input);
+#else
+				var parser = ParseString (ParseMode.GetCompletions, input, out partial_input);
+				parser.parsing_playscript = source_file.PsExtended;
+#endif
 				if (parser == null){
 					return null;
 				}
@@ -610,7 +623,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		// @partial_input: if @silent is true, then it returns whether the
 		// parsed expression was partial, and more data is needed
 		//
+		//CSharpParser ParseString (ParseMode mode, string input, out bool partial_input)
+#if !PLAYSCRIPT_REPL
 		CSharpParser ParseString (ParseMode mode, string input, out bool partial_input)
+#else
+		PlayScriptParser ParseString (ParseMode mode, string input, out bool partial_input)
+#endif
 		{
 			partial_input = false;
 			Reset ();
@@ -637,8 +655,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			seekable.Position = 0;
 
 			source_file.DeclarationFound = false;
-			CSharpParser parser = new CSharpParser (seekable, source_file, new ParserSession ());
-
+			var session = new ParserSession ();
+#if !PLAYSCRIPT_REPL
+			CSharpParser parser = new CSharpParser (seekable, source_file, session);
+#else
+			var parser = new PlayScriptParser (seekable, source_file, session);
+			parser.parsing_playscript = source_file.PsExtended;
+#endif
 			if (kind == InputKind.StatementOrExpression){
 				parser.Lexer.putback_char = Tokenizer.EvalStatementParserCharacter;
 				parser.Lexer.parsing_block++;
@@ -657,6 +680,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			try {
 				parser.parse ();
+				// PlayScript needs to add generated code after parsing.
+				if (ctx.Settings.PsOnlyMode) {
+					Mono.PlayScript.CodeGenerator.GenerateCode(module, session, ctx.Report);
+				}
 			} finally {
 				if (ctx.Report.Errors != 0){
 					if (mode != ParseMode.ReportErrors  && parser.UnexpectedEOF)

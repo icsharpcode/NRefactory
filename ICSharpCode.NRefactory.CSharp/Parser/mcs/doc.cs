@@ -293,6 +293,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		FullNamedExpression ResolveMemberName (IMemberContext context, MemberName mn)
 		{
+//			// PlayScript - use absolute namespace resolution, not relative
+//			bool absolute_ns = loc.SourceFile != null && loc.SourceFile.FileType == SourceFileType.PlayScript;
+
+//			// FIXME: Default namespace lookups to C# resolution semantics (for now).  Need a way to determine if PlayScript absolute
+//			// namespace lookups should be used here.
+//			bool absolute_ns = false;
+
 			if (mn.Left == null)
 				return context.LookupNamespaceOrType (mn.Name, mn.Arity, LookupMode.Probing, Location.Null);
 
@@ -721,6 +728,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public FullNamedExpression LookupNamespaceAlias (string name)
 		{
 			throw new NotImplementedException ();
+		}
+
+		public SourceFileType FileType {
+			get {
+				return host.Location.SourceFile != null ? host.Location.SourceFile.FileType : SourceFileType.CSharp;
+			}
 		}
 	}
 

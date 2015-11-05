@@ -18,6 +18,7 @@ using System.IO;
 using System.Text;
 using System.Globalization;
 using System;
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp {
 
@@ -43,7 +44,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	public enum Target
 	{
-		Library, Exe, Module, WinExe
+		Library = 1, Exe = 2, Module = 4, WinExe = 8,
+		IsTextTarget = 48
 	}
 
 	public enum Platform
@@ -54,6 +56,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		X86,
 		X64,
 		IA64
+	}
+
+	public enum InliningMode
+	{
+		None,
+		Explicit,
+		Any
 	}
 
 	public class CompilerSettings
@@ -165,13 +174,98 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public bool WriteMetadataOnly;
 
-		readonly List<string> conditional_symbols;
+		readonly Dictionary<string,string> conditional_symbols;
 
 		readonly List<SourceFile> source_files;
 
 		List<int> warnings_as_error;
 		List<int> warnings_only;
 		HashSet<int> warning_ignore_table;
+
+		//
+		// Automatically seal any class with no derived classes.  (NOTE: Intended for AOT compilation)
+		//
+
+		public bool AutoSeal;
+		public bool AutoSealVerbosity;
+
+		//
+		// Settings controlling the enabling of components of the new dynamic runtime
+		//
+
+		// if true, then static calls to PSBinaryOperation.Addition(a,b) are used instead of binder
+		public bool NewDynamicRuntime_BinaryOps = false;
+		// if true, then static calls to PSUnaryOperation.xyz(a,b) are used instead of binder
+		public bool NewDynamicRuntime_UnaryOps = false;
+		// if true, dynamics are cast to boolean before performing logical operations
+		public bool NewDynamicRuntime_LogicalOps = false;
+		// if true, hasOwnProperty is statically called on dynamics
+		public bool NewDynamicRuntime_HasOwnProperty = false;
+		// if true, conversions use static calls to PSConverter.ConvertToXYZ
+		public bool NewDynamicRuntime_Convert = false;
+		// if true, conversions will be removed around dynamic statements
+		public bool NewDynamicRuntime_ConvertReturnType = false;
+		// if true, new get/set index call sites will be used
+		public bool NewDynamicRuntime_GetSetIndex = false;
+		// if true, new get/set member call sites will be used
+		public bool NewDynamicRuntime_GetSetMember = false;
+		// if true, both the true and false componets of a ?: will be cast to dynamic if either is dynamic
+		public bool NewDynamicRuntime_Conditional = false;
+		// if true, event add/remove binders will be disabled
+		public bool NewDynamicRuntime_EventAddRemove = false;
+		// if true, PSInvokeMember non-delegate invokes are used
+		public bool NewDynamicRuntime_InvokeMember = false;
+		// if true, PSInvoke non-delegate invokes are used for calling Functions
+		public bool NewDynamicRuntime_Invoke = false;
+		// if true, toString/ToString is statically called on dynamics
+		public bool NewDynamicRuntime_ToString = false;
+		// if true, dynamic Constructor will be resolved at compile time if possible
+		public bool NewDynamicRuntime_Constructor = false;
+		// if true, type hints will be used for expression resolving
+		public bool NewDynamicRuntime_TypeHint = false;
+
+		public void SetNewDynamicRuntimeEnable(bool value)
+		{
+			NewDynamicRuntime_BinaryOps = value;
+			NewDynamicRuntime_UnaryOps = value;
+			NewDynamicRuntime_LogicalOps = value;
+			NewDynamicRuntime_HasOwnProperty = value;
+			NewDynamicRuntime_Convert = value;
+			NewDynamicRuntime_ConvertReturnType = value;
+			NewDynamicRuntime_GetSetIndex = value;
+			NewDynamicRuntime_GetSetMember = value;
+			NewDynamicRuntime_Conditional = value;
+			NewDynamicRuntime_EventAddRemove = value;
+			NewDynamicRuntime_InvokeMember = value;
+			NewDynamicRuntime_Invoke = value;
+			NewDynamicRuntime_ToString = value;
+			NewDynamicRuntime_Constructor = value;
+			NewDynamicRuntime_TypeHint = value;
+		}
+
+		//
+		// Allow dynamic code at the top level of a program.
+		//
+
+		public bool AllowDynamic = true;
+
+		//
+		// Whether to enable PlayScript strict mode. Defaults to true.
+		//
+
+		public bool PsStrictMode = true;
+
+		//
+		// Whether to enable PlayScript compiler only mode. Defaults to false.
+		//
+
+		public bool PsOnlyMode = false;
+
+		//
+		// Inlining mode for source level inliner (none, explicit, any)
+		//
+
+		public InliningMode Inlining = InliningMode.None;
 
 		public CompilerSettings ()
 		{
@@ -186,6 +280,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			StdLibRuntimeVersion = RuntimeVersion.v4;
 			WarningLevel = 4;
 
+			// Turn Dynamic Runtime on by default
+			SetNewDynamicRuntimeEnable(true);
+
 			// Default to 1 or mdb files would be platform speficic
 			TabSize = 1;
 
@@ -194,11 +291,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			Modules = new List<string> ();
 			ReferencesLookupPaths = new List<string> ();
 
-			conditional_symbols = new List<string> ();
+			conditional_symbols = new Dictionary<string,string> ();
 			//
 			// Add default mcs define
 			//
-			conditional_symbols.Add ("__MonoCS__");
+			conditional_symbols.Add ("__MonoCS__", "true");
 
 			source_files = new List<SourceFile> ();
 		}
@@ -231,10 +328,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		#endregion
 
-		public void AddConditionalSymbol (string symbol)
+		public void AddConditionalSymbol (string symbol, string value = "true")
 		{
-			if (!conditional_symbols.Contains (symbol))
-				conditional_symbols.Add (symbol);
+			if (!conditional_symbols.ContainsKey (symbol))
+				conditional_symbols.Add (symbol, value);
 		}
 
 		public void AddWarningAsError (int id)
@@ -255,7 +352,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public bool IsConditionalSymbolDefined (string symbol)
 		{
-			return conditional_symbols.Contains (symbol);
+			return conditional_symbols.ContainsKey (symbol);
+		}
+
+		public string GetConditionalSymbolValue (string symbol)
+		{
+			return conditional_symbols [symbol];
 		}
 
 		public bool IsWarningAsError (int code)
@@ -340,15 +442,32 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		void About ()
 		{
+#if PLAYSCRIPT
 			output.WriteLine (
-				"The Mono C# compiler is Copyright 2001-2011, Novell, Inc.\n\n" +
+				"The PlayScript compiler parts Copyright 2013, Zynga, Inc.\n" + 
+				"Based on Mono MCS Compiler Copyright 2001-2011, Novell, Inc.\n\n" +
 				"The compiler source code is released under the terms of the \n" +
 				"MIT X11 or GNU GPL licenses\n\n" +
+
+				"For more information on PlayScript, visit the project Web site\n" +
+				"   http://playscriptredux.github.io/\n\n" +
 
 				"For more information on Mono, visit the project Web site\n" +
 				"   http://www.mono-project.com\n\n" +
 
+				"The compiler was written by Miguel de Icaza, Ravi Pratap, Martin Baulig, Marek Safar, Raja R Harinath, Atushi Enomoto\n" +
+				"The PlayScript/ActionScript compiler was written by Ben Cooley and Icer Addis - Zynga");
+#else
+			output.WriteLine (
+				"The Mono C# compiler is Copyright 2001-2011, Novell, Inc.\n\n" +
+				"The compiler source code is released under the terms of the \n" +
+				"MIT X11 or GNU GPL licenses\n\n" +
+				
+				"For more information on Mono, visit the project Web site\n" +
+				"   http://www.mono-project.com\n\n" +
+				
 				"The compiler was written by Miguel de Icaza, Ravi Pratap, Martin Baulig, Marek Safar, Raja R Harinath, Atushi Enomoto");
+#endif
 		}
 
 		public CompilerSettings ParseArguments (string[] args)
@@ -701,6 +820,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			case "/t":
 			case "/target":
+				bool is_dotnet = true;
 				switch (value) {
 				case "exe":
 					settings.Target = Target.Exe;
@@ -721,8 +841,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					break;
 
 				default:
-					report.Error (2019, "Invalid target type for -target. Valid options are `exe', `winexe', `library' or `module'");
+					report.Error (2019, "Invalid target type for -target. Valid options are `exe', `winexe', `library', `module'");
 					return ParseResult.Error;
+				}
+				if (is_dotnet) {
+					settings.AddConditionalSymbol ("TARGET_IL");
 				}
 				return ParseResult.Success;
 
@@ -753,6 +876,61 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				// nothing.
 				return ParseResult.Success;
 
+			case "/inline":
+				if (value.Length == 0) {
+					Error_RequiresArgument (option);
+					return ParseResult.Error;
+				}
+
+				switch (value.ToLowerInvariant ()) {
+					case "none":
+					settings.Inlining = InliningMode.None;
+					break;
+					case "explicit":
+					settings.Inlining = InliningMode.Explicit;
+					break;
+					case "any":
+					settings.Inlining = InliningMode.Any;
+					break;
+					default:
+					report.Error (1672, "Invalid -inline option `{0}'. Valid options are `none', `explicit', `any'",
+					              value);
+					return ParseResult.Error;
+				}
+
+				return ParseResult.Success;
+			
+			case "/autoseal":
+			case "/autoseal+":
+				settings.AutoSeal = true;
+				return ParseResult.Success;
+
+			case "/autoseal-":
+				settings.AutoSeal = false;
+				return ParseResult.Success;
+
+			case "/newdynamic":
+			case "/newdynamic+":
+				settings.SetNewDynamicRuntimeEnable(true);
+				return ParseResult.Success;
+
+			case "/newdynamic-":
+				settings.SetNewDynamicRuntimeEnable(false);
+				return ParseResult.Success;
+
+			case "/autoseal_verbosity":
+			case "/autoseal_verbosity+":
+				settings.AutoSealVerbosity = true;
+				return ParseResult.Success;
+			
+			case "/autoseal_verbosity-":
+				settings.AutoSealVerbosity = false;
+				return ParseResult.Success;
+			
+			case "/dynamic-":
+				settings.AllowDynamic = false;
+				return ParseResult.Success;
+
 			case "/d":
 			case "/define": {
 					if (value.Length == 0) {
@@ -762,12 +940,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 					foreach (string d in value.Split (argument_value_separator)) {
 						string conditional = d.Trim ();
+						string conditionalValue = "true"; // NOTE: This is only ever used by PlayScript!
+						string[] conditionalArgs = conditional.Split (new char[] { '=' });
+						if (conditionalArgs.Length == 2) {
+							conditional = conditionalArgs [0].Trim ();
+							conditionalValue = conditionalArgs [1].Trim ();
+						}
 						if (!Tokenizer.IsValidIdentifier (conditional)) {
 							report.Warning (2029, 1, "Invalid conditional define symbol `{0}'", conditional);
 							continue;
 						}
 
-						settings.AddConditionalSymbol (conditional);
+						settings.AddConditionalSymbol (conditional, conditionalValue);
 					}
 					return ParseResult.Success;
 				}
@@ -930,7 +1114,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return ParseResult.Success;
 
 			case "/debug":
-				if (value.Equals ("full", StringComparison.OrdinalIgnoreCase) || value.Equals ("pdbonly", StringComparison.OrdinalIgnoreCase) || idx < 0) {
+				if (value.Equals ("+", StringComparison.OrdinalIgnoreCase) || value.Equals ("full", StringComparison.OrdinalIgnoreCase) || value.Equals ("pdbonly", StringComparison.OrdinalIgnoreCase) || idx < 0) {
 					settings.GenerateDebugInfo = true;
 					return ParseResult.Success;
 				}
@@ -974,7 +1158,23 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				settings.Unsafe = false;
 				return ParseResult.Success;
 
-			case "/warnaserror":
+			case "/psstrict-":
+				settings.PsStrictMode = false;
+				return ParseResult.Success;
+
+			case "/psstrict+":
+				settings.PsStrictMode = true;
+				return ParseResult.Success;
+                    
+            case "/psonlymode-":
+				settings.PsOnlyMode = false;
+                return ParseResult.Success;
+
+            case "/psonlymode+":
+				settings.PsOnlyMode = true;
+                return ParseResult.Success;
+
+				case "/warnaserror":
 			case "/warnaserror+":
 				if (value.Length == 0) {
 					settings.WarningsAreErrors = true;
@@ -1071,6 +1271,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				return ParseResult.Success;
 
+            // We just ignore this.
+            case "/errorendlocation":
+            case "/highentropyva-":
+            case "/highentropyva+":
+            case "/highentropyva":
+            case "/utf8output":
+                return ParseResult.Success;
+
+            // We just ignore this.
+            case "/preferreduilang":
+                switch (value.ToLowerInvariant())
+                {
+                    default:
+                        return ParseResult.Success;
+                }
+                   
 			case "/helpinternal":
 				OtherFlags ();
 				return ParseResult.Stop;
@@ -1530,9 +1746,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		void Usage ()
 		{
 			output.WriteLine (
+#if PLAYSCRIPT
+				"PlayScript compiler, parts Copyright 2013 Zynga, Inc.\n" +
+				"Based on MCS compiler Copyright 2001-2011 Novell, Inc., Copyright 2011-2012 Xamarin, Inc\n" +
+				"playc [options] source-files\n" +
+				"   --about              About the PlayScript compiler\n" +
+
+#else 
 				"Mono C# compiler, Copyright 2001-2011 Novell, Inc., Copyright 2011-2012 Xamarin, Inc\n" +
 				"mcs [options] source-files\n" +
 				"   --about              About the Mono C# compiler\n" +
+#endif
 				"   -addmodule:M1[,Mn]   Adds the module to the generated assembly\n" +
 				"   -checked[+|-]        Sets default aritmetic overflow context\n" +
 				"   -clscheck[+|-]       Disables CLS Compliance verifications\n" +

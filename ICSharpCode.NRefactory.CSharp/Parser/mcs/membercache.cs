@@ -1357,6 +1357,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public bool CheckExistingMembersOverloads (MemberCore member, string name, AParametersCollection parameters)
 		{
+			// Check if we are PlayScript class
+			bool is_playscript = member.Parent.FileType == SourceFileType.PlayScript;
+
 			IList<MemberSpec> entries;
 			if (!member_hash.TryGetValue (name, out entries))
 				return false;
@@ -1376,6 +1379,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 				// Ignore merged interface members
 				if (member.Parent.PartialContainer != ce.DeclaringType.MemberDefinition)
+					continue;
+
+				// PlayScript - Permit methods of the same name/params/arity where one is static and the other is non-static.
+				if (is_playscript && (member.ModFlags & Modifiers.STATIC) != (ce.Modifiers & Modifiers.STATIC))
 					continue;
 
 				var p_types = pd.Types;
@@ -1515,5 +1522,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			return true;
 		}
+
 	}
 }

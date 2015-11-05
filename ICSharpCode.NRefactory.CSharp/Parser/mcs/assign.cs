@@ -290,7 +290,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	///   The Assign node takes care of assigning the value of source into
 	///   the expression represented by target.
 	/// </summary>
-	public abstract class Assign : ExpressionStatement {
+	public abstract partial class Assign : ExpressionStatement {
 		protected Expression target, source;
 
 		protected Assign (Expression target, Expression source, Location loc)
@@ -330,6 +330,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		protected override Expression DoResolve (ResolveContext ec)
 		{
 			bool ok = true;
+
 			source = source.Resolve (ec);
 						
 			if (source == null) {
@@ -441,7 +442,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.target != null)
+					this.target.Accept (visitor);
+				if (visitor.Continue && this.source != null)
+					this.source.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -482,7 +496,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.source != null)
+					this.source.Accept (visitor);
+				if (visitor.Continue && this.target != null)
+					this.target.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 		public override void FlowAnalysis (FlowAnalysisContext fc)
@@ -527,7 +554,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		protected override Expression ResolveConversions (ResolveContext ec)
 		{
-			source = EmptyCast.Create (source, target.Type);
+			source = EmptyCast.Create (source, target.Type, ec);
 			return this;
 		}
 	}
@@ -713,10 +740,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	//
 	// This class is used for compound assignments.
 	//
-	public class CompoundAssign : Assign
+	public partial class CompoundAssign : Assign
 	{
 		// This is just a hack implemented for arrays only
-		public sealed class TargetExpression : Expression
+		public sealed partial class TargetExpression : Expression
 		{
 			readonly Expression child;
 
@@ -758,7 +785,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		readonly Binary.Operator op;
 		Expression right;
 		Expression left;
-		
+
 		public Binary.Operator Op {
 			get {
 				return op;
@@ -858,21 +885,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (target is DynamicMemberBinder) {
 					source = new DynamicMemberBinder (ma.Name, binder_flags, args, loc).Resolve (ec);
 
-					// Handles possible event addition/subtraction
-					if (op == Binary.Operator.Addition || op == Binary.Operator.Subtraction) {
-						args = new Arguments (targs.Count + 1);
-						args.AddRange (targs);
-						args.Add (new Argument (right));
-						string method_prefix = op == Binary.Operator.Addition ?
-							Event.AEventAccessor.AddPrefix : Event.AEventAccessor.RemovePrefix;
+					if (!ec.Module.Compiler.Settings.NewDynamicRuntime_EventAddRemove || (ec.FileType != SourceFileType.PlayScript)) 
+					{
+						// Handles possible event addition/subtraction
+						if (op == Binary.Operator.Addition || op == Binary.Operator.Subtraction) {
+							args = new Arguments (targs.Count + 1);
+							args.AddRange (targs);
+							args.Add (new Argument (right));
+							string method_prefix = op == Binary.Operator.Addition ?
+								Event.AEventAccessor.AddPrefix : Event.AEventAccessor.RemovePrefix;
 
-						var invoke = DynamicInvocation.CreateSpecialNameInvoke (
-							new MemberAccess (right, method_prefix + ma.Name, loc), args, loc).Resolve (ec);
+							var invoke = DynamicInvocation.CreateSpecialNameInvoke (
+								new MemberAccess (right, method_prefix + ma.Name, loc), args, loc).Resolve (ec);
 
-						args = new Arguments (targs.Count);
-						args.AddRange (targs);
-						source = new DynamicEventCompoundAssign (ma.Name, args,
-							(ExpressionStatement) source, (ExpressionStatement) invoke, loc).Resolve (ec);
+							args = new Arguments (targs.Count);
+							args.AddRange (targs);
+							source = new DynamicEventCompoundAssign (ma.Name, args,
+								(ExpressionStatement) source, (ExpressionStatement) invoke, loc).Resolve (ec);
+						}
 					}
 				} else {
 					source = new DynamicIndexBinder (binder_flags, args, loc).Resolve (ec);
@@ -962,7 +992,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.target != null)
+					this.target.Accept (visitor);
+				if (visitor.Continue && this.source != null)
+					this.source.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 }

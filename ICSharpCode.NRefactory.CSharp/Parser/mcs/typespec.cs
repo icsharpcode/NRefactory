@@ -34,6 +34,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		protected IList<TypeSpec> ifaces;
 		TypeSpec base_type;
 
+		// Are we dynamic, have we checked yet?
+		protected bool isAsDynamicSet;
+		protected bool isAsDynamic;
+
 		Dictionary<TypeSpec[], InflatedTypeSpec> inflated_instances;
 
 		public static readonly TypeSpec[] EmptyTypes = new TypeSpec[0];
@@ -154,6 +158,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public bool IsClass {
 			get {
 				return Kind == MemberKind.Class;
+			}
+		}
+
+		// True if this type is an ActionScript dynamic class.
+		public bool IsAsDynamicClass {
+			get {
+				if (!isAsDynamicSet) {	
+					// We are always dynamic if our builtin type is "dynamic", but we could also be dynamic if we're a
+					// dynamic class.
+					isAsDynamic = this.definition != null && ((ITypeDefinition)this.definition).IsAsDynamicClass;
+					isAsDynamicSet = true;
+				}
+				return isAsDynamic;
 			}
 		}
 
@@ -337,6 +354,49 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		public virtual bool IsNumeric {
+			get {
+				switch (BuiltinType) {
+				case BuiltinTypeSpec.Type.Byte:
+				case BuiltinTypeSpec.Type.SByte:
+				case BuiltinTypeSpec.Type.Char:
+				case BuiltinTypeSpec.Type.Short:
+				case BuiltinTypeSpec.Type.UShort:
+				case BuiltinTypeSpec.Type.Int:
+				case BuiltinTypeSpec.Type.UInt:
+				case BuiltinTypeSpec.Type.Long:
+				case BuiltinTypeSpec.Type.ULong:
+				case BuiltinTypeSpec.Type.Float:
+				case BuiltinTypeSpec.Type.Double:
+				case BuiltinTypeSpec.Type.Decimal:
+				case BuiltinTypeSpec.Type.IntPtr:
+				case BuiltinTypeSpec.Type.UIntPtr:
+				case BuiltinTypeSpec.Type.Enum:
+					return true;
+				default:
+					return false;
+				}
+			}
+		}
+
+		public bool IsDynamic {
+			get {
+				return BuiltinType == BuiltinTypeSpec.Type.Dynamic;
+			}
+		}
+
+		//
+		// There is a distinction between the "Object" and "*" types in ActionScript. The
+		// former adds a small amount of type safety (i.e. it disallows numeric operators),
+		// whereas the latter is fully dynamic, and is the only type that can contain the
+		// value of "undefined".
+		//
+		public bool IsAsUntyped {
+			get {
+				return IsDynamic && (Modifiers & Modifiers.AS_UNTYPED) != 0;
+			}
+		}
+
 		//
 		// A cache of all type members (including nested types)
 		//
@@ -490,22 +550,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		//
 		// Text representation of type used by documentation writer
 		//
-		public sealed override string GetSignatureForDocumentation ()
-		{
-			return GetSignatureForDocumentation (false);
-		}
-
-		public virtual string GetSignatureForDocumentation (bool explicitName)
+		public override string GetSignatureForDocumentation ()
 		{
 			StringBuilder sb = new StringBuilder ();
 			if (IsNested) {
-				sb.Append (DeclaringType.GetSignatureForDocumentation (explicitName));
-			} else if (MemberDefinition.Namespace != null) {
-				sb.Append (explicitName ? MemberDefinition.Namespace.Replace ('.', '#') : MemberDefinition.Namespace);
+				sb.Append (DeclaringType.GetSignatureForDocumentation ());
+			} else {
+				sb.Append (MemberDefinition.Namespace);
 			}
 
 			if (sb.Length != 0)
-				sb.Append (explicitName ? "#" : ".");
+				sb.Append (".");
 
 			sb.Append (Name);
 			if (Arity > 0) {
@@ -515,13 +570,40 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				        if (i > 0)
 				            sb.Append (",");
 
-						sb.Append (TypeArguments[i].GetSignatureForDocumentation (explicitName));
+				        sb.Append (TypeArguments[i].GetSignatureForDocumentation ());
 				    }
 				    sb.Append ("}");
 				} else {
 					sb.Append ("`");
 					sb.Append (Arity.ToString ());
 				}
+			}
+
+			return sb.ToString ();
+		}
+
+		public string GetExplicitNameSignatureForDocumentation ()
+		{
+			StringBuilder sb = new StringBuilder ();
+			if (IsNested) {
+				sb.Append (DeclaringType.GetExplicitNameSignatureForDocumentation ());
+			} else if (MemberDefinition.Namespace != null) {
+				sb.Append (MemberDefinition.Namespace.Replace ('.', '#'));
+			}
+
+			if (sb.Length != 0)
+				sb.Append ("#");
+
+			sb.Append (Name);
+			if (Arity > 0) {
+				sb.Append ("{");
+				for (int i = 0; i < Arity; ++i) {
+					if (i > 0)
+						sb.Append (",");
+
+					sb.Append (TypeArguments[i].GetExplicitNameSignatureForDocumentation ());
+				}
+				sb.Append ("}");
 			}
 
 			return sb.ToString ();
@@ -857,6 +939,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			IEnumerator,
 			IEnumerable,
 			IDisposable,
+			IList,
+			IDictionary,
 			Exception,
 			Attribute,
 			Other,
@@ -1183,7 +1267,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				var t2_targs = type2.TypeArguments;
 				var targs_definition = target_type_def.TypeParameters;
 
-				if (!type1.IsInterface && !type1.IsDelegate) {
+				if (!type1.IsInterface && !type1.IsDelegate || t1_targs.Length != t2_targs.Length) {  // !!!: Need to confirm interfaces have same number of targs
 					return false;
 				}
 
@@ -1197,9 +1281,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					}
 
 					if (v == Variance.Covariant) {
-						if (!Convert.ImplicitReferenceConversionExists (t1_targs[i], t2_targs[i]))
+						if (!Convert.ImplicitReferenceConversionExists (t1_targs[i], t2_targs[i], null, false))
 							return false;
-					} else if (!Convert.ImplicitReferenceConversionExists (t2_targs[i], t1_targs[i])) {
+					} else if (!Convert.ImplicitReferenceConversionExists (t2_targs[i], t1_targs[i], null, false)) {
 						return false;
 					}
 				}
@@ -1408,6 +1492,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		int TypeParametersCount { get; }
 		TypeParameterSpec[] TypeParameters { get; }
 
+		// ActionScript : Class types we need to know about.
+		bool IsAsDynamicClass { get; }
+		bool IsAsBindableClass { get; }
+
 		TypeSpec GetAttributeCoClass ();
 		string GetAttributeDefaultMember ();
 		AttributeUsageAttribute GetAttributeUsage (PredefinedAttribute pa);
@@ -1454,6 +1542,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		}
 
 		bool ITypeDefinition.IsComImport {
+			get {
+				return false;
+			}
+		}
+
+		bool ITypeDefinition.IsAsDynamicClass {
+			get {
+				return false;
+			}
+		}
+		
+		bool ITypeDefinition.IsAsBindableClass {
 			get {
 				return false;
 			}
@@ -1601,6 +1701,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		bool ITypeDefinition.IsAsDynamicClass {
+			get {
+				return false;
+			}
+		}
+		
+		bool ITypeDefinition.IsAsBindableClass {
+			get {
+				return false;
+			}
+		}
+
 		bool ITypeDefinition.IsPartial {
 			get {
 				return false;
@@ -1637,9 +1749,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return null;
 		}
 
-		public override string GetSignatureForDocumentation (bool explicitName)
+		public override string GetSignatureForDocumentation ()
 		{
-			return Element.GetSignatureForDocumentation (explicitName) + GetPostfixSignature ();
+			return Element.GetSignatureForDocumentation () + GetPostfixSignature ();
 		}
 
 		public override string GetSignatureForError ()
@@ -1872,33 +1984,29 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return sb.ToString ();
 		}
 
-		public override string GetSignatureForDocumentation (bool explicitName)
+		public override string GetSignatureForDocumentation ()
 		{
 			StringBuilder sb = new StringBuilder ();
-			GetElementSignatureForDocumentation (sb, explicitName);
+			GetElementSignatureForDocumentation (sb);
 			return sb.ToString ();
 		}
 
-		void GetElementSignatureForDocumentation (StringBuilder sb, bool explicitName)
+		void GetElementSignatureForDocumentation (StringBuilder sb)
 		{
 			var ac = Element as ArrayContainer;
 			if (ac == null)
-				sb.Append (Element.GetSignatureForDocumentation (explicitName));
+				sb.Append (Element.GetSignatureForDocumentation ());
 			else
-				ac.GetElementSignatureForDocumentation (sb, explicitName);
+				ac.GetElementSignatureForDocumentation (sb);
 
-			if (explicitName) {
-				sb.Append (GetPostfixSignature (rank));
-			} else {
-				sb.Append ("[");
-				for (int i = 1; i < rank; i++) {
-					if (i == 1)
-						sb.Append ("0:");
+			sb.Append ("[");
+			for (int i = 1; i < rank; i++) {
+				if (i == 1)
+					sb.Append ("0:");
 
-					sb.Append (",0:");
-				}
-				sb.Append ("]");
+				sb.Append (",0:");
 			}
+			sb.Append ("]");
 		}
 
 		public static ArrayContainer MakeType (ModuleContainer module, TypeSpec element)
@@ -1988,6 +2096,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			return pc;
 		}
+
 	}
 
 	public class MissingTypeSpecReference
@@ -2001,4 +2110,5 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public TypeSpec Type { get; private set; }
 		public MemberSpec Caller { get; private set; }
 	}
+
 }

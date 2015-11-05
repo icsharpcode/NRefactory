@@ -17,6 +17,7 @@ using System.Globalization;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -64,15 +65,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		// build-in type (mostly object)
 		//
 		public readonly BuiltinTypeSpec Dynamic;
+		public readonly BuiltinTypeSpec AsUntyped;
 
 		// Predefined operators tables
 		public readonly Binary.PredefinedOperator[] OperatorsBinaryStandard;
+		public readonly Binary.PredefinedOperator[] AsOperatorsBinaryStandard; // PlayScript - Include additional implicit conversion matches
 		public readonly Binary.PredefinedOperator[] OperatorsBinaryEquality;
+		public readonly Binary.PredefinedOperator[] AsOperatorsBinaryEquality;  // PlayScript - Include additional implicit conversion matches
 		public readonly Binary.PredefinedOperator[] OperatorsBinaryUnsafe;
 		public readonly TypeSpec[][] OperatorsUnary;
 		public readonly TypeSpec[] OperatorsUnaryMutator;
 
 		public readonly TypeSpec[] BinaryPromotionsTypes;
+		public readonly TypeSpec[] AsBinaryPromotionsTypes;  // PlayScript binary promotion types - includes BOOL.
+		public readonly TypeSpec[] SwitchUserTypes;
 
 		readonly BuiltinTypeSpec[] types;
 
@@ -116,14 +122,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			// TODO: Maybe I should promote it to different kind for faster compares
 			Dynamic = new BuiltinTypeSpec ("dynamic", BuiltinTypeSpec.Type.Dynamic);
+			AsUntyped = new BuiltinTypeSpec ("*", BuiltinTypeSpec.Type.Dynamic);
 
 			OperatorsBinaryStandard = Binary.CreateStandardOperatorsTable (this);
+			AsOperatorsBinaryStandard = Binary.CreateAsStandardOperatorsTable (this);
 			OperatorsBinaryEquality = Binary.CreateEqualityOperatorsTable (this);
+			AsOperatorsBinaryEquality = Binary.CreateAsEqualityOperatorsTable (this);
 			OperatorsBinaryUnsafe = Binary.CreatePointerOperatorsTable (this);
 			OperatorsUnary = Unary.CreatePredefinedOperatorsTable (this);
 			OperatorsUnaryMutator = UnaryMutator.CreatePredefinedOperatorsTable (this);
 
 			BinaryPromotionsTypes = ConstantFold.CreateBinaryPromotionsTypes (this);
+
+			// PlayScript binary promotion types (includes bool).
+			AsBinaryPromotionsTypes = ConstantFold.CreateAsBinaryPromotionsTypes (this);
+//			SwitchUserTypes = Switch.CreateSwitchUserTypes (this);
 
 			types = new BuiltinTypeSpec[] {
 				Object, ValueType, Attribute,
@@ -161,6 +174,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			// Set internal build-in types
 			Dynamic.SetDefinition (Object);
+			AsUntyped.SetDefinition (Object);
+			AsUntyped.Modifiers |= Modifiers.AS_UNTYPED;
 
 			return true;
 		}
@@ -188,6 +203,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public readonly PredefinedType ICollectionGeneric;
 		public readonly PredefinedType IReadOnlyCollectionGeneric;
 		public readonly PredefinedType IEnumerableGeneric;
+		public readonly PredefinedType IDictionaryGeneric;
+		public readonly PredefinedType IList;
+		public readonly PredefinedType ICollection;
+		public readonly PredefinedType IDictionary;
 		public readonly PredefinedType Nullable;
 		public readonly PredefinedType Activator;
 		public readonly PredefinedType Interlocked;
@@ -197,7 +216,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public readonly PredefinedType RuntimeMethodHandle;
 		public readonly PredefinedType SecurityAction;
 		public readonly PredefinedType Dictionary;
+		public readonly PredefinedType KeyValuePair;
 		public readonly PredefinedType Hashtable;
+		public readonly PredefinedType List;
 		public readonly TypeSpec[] SwitchUserTypes;
 
 		//
@@ -227,16 +248,46 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public readonly PredefinedType AsyncTaskMethodBuilder;
 		public readonly PredefinedType AsyncTaskMethodBuilderGeneric;
 		public readonly PredefinedType Action;
+		public readonly PredefinedType Func;
 		public readonly PredefinedType Task;
 		public readonly PredefinedType TaskGeneric;
 		public readonly PredefinedType IAsyncStateMachine;
 		public readonly PredefinedType INotifyCompletion;
 		public readonly PredefinedType ICriticalNotifyCompletion;
 
-		// C# 6.0
-		public readonly PredefinedType IFormattable;
-		public readonly PredefinedType FormattableString;
-		public readonly PredefinedType FormattableStringFactory;
+		//
+		// Actionscript
+		//
+		public readonly PredefinedType AsExpandoObject;
+		public readonly PredefinedType AsVector;
+		public readonly PredefinedType AsArray;
+		public readonly PredefinedType AsError;
+		public readonly PredefinedType AsFunction;
+		public readonly PredefinedType AsUndefined;
+		public readonly PredefinedType AsCallSite;
+		public readonly PredefinedType AsCallSiteGeneric;
+		public readonly PredefinedType AsExpressionType;
+		public readonly PredefinedType AsBinder;
+		public readonly PredefinedType AsBinderFlags;
+		public readonly PredefinedType AsRegExp;
+		public readonly PredefinedType AsXml;
+		public readonly PredefinedType AsIKeyEnumerable;
+		public readonly PredefinedType AsDotNetError;
+
+		public readonly PredefinedType PsGetMember;
+		public readonly PredefinedType PsSetMember;
+		public readonly PredefinedType PsSetIndex;
+		public readonly PredefinedType PsGetIndex;
+		public readonly PredefinedType PsConverter;
+		public readonly PredefinedType PsBinaryOperation;
+		public readonly PredefinedType PsUnaryOperation;
+		public readonly PredefinedType PsInvokeMember;
+		public readonly PredefinedType PsInvoke;
+
+		// PlayScript dynamic binder AOT mode support..
+		private bool checkedAsDynamicMode = false;
+		private bool isAsDynamicMode = false;
+		private bool isAsAotMode = false;
 
 		public PredefinedTypes (ModuleContainer module)
 		{
@@ -256,6 +307,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			ICollectionGeneric = new PredefinedType (module, MemberKind.Interface, "System.Collections.Generic", "ICollection", 1);
 			IReadOnlyCollectionGeneric = new PredefinedType (module, MemberKind.Interface, "System.Collections.Generic", "IReadOnlyCollection", 1);
 			IEnumerableGeneric = new PredefinedType (module, MemberKind.Interface, "System.Collections.Generic", "IEnumerable", 1);
+			IDictionaryGeneric = new PredefinedType (module, MemberKind.Interface, "System.Collections.Generic", "IDictionary", 2);
+			IList = new PredefinedType (module, MemberKind.Interface, "System.Collections", "IList");
+			ICollection = new PredefinedType (module, MemberKind.Interface, "System.Collections", "ICollection");
+			IDictionary = new PredefinedType (module, MemberKind.Interface, "System.Collections", "IDictionary");
 			Nullable = new PredefinedType (module, MemberKind.Struct, "System", "Nullable", 1);
 			Activator = new PredefinedType (module, MemberKind.Class, "System", "Activator");
 			Interlocked = new PredefinedType (module, MemberKind.Class, "System.Threading", "Interlocked");
@@ -265,7 +320,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			RuntimeMethodHandle = new PredefinedType (module, MemberKind.Struct, "System", "RuntimeMethodHandle");
 			SecurityAction = new PredefinedType (module, MemberKind.Enum, "System.Security.Permissions", "SecurityAction");
 			Dictionary = new PredefinedType (module, MemberKind.Class, "System.Collections.Generic", "Dictionary", 2);
+			KeyValuePair = new PredefinedType (module, MemberKind.Struct, "System.Collections.Generic", "KeyValuePair", 2);
 			Hashtable = new PredefinedType (module, MemberKind.Class, "System.Collections", "Hashtable");
+			List = new PredefinedType (module, MemberKind.Class, "System.Collections.Generic", "List", 1);
 
 			Expression = new PredefinedType (module, MemberKind.Class, "System.Linq.Expressions", "Expression");
 			ExpressionGeneric = new PredefinedType (module, MemberKind.Class, "System.Linq.Expressions", "Expression", 1);
@@ -282,6 +339,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			BinderFlags = new PredefinedType (module, MemberKind.Enum, "Microsoft.CSharp.RuntimeBinder", "CSharpBinderFlags");
 
 			Action = new PredefinedType (module, MemberKind.Delegate, "System", "Action");
+			Func = new PredefinedType (module, MemberKind.Delegate, "System", "Func");
 			AsyncVoidMethodBuilder = new PredefinedType (module, MemberKind.Struct, "System.Runtime.CompilerServices", "AsyncVoidMethodBuilder");
 			AsyncTaskMethodBuilder = new PredefinedType (module, MemberKind.Struct, "System.Runtime.CompilerServices", "AsyncTaskMethodBuilder");
 			AsyncTaskMethodBuilderGeneric = new PredefinedType (module, MemberKind.Struct, "System.Runtime.CompilerServices", "AsyncTaskMethodBuilder", 1);
@@ -291,9 +349,31 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			INotifyCompletion = new PredefinedType (module, MemberKind.Interface, "System.Runtime.CompilerServices", "INotifyCompletion");
 			ICriticalNotifyCompletion = new PredefinedType (module, MemberKind.Interface, "System.Runtime.CompilerServices", "ICriticalNotifyCompletion");
 
-			IFormattable = new PredefinedType (module, MemberKind.Interface, "System", "IFormattable");
-			FormattableString = new PredefinedType (module, MemberKind.Class, "System", "FormattableString");
-			FormattableStringFactory = new PredefinedType (module, MemberKind.Class, "System.Runtime.CompilerServices", "FormattableStringFactory");
+			AsExpandoObject = new PredefinedType (module, MemberKind.Class, "PlayScript.Expando", "ExpandoObject");
+			AsArray = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "Array");
+			AsVector = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "Vector", 1);
+			AsError = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "Error");
+			AsFunction = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "Function");
+			AsUndefined = new PredefinedType (module, MemberKind.Class, "PlayScript", "Undefined");
+			AsCallSite = new PredefinedType (module, MemberKind.Class, "PlayScript", "CallSite");
+			AsCallSiteGeneric = new PredefinedType (module, MemberKind.Class, "PlayScript", "CallSite", 1);
+			AsExpressionType = new PredefinedType (module, MemberKind.Enum, "PlayScript", "ExpressionType");
+			AsBinder = new PredefinedType (module, MemberKind.Class, "PlayScript.RuntimeBinder", "Binder");
+			AsBinderFlags = new PredefinedType (module, MemberKind.Enum, "PlayScript.RuntimeBinder", "CSharpBinderFlags");
+			AsRegExp = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "RegExp");
+			AsXml = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "XML");
+			AsIKeyEnumerable = new PredefinedType (module, MemberKind.Interface, "PlayScript", "IKeyEnumerable");
+			AsDotNetError = new PredefinedType (module, MemberKind.Class, PsConsts.PsRootNamespace, "DotNetError");
+
+			PsGetMember = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSGetMember");
+			PsSetMember = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSSetMember");
+			PsGetIndex  = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSGetIndex");
+			PsSetIndex  = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSSetIndex");
+			PsConverter         = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSConverter");
+			PsBinaryOperation   = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSBinaryOperation");
+			PsUnaryOperation   = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSUnaryOperation");
+			PsInvokeMember  = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSInvokeMember");
+			PsInvoke  = new PredefinedType (module, MemberKind.Class, "PlayScript.DynamicRuntime", "PSInvoke");
 
 			//
 			// Define types which are used for comparison. It does not matter
@@ -330,10 +410,50 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (TaskGeneric.Define ())
 				TaskGeneric.TypeSpec.IsGenericTask = true;
 
-			SwitchUserTypes = Switch.CreateSwitchUserTypes (module, Nullable.TypeSpec);
+			AsUndefined.Define ();
 
-			IFormattable.Define ();
-			FormattableString.Define ();
+			SwitchUserTypes = Switch.CreateSwitchUserTypes (module, Nullable.TypeSpec);
+		}
+
+		private void CheckPlayScriptDynamicMode()
+		{
+			if (!checkedAsDynamicMode) {
+				isAsDynamicMode = AsBinder.Define ();  	// Using PlayScript dynamic support.
+				isAsAotMode = AsCallSite.Define ();		// Using PlayScript dynamic support, in AOT mode.
+				checkedAsDynamicMode = true;
+			}
+		}
+
+		public bool IsPlayScriptDynamicMode {
+			get {
+				if (!checkedAsDynamicMode)
+					CheckPlayScriptDynamicMode();
+				return isAsDynamicMode;
+			}
+		}
+
+		public bool IsPlayScriptAotMode {
+			get {
+				if (!checkedAsDynamicMode)
+					CheckPlayScriptDynamicMode();
+				return isAsAotMode;
+			}
+		}
+
+		public PredefinedType GetBinder(ResolveContext ec) {
+			if (IsPlayScriptDynamicMode) {
+				return AsBinder;
+			} else {
+				return Binder;
+			}
+		}
+
+		public PredefinedType GetBinderFlags(ResolveContext ec) {
+			if (IsPlayScriptDynamicMode) {
+				return AsBinderFlags;
+			} else {
+				return BinderFlags;
+			}
 		}
 	}
 
@@ -398,6 +518,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public readonly PredefinedMember<FieldSpec> StructLayoutCharSet;
 		public readonly PredefinedMember<FieldSpec> StructLayoutSize;
 		public readonly PredefinedMember<MethodSpec> TypeGetTypeFromHandle;
+		public readonly PredefinedMember<MethodSpec> AsIKeyEnumerableGetKeyEnumerator;
+		public readonly PredefinedMember<MethodSpec> AsUntypedAttributeCtor;
 
 		public PredefinedMembers (ModuleContainer module)
 		{
@@ -703,6 +825,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				MemberFilter.Field ("Size", btypes.Int));
 
 			TypeGetTypeFromHandle = new PredefinedMember<MethodSpec> (module, btypes.Type, "GetTypeFromHandle", btypes.RuntimeTypeHandle);
+
+			AsIKeyEnumerableGetKeyEnumerator = new PredefinedMember<MethodSpec> (module, types.AsIKeyEnumerable,
+			                                                             "GetKeyEnumerator", TypeSpec.EmptyTypes);
+
+			AsUntypedAttributeCtor = new PredefinedMember<MethodSpec> (module, atypes.AsUntypedAttribute, MemberFilter.Constructor (
+				ParametersCompiled.CreateFullyResolved (
+					ArrayContainer.MakeType (module, btypes.Bool))));
 		}
 	}
 
@@ -1102,7 +1231,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	{
 		return t is ElementTypeSpec;
 	}
-
+	
+	/// <summary>
+	///   Utility function to check whether a type is AsUndefined or not
+	/// </summary>
+	public static bool IsAsUndefined (TypeSpec type, ResolveContext opt_ec)
+	{
+		if (opt_ec == null)
+			return false;
+		
+		//
+		// AsUndefined is only defined if PlayScript.Dynamic is included, so
+		// we excplitily check if it has been defined, rather than calling
+		// Resolve.
+		//
+		if (opt_ec.Module.PredefinedTypes.AsUndefined.IsDefined && type == opt_ec.Module.PredefinedTypes.AsUndefined.TypeSpec)
+			return true;
+		
+		return false;
+	}
+	
 	/// <summary>
 	///   Utility function that can be used to probe whether a type
 	///   is managed or not.  

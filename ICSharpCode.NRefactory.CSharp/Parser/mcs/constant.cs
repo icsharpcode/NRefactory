@@ -24,7 +24,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	/// <summary>
 	///   Base class for constants and literals.
 	/// </summary>
-	public abstract class Constant : Expression
+	public abstract partial class Constant : Expression
 	{
 		static readonly NumberFormatInfo nfi = CultureInfo.InvariantCulture.NumberFormat;
 
@@ -60,7 +60,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public override void Error_ValueCannotBeConverted (ResolveContext ec, TypeSpec target, bool expl)
 		{
-			if (!expl && IsLiteral && type.BuiltinType != BuiltinTypeSpec.Type.Double &&
+			if (!expl && IsLiteral && 
 				BuiltinTypeSpec.IsPrimitiveTypeOrDecimal (target) &&
 				BuiltinTypeSpec.IsPrimitiveTypeOrDecimal (type)) {
 				ec.Report.Error (31, loc, "Constant value `{0}' cannot be converted to a `{1}'",
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 		public Constant ImplicitConversionRequired (ResolveContext ec, TypeSpec type)
 		{
-			Constant c = ConvertImplicitly (type);
+			Constant c = ConvertImplicitly (type, ec);
 			if (c == null)
 				Error_ValueCannotBeConverted (ec, type, false);
 
@@ -84,16 +84,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return false;
 		}
 
-		public virtual Constant ConvertImplicitly (TypeSpec type)
+		public virtual Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only = false)
 		{
 			if (this.type == type)
 				return this;
 
-			if (!Convert.ImplicitNumericConversionExists (this.type, type))
+			if (!Convert.ImplicitNumericConversionExists (this.type, type, opt_ec, upconvert_only)) 
 				return null;
 
 			bool fail;			
-			object constant_value = ChangeType (GetValue (), type, out fail);
+			object constant_value = ChangeType (GetValue (), type, opt_ec, out fail);
 			if (fail){
 				//
 				// We should always catch the error before this is ever
@@ -113,33 +113,33 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			switch (t.BuiltinType) {
 			case BuiltinTypeSpec.Type.Int:
-				return new IntConstant (t, (int) v, loc);
+				return new IntConstant (t, System.Convert.ToInt32 (v), loc);
 			case BuiltinTypeSpec.Type.String:
 				return new StringConstant (t, (string) v, loc);
 			case BuiltinTypeSpec.Type.UInt:
-				return new UIntConstant (t, (uint) v, loc);
+				return new UIntConstant (t, System.Convert.ToUInt32 (v), loc);
 			case BuiltinTypeSpec.Type.Long:
-				return new LongConstant (t, (long) v, loc);
+				return new LongConstant (t, System.Convert.ToInt64 (v), loc);
 			case BuiltinTypeSpec.Type.ULong:
-				return new ULongConstant (t, (ulong) v, loc);
+				return new ULongConstant (t, System.Convert.ToUInt64 (v), loc);
 			case BuiltinTypeSpec.Type.Float:
-				return new FloatConstant (t, (float) v, loc);
+				return new FloatConstant (t, System.Convert.ToSingle (v), loc);
 			case BuiltinTypeSpec.Type.Double:
-				return new DoubleConstant (t, (double) v, loc);
+				return new DoubleConstant (t, System.Convert.ToDouble (v), loc);
 			case BuiltinTypeSpec.Type.Short:
-				return new ShortConstant (t, (short) v, loc);
+				return new ShortConstant (t, System.Convert.ToInt16 (v), loc);
 			case BuiltinTypeSpec.Type.UShort:
-				return new UShortConstant (t, (ushort) v, loc);
+				return new UShortConstant (t, System.Convert.ToUInt16 (v), loc);
 			case BuiltinTypeSpec.Type.SByte:
-				return new SByteConstant (t, (sbyte) v, loc);
+				return new SByteConstant (t, System.Convert.ToSByte (v), loc);
 			case BuiltinTypeSpec.Type.Byte:
-				return new ByteConstant (t, (byte) v, loc);
+				return new ByteConstant (t, System.Convert.ToByte (v), loc);
 			case BuiltinTypeSpec.Type.Char:
-				return new CharConstant (t, (char) v, loc);
+				return new CharConstant (t, System.Convert.ToChar (v), loc);
 			case BuiltinTypeSpec.Type.Bool:
-				return new BoolConstant (t, (bool) v, loc);
+				return new BoolConstant (t, System.Convert.ToBoolean (v), loc);
 			case BuiltinTypeSpec.Type.Decimal:
-				return new DecimalConstant (t, (decimal) v, loc);
+				return new DecimalConstant (t, System.Convert.ToDecimal (v), loc);
 			}
 
 			if (t.IsEnum) {
@@ -258,11 +258,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		/// It throws OverflowException 
 		/// </summary>
 		// DON'T CALL THIS METHOD DIRECTLY AS IT DOES NOT HANDLE ENUMS
-		public abstract Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type);
+		public abstract Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec);
 
 		// This is a custom version of Convert.ChangeType() which works
 		// with the TypeBuilder defined types when compiling corlib.
-		static object ChangeType (object value, TypeSpec targetType, out bool error)
+		static object ChangeType (object value, TypeSpec targetType, ResolveContext opt_ec, out bool error)
 		{
 			IConvertible convert_value = value as IConvertible;
 
@@ -270,6 +270,36 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				error = true;
 				return null;
 			}
+
+			// PlayScript: Make sure we convert NaN, Ivaluenity, -Infinity, +Infinity to 0 for int conversions.
+			if (opt_ec != null && opt_ec.FileType == SourceFileType.PlayScript && (value is double || value is float)) {
+				switch (targetType.BuiltinType) {
+				case BuiltinTypeSpec.Type.Bool:
+				case BuiltinTypeSpec.Type.Byte:
+				case BuiltinTypeSpec.Type.SByte:
+				case BuiltinTypeSpec.Type.Char:
+				case BuiltinTypeSpec.Type.Short:
+				case BuiltinTypeSpec.Type.UShort:
+				case BuiltinTypeSpec.Type.Int:
+				case BuiltinTypeSpec.Type.UInt:
+				case BuiltinTypeSpec.Type.Long:
+				case BuiltinTypeSpec.Type.ULong:
+				case BuiltinTypeSpec.Type.Decimal:
+					if (value is double && 
+					    (double.IsNaN((double)value) || double.IsInfinity((double)value) || 
+					 double.IsNegativeInfinity((double)value) || double.IsPositiveInfinity((double)value)))
+					{
+						value = 0.0;
+					}
+					if (value is float && 
+					    (float.IsNaN((float)value) || float.IsInfinity((float)value) || 
+					 float.IsNegativeInfinity((float)value) || float.IsPositiveInfinity((float)value)))
+					{
+						value = 0.0f;
+					}
+					break;
+				}
+			} 
 
 			//
 			// We cannot rely on build-in type conversions as they are
@@ -346,7 +376,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 					Error_ValueCannotBeConverted (ec, target_type, false);
 				}
 
-				return New.Constantify (target_type, loc);
+				return New.Constantify (target_type, loc, ec.FileType);
 			}
 		}
 
@@ -380,7 +410,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				return new EnumConstant (c, target_type);
 			}
 
-			return ConvertExplicitly (ec.ConstantCheckState, target_type);
+			return ConvertExplicitly (ec.ConstantCheckState, target_type, ec);
 		}
 
 		/// <summary>
@@ -458,11 +488,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// It exists only as hint not to call Resolve on constants
 			return true;
 		}
-		
-		public override object Accept (StructuralVisitor visitor)
-		{
-			return visitor.Visit (this);
-		}
 
 	}
 
@@ -478,7 +503,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		public override void Error_ValueCannotBeConverted (ResolveContext ec, TypeSpec target, bool expl)
 		{
 			try {
-				ConvertExplicitly (true, target);
+				ConvertExplicitly (true, target, ec);
 				base.Error_ValueCannotBeConverted (ec, target, expl);
 			}
 			catch
@@ -494,6 +519,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 		
 		public abstract Constant Increment ();
+
 	}
 	
 	public class BoolConstant : Constant {
@@ -557,7 +583,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == false; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			return null;
 		}
@@ -626,7 +652,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.SByte:
@@ -749,7 +775,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == '\0'; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -854,7 +880,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -957,7 +983,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}		
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1070,7 +1096,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1179,7 +1205,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1235,7 +1261,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return null;
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec type)
+		public override Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only)
 		{
 			if (this.type == type)
 				return this;
@@ -1244,7 +1270,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (c != null)
 				return c; //.Resolve (rc);
 
-			return base.ConvertImplicitly (type);
+			return base.ConvertImplicitly (type, opt_ec, upconvert_only);
 		}
 
 		/// <summary>
@@ -1355,7 +1381,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1472,7 +1498,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1532,13 +1558,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return null;
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec type)
+		public override Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only)
 		{
 			if (Value >= 0 && type.BuiltinType == BuiltinTypeSpec.Type.ULong) {
 				return new ULongConstant (type, (ulong) Value, loc);
 			}
 
-			return base.ConvertImplicitly (type);
+			return base.ConvertImplicitly (type, opt_ec, upconvert_only);
 		}
 	}
 
@@ -1603,7 +1629,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return Value == 0; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1672,12 +1698,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			DoubleValue = v;
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec type)
+//		public override Constant ConvertImplicitly (TypeSpec type)
+		public override Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only = false)
 		{
 			if (type.BuiltinType == BuiltinTypeSpec.Type.Double)
 				return new DoubleConstant (type, DoubleValue, loc);
 
-			return base.ConvertImplicitly (type);
+			return base.ConvertImplicitly (type, opt_ec, upconvert_only);
 		}
 
 		public override void EncodeAttributeValue (IMemberContext rc, AttributeEncoder enc, TypeSpec targetType, TypeSpec parameterType)
@@ -1723,7 +1750,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1791,7 +1818,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 	}
 
-	public class DoubleConstant : Constant
+	public partial class DoubleConstant : Constant
 	{
 		public readonly double Value;
 
@@ -1846,7 +1873,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.Byte:
@@ -1911,6 +1938,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 
 			return null;
 		}
+
 
 	}
 
@@ -1990,7 +2018,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			switch (target_type.BuiltinType) {
 			case BuiltinTypeSpec.Type.SByte:
@@ -2036,7 +2064,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		}
 	}
 
-	public class StringConstant : Constant {
+	public partial class StringConstant : Constant {
 		public StringConstant (BuiltinTypes types, string s, Location loc)
 			: this (types.String, s, loc)
 		{
@@ -2126,17 +2154,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
 			return null;
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec type)
+		public override Constant ConvertImplicitly (TypeSpec type, ResolveContext opt_ec, bool upconvert_only = false)
 		{
 			if (IsDefaultValue && type.BuiltinType == BuiltinTypeSpec.Type.Object)
 				return new NullConstant (type, loc);
 
-			return base.ConvertImplicitly (type);
+			return base.ConvertImplicitly (type, opt_ec, upconvert_only);
 		}
 	}
 
@@ -2269,7 +2297,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 	//
 	// Null constant can have its own type, think of `default (Foo)'
 	//
-	public class NullConstant : Constant
+	public partial class NullConstant : Constant
 	{
 		public NullConstant (TypeSpec type, Location loc)
 			: base (loc)
@@ -2329,7 +2357,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			}
 		}
 
-		public override Constant ConvertExplicitly (bool inCheckedContext, TypeSpec targetType)
+		public override Constant ConvertExplicitly (bool inCheckedContext, TypeSpec targetType, ResolveContext opt_ec)
 		{
 			if (targetType.IsPointer) {
 				if (IsLiteral || this is NullPointer)
@@ -2342,7 +2370,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			if (targetType.Kind == MemberKind.InternalCompilerType && targetType.BuiltinType != BuiltinTypeSpec.Type.Dynamic)
 				return null;
 
-			if (!IsLiteral && !Convert.ImplicitStandardConversionExists (this, targetType))
+			if (!IsLiteral && !Convert.ImplicitStandardConversionExists (this, targetType, opt_ec))
 				return null;
 
 			if (TypeSpec.IsReferenceType (targetType))
@@ -2354,9 +2382,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			return null;
 		}
 
-		public override Constant ConvertImplicitly (TypeSpec targetType)
+		public override Constant ConvertImplicitly (TypeSpec targetType, ResolveContext opt_ec, bool upconvert_only = false)
 		{
-			return ConvertExplicitly (false, targetType);
+			return ConvertExplicitly (false, targetType, opt_ec);
 		}
 
 		public override string GetSignatureForError ()
@@ -2500,9 +2528,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			get { return value.IsZeroInteger; }
 		}
 
-		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type)
+		public override Constant ConvertExplicitly (bool in_checked_context, TypeSpec target_type, ResolveContext opt_ec)
 		{
-			Constant new_value = value.ConvertExplicitly (in_checked_context, target_type);
+			Constant new_value = value.ConvertExplicitly (in_checked_context, target_type, opt_ec);
 			if (new_value == null)
 				return null;
 

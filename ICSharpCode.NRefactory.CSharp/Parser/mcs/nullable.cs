@@ -1220,6 +1220,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Nullable
 				return ReducedExpression.Create (right, this, false).Resolve (ec);
 
 			left = Convert.ImplicitConversion (ec, unwrap ?? left, rtype, loc);
+
+			if (!ec.IsPlayScript) // I#76, do not optimize this, causing a side effect on || statements (?)
+				if (TypeSpec.IsValueType (left.Type) && !left.Type.IsNullableType) {
+					Warning_UnreachableExpression (ec, right.Location);
+					return ReducedExpression.Create (left, this, false).Resolve (ec);
+				}
+
 			type = rtype;
 			return this;
 		}
@@ -1348,7 +1355,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp.Nullable
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && left != null)
+					left.Accept (visitor);
+				if (visitor.Continue && right != null)
+					right.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 

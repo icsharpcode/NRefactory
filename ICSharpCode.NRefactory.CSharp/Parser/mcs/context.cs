@@ -15,6 +15,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
 using System.Diagnostics;
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -207,7 +208,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			ExpressionTreeConversion = 1 << 25,
 
-			InvokeSpecialName = 1 << 26
+			InvokeSpecialName = 1 << 26,
+
+			PsExtended = 1 << 27,
+
+			PsDynamicDisabled = 1 << 28,
+
+			HasNoReturnType = 1 << 29,
 		}
 
 		// utility helper for CheckExpr, UnCheckExpr, Checked and Unchecked statements
@@ -244,6 +251,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		protected Options flags;
 
+		protected SourceFileType fileType;
+		protected bool isPlayScript;
+
 		//
 		// Whether we are inside an anonymous method.
 		//
@@ -257,6 +267,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public Block CurrentBlock;
 
 		public readonly IMemberContext MemberContext;
+
+
+		//83aec9d3	M	Ben Cooley	06/25/2013	Activated inliner.  Only functions work.. void functions will fail.			///   If this is non-null, points to the current statement
+		/// <summary>
+		///   If this is non-null, points to the current statement
+		/// </summary>
+		public Statement Statement;
 
 		public ResolveContext (IMemberContext mc)
 		{
@@ -275,6 +292,46 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			// The constant check state is always set to true
 			//
 			flags |= Options.ConstantCheckState;
+
+			//
+			// File type set from member context module sourcefile.
+			//
+			var memberCore = mc as MemberCore;
+			if (memberCore != null && memberCore.Location.SourceFile != null) {
+				fileType = memberCore.Location.SourceFile.FileType;
+			} else if (mc.Module != null && mc.Module.Location.SourceFile != null) {
+				fileType = mc.Module.Location.SourceFile.FileType;
+				if (mc.Module.Location.SourceFile.PsExtended)
+					flags |= Options.PsExtended;
+			} else {
+				fileType = SourceFileType.CSharp;
+			}
+			isPlayScript = fileType == SourceFileType.PlayScript ? true : false;
+
+			//
+			// Set dynamic enabled state
+			//
+			if (memberCore is MethodCore) {
+				if (!(((MethodCore)mc).AllowDynamic ?? true))
+					flags |= Options.PsDynamicDisabled;
+			} else if (memberCore is TypeDefinition) {
+				if (!(((TypeDefinition)mc).AllowDynamic ?? true))
+					flags |= Options.PsDynamicDisabled;
+			} else if (memberCore != null && memberCore.Parent != null) {
+				if (!(memberCore.Parent.AllowDynamic ?? true))
+					flags |= Options.PsDynamicDisabled;
+			} else {
+				if (!Module.Compiler.Settings.AllowDynamic)
+					flags |= Options.PsDynamicDisabled;
+			}
+
+			//
+			// Handle missing return type
+			//
+			if (memberCore is Method) {
+				if (((Method)memberCore).HasNoReturnType)
+					flags |= Options.HasNoReturnType;
+			}
 		}
 
 		public ResolveContext (IMemberContext mc, Options options)
@@ -345,6 +402,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		public bool AllowDynamic {
+			get {
+				return (flags & Options.PsDynamicDisabled) == 0;
+			}
+		}
+
 		public bool IsRuntimeBinder {
 			get {
 				return Module.Compiler.IsRuntimeBinder;
@@ -354,6 +417,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public bool IsVariableCapturingRequired {
 			get {
 				return !IsInProbingMode;
+			}
+		}
+
+		public bool HasNoReturnType {
+			get {
+				return (flags & Options.HasNoReturnType) != 0;
 			}
 		}
 
@@ -367,6 +436,40 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			get {
 				return Module.Compiler.Report;
 			}
+		}
+
+		public SourceFileType FileType {
+			get { return fileType; }
+			set { fileType = value; }
+		}
+
+		public bool IsPlayScript {
+			get { return isPlayScript; }
+		}
+
+		public bool PsExtended {
+			get { return (flags & Options.PsExtended) != 0; }
+			set { 
+				if (value) 
+					flags |= Options.PsExtended; 
+				else 
+					flags &= ~Options.PsExtended; 
+			}
+		}
+
+		public bool PsNumberIsFloat {
+			get {
+				if (CurrentMemberDefinition != null && CurrentMemberDefinition.Parent != null) {
+					var attributes = CurrentMemberDefinition.Parent.OptAttributes;
+					if (attributes != null && attributes.Contains (Module.PredefinedAttributes.NumberIsFloatAttribute))
+						return true;
+				}
+				return false;
+			}
+		}
+
+		public Target Target {
+			get { return Module.Compiler.Settings.Target; }
 		}
 
 		#endregion
@@ -777,6 +880,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public LocationsBag LocationsBag { get; set; }
 		public bool UseJayGlobalArrays { get; set; }
 		public LocatedToken[] LocatedTokens { get; set; }
+		public Mono.PlayScript.LocatedToken[] AsLocatedTokens { get; set; }
 
 		public MD5 GetChecksumAlgorithm ()
 		{

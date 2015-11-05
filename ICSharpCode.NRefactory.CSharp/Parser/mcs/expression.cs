@@ -14,7 +14,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using SLE = System.Linq.Expressions;
-using System.Text;
 
 #if STATIC
 using MetaType = IKVM.Reflection.Type;
@@ -25,6 +24,8 @@ using MetaType = System.Type;
 using System.Reflection;
 using System.Reflection.Emit;
 #endif
+
+using Mono.PlayScript;
 
 namespace ICSharpCode.NRefactory.MonoCSharp
 {
@@ -107,9 +108,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			this.loc = loc;
 		}
 
+		private TypeSpec typeHint;
+		protected override Expression DoResolveWithTypeHint(ResolveContext rc, TypeSpec typeHint)
+		{
+			// store type hint
+			this.typeHint = typeHint;
+			return this.Resolve(rc);
+		}
+
 		protected override Expression DoResolve (ResolveContext ec)
 		{
-			var res = expr.Resolve (ec);
+			var res = expr.ResolveWithTypeHint (ec, typeHint);
 			var constant = res as Constant;
 			if (constant != null && constant.IsLiteral)
 				return Constant.CreateConstantFromValue (res.Type, constant.GetValue (), expr.Location);
@@ -124,18 +133,29 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 	
 	//
 	//   Unary implements unary expressions.
 	//
-	public class Unary : Expression
+	public partial class Unary : Expression
 	{
 		public enum Operator : byte {
 			UnaryPlus, UnaryNegation, LogicalNot, OnesComplement,
-			AddressOf,  TOP
+			AddressOf, AsE4xAttribute, TOP
 		}
 
 		public readonly Operator Oper;
@@ -363,20 +383,27 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (Oper == Operator.OnesComplement && expr_type.IsEnum)
 				return ResolveEnumOperator (ec, expr, predefined);
 
+			//
+			// Handle !object expressions in PlayScript
+			//
+			if (ec.FileType == SourceFileType.PlayScript && Oper == Operator.LogicalNot && !expr.Type.IsStruct) {
+				return new Binary(Binary.Operator.Equality, expr, new NullLiteral(expr.Location)).Resolve(ec);
+			}
+
 			return ResolveUserType (ec, expr, predefined);
 		}
 
 		protected virtual Expression ResolveEnumOperator (ResolveContext ec, Expression expr, TypeSpec[] predefined)
 		{
 			TypeSpec underlying_type = EnumSpec.GetUnderlyingType (expr.Type);
-			Expression best_expr = ResolvePrimitivePredefinedType (ec, EmptyCast.Create (expr, underlying_type), predefined);
+			Expression best_expr = ResolvePrimitivePredefinedType (ec, EmptyCast.Create (expr, underlying_type, ec), predefined);
 			if (best_expr == null)
 				return null;
 
 			Expr = best_expr;
 			enum_conversion = Binary.GetEnumResultCast (underlying_type);
 			type = expr.Type;
-			return EmptyCast.Create (this, type);
+			return EmptyCast.Create (this, type, ec);
 		}
 
 		public override bool ContainsEmitWithAwait ()
@@ -475,12 +502,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				case BuiltinTypeSpec.Type.Short:
 				case BuiltinTypeSpec.Type.UShort:
 				case BuiltinTypeSpec.Type.Char:
-					return Convert.ImplicitNumericConversion (expr, rc.BuiltinTypes.Int);
+					return Convert.ImplicitNumericConversion (expr, rc.BuiltinTypes.Int, rc, false);
 				}
 			}
 
 			if (op == Operator.UnaryNegation && expr_type.BuiltinType == BuiltinTypeSpec.Type.UInt)
-				return Convert.ImplicitNumericConversion (expr, rc.BuiltinTypes.Long);
+				return Convert.ImplicitNumericConversion (expr, rc.BuiltinTypes.Long, rc, false);
+
+			// PlayScript - implicit conversion of numeric types to bool
+			if (rc.FileType == SourceFileType.PlayScript && op == Operator.LogicalNot && expr.Type != rc.BuiltinTypes.Bool)
+				return Convert.ImplicitNumericConversion (expr, rc.BuiltinTypes.Bool, rc, false);
 
 			return expr;
 		}
@@ -496,9 +527,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return null;
 
 			if (Expr.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
-				Arguments args = new Arguments (1);
-				args.Add (new Argument (Expr));
-				return new DynamicUnaryConversion (GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+				if (ec.FileType == SourceFileType.PlayScript && Oper == Operator.LogicalNot) {
+					// PlayScript: Call the "Boolean()" static method to convert a dynamic to a bool.  EXPENSIVE, but hey..
+					Arguments args = new Arguments (1);
+					args.Add (new Argument(EmptyCast.RemoveDynamic(ec, Expr)));					ec.Report.Warning (7164, 1, loc, "Expensive reference conversion to bool");
+					Expr = new Invocation(new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, loc), "Boolean_fn", loc), "Boolean", loc), args).Resolve (ec);
+				} else {
+					Arguments args = new Arguments (1);
+					args.Add (new Argument (Expr));
+					return new DynamicUnaryConversion (GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+				}
 			}
 
 			if (Expr.Type.IsNullableType)
@@ -510,8 +548,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			Constant cexpr = Expr as Constant;
 			if (cexpr != null) {
 				cexpr = TryReduceConstant (ec, cexpr);
-				if (cexpr != null)
+				if (cexpr != null) {
+					//
+					// We provide a mechanism to use single precision floats instead of
+					// doubles for the PlayScript Number type via the [NumberIsFloat]
+					// attribute. By casting doubles to floats here, we allow the constant
+					// folding to do its thing and remove any unnecessary coversions.
+					//
+					if (ec.PsNumberIsFloat && cexpr.Type.BuiltinType == BuiltinTypeSpec.Type.Double)
+						return new Cast (new TypeExpression (ec.BuiltinTypes.Float, cexpr.Location), cexpr, cexpr.Location).Resolve (ec);
+
 					return cexpr;
+				}
 			}
 
 			Expression expr = ResolveOperator (ec, Expr);
@@ -759,16 +807,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		//
 		protected virtual Expression ResolveUserOperator (ResolveContext ec, Expression expr)
 		{
-			MonoCSharp.Operator.OpType op_type;
+			ICSharpCode.NRefactory.MonoCSharp.Operator.OpType op_type;
 			switch (Oper) {
 			case Operator.LogicalNot:
-				op_type = MonoCSharp.Operator.OpType.LogicalNot; break;
+					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.LogicalNot; break;
 			case Operator.OnesComplement:
-				op_type = MonoCSharp.Operator.OpType.OnesComplement; break;
+					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.OnesComplement; break;
 			case Operator.UnaryNegation:
-				op_type = MonoCSharp.Operator.OpType.UnaryNegation; break;
+					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.UnaryNegation; break;
 			case Operator.UnaryPlus:
-				op_type = MonoCSharp.Operator.OpType.UnaryPlus; break;
+					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.UnaryPlus; break;
 			default:
 				throw new InternalErrorException (Oper.ToString ());
 			}
@@ -861,7 +909,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 	}
@@ -996,7 +1055,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 	
@@ -1014,7 +1084,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	/// classes (indexers require temporary access;  overloaded require method)
 	///
 	/// </remarks>
-	public class UnaryMutator : ExpressionStatement
+	public partial class UnaryMutator : ExpressionStatement
 	{
 		class DynamicPostMutator : Expression, IAssignMethod
 		{
@@ -1097,7 +1167,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		// Holds the real operation
 		Expression operation;
-		
+
 		public UnaryMutator (Mode m, Expression e, Location loc)
 		{
 			mode = m;
@@ -1402,7 +1472,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 	}
@@ -1415,6 +1496,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public Expression ProbeType;
 		protected Expression expr;
 		protected TypeSpec probe_type_expr;
+
+		// ActionScript type expressions can be "Type" objects too.
+		protected Expression as_probe_type_expr;
 		
 		protected Probe (Expression expr, Expression probe_type, Location l)
 		{
@@ -1436,24 +1520,53 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		protected Expression ResolveCommon (ResolveContext rc)
 		{
+			// NOTE: We need to distinguish between types and expressions which return a Class object.
+			if (rc.IsPlayScript && (this is Is || this is As)) { 
+				as_probe_type_expr = ProbeType.Resolve (rc);
+				if (as_probe_type_expr is TypeExpr || as_probe_type_expr is TypeOf) {
+					// Convert typeof to actual type if somebody actually wrote "typeof" in the code.
+					if (as_probe_type_expr is TypeOf) {
+						probe_type_expr = ((TypeOf)as_probe_type_expr).TypeExpression.Type;
+					} else {
+						probe_type_expr = as_probe_type_expr.ResolveAsType (rc);
+					}
+					// Resolving to actual concrete types above will cause an Object type to be converted to an Expando.  We
+					// have to reverse this.
+					if (probe_type_expr == rc.Module.PredefinedTypes.AsExpandoObject.Resolve()) {
+						probe_type_expr = rc.BuiltinTypes.Dynamic;
+					}
+					as_probe_type_expr = null;
+				} else if (as_probe_type_expr.Type.BuiltinType != BuiltinTypeSpec.Type.Type && 
+					as_probe_type_expr.Type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+					rc.Report.Error (7345, loc, "The `{0}' operator cannot be applied to an expression which is not a Class type",
+						OperatorName);
+				}
+			}
+
 			expr = expr.Resolve (rc);
 			if (expr == null)
 				return null;
 
-			ResolveProbeType (rc);
-			if (probe_type_expr == null)
-				return this;
-
-			if (probe_type_expr.IsStatic) {
-				rc.Report.Error (7023, loc, "The second operand of `is' or `as' operator cannot be static type `{0}'",
-					probe_type_expr.GetSignatureForError ());
-				return null;
+			// PlayScript : Avoid - error CS0246: The type or namespace name `expectedType' could not be found.
+			if (!rc.IsPlayScript) {
+				ResolveProbeType (rc);
+				if (probe_type_expr == null)
+					return this;
 			}
-			
-			if (expr.Type.IsPointer || probe_type_expr.IsPointer) {
-				rc.Report.Error (244, loc, "The `{0}' operator cannot be applied to an operand of pointer type",
-					OperatorName);
-				return null;
+
+			// PlayScript : probe_type_expr can be null
+			if (probe_type_expr != null) {
+				if (probe_type_expr.IsStatic) {
+					rc.Report.Error (7023, loc, "The second operand of `is' or `as' operator cannot be static type `{0}'",
+						probe_type_expr.GetSignatureForError ());
+					return null;
+				}
+				
+				if (expr.Type.IsPointer || probe_type_expr.IsPointer) {
+					rc.Report.Error (244, loc, "The `{0}' operator cannot be applied to an operand of pointer type",
+						OperatorName);
+					return null;
+				}
 			}
 
 			if (expr.Type == InternalType.AnonymousMethod || expr.Type == InternalType.MethodGroup) {
@@ -1694,7 +1807,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			type = rc.BuiltinTypes.Bool;
 			eclass = ExprClass.Value;
 
-			if (probe_type_expr == null)
+			if (!rc.IsPlayScript && probe_type_expr == null)
 				return ResolveMatchingExpression (rc);
 
 			var res = ResolveResultExpression (rc);
@@ -1832,6 +1945,25 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			TypeSpec d = expr.Type;
 			bool d_is_nullable = false;
 
+
+//			if (base.DoResolve (ec) == null)
+//				return null;
+//
+			// Check to see if right side is an expression which returns a Class (Type).  If so, generate
+			// type check code.
+			if (ec.IsPlayScript && as_probe_type_expr != null) {
+				var arguments = new Arguments(2);
+				arguments.Add (new Argument(expr));
+				arguments.Add (new Argument(as_probe_type_expr));
+				return new Invocation (new MemberAccess(new MemberAccess(new SimpleName("PlayScript", this.loc), "Support", this.loc), "IsCheck", this.loc), arguments).Resolve (ec);
+			}
+
+//			=======
+//
+//>>>>>>> 121766abb99b75a30d0f508d24979bed54c9b4a9
+//			TypeSpec d = expr.Type;
+//			bool d_is_nullable = false;
+
 			//
 			// If E is a method group or the null literal, or if the type of E is a reference
 			// type or a nullable type and the value of E is null, the result is false
@@ -1880,7 +2012,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				//
 				// An unboxing conversion exists
 				//
-				if (Convert.ExplicitReferenceConversionExists (d, t))
+				if (Convert.ExplicitReferenceConversionExists (d, t, ec))
 					return this;
 
 				//
@@ -1912,7 +2044,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						return CreateConstantResult (ec, true);
 					}
 				} else {
-					if (Convert.ImplicitReferenceConversionExists (d, t)) {
+					if (Convert.ImplicitReferenceConversionExists (d, t, ec, false)) {
+						if (ec.IsPlayScript) {
+							if (d.MemberDefinition.IsImported && d.BuiltinType != BuiltinTypeSpec.Type.None) {
+								return this;
+							}
+						}
+
 						var c = expr as Constant;
 						if (c != null)
 							return CreateConstantResult (ec, !c.IsNull);
@@ -1927,7 +2065,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 						if (d.BuiltinType == BuiltinTypeSpec.Type.Dynamic)
 							return this;
-						
 						//
 						// Turn is check into simple null check for implicitly convertible reference types
 						//
@@ -1936,7 +2073,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							this).Resolve (ec);
 					}
 
-					if (Convert.ExplicitReferenceConversionExists (d, t))
+					if (Convert.ExplicitReferenceConversionExists (d, t, ec))
 						return this;
 
 					//
@@ -1969,7 +2106,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -2344,11 +2492,27 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (ResolveCommon (ec) == null)
 				return null;
 
+			if (ec.IsPlayScript && as_probe_type_expr != null && !(as_probe_type_expr is TypeExpr)) {
+				var arguments = new Arguments (2);
+				arguments.Add (new Argument (expr));
+				arguments.Add (new Argument (as_probe_type_expr));
+				return new Invocation (new MemberAccess (new MemberAccess (new SimpleName ("PlayScript", loc), "Support", loc), "DynamicAs", loc), arguments).Resolve (ec);
+			}
+
 			type = probe_type_expr;
 			eclass = ExprClass.Value;
 			TypeSpec etype = expr.Type;
 
-			if (!TypeSpec.IsReferenceType (type) && !type.IsNullableType) {
+			bool isRefType = TypeSpec.IsReferenceType (type) || type.IsNullableType;
+
+			// Always "Object" for dynamic type when evaluating PlayScript AS operator (not dynamic CONV call).
+			if (ec.IsPlayScript && etype.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+				expr = new Cast(new TypeExpression(ec.BuiltinTypes.Object, expr.Location), expr, expr.Location).Resolve(ec);
+				etype = ec.BuiltinTypes.Object;
+			}
+
+			// Fail if conv type is not ref type or nullable (but allow if PlayScript)
+			if (!ec.IsPlayScript && !isRefType) {
 				if (TypeManager.IsGenericParameter (type)) {
 					ec.Report.Error (413, loc,
 						"The `as' operator cannot be used with a non-reference type parameter `{0}'. Consider adding `class' or a reference type constraint",
@@ -2365,27 +2529,62 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return Nullable.LiftedNull.CreateFromExpression (ec, this);
 			}
 
-			// If the compile-time type of E is dynamic, unlike the cast operator the as operator is not dynamically bound
-			if (etype.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
-				return this;
-			}
+			// Do ref type AS conversion (always true for CSharp)
+			if (isRefType) {
+
+				// If the compile-time type of E is dynamic, unlike the cast operator the as operator is not dynamically bound
+				if (etype.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+					return this;
+				}
+
+				// Special case for as check with strings in PlayScript, since there is an implicit
+				// conversion from everything to string.
+				if (ec.IsPlayScript && type.BuiltinType == BuiltinTypeSpec.Type.String) {
+					var arguments = new Arguments (2);
+					arguments.Add (new Argument (expr));
+					arguments.Add (new Argument (new TypeOf (new TypeExpression (ec.BuiltinTypes.String, expr.Location), expr.Location)));
+					return new Invocation (new MemberAccess (new MemberAccess (new SimpleName ("PlayScript", loc), "Support", loc), "DynamicAs", loc), arguments).Resolve (ec);
+				}
 			
-			Expression e = Convert.ImplicitConversionStandard (ec, expr, type, loc);
-			if (e != null) {
-				e = EmptyCast.Create (e, type);
-				return ReducedExpression.Create (e, this).Resolve (ec);
-			}
+				Expression e = Convert.ImplicitConversionStandard (ec, expr, type, loc);
+				if (e != null) {
+					e = EmptyCast.Create (e, type, ec);
+					return ReducedExpression.Create (e, this).Resolve (ec);
+				}
 
-			if (Convert.ExplicitReferenceConversionExists (etype, type)){
-				if (TypeManager.IsGenericParameter (etype))
+				if (isRefType && Convert.ExplicitReferenceConversionExists (etype, type, ec)) {
+					if (TypeManager.IsGenericParameter (etype))
+						expr = new BoxedCast (expr, etype);
+
+					return this;
+				}
+
+				if (InflatedTypeSpec.ContainsTypeParameter (etype) || InflatedTypeSpec.ContainsTypeParameter (type)) {
 					expr = new BoxedCast (expr, etype);
+					return this;
+				}
 
-				return this;
-			}
+			} else {
+//FIXME
+				// Do PlayScript AS cast..
 
-			if (InflatedTypeSpec.ContainsTypeParameter (etype) || InflatedTypeSpec.ContainsTypeParameter (type)) {
-				expr = new BoxedCast (expr, etype);
-				return this;
+				bool eIsRefType = TypeSpec.IsReferenceType (etype) || etype.IsNullableType;
+
+				if (eIsRefType) {
+
+					// Copy ref expression to a temporary.. do conditional.
+					var local = TemporaryVariableReference.Create (etype, ec.CurrentBlock, expr.Location);
+					var comp_exp = new Binary(Binary.Operator.Equality, new CompilerAssign(local, expr, expr.Location), new NullLiteral(expr.Location));
+					var def_const = New.Constantify(type, expr.Location, ec.FileType);
+					var cast_exp = new Cast(new TypeExpression(type, expr.Location), local, expr.Location);
+
+					return new Conditional(comp_exp, def_const, cast_exp, expr.Location).Resolve(ec);
+
+				} else {
+
+					// Just do normal cast if not a ref type.
+					return new Cast(new TypeExpression(type, expr.Location), expr, expr.Location).Resolve (ec);
+				}
 			}
 
 			if (etype != InternalType.ErrorType) {
@@ -2398,7 +2597,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 	
@@ -2449,7 +2659,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			var res = Convert.ExplicitConversion (ec, expr, type, loc);
 			if (res == expr)
-				return EmptyCast.Create (res, type);
+				return EmptyCast.Create (res, type, ec);
 
 			return res;
 		}
@@ -2464,7 +2674,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -2634,12 +2855,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			if (type.IsPointer)
-				return new NullLiteral (Location).ConvertImplicitly (type);
+				return new NullLiteral (Location).ConvertImplicitly (type, ec);
 
 			if (TypeSpec.IsReferenceType (type))
 				return new NullConstant (type, loc);
 
-			Constant c = New.Constantify (type, expr.Location);
+			Constant c = New.Constantify (type, expr.Location, ec.FileType);
 			if (c != null)
 				return c;
 
@@ -2673,15 +2894,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
 	/// <summary>
 	///   Binary operators
 	/// </summary>
-	public class Binary : Expression, IDynamicBinder
+	public partial class Binary : Expression, IDynamicBinder
 	{
+		//
+		// Control how implitic conversions are handled on operators for ActionScript/PlayScript.  In C# only valid up numeric
+		// implicit conversions are allowed, and so the operator matching algorithm for Binary operators works such that the lowest matching
+		// implicit conversion type is returned when finding a matching predefined operator.   In AS however BOTH up and down conversions are
+		// allowed, which causes the matching algorithm for Binary to fail as ALL of the potential matches actually succeed (due to implicit 
+		// conversions to any type).  To fix this we specifically turn on/off up/down conversions for specific ActionScript predefined operator 
+		// types so that the matching algorithm can match first for the best non-any conversion operators, and only fall back on downcasting when
+		// all other matches fail.
+		//
+		[Flags]
+		public enum AsOperatorConversions
+		{
+			ConvertArgsToRetType = 1,			// Force left/right args to be implicitly converted to return type (regarless of input type)
+			LeftConvertAny     	 = 2,			// Allow both up and down conversions on left argument (the default is C# up conversions only)
+			RightConvertAny    	 = 4			// Allow both up and down conversions on right argument (the default is C# up conversions only)
+		};
+
 		public class PredefinedOperator
 		{
 			protected readonly TypeSpec left;
@@ -2690,23 +2939,34 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			protected readonly TypeSpec right_unwrap;
 			public readonly Operator OperatorsMask;
 			public TypeSpec ReturnType;
+			public AsOperatorConversions AsConversions;
 
 			public PredefinedOperator (TypeSpec ltype, TypeSpec rtype, Operator op_mask)
-				: this (ltype, rtype, op_mask, ltype)
+				: this (ltype, rtype, op_mask, ltype, 0)
 			{
 			}
 
 			public PredefinedOperator (TypeSpec type, Operator op_mask, TypeSpec return_type)
-				: this (type, type, op_mask, return_type)
+				: this (type, type, op_mask, return_type, 0)
+			{
+			}
+
+			public PredefinedOperator (TypeSpec type, Operator op_mask, TypeSpec return_type, AsOperatorConversions as_conv)
+				: this (type, type, op_mask, return_type, as_conv)
 			{
 			}
 
 			public PredefinedOperator (TypeSpec type, Operator op_mask)
-				: this (type, type, op_mask, type)
+				: this (type, type, op_mask, type, 0)
 			{
 			}
 
 			public PredefinedOperator (TypeSpec ltype, TypeSpec rtype, Operator op_mask, TypeSpec return_type)
+				: this (ltype, rtype, op_mask, return_type, 0)
+			{
+			}
+
+			public PredefinedOperator (TypeSpec ltype, TypeSpec rtype, Operator op_mask, TypeSpec return_type, AsOperatorConversions as_conv)
 			{
 				if ((op_mask & Operator.ValuesOnlyMask) != 0)
 					throw new InternalErrorException ("Only masked values can be used");
@@ -2723,6 +2983,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				this.right = rtype;
 				this.OperatorsMask = op_mask;
 				this.ReturnType = return_type;
+				this.AsConversions = as_conv;
 			}
 
 			public bool IsLifted {
@@ -2935,8 +3196,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				if (left == lexpr.Type && right == rexpr.Type)
 					return true;
 
-				return Convert.ImplicitConversionExists (ec, lexpr, left) &&
-					Convert.ImplicitConversionExists (ec, rexpr, right);
+				// PlayScript/ActionScript - We need to turn on/off ActionScripts "convert to any" behavior or matching for the best
+				// argument conversions will not work.  We turn this behavior on for logical and certain other operator combinations.
+				// These flags are only ever set in PlayScript, and implicit conversions to any type only work in PlayScript.
+				bool left_upconvert_only = (AsConversions & AsOperatorConversions.LeftConvertAny) == 0;
+				bool right_upconvert_only = (AsConversions & AsOperatorConversions.RightConvertAny) == 0;
+
+				return Convert.ImplicitConversionExists (ec, lexpr, left, left_upconvert_only) &&
+					Convert.ImplicitConversionExists (ec, rexpr, right, right_upconvert_only);
 			}
 
 			public PredefinedOperator ResolveBetterOperator (ResolveContext ec, PredefinedOperator best_operator)
@@ -2955,8 +3222,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				//
 				// When second argument is same as the first one, the result is same
 				//
-				if (right != null && (left != right || best_operator.left != best_operator.right)) {
-					result |= OverloadResolver.BetterTypeConversion (ec, best_operator.right_unwrap, right_unwrap);
+				if (ec.FileType != SourceFileType.PlayScript || (best_operator.OperatorsMask & Binary.Operator.ShiftMask) == 0) {
+					if (right != null && (left != right || best_operator.left != best_operator.right)) {
+						result |= OverloadResolver.BetterTypeConversion (ec, best_operator.right_unwrap, right_unwrap);
+					}
 				}
 
 				if (result == 0 || result > 2)
@@ -3091,9 +3360,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			public override Expression ConvertResult (ResolveContext ec, Binary b)
 			{
 				if (left != null) {
-					b.left = EmptyCast.Create (b.left, left);
+					b.left = EmptyCast.Create (b.left, left, ec);
 				} else if (right != null) {
-					b.right = EmptyCast.Create (b.right, right);
+					b.right = EmptyCast.Create (b.right, right, ec);
 				}
 
 				TypeSpec r_type = ReturnType;
@@ -3127,34 +3396,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			LeftShift	= 5 | ShiftMask,
 			RightShift	= 6 | ShiftMask,
+			AsURightShift = 7 | ShiftMask,  // PlayScript Unsigned Right Shift
 
-			LessThan	= 7 | ComparisonMask | RelationalMask,
-			GreaterThan	= 8 | ComparisonMask | RelationalMask,
-			LessThanOrEqual		= 9 | ComparisonMask | RelationalMask,
-			GreaterThanOrEqual	= 10 | ComparisonMask | RelationalMask,
-			Equality	= 11 | ComparisonMask | EqualityMask,
-			Inequality	= 12 | ComparisonMask | EqualityMask,
+			LessThan	= 8 | ComparisonMask | RelationalMask,
+			GreaterThan	= 9 | ComparisonMask | RelationalMask,
+			LessThanOrEqual		= 10 | ComparisonMask | RelationalMask,
+			GreaterThanOrEqual	= 11 | ComparisonMask | RelationalMask,
+			Equality	= 12 | ComparisonMask | EqualityMask,
+			Inequality	= 13 | ComparisonMask | EqualityMask,
+			AsStrictEquality = 14 | ComparisonMask | EqualityMask,
+			AsStrictInequality = 15 | ComparisonMask | EqualityMask,
 
-			BitwiseAnd	= 13 | BitwiseMask,
-			ExclusiveOr	= 14 | BitwiseMask,
-			BitwiseOr	= 15 | BitwiseMask,
+			BitwiseAnd	= 16 | BitwiseMask,
+			ExclusiveOr	= 17 | BitwiseMask,
+			BitwiseOr	= 18 | BitwiseMask,
 
-			LogicalAnd	= 16 | LogicalMask,
-			LogicalOr	= 17 | LogicalMask,
+			LogicalAnd	= 19 | LogicalMask,
+			LogicalOr	= 20 | LogicalMask,
+
+			AsE4xChild				= 21 | AsE4xMask,
+			AsE4xDescendant			= 22 | AsE4xMask,
+			AsE4xChildAttribute		= 23 | AsE4xMask,
+			AsE4xDescendantAttribute = 24 | AsE4xMask,
 
 			//
 			// Operator masks
 			//
 			ValuesOnlyMask	= ArithmeticMask - 1,
-			ArithmeticMask	= 1 << 5,
-			ShiftMask		= 1 << 6,
-			ComparisonMask	= 1 << 7,
-			EqualityMask	= 1 << 8,
-			BitwiseMask		= 1 << 9,
-			LogicalMask		= 1 << 10,
-			AdditionMask	= 1 << 11,
-			SubtractionMask	= 1 << 12,
-			RelationalMask	= 1 << 13,
+			ArithmeticMask	= 1 << 6,
+			ShiftMask		= 1 << 7,
+			ComparisonMask	= 1 << 8,
+			EqualityMask	= 1 << 9,
+			BitwiseMask		= 1 << 10,
+			LogicalMask		= 1 << 11,
+			AdditionMask	= 1 << 12,
+			SubtractionMask	= 1 << 13,
+			RelationalMask	= 1 << 14,
+			AsE4xMask		= 1 << 15,
 
 			DecomposedMask	= 1 << 19,
 			NullableMask	= 1 << 20,
@@ -3254,6 +3532,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			case Operator.RightShift:
 				s = ">>";
 				break;
+			case Operator.AsURightShift:
+				s = ">>>";
+				break;
 			case Operator.LessThan:
 				s = "<";
 				break;
@@ -3269,8 +3550,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			case Operator.Equality:
 				s = "==";
 				break;
+			case Operator.AsStrictEquality:
+				s = "===";
+				break;
 			case Operator.Inequality:
 				s = "!=";
+				break;
+			case Operator.AsStrictInequality:
+				s = "!==";
 				break;
 			case Operator.BitwiseAnd:
 				s = "&";
@@ -3395,12 +3682,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return IsCompound ? "ExclusiveOrAssign" : "ExclusiveOr";
 			case Operator.Equality:
 				return "Equal";
+			case Operator.AsStrictEquality:
+				return "StrictEqual";
 			case Operator.GreaterThan:
 				return "GreaterThan";
 			case Operator.GreaterThanOrEqual:
 				return "GreaterThanOrEqual";
 			case Operator.Inequality:
 				return "NotEqual";
+			case Operator.AsStrictInequality:
+				return "StrictNotEqual";
 			case Operator.LeftShift:
 				return IsCompound ? "LeftShiftAssign" : "LeftShift";
 			case Operator.LessThan:
@@ -3417,6 +3708,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return IsCompound ? "MultiplyAssign" : "Multiply";
 			case Operator.RightShift:
 				return IsCompound ? "RightShiftAssign" : "RightShift";
+			case Operator.AsURightShift:
+				return IsCompound ? "UnsignedRightShiftAssign" : "UnsignedRightShift";
 			case Operator.Subtraction:
 				return IsCompound ? "SubtractAssign" : "Subtract";
 			default:
@@ -3428,7 +3721,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			switch (op) {
 			case Operator.Addition:
-				return MonoCSharp.Operator.OpType.Addition;
+					return MonoCSharp.Operator.OpType.Addition;
 			case Operator.BitwiseAnd:
 			case Operator.LogicalAnd:
 				return MonoCSharp.Operator.OpType.BitwiseAnd;
@@ -3537,6 +3830,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					opcode = OpCodes.Shr_Un;
 				else
 					opcode = OpCodes.Shr;
+				break;
+			case Operator.AsURightShift:
+				if (!(right is IntConstant)) {
+					ec.EmitInt (GetShiftMask (l));
+					ec.Emit (OpCodes.And);
+				}
+				opcode = OpCodes.Shr_Un;
 				break;
 				
 			case Operator.LeftShift:
@@ -3681,7 +3981,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							return null;
 
 						if ((oper & Operator.BitwiseMask) != 0) {
-							expr = EmptyCast.Create (expr, type);
+
+							expr = EmptyCast.Create (expr, type, rc);
 							enum_conversion = GetEnumResultCast (type);
 
 							if (oper == Operator.BitwiseAnd && left.Type.IsEnum && right.Type.IsEnum) {
@@ -3730,7 +4031,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return ResolveEquality (rc, l, r, primitives_only);
 			}
 
-			expr = ResolveOperatorPredefined (rc, rc.BuiltinTypes.OperatorsBinaryStandard, primitives_only);
+			PredefinedOperator [] operatorsBinaryStandard = (rc.FileType == SourceFileType.PlayScript ? 
+				rc.BuiltinTypes.AsOperatorsBinaryStandard : rc.BuiltinTypes.OperatorsBinaryStandard);
+
+			expr = ResolveOperatorPredefined (rc, operatorsBinaryStandard, primitives_only);
 			if (expr != null)
 				return expr;
 
@@ -3882,6 +4186,49 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			};
 
 		}
+		public static PredefinedOperator[] CreateAsStandardOperatorsTable (BuiltinTypes types)
+		{
+			TypeSpec bool_type = types.Bool;
+
+			return new [] {
+				new PredefinedOperator (types.Int, Operator.ArithmeticMask | Operator.BitwiseMask | Operator.ShiftMask),
+				new PredefinedOperator (types.UInt, Operator.ArithmeticMask | Operator.BitwiseMask),
+				new PredefinedOperator (types.Long, Operator.ArithmeticMask | Operator.BitwiseMask),
+				new PredefinedOperator (types.ULong, Operator.ArithmeticMask | Operator.BitwiseMask),
+				new PredefinedOperator (types.Float, Operator.ArithmeticMask),
+				new PredefinedOperator (types.Double, Operator.ArithmeticMask),
+				new PredefinedOperator (types.Decimal, Operator.ArithmeticMask),
+
+				new PredefinedOperator (types.Int, Operator.ComparisonMask, bool_type),
+				new PredefinedOperator (types.UInt, Operator.ComparisonMask, bool_type),
+				new PredefinedOperator (types.Long, Operator.ComparisonMask, bool_type),
+				new PredefinedOperator (types.ULong, Operator.ComparisonMask, bool_type),
+				new PredefinedOperator (types.Float, Operator.ComparisonMask, bool_type),
+				new PredefinedOperator (types.Double, Operator.ComparisonMask, bool_type),
+				new PredefinedOperator (types.Decimal, Operator.ComparisonMask, bool_type),
+
+				// PlayScript/ActionScript allows logical operators where left/right arguments are numeric types (these don't exist in C#)
+				new PredefinedOperator (types.Int, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.UInt, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.Long, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.ULong, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.Float, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.Double, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.Decimal, Operator.LogicalMask, bool_type, AsOperatorConversions.ConvertArgsToRetType | AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+
+				new PredefinedStringOperator (types.String, Operator.AdditionMask, types.String),
+				// Remaining string operators are in lifted tables
+
+				// PlayScript/ActionScript bitwise, logical, and equality arguments can always be converted to bool (allow any up/down conversions)
+				new PredefinedOperator (bool_type, Operator.BitwiseMask | Operator.LogicalMask | Operator.EqualityMask, bool_type, AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+
+				// PlayScript/ActionScript right args for shift operators can be up/down converted to the proper target type (allow any right conversions)
+				new PredefinedOperator (types.UInt, types.Int, Operator.ShiftMask, types.UInt, AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.Long, types.Int, Operator.ShiftMask, types.Long, AsOperatorConversions.RightConvertAny),
+				new PredefinedOperator (types.ULong, types.Int, Operator.ShiftMask, types.ULong, AsOperatorConversions.RightConvertAny)
+			};
+
+		}
 		public static PredefinedOperator[] CreateStandardLiftedOperatorsTable (ModuleContainer module)
 		{
 			var types = module.Compiler.BuiltinTypes;
@@ -3956,6 +4303,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			};
 		}
 
+		public static PredefinedOperator[] CreateAsEqualityOperatorsTable (BuiltinTypes types)
+		{
+			TypeSpec bool_type = types.Bool;
+
+			// We only have one operator in this table as we use the Standard equality table first
+			return new[] {
+				// ActionScript/PlayScript - If all else fails, try bool args where one side can be implicity converted to bool
+				new PredefinedOperator (bool_type, Operator.EqualityMask, bool_type, AsOperatorConversions.LeftConvertAny | AsOperatorConversions.RightConvertAny),
+			};
+		}
+
 		public static PredefinedOperator[] CreateEqualityLiftedOperatorsTable (ModuleContainer module)
 		{
 			var nullable = module.PredefinedTypes.Nullable.TypeSpec;
@@ -3997,9 +4355,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			//
-			// This is numeric promotion code only
+			// This is numeric promotion code only (NOTE: PlayScript "does" handle bool below)
 			//
-			if (ltype.BuiltinType == BuiltinTypeSpec.Type.Bool)
+			if (!rc.IsPlayScript && ltype.BuiltinType == BuiltinTypeSpec.Type.Bool)
 				return true;
 
 			TypeSpec rtype = right.Type;
@@ -4012,7 +4370,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			TypeSpec type;
 			Expression expr;
 
-			if (lb == BuiltinTypeSpec.Type.Decimal || rb == BuiltinTypeSpec.Type.Decimal) {
+			if (rc.IsPlayScript && (lb == BuiltinTypeSpec.Type.Bool || rb == BuiltinTypeSpec.Type.Bool) &&
+				(Oper == Operator.LogicalAnd || Oper == Operator.LogicalOr || 
+					Oper == Operator.Equality || Oper == Operator.Inequality || 
+					Oper == Operator.AsStrictEquality || Oper == Operator.AsStrictInequality)) {
+				// PlayScript - Convert left/right operands to bool if logical op
+				type = rc.BuiltinTypes.Bool;
+			} else if (lb == BuiltinTypeSpec.Type.Decimal || rb == BuiltinTypeSpec.Type.Decimal) {
 				type = rc.BuiltinTypes.Decimal;
 			} else if (lb == BuiltinTypeSpec.Type.Double || rb == BuiltinTypeSpec.Type.Double) {
 				type = rc.BuiltinTypes.Double;
@@ -4022,12 +4386,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				type = rc.BuiltinTypes.ULong;
 
 				if (IsSignedType (lb)) {
-					expr = ConvertSignedConstant (left, type);
+					expr = ConvertSignedConstant (rc, left, type);
 					if (expr == null)
 						return false;
 					left = expr;
 				} else if (IsSignedType (rb)) {
-					expr = ConvertSignedConstant (right, type);
+					expr = ConvertSignedConstant (rc, right, type);
 					if (expr == null)
 						return false;
 					right = expr;
@@ -4039,11 +4403,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				type = rc.BuiltinTypes.UInt;
 
 				if (IsSignedType (lb)) {
-					expr = ConvertSignedConstant (left, type);
+					expr = ConvertSignedConstant (rc, left, type);
 					if (expr == null)
 						type = rc.BuiltinTypes.Long;
 				} else if (IsSignedType (rb)) {
-					expr = ConvertSignedConstant (right, type);
+					expr = ConvertSignedConstant (rc, right, type);
 					if (expr == null)
 						type = rc.BuiltinTypes.Long;
 				}
@@ -4070,6 +4434,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return true;
 		}
 
+		private Expression MakeStringComparison (ResolveContext rc) {
+			var args = new Arguments(2);
+			args.Add (new Argument(left));
+			args.Add (new Argument(right));
+			return new Invocation(new MemberAccess(new MemberAccess(new SimpleName("System",loc), "String", loc), "CompareOrdinal", loc), args);
+		}
+
+		private TypeSpec typeHint;
+		protected override Expression DoResolveWithTypeHint(ResolveContext rc, TypeSpec typeHint)
+		{
+			// store type hint
+			this.typeHint = typeHint;
+			return this.Resolve(rc);
+		}
+
 		static bool IsSignedType (BuiltinTypeSpec.Type type)
 		{
 			switch (type) {
@@ -4083,13 +4462,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-		static Expression ConvertSignedConstant (Expression expr, TypeSpec type)
+		static Expression ConvertSignedConstant (ResolveContext rc, Expression expr, TypeSpec type)
 		{
 			var c = expr as Constant;
 			if (c == null)
 				return null;
 
-			return c.ConvertImplicitly (type);
+			return c.ConvertImplicitly (type, rc);
 		}
 
 		static Expression PromoteExpression (ResolveContext rc, Expression expr, TypeSpec type)
@@ -4101,13 +4480,35 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			var c = expr as Constant;
 			if (c != null)
-				return c.ConvertImplicitly (type);
+				return c.ConvertImplicitly (type, rc);
 
-			return Convert.ImplicitNumericConversion (expr, type);
+			return Convert.ImplicitNumericConversion (expr, type, rc, false);
+		}
+
+		static bool PsIsNullOrUndefined (ResolveContext ec, Expression expr)
+		{
+			if (expr is NullLiteral)
+				return true;
+
+			if (expr != null && expr.Type == ec.Module.PredefinedTypes.AsUndefined.Resolve ())
+				return true;
+
+			return false;
 		}
 
 		protected override Expression DoResolve (ResolveContext ec)
 		{
+			if (ec.IsPlayScript) {
+				// this prevents a lot of extra operations inside of an if(expr) or while(expr) 
+				// where we dont care about the return value at all and just care about the boolean value
+				// however, x = a || b || c; will still work because its not inside of a boolean expression
+				if ((oper & Operator.LogicalMask) == 0) {
+					// discard type hint unless we are inside of a logical operator
+					typeHint = null;
+				}
+			}
+	
+
 			if (left == null)
 				return null;
 
@@ -4127,12 +4528,159 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (left == null)
 				return null;
 
-			right = right.Resolve (ec);
+			// Handle || operator applied to reference types in PlayScript..
+			if (ec.IsPlayScript && oper == Operator.LogicalOr &&
+				(left.Type.IsClass || left.Type.IsInterface)) {
+				if (typeHint != ec.BuiltinTypes.Bool) {
+					return new Nullable.NullCoalescingOperator (left, right).Resolve (ec);
+				}
+			}
+
+
+			right = right.ResolveWithTypeHint (ec, typeHint);
 			if (right == null)
 				return null;
 
 			Constant lc = left as Constant;
 			Constant rc = right as Constant;
+
+			// Handle PlayScript binary operators that need to be converted to methods.
+			if (ec.IsPlayScript) {
+
+				if (oper == Operator.LogicalAnd || oper == Operator.LogicalOr) {
+					// Handle logical operation on Number/double; i.e. ( x:Number && y:Number)
+					if (left.Type.BuiltinType == BuiltinTypeSpec.Type.Double || 
+							right.Type.BuiltinType == BuiltinTypeSpec.Type.Double ) {
+						typeHint = null;
+					}
+				}
+
+				//
+				// Delegate math operations involving null or undefined to the dynamic runtime
+				// to avoid using nullable types (which do not work the way we want)
+				//
+				if ((oper & Operator.ArithmeticMask) != 0) {
+					var args = new Arguments(2);
+					args.Add (new Argument (left));
+					args.Add (new Argument (right));
+					if (left.Type.IsNumeric && PsIsNullOrUndefined (ec, right))
+						return new DynamicBinaryExpression (oper, this.GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+					else if (right.Type.IsNumeric && PsIsNullOrUndefined (ec, left))
+						return new DynamicBinaryExpression (oper, this.GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+				}
+
+				//
+				// Restrict math operations to numeric types
+				//
+				if ((oper & (Operator.BitwiseMask | Operator.ArithmeticMask | Operator.ShiftMask)) != 0 && oper != Operator.Addition) {
+					if (!(left.Type.IsNumeric || left.Type.IsAsUntyped) || !(right.Type.IsNumeric || right.Type.IsAsUntyped)) {
+						if (!(ec.IsPlayScript && (left.Type.IsDynamic || right.Type.IsDynamic))) {
+							Error_OperatorCannotBeApplied (ec, left, right, oper, loc);
+							return null;
+						}
+					}
+				}
+
+				//
+				// PlayScript supports comparison between objects other than numeric types
+				// and strings.
+				//
+				if ((oper & Operator.ComparisonMask) != 0 && (oper & Operator.EqualityMask) == 0) {
+					if ((!BuiltinTypeSpec.IsPrimitiveType (left.Type) || !BuiltinTypeSpec.IsPrimitiveType (right.Type)) &&
+						!(left.Type.BuiltinType == BuiltinTypeSpec.Type.String && right.Type.BuiltinType == BuiltinTypeSpec.Type.String)) {
+						var args = new Arguments (2);
+						args.Add (new Argument (left));
+						args.Add (new Argument (right));
+						return new DynamicBinaryExpression (oper, this.GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+					}
+				}
+
+				//
+				// Delegate to PlayScript.Dynamic.IsNullOrUndefined where possible
+				//
+				if (Oper == Operator.Equality || Oper == Operator.Inequality) {
+					if (left.Type.IsDynamic && PsIsNullOrUndefined (ec, right))
+						return PsMakeIsNullOrUndefinedExpression (ec, left).Resolve (ec);
+					else if (right.Type.IsDynamic && PsIsNullOrUndefined (ec, left))
+						return PsMakeIsNullOrUndefinedExpression (ec, right).Resolve (ec);
+				}
+
+				if ((typeHint != ec.BuiltinTypes.Bool) && (oper == Operator.LogicalOr || oper == Operator.LogicalAnd) && 
+					(left.Type.BuiltinType != BuiltinTypeSpec.Type.Bool || right.Type.BuiltinType != BuiltinTypeSpec.Type.Bool)) {
+					Expression leftExpr = left;
+					Expression rightExpr = right;
+					if (left.Type != right.Type) {
+						leftExpr = new Cast (new TypeExpression(ec.BuiltinTypes.AsUntyped, loc), left, loc);
+						rightExpr = new Cast (new TypeExpression(ec.BuiltinTypes.AsUntyped, loc), right, loc);
+					}
+					if (oper == Operator.LogicalOr) {
+						return new Conditional (new Cast(new TypeExpression(ec.BuiltinTypes.Bool, loc), left, loc), leftExpr, rightExpr, loc).Resolve (ec);
+					} else {
+						return new Conditional (new Unary(Unary.Operator.LogicalNot, 
+							new Cast(new TypeExpression(ec.BuiltinTypes.Bool, loc), left, loc), loc), leftExpr, rightExpr, loc).Resolve (ec);
+					}
+				} else if (oper == Operator.AsStrictEquality || oper == Operator.AsStrictInequality) {
+					// The rules for strict equality are somewhat complicated, so we let the
+					// dynamic runtime handle it.
+					var args = new Arguments(2);
+					args.Add (new Argument (left));
+					args.Add (new Argument (right));
+					return new DynamicBinaryExpression (oper, this.GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+				} else if (left.Type == ec.Module.PredefinedTypes.AsUndefined.Resolve () ||
+					right.Type == ec.Module.PredefinedTypes.AsUndefined.Resolve ()) {
+					// The undefined keyword has special behavior, so we let the dynamic
+					// runtime handle it.
+					var args = new Arguments(2);
+					args.Add (new Argument (left));
+					args.Add (new Argument (right));
+					return new DynamicBinaryExpression (oper, this.GetOperatorExpressionTypeName (), args, loc).Resolve (ec);
+				} else if (oper == Operator.AsURightShift) {
+					var bi_type = left.Type.BuiltinType;
+					if (bi_type == BuiltinTypeSpec.Type.SByte) {
+						return new Binary(Binary.Operator.RightShift, EmptyCast.Create (left, ec.BuiltinTypes.Byte, ec), right).Resolve (ec);
+					} else if (bi_type == BuiltinTypeSpec.Type.Short) {
+						return new Binary(Binary.Operator.RightShift, EmptyCast.Create (left, ec.BuiltinTypes.UShort, ec), right).Resolve (ec);
+					} else if (bi_type == BuiltinTypeSpec.Type.Int) {
+						return new Binary(Binary.Operator.RightShift, EmptyCast.Create (left, ec.BuiltinTypes.UInt, ec), right).Resolve (ec);
+					} else if (bi_type == BuiltinTypeSpec.Type.Long) {
+						return new Binary(Binary.Operator.RightShift, EmptyCast.Create (left, ec.BuiltinTypes.ULong, ec), right).Resolve (ec);
+					} else if (bi_type == BuiltinTypeSpec.Type.Float) {
+						return new Binary(Binary.Operator.RightShift, EmptyCast.Create (left, ec.BuiltinTypes.UInt, ec), right).Resolve (ec);
+					} else if (bi_type == BuiltinTypeSpec.Type.Double) {
+						return new Binary(Binary.Operator.RightShift, EmptyCast.Create (left, ec.BuiltinTypes.UInt, ec), right).Resolve (ec);
+					}
+				} else if (left.Type.BuiltinType == BuiltinTypeSpec.Type.String) {
+					if (oper == Operator.LessThan || oper == Operator.GreaterThan || oper == Operator.LessThanOrEqual || oper == Operator.GreaterThanOrEqual) {
+						// Implement string comparisons
+						return new Binary(oper, MakeStringComparison (ec).Resolve (ec), new IntLiteral(ec.BuiltinTypes, 0, loc)).Resolve (ec);
+					}
+				} else if (Oper == Operator.Division && right.Type != ec.BuiltinTypes.Double && right.Type != ec.BuiltinTypes.Float) {
+
+					// In PlayScript division always results in a double.
+					left = new Cast(new TypeExpression(ec.BuiltinTypes.Double, loc), left, loc).Resolve (ec);
+					right = new Cast(new TypeExpression(ec.BuiltinTypes.Double, loc), right, loc).Resolve (ec);
+				}
+
+				//
+				// If we're doing any string operations prefer "string" vs. "dynamic"
+				//
+				if (left.Type.IsDynamic && right.Type == ec.BuiltinTypes.String)
+					left = Convert.ImplicitConversion (ec, left, ec.BuiltinTypes.String, loc).Resolve (ec);
+				else if (right.Type.IsDynamic && left.Type == ec.BuiltinTypes.String)
+					right = Convert.ImplicitConversion (ec, right, ec.BuiltinTypes.String, loc).Resolve (ec);
+
+				//
+				// In PlayScript, if either side of an addition operator is a string, convert the other side
+				// to string as well. This is necessary to resolve ambiguities between object and string.
+				//
+				if (oper == Operator.Addition) {
+					if (left.Type.BuiltinType == BuiltinTypeSpec.Type.String && right.Type.BuiltinType != BuiltinTypeSpec.Type.String)
+						right = Convert.ImplicitConversion (ec, right, ec.BuiltinTypes.String, loc).Resolve (ec);
+					if (right.Type.BuiltinType == BuiltinTypeSpec.Type.String && left.Type.BuiltinType != BuiltinTypeSpec.Type.String)
+						left = Convert.ImplicitConversion (ec, left, ec.BuiltinTypes.String, loc).Resolve (ec);
+				}
+			}
+
 
 			// The conversion rules are ignored in enum context but why
 			if (!ec.HasSet (ResolveContext.Options.EnumScope) && lc != null && rc != null && (left.Type.IsEnum || right.Type.IsEnum)) {
@@ -4148,10 +4696,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					return e;
 			}
 
+			// in PlayScript this is used as an efficient NaN check
+			bool is_playscript_nan_check = false;
+			if (ec.IsPlayScript) {
+				is_playscript_nan_check = (left.Type.BuiltinType == BuiltinTypeSpec.Type.Double && right.Type.BuiltinType == BuiltinTypeSpec.Type.Double);
+			}
+
 			// Comparison warnings
 			if ((oper & Operator.ComparisonMask) != 0) {
 				if (left.Equals (right)) {
-					ec.Report.Warning (1718, 3, loc, "A comparison made to same variable. Did you mean to compare something else?");
+					if (!is_playscript_nan_check) {						
+						ec.Report.Warning (1718, 3, loc, "A comparison made to same variable. Did you mean to compare something else?");
+					}
 				}
 				CheckOutOfRangeComparison (ec, lc, right.Type);
 				CheckOutOfRangeComparison (ec, rc, left.Type);
@@ -4159,6 +4715,19 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			if (left.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic || right.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic)
 				return DoResolveDynamic (ec);
+			
+			//
+			// We provide a mechanism to use single precision floats instead of
+			// doubles for the PlayScript Number type via the [NumberIsFloat]
+			// attribute. By casting doubles to floats here, we allow the constant
+			// folding to do its thing and remove any unnecessary coversions.
+			//
+			if (ec.PsNumberIsFloat) {
+				if (left.Type != null && left.Type.BuiltinType == BuiltinTypeSpec.Type.Double)
+					left = new Cast (new TypeExpression (ec.BuiltinTypes.Float, left.Location), left, left.Location).Resolve (ec);
+				if (right.Type != null && right.Type.BuiltinType == BuiltinTypeSpec.Type.Double)
+					right = new Cast (new TypeExpression (ec.BuiltinTypes.Float, right.Location), right, right.Location).Resolve (ec);
+			}
 
 			return DoResolveCore (ec, left, right);
 		}
@@ -4181,6 +4750,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			//
 			if ((oper & Operator.LogicalMask) != 0) {
 				Expression cond_left, cond_right, expr;
+
+				if (rc.FileType == SourceFileType.PlayScript && rc.Module.Compiler.Settings.NewDynamicRuntime_LogicalOps && (typeHint == rc.BuiltinTypes.Bool)) {
+					// in the new runtime we convert each side to boolean for logical operations
+					if (lt.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+						left = new Cast(new TypeExpression(rc.BuiltinTypes.Bool, loc), left, loc).Resolve(rc);
+					}
+					if (rt.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+						right = new Cast(new TypeExpression(rc.BuiltinTypes.Bool, loc), right, loc).Resolve(rc);
+					}
+					return DoResolveCore(rc, left, right);
+				}
 
 				args = new Arguments (2);
 
@@ -4205,7 +4785,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 					args.Add (new Argument (left));
 					args.Add (new Argument (right));
-					cond_right = new DynamicExpressionStatement (this, args, loc);
+					cond_right = new DynamicBinaryExpression (this.oper, this.GetOperatorExpressionTypeName(), args, loc);
+
 				} else {
 					LocalVariable temp = LocalVariable.CreateCompilerGenerated (rc.BuiltinTypes.Bool, rc.CurrentBlock, loc);
 
@@ -4217,8 +4798,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					}
 
 					args.Add (new Argument (temp.CreateReferenceExpression (rc, loc).Resolve (rc)));
+
 					args.Add (new Argument (right));
-					right = new DynamicExpressionStatement (this, args, loc);
+					right = new DynamicBinaryExpression (this.oper, this.GetOperatorExpressionTypeName(), args, loc);
 
 					//
 					// bool && dynamic => (temp = left) ? temp && right : temp;
@@ -4238,10 +4820,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return new Conditional (expr, cond_left, cond_right, loc).Resolve (rc);
 			}
 
-			args = new Arguments (2);
-			args.Add (new Argument (left));
-			args.Add (new Argument (right));
-			return new DynamicExpressionStatement (this, args, loc).Resolve (rc);
+			args = new Arguments(2);
+			args.Add(new Argument(left));
+			args.Add(new Argument(right));
+			return new DynamicBinaryExpression (this.oper, this.GetOperatorExpressionTypeName(), args, loc).Resolve(rc);
 		}
 
 		Expression DoResolveCore (ResolveContext ec, Expression left_orig, Expression right_orig)
@@ -4262,6 +4844,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public override SLE.Expression MakeExpression (BuilderContext ctx)
 		{
 			return MakeExpression (ctx, left, right);
+		}
+
+		Expression PsMakeIsNullOrUndefinedExpression (ResolveContext ec, Expression expr)
+		{
+			var args = new Arguments (1);
+			args.Add (new Argument (new As (expr, new TypeExpression (ec.BuiltinTypes.Object, loc), loc)));
+			var call = new Invocation (new MemberAccess (new MemberAccess (new SimpleName ("PlayScript", loc), "Dynamic", loc), "IsNullOrUndefined", loc), args);
+			if (oper == Operator.Inequality)
+				return new Unary (Unary.Operator.LogicalNot, call, loc);
+			return call;
 		}
 
 		public SLE.Expression MakeExpression (BuilderContext ctx, Expression left, Expression right)
@@ -4563,7 +5155,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (expr.Type == underlying_type)
 				return expr;
 
-			return EmptyCast.Create (expr, underlying_type);
+			return EmptyCast.Create (expr, underlying_type, rc);
 		}
 
 		Expression ResolveEnumOperators (ResolveContext rc, bool lenum, bool renum, TypeSpec ltype, TypeSpec rtype)
@@ -4595,7 +5187,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					if (oper == Operator.Subtraction)
 						expr = ConvertEnumSubtractionResult (rc, expr);
 					else
-						expr = ConvertEnumAdditionalResult (expr, enum_type);
+						expr = ConvertEnumAdditionalResult (expr, enum_type, rc);
 
 					enum_conversion = GetEnumResultCast (expr.Type);
 
@@ -4618,7 +5210,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				if (oper == Operator.Subtraction)
 					expr = ConvertEnumSubtractionResult (rc, expr);
 				else
-					expr = ConvertEnumAdditionalResult (expr, enum_type);
+					expr = ConvertEnumAdditionalResult (expr, enum_type, rc);
 
 				enum_conversion = GetEnumResultCast (expr.Type);
 			}
@@ -4626,9 +5218,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			return expr;
 		}
 
-		static Expression ConvertEnumAdditionalResult (Expression expr, TypeSpec enumType)
+		static Expression ConvertEnumAdditionalResult (Expression expr, TypeSpec enumType, ResolveContext rc)
 		{
-			return EmptyCast.Create (expr, enumType);
+			return EmptyCast.Create (expr, enumType, rc);
 		}
 
 		Expression ConvertEnumSubtractionResult (ResolveContext rc, Expression expr)
@@ -4662,7 +5254,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					result_type = rc.Module.PredefinedTypes.Nullable.TypeSpec.MakeGenericType (rc.Module, new[] { result_type });
 			}
 
-			return EmptyCast.Create (expr, result_type);
+			return EmptyCast.Create (expr, result_type, rc);
 		}
 
 		public static ConvCast.Mode GetEnumResultCast (TypeSpec type)
@@ -4837,27 +5429,36 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return l.Kind == MemberKind.InternalCompilerType || l.Kind == MemberKind.Struct ? null : this;
 			}
 
-			if (!Convert.ExplicitReferenceConversionExists (l, r) &&
-				!Convert.ExplicitReferenceConversionExists (r, l))
-				return null;
+			// PlayScript - we have to let control fall through to end of method.. so use ret here and set it to null if invalid
+			Expression ret = this;
+
+			if (!Convert.ExplicitReferenceConversionExists (l, r, ec) &&
+				!Convert.ExplicitReferenceConversionExists (r, l, ec))
+				ret = null;
 
 			// Reject allowed explicit conversions like int->object
 			if (!TypeSpec.IsReferenceType (l) || !TypeSpec.IsReferenceType (r))
-				return null;
+				ret = null;
 
-			if (l.BuiltinType == BuiltinTypeSpec.Type.String || l.BuiltinType == BuiltinTypeSpec.Type.Delegate || l.IsDelegate || MemberCache.GetUserOperator (l, MonoCSharp.Operator.OpType.Equality, false) != null)
+			if (l.BuiltinType == BuiltinTypeSpec.Type.String || l.BuiltinType == BuiltinTypeSpec.Type.Delegate || l.IsDelegate || MemberCache.GetUserOperator (l, ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.Equality, false) != null)
 				ec.Report.Warning (253, 2, loc,
 					"Possible unintended reference comparison. Consider casting the right side expression to type `{0}' to get value comparison",
 					l.GetSignatureForError ());
 
-			if (r.BuiltinType == BuiltinTypeSpec.Type.String || r.BuiltinType == BuiltinTypeSpec.Type.Delegate || r.IsDelegate || MemberCache.GetUserOperator (r, MonoCSharp.Operator.OpType.Equality, false) != null)
+			if (r.BuiltinType == BuiltinTypeSpec.Type.String || r.BuiltinType == BuiltinTypeSpec.Type.Delegate || r.IsDelegate || MemberCache.GetUserOperator (r, ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.Equality, false) != null)
 				ec.Report.Warning (252, 2, loc,
 					"Possible unintended reference comparison. Consider casting the left side expression to type `{0}' to get value comparison",
 					r.GetSignatureForError ());
 
-			return this;
-		}
+			//
+			// PlayScript - Try equality with any PlayScript/ActionScript implicit conversions
+			//
+			if (ret == null && ec.IsPlayScript && (!TypeSpec.IsReferenceType (l) || !TypeSpec.IsReferenceType (r))) {
+				ret = ResolveOperatorPredefined (ec, ec.BuiltinTypes.AsOperatorsBinaryEquality, no_arg_conv);
+			}
 
+			return ret;
+		}
 
 		Expression ResolveOperatorPointer (ResolveContext ec, TypeSpec l, TypeSpec r)
 		{
@@ -5119,7 +5720,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				return lifted.Resolve (rc);
 			}
-			
+
 			if ((oper & Operator.LogicalMask) != 0) {
 				// TODO: CreateExpressionTree is allocated every time		
 				oper_expr = new ConditionalLogicalOperator (oper_method, args, CreateExpressionTree,
@@ -5250,7 +5851,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			if (c is IntegralConstant || c is CharConstant) {
 				try {
-					c.ConvertExplicitly (true, type);
+					c.ConvertExplicitly (true, type, ec);
 				} catch (OverflowException) {
 					ec.Report.Warning (652, 2, loc,
 						"A comparison between a constant and a variable is useless. The constant is out of the range of the variable type `{0}'",
@@ -5649,7 +6250,20 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Left != null)
+					this.Left.Accept (visitor);
+				if (visitor.Continue && this.Right != null)
+					this.Right.Accept (visitor);
+			}
+
+			return ret;
 		}
 
 	}
@@ -5658,7 +6272,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	// Represents the operation a + b [+ c [+ d [+ ...]]], where a is a string
 	// b, c, d... may be strings or objects.
 	//
-	public class StringConcat : Expression
+	public partial class StringConcat : Expression
 	{
 		Arguments arguments;
 		
@@ -6048,7 +6662,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			// that can be implicitly converted to bool or of
 			// a type that implements operator true
 
-			expr = expr.Resolve (ec);
+			// resolve with a hint to resolve to a boolean type to avoid unnecessary conversion
+			expr = expr.ResolveWithTypeHint(ec, ec.BuiltinTypes.Bool);
+
 			if (expr == null)
 				return null;
 
@@ -6062,9 +6678,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return expr;
 
 			if (expr.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
-				Arguments args = new Arguments (1);
-				args.Add (new Argument (expr));
-				return DynamicUnaryConversion.CreateIsTrue (ec, args, loc).Resolve (ec);
+				if (ec.FileType == SourceFileType.PlayScript) {
+					// PlayScript: Call the "Boolean()" static method to convert a dynamic to a bool.  EXPENSIVE, but hey..
+					Arguments args = new Arguments (1);
+					args.Add (new Argument(EmptyCast.RemoveDynamic(ec, expr)));
+					expr = new Invocation(new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, loc), "Boolean_fn", loc), "Boolean", loc), args).Resolve (ec);
+				} else {
+					Arguments args = new Arguments (1);
+					args.Add (new Argument (expr));
+					return DynamicUnaryConversion.CreateIsTrue (ec, args, loc).Resolve (ec);
+				}
 			}
 
 			type = ec.BuiltinTypes.Bool;
@@ -6086,7 +6709,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -6106,7 +6740,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	/// <summary>
 	///   Implements the ternary conditional operator (?:)
 	/// </summary>
-	public class Conditional : Expression {
+	public partial class Conditional : Expression {
 		Expression expr, true_expr, false_expr;
 
 		public Conditional (Expression expr, Expression true_expr, Expression false_expr, Location loc)
@@ -6167,12 +6801,27 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			TypeSpec false_type = false_expr.Type;
 			type = true_type;
 
+			if (ec.IsPlayScript && ec.Module.Compiler.Settings.NewDynamicRuntime_Conditional) {
+				// if either true or false are dynamic then we must cast the other to dynamic
+				if (true_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic || false_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+					if (false_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+						false_expr = Convert.ImplicitConversion (ec, false_expr, ec.BuiltinTypes.Dynamic, loc);
+						false_type = false_expr.Type;
+					}
+					if (true_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+						true_expr = Convert.ImplicitConversion (ec, true_expr, ec.BuiltinTypes.Dynamic, loc);
+						true_type = true_expr.Type;
+					}
+				}
+			}
+
 			//
 			// First, if an implicit conversion exists from true_expr
 			// to false_expr, then the result type is of type false_expr.Type
-			//
+			// 
 			if (!TypeSpecComparer.IsEqual (true_type, false_type)) {
-				Expression conv = Convert.ImplicitConversion (ec, true_expr, false_type, loc);
+				// The following needs to be up converted to prevent a CS0172 in ActionScript
+				Expression conv = Convert.ImplicitConversion (ec, true_expr, false_type, loc, true);
 				if (conv != null && true_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
 					//
 					// Check if both can convert implicitly to each other's type
@@ -6180,7 +6829,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					type = false_type;
 
 					if (false_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
-						var conv_false_expr = Convert.ImplicitConversion (ec, false_expr, true_type, loc);
+						// The following needs to be up converted to prevent a CS0172 in ActionScript
+						var conv_false_expr = Convert.ImplicitConversion (ec, false_expr, true_type, loc, true);
 						//
 						// LAMESPEC: There seems to be hardcoded promotition to int type when
 						// both sides are numeric constants and one side is int constant and
@@ -6203,13 +6853,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						if (conv_false_expr != null) {
 							ec.Report.Error (172, true_expr.Location,
 								"Type of conditional expression cannot be determined as `{0}' and `{1}' convert implicitly to each other",
-									true_type.GetSignatureForError (), false_type.GetSignatureForError ());
+								true_type.GetSignatureForError (), false_type.GetSignatureForError ());
 						}
 					}
 
 					true_expr = conv;
 					if (true_expr.Type != type)
-						true_expr = EmptyCast.Create (true_expr, type);
+						true_expr = EmptyCast.Create (true_expr, type, ec);
 				} else if ((conv = Convert.ImplicitConversion (ec, false_expr, true_type, loc)) != null) {
 					false_expr = conv;
 				} else {
@@ -6240,6 +6890,130 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			return this;
+
+//			expr = expr.Resolve (ec);
+//
+////			if (true_expr == null || false_expr == null || expr == null)
+////				return null;
+//
+//			//
+//			// Unreachable code needs different resolve path. For instance for await
+//			// expression to not generate unreachable resumable statement
+//			//
+//			Constant c = expr as Constant;
+//			if (c != null && ec.CurrentBranching != null) {
+//				bool unreachable = ec.CurrentBranching.CurrentUsageVector.IsUnreachable;
+//
+//				if (c.IsDefaultValue) {
+//					ec.CurrentBranching.CurrentUsageVector.IsUnreachable = true;
+//					true_expr = true_expr.Resolve (ec);
+//					ec.CurrentBranching.CurrentUsageVector.IsUnreachable = unreachable;
+//
+//					false_expr = false_expr.Resolve (ec);
+//				} else {
+//					true_expr = true_expr.Resolve (ec);
+//
+//					ec.CurrentBranching.CurrentUsageVector.IsUnreachable = true;
+//					false_expr = false_expr.Resolve (ec);
+//					ec.CurrentBranching.CurrentUsageVector.IsUnreachable = unreachable;
+//				}
+//			} else {
+//				true_expr = true_expr.Resolve (ec);
+//				false_expr = false_expr.Resolve (ec);
+//			}
+//
+//			if (true_expr == null || false_expr == null || expr == null)
+//				return null;
+//
+//			eclass = ExprClass.Value;
+//			TypeSpec true_type = true_expr.Type;
+//			TypeSpec false_type = false_expr.Type;
+//			type = true_type;
+//
+//			if (ec.FileType == SourceFileType.PlayScript && ec.Module.Compiler.Settings.NewDynamicRuntime_Conditional) {
+//				// if either true or false are dynamic then we must cast the other to dynamic
+//				if (true_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic || false_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+//					if (false_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+//						false_expr = Convert.ImplicitConversion (ec, false_expr, ec.BuiltinTypes.Dynamic, loc);
+//						false_type = false_expr.Type;
+//					}
+//					if (true_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+//						true_expr = Convert.ImplicitConversion (ec, true_expr, ec.BuiltinTypes.Dynamic, loc);
+//						true_type = true_expr.Type;
+//					}
+//				}
+//			}
+//
+//			//
+//			// First, if an implicit conversion exists from true_expr
+//			// to false_expr, then the result type is of type false_expr.Type
+//			//
+//			if (!TypeSpecComparer.IsEqual (true_type, false_type)) {
+//				Expression conv = Convert.ImplicitConversion (ec, true_expr, false_type, loc, true);
+//				if (conv != null && true_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+//					//
+//					// Check if both can convert implicitly to each other's type
+//					//
+//					type = false_type;
+//
+//					if (false_type.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+//						var conv_false_expr = Convert.ImplicitConversion (ec, false_expr, true_type, loc, true);
+//						//
+//						// LAMESPEC: There seems to be hardcoded promotition to int type when
+//						// both sides are numeric constants and one side is int constant and
+//						// other side is numeric constant convertible to int.
+//						//
+//						// var res = condition ? (short)1 : 1;
+//						//
+//						// Type of res is int even if according to the spec the conversion is
+//						// ambiguous because 1 literal can be converted to short.
+//						//
+//						if (conv_false_expr != null) {
+//							if (conv_false_expr.Type.BuiltinType == BuiltinTypeSpec.Type.Int && conv is Constant) {
+//								type = true_type;
+//								conv_false_expr = null;
+//							} else if (type.BuiltinType == BuiltinTypeSpec.Type.Int && conv_false_expr is Constant) {
+//								conv_false_expr = null;
+//							}
+//						}
+//
+//						if (conv_false_expr != null) {
+//							ec.Report.Error (172, true_expr.Location,
+//								"Type of conditional expression cannot be determined as `{0}' and `{1}' convert implicitly to each other",
+//									true_type.GetSignatureForError (), false_type.GetSignatureForError ());
+//						}
+//					}
+//
+//					true_expr = conv;
+//					if (true_expr.Type != type)
+//						true_expr = EmptyCast.Create (true_expr, type, ec);
+//				} else if ((conv = Convert.ImplicitConversion (ec, false_expr, true_type, loc)) != null) {
+//					false_expr = conv;
+//				} else {
+//					ec.Report.Error (173, true_expr.Location,
+//						"Type of conditional expression cannot be determined because there is no implicit conversion between `{0}' and `{1}'",
+//						true_type.GetSignatureForError (), false_type.GetSignatureForError ());
+//					return null;
+//				}
+//			}			
+//
+//			if (c != null) {
+//				bool is_false = c.IsDefaultValue;
+//
+//				//
+//				// Don't issue the warning for constant expressions
+//				//
+//				if (!(is_false ? true_expr is Constant : false_expr is Constant)) {
+//					// CSC: Missing warning
+//					Warning_UnreachableExpression (ec, is_false ? true_expr.Location : false_expr.Location);
+//				}
+//
+//				return ReducedExpression.Create (
+//					is_false ? false_expr : true_expr, this,
+//					false_expr is Constant && true_expr is Constant).Resolve (ec);
+//			}
+//
+//			return this;
 		}
 
 		public override void Emit (EmitContext ec)
@@ -6312,14 +7086,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			target.true_expr = true_expr.Clone (clonectx);
 			target.false_expr = false_expr.Clone (clonectx);
 		}
-		
-		public override object Accept (StructuralVisitor visitor)
-		{
-			return visitor.Visit (this);
-		}
 	}
 
-	public abstract class VariableReference : Expression, IAssignMethod, IMemoryLocation, IVariableReference
+	public abstract partial class VariableReference : Expression, IAssignMethod, IMemoryLocation, IVariableReference
 	{
 		LocalTemporary temp;
 
@@ -6567,7 +7336,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (fc.IsDefinitelyAssigned (variable_info))
 				return;
 
-			fc.Report.Error (165, loc, "Use of unassigned local variable `{0}'", Name);
+			// PlayScript does not consider this an error.
+			if (!loc.IsPlayScript)
+				fc.Report.Error (165, loc, "Use of unassigned local variable `{0}'", Name);
+
 			variable_info.SetAssigned (fc.DefiniteAssignment, true);
 		}
 
@@ -6677,11 +7449,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		protected override void CloneTo (CloneContext clonectx, Expression t)
 		{
 			// Nothing
-		}
-		
-		public override object Accept (StructuralVisitor visitor)
-		{
-			return visitor.Visit (this);
 		}
 	}
 
@@ -6863,7 +7630,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	/// <summary>
 	///   Invocation of methods or delegates.
 	/// </summary>
-	public class Invocation : ExpressionStatement
+	public partial class Invocation : ExpressionStatement
 	{
 		public class Predefined : Invocation
 		{
@@ -7019,10 +7786,96 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		Expression DoResolveInvocation (ResolveContext ec)
 		{
 			Expression member_expr;
+			bool args_resolved = false;
+			bool dynamic_arg = false;
+
 			var atn = expr as ATypeNameExpression;
+
+			// Handle special casts for dynamic types..
+			if (ec.IsPlayScript && arguments != null && arguments.Count == 1) {
+
+				BuiltinTypeSpec.Type castType = BuiltinTypeSpec.Type.None;
+
+				if (expr is TypeExpression) {
+					castType = ((TypeExpression)expr).Type.BuiltinType;
+				} else if (atn != null) {  // These invoke values can be names.. 
+					if (atn.Name == "String") {
+						expr = new TypeExpression (ec.BuiltinTypes.String, Location);
+						atn = null;
+						castType = BuiltinTypeSpec.Type.String;
+					} else if (atn.Name == "Number") {
+						expr = new TypeExpression (ec.BuiltinTypes.Double, Location);
+						atn = null;
+						castType = BuiltinTypeSpec.Type.Double;
+					} else if (atn.Name == "Boolean") {
+						expr = new TypeExpression (ec.BuiltinTypes.Bool, Location);
+						atn = null;
+						castType = BuiltinTypeSpec.Type.Bool;
+					}
+				}
+
+				if (castType == BuiltinTypeSpec.Type.Int || castType == BuiltinTypeSpec.Type.UInt || castType == BuiltinTypeSpec.Type.Double ||
+					castType == BuiltinTypeSpec.Type.Bool || castType == BuiltinTypeSpec.Type.String) {
+
+					if (arguments != null)
+						arguments.Resolve (ec, out dynamic_arg);
+					args_resolved = true;
+
+					var ct = arguments [0].Expr.Type;
+					var cbt = ct.BuiltinType;
+					if (cbt == BuiltinTypeSpec.Type.Dynamic) {
+						arguments [0].Expr = EmptyCast.RemoveDynamic(ec, arguments[0].Expr);
+						dynamic_arg = false;
+						ct = ec.BuiltinTypes.Object;
+						cbt = BuiltinTypeSpec.Type.Object;
+					}
+					switch (castType) {
+					case BuiltinTypeSpec.Type.Int:
+						if (cbt == BuiltinTypeSpec.Type.String ||
+							cbt == BuiltinTypeSpec.Type.Object)
+							atn = new SimpleName ("int", Location);
+						break;
+					case BuiltinTypeSpec.Type.UInt:
+						if (cbt == BuiltinTypeSpec.Type.String ||
+							cbt == BuiltinTypeSpec.Type.Object)
+							atn = new SimpleName ("uint", Location);
+						break;
+					case BuiltinTypeSpec.Type.Double:
+						if (cbt == BuiltinTypeSpec.Type.String ||
+							cbt == BuiltinTypeSpec.Type.Object)
+							atn = new SimpleName ("Number", Location);
+						break;
+					case BuiltinTypeSpec.Type.Bool:
+						if (cbt == BuiltinTypeSpec.Type.String ||
+							cbt == BuiltinTypeSpec.Type.Object ||
+							ct.IsClass)
+							atn = new SimpleName ("Boolean", Location);
+						break;
+					case BuiltinTypeSpec.Type.String:
+						if (arguments [0].Expr.Type.BuiltinType == BuiltinTypeSpec.Type.Int ||
+							arguments [0].Expr.Type.BuiltinType == BuiltinTypeSpec.Type.UInt ||
+							arguments [0].Expr.Type.BuiltinType == BuiltinTypeSpec.Type.Double ||
+							arguments [0].Expr.Type.BuiltinType == BuiltinTypeSpec.Type.Bool)
+							atn = new SimpleName ("String", Location);
+						break;
+					}
+				}
+			}
+
 			if (atn != null) {
-				member_expr = atn.LookupNameExpression (ec, MemberLookupRestrictions.InvocableOnly | MemberLookupRestrictions.ReadAccess);
+				MemberLookupRestrictions lookupRestr = MemberLookupRestrictions.InvocableOnly | MemberLookupRestrictions.ReadAccess;
+				// Allow lookup to return a type for ActionSctipt function style casts.
+				if (ec.IsPlayScript && arguments != null && arguments.Count == 1)
+					lookupRestr |= MemberLookupRestrictions.AsTypeCast;
+				member_expr = atn.LookupNameExpression (ec, lookupRestr);
+				//member_expr = atn.LookupNameExpression (ec, MemberLookupRestrictions.InvocableOnly | MemberLookupRestrictions.ReadAccess);
 				if (member_expr != null) {
+					// Handle "function call" style casts in actionscript.
+//					if (isPlayScript && member_expr is TypeExpr && 
+//					    arguments != null && arguments.Count == 1) {
+//						var castExpr = new Cast(member_expr, arguments[0].Expr, loc);
+//						return castExpr.Resolve (ec);
+//					}
 					var name_of = member_expr as NameOf;
 					if (name_of != null) {
 						return name_of.ResolveOverload (ec, arguments);
@@ -7034,19 +7887,39 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				member_expr = expr.Resolve (ec);
 			}
 
+			// Handle function style casts in PlayScript
+			if (ec.IsPlayScript && arguments != null && arguments.Count == 1) {
+				if (member_expr == null && atn != null) {
+					// if we have no member expression here, then try to resolve again with only ReadAccess
+					member_expr = atn.LookupNameExpression (ec, MemberLookupRestrictions.ReadAccess) as TypeExpr;
+				}
+
+				if (member_expr is TypeExpr) {
+					// perform cast to type expression here using argument 0
+					// note its important to resolve argument 0 or else the cast will fail
+					// this cast supports the Vector.<T>([1,2,3]) syntax with Arguments[0] being an AsArrayInitializer
+					var cast_expr = Arguments [0].Expr.Resolve (ec);
+					#if !DISABLE_AS3_NULL_STRINGS
+					// In PlayScript, the string value of null is "null"
+					if (cast_expr.IsNull && member_expr.Type != null && member_expr.Type.BuiltinType == BuiltinTypeSpec.Type.String)
+						return new StringConstant (ec.BuiltinTypes, "null", loc);
+					#endif
+					return (new Cast (member_expr, cast_expr, loc)).Resolve (ec);
+				} 
+			}
+
 			if (member_expr == null)
 				return null;
 
-			//
-			// Next, evaluate all the expressions in the argument list
-			//
-			bool dynamic_arg = false;
-			if (arguments != null)
+			if (arguments != null && !args_resolved)
 				arguments.Resolve (ec, out dynamic_arg);
 
 			TypeSpec expr_type = member_expr.Type;
-			if (expr_type.BuiltinType == BuiltinTypeSpec.Type.Dynamic)
+			if (expr_type.IsDynamic) {
 				return DoResolveDynamic (ec, member_expr);
+			} else if (ec.IsPlayScript && expr_type.BuiltinType == BuiltinTypeSpec.Type.Delegate) { // Calls through delegate in PlayScript are dynamic
+				return DoResolveDynamic (ec, new Cast(new TypeExpression(ec.BuiltinTypes.Dynamic, Location), member_expr, Location).Resolve (ec));
+			}
 
 			mg = member_expr as MethodGroupExpr;
 			Expression invoke = null;
@@ -7076,6 +7949,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				}
 			}
 
+			// If actionscript, try to resolve dynamic args to avoid a dynamic invoke if possible.
+			if (dynamic_arg && ec.IsPlayScript && mg.Candidates.Count > 0) {
+				if (arguments.AsTryResolveDynamicArgs(ec, mg.Candidates)) {
+					dynamic_arg = false;
+				}
+			}
+
 			if (invoke == null) {
 				mg = DoResolveOverload (ec);
 				if (mg == null)
@@ -7100,6 +7980,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			IsSpecialMethodInvocation (ec, method, loc);
 			
+			// Check for Mono.Optimization intrinsics.
+//			if (method != null && mg.BestCandidate.DeclaringType.Name == "Msil" && 
+//				method.DeclaringType.MemberDefinition.Namespace == "Mono.Optimization") {
+//				return new ICSharpCode.NRefactory.MonoCSharp.MsilIntrinsic(expr, arguments, mg).Resolve (ec);
+//			}
+//
+//			// Attempt to do inlining..
+//			if (method != null && ec.Module.Compiler.Settings.Inlining != InliningMode.None && 
+//				(method.MemberDefinition as IMethodData) != null && ((IMethodData)method.MemberDefinition).IsInlinable) {
+//				var inliner = new Inliner (this);
+//				var inlinedExpr = inliner.TryInline (ec);
+//				if (inlinedExpr != this) {
+//					return inlinedExpr.Resolve (ec);
+//				}
+//			}
+
 			eclass = ExprClass.Value;
 			return this;
 		}
@@ -7162,7 +8058,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		protected virtual MethodGroupExpr DoResolveOverload (ResolveContext ec)
 		{
-			return mg.OverloadResolve (ec, ref arguments, null, OverloadResolver.Restrictions.None);
+			return mg.OverloadResolve (ec, ref arguments, null, mg.OverloadRestrictions);
 		}
 
 		public override void FlowAnalysis (FlowAnalysisContext fc)
@@ -7193,7 +8089,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		// If a member is a method or event, or if it is a constant, field or property of either a delegate type
 		// or the type dynamic, then the member is invocable
 		//
-		public static bool IsMemberInvocable (MemberSpec member)
+		public static bool IsMemberInvocable (MemberSpec member, ResolveContext ec = null)
 		{
 			switch (member.Kind) {
 			case MemberKind.Event:
@@ -7201,7 +8097,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			case MemberKind.Field:
 			case MemberKind.Property:
 				var m = member as IInterfaceMemberSpec;
-				return m.MemberType.IsDelegate || m.MemberType.BuiltinType == BuiltinTypeSpec.Type.Dynamic;
+				return m.MemberType.IsDelegate || m.MemberType.BuiltinType == BuiltinTypeSpec.Type.Dynamic || 
+					(ec != null && ec.FileType == SourceFileType.PlayScript && m.MemberType.BuiltinType == BuiltinTypeSpec.Type.Delegate);
 			default:
 				return false;
 			}
@@ -7261,14 +8158,29 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && arguments != null) {
+					foreach (var arg in arguments) {
+						if (visitor.Continue && arg.Expr != null)
+							arg.Expr.Accept (visitor);
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
 	//
 	// Implements simple new expression 
 	//
-	public class New : ExpressionStatement, IMemoryLocation
+	public partial class New : ExpressionStatement, IMemoryLocation
 	{
 		protected Arguments arguments;
 
@@ -7321,7 +8233,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		/// <summary>
 		/// Converts complex core type syntax like 'new int ()' to simple constant
 		/// </summary>
-		public static Constant Constantify (TypeSpec t, Location loc)
+		public static Constant Constantify (TypeSpec t, Location loc, SourceFileType ft = SourceFileType.CSharp)
 		{
 			switch (t.BuiltinType) {
 			case BuiltinTypeSpec.Type.Int:
@@ -7333,9 +8245,9 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			case BuiltinTypeSpec.Type.ULong:
 				return new ULongConstant (t, 0, loc);
 			case BuiltinTypeSpec.Type.Float:
-				return new FloatConstant (t, 0, loc);
+				return (ft != SourceFileType.PlayScript ? new FloatConstant (t, 0, loc) : new FloatConstant (t, float.NaN, loc));
 			case BuiltinTypeSpec.Type.Double:
-				return new DoubleConstant (t, 0, loc);
+				return (ft != SourceFileType.PlayScript ? new DoubleConstant (t, 0, loc) : new DoubleConstant (t, double.NaN, loc));
 			case BuiltinTypeSpec.Type.Short:
 				return new ShortConstant (t, 0, loc);
 			case BuiltinTypeSpec.Type.UShort:
@@ -7353,7 +8265,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			if (t.IsEnum)
-				return new EnumConstant (Constantify (EnumSpec.GetUnderlyingType (t), loc), t);
+				return new EnumConstant (Constantify (EnumSpec.GetUnderlyingType (t), loc, ft), t);
 
 			if (t.IsNullableType)
 				return Nullable.LiftedNull.Create (t, loc);
@@ -7405,7 +8317,56 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		protected override Expression DoResolve (ResolveContext ec)
 		{
-			type = RequestedType.ResolveAsType (ec);
+			bool dynamic = false;
+
+			Expression ret = null;
+
+			// PlayScript can use expression returning a type as a new expression.
+			if (ec.FileType == SourceFileType.PlayScript) {
+
+				var reqExpr = RequestedType.Resolve (ec);
+				if (reqExpr == null)
+					return null;
+
+				if (reqExpr is TypeExpr) {
+					// PlayScript: Make sure a "new Object()" call in as uses an actual object type and not
+					// dynamic.
+					if (reqExpr.Type == ec.BuiltinTypes.Dynamic) {
+						type = ec.Module.PredefinedTypes.AsExpandoObject.Resolve ();
+					} else {
+						type = ((TypeExpr)reqExpr).ResolveAsType (ec);
+					}
+				} else if (reqExpr is TypeOf) {
+					type = ((TypeOf)reqExpr).TypeArgument;
+				} else if (reqExpr.Type.BuiltinType == BuiltinTypeSpec.Type.Type ||
+					reqExpr.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic){
+					if (arguments != null) {
+						arguments.Resolve (ec, out dynamic);
+					}
+
+					if (arguments == null) {
+						arguments = new Arguments(1);
+					}
+
+					// TODO: Use Activator for this instead of dynamic new.
+
+					arguments.Insert (0, new Argument (reqExpr.Resolve (ec), Argument.AType.DynamicTypeName));
+					ret = new DynamicConstructorBinder (reqExpr, arguments, loc).Resolve (ec);
+				}
+
+				if (ret != null)
+					return ret;
+
+				// PlayScript: Make sure a "new Object()" call in as uses an actual object type and not
+				// dynamic.
+				if (type == ec.BuiltinTypes.Dynamic) {
+					type = ec.Module.PredefinedTypes.AsExpandoObject.Resolve ();
+				}
+
+			} else {
+				type = RequestedType.ResolveAsType (ec);
+			}
+
 			if (type == null)
 				return null;
 
@@ -7466,7 +8427,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return null;
 			}
 
-			bool dynamic;
 			if (arguments != null) {
 				arguments.Resolve (ec, out dynamic);
 			} else {
@@ -7477,10 +8437,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			if (dynamic) {
 				arguments.Insert (0, new Argument (new TypeOf (type, loc).Resolve (ec), Argument.AType.DynamicTypeName));
-				return new DynamicConstructorBinder (type, arguments, loc).Resolve (ec);
+				ret = new DynamicConstructorBinder (type, arguments, loc).Resolve (ec);
+			} else {
+				ret = this;
 			}
 
-			return this;
+			return ret;
 		}
 
 		void DoEmitTypeParameter (EmitContext ec)
@@ -7643,7 +8605,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (arguments != null) {
+						foreach (var arg in arguments) {
+							if (visitor.Continue && arg.Expr != null)
+								arg.Expr.Accept (visitor);
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -7655,8 +8634,8 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	//
 	public class ArrayInitializer : Expression
 	{
-		List<Expression> elements;
-		BlockVariable variable;
+		protected List<Expression> elements;
+		protected BlockVariable variable;
 
 		public ArrayInitializer (List<Expression> init, Location loc)
 		{
@@ -7700,6 +8679,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				variable = value;
 			}
 		}
+
 		#endregion
 
 		public void Add (Expression expr)
@@ -7758,7 +8738,22 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					foreach (var elem in elements) {
+						if (visitor.Continue) 
+							elem.Accept (visitor);
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -7802,7 +8797,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public ArrayCreation (FullNamedExpression requested_base_type, List<Expression> exprs, ComposedTypeSpecifier rank, ArrayInitializer initializers, Location l)
 			: this (requested_base_type, rank, initializers, l)
 		{
-			arguments = exprs;
+			arguments = new List<Expression> (exprs);
 			num_arguments = arguments.Count;
 		}
 
@@ -7853,11 +8848,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				return this.initializers;
 			}
 		}
-		
+
 		public List<Expression> Arguments {
 			get { return this.arguments; }
 		}
-		
+
 		bool CheckIndices (ResolveContext ec, ArrayInitializer probe, int idx, bool specified_dims, int child_bounds)
 		{
 			if (initializers != null && bounds == null) {
@@ -8492,7 +9487,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (arguments != null) {
+						foreach (var arg in arguments) {
+							if (visitor.Continue)
+								arg.Accept (visitor);
+						}
+					}
+				}
+				if (visitor.Continue && initializers != null)
+					initializers.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 	
@@ -8720,8 +9734,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public static bool IsThisAvailable (ResolveContext ec, bool ignoreAnonymous)
 		{
-			if (ec.IsStatic || ec.HasAny (ResolveContext.Options.FieldInitializerScope | ResolveContext.Options.BaseInitializer | ResolveContext.Options.ConstantScope))
-				return false;
+			// Actionscript allows "this" access during constructor base initializer calls.
+			if (ec.FileType == SourceFileType.PlayScript) {
+				if (ec.IsStatic || ec.HasAny (ResolveContext.Options.FieldInitializerScope | ResolveContext.Options.ConstantScope))
+					return false;
+			} else {
+				if (ec.IsStatic || ec.HasAny (ResolveContext.Options.FieldInitializerScope | ResolveContext.Options.BaseInitializer | ResolveContext.Options.ConstantScope))
+					return false;
+			}
 
 			if (ignoreAnonymous || ec.CurrentAnonymousMethod == null)
 				return true;
@@ -8941,18 +9961,35 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (arguments != null) {
+						foreach (var arg in arguments) {
+							if (visitor.Continue && arg.Expr != null)
+								arg.Expr.Accept (visitor);
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
 	public class RefValueExpr : ShimExpression, IAssignMethod, IMemoryLocation
 	{
 		FullNamedExpression texpr;
-		
+
 		public FullNamedExpression FullNamedExpression {
 			get { return texpr;}
 		}
-		
+
 		public RefValueExpr (Expression expr, FullNamedExpression texpr, Location loc)
 			: base (expr)
 		{
@@ -9067,7 +10104,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -9572,10 +10620,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	/// <summary>
 	///   Implements the member access expression
 	/// </summary>
-	public class MemberAccess : ATypeNameExpression
+	public partial class MemberAccess : ATypeNameExpression
 	{
+		public enum Accessor {
+			Member,
+			AsE4xDescendant,				// The PlayScript E4X .. operator.
+			AsE4xChildAll,					// The PlayScript E4X .* operator.
+			AsE4xChildAttribute,			// The PlayScript E4X .@ operator.
+			AsE4xDescendantAll,				// The PlayScript E4X ..* operator.
+			AsE4xNamespace					// The PlayScript :: operator.
+		}
+
+		public Accessor AccessorType = Accessor.Member;
+
 		protected Expression expr;
-		
+
 		public MemberAccess (Expression expr, string id)
 			: base (id, expr.Location)
 		{
@@ -9612,8 +10671,67 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
+		private Expression MakeE4xInvocation (ResolveContext rc, string method, string arg = null)
+		{
+			Arguments args = null;
+			if (arg != null) {
+				args = new Arguments (1);
+				args.Add (new Argument (new StringLiteral (rc.BuiltinTypes, arg, loc)));
+			}
+			return new Invocation(new MemberAccess(expr, method, loc), args); 
+		}
+
 		protected override Expression DoResolve (ResolveContext rc)
 		{
+			// PlayScript E4X: Handle E4x accesors.
+			if (rc.IsPlayScript && AccessorType != Accessor.Member) {
+				if (AccessorType == Accessor.AsE4xChildAll) {
+					return MakeE4xInvocation(rc, "children").Resolve (rc);
+				} else if (AccessorType == Accessor.AsE4xDescendantAll) {
+					return MakeE4xInvocation(rc, "descendants").Resolve (rc);
+				} else if (AccessorType == Accessor.AsE4xChildAttribute) {
+					return MakeE4xInvocation (rc, "attribute", Name).Resolve (rc);
+				} else if (AccessorType == Accessor.AsE4xDescendant) {
+					return MakeE4xInvocation (rc, "descendants", Name).Resolve (rc);
+				} else if (AccessorType == Accessor.AsE4xNamespace) {
+
+					// In ActionScript, we can interpret a IDENT::IDENT as a CONFIG variable constants like CONFIG::DEBUG instead
+					// of an E4X namespace expression.  To distinguish between the two, we check to see if the left side is a simple
+					// name, and that there is actually a macro defined that matches the name we're checking.
+					if (expr is SimpleName) {
+						string config_id = ((SimpleName)expr).Name + "_" + this.Name;
+						if (rc.Module.Compiler.Settings.IsConditionalSymbolDefined (config_id)) {
+							string value = rc.Module.Compiler.Settings.GetConditionalSymbolValue (config_id);
+							if (value == "true") {
+								return new BoolLiteral (rc.BuiltinTypes, true, this.loc);
+							} else if (value == "false") {
+								return new BoolLiteral (rc.BuiltinTypes, false, this.loc);
+							} else if (value.Length > 0 && char.IsDigit (value [0]) || value [0] == '-') {
+								if (value.IndexOf (".") != -1) {
+									double dbl = 0.0;
+									double.TryParse (value, out dbl);
+									return new DoubleLiteral (rc.BuiltinTypes, dbl, this.loc);
+								} else {
+									int i = 0;
+									int.TryParse (value, out i);
+									return new IntLiteral (rc.BuiltinTypes, i, this.loc);
+								}
+							} else if (value.Length > 0 && (value [0] == '\'' || value [0] == '"')) {
+								string str = value.Substring (1);
+								if (str.Length > 0 && (str [str.Length - 1] == '\'' || str [str.Length - 1] == '"')) {
+									str = str.Substring (0, str.Length - 1);
+								}
+								return new StringLiteral (rc.BuiltinTypes, str, this.loc);
+							} else {
+								return new StringLiteral (rc.BuiltinTypes, value, this.loc);
+							}
+						}
+					}
+
+					return MakeE4xInvocation (rc, "namespace", Name).Resolve (rc);
+				}
+			}
+
 			var e = LookupNameExpression (rc, MemberLookupRestrictions.ReadAccess);
 			if (e != null)
 				e = e.Resolve (rc, ResolveFlags.VariableOrValue | ResolveFlags.Type | ResolveFlags.MethodGroup);
@@ -9676,7 +10794,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					expr.Error_UnexpectedKind (rc, flags, sn.Location);
 					expr = null;
 				}
-			} else {
+			// Add separate BuiltinType for the ActionScript "*" type
+			} else if (rc.IsPlayScript && expr != null) {
+				expr = expr.Resolve (rc, flags);
+			} else if (!rc.IsPlayScript) {
 				using (rc.Set (ResolveContext.Options.ConditionalAccessReceiver)) {
 					expr = expr.Resolve (rc, flags);
 				}
@@ -9688,6 +10809,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			var ns = expr as NamespaceExpression;
 			if (ns != null) {
 				var retval = ns.LookupTypeOrNamespace (rc, Name, Arity, LookupMode.Normal, loc);
+
+				// PlayScript - Search for _fn or _ns types for bare functions or namespace classes
+				bool foundFnType = false;
+				if (rc.IsPlayScript && retval == null) {
+					retval = ns.LookupTypeOrNamespace (rc, Name + "_fn", Arity, LookupMode.Normal, loc);
+					if (retval != null) {
+						foundFnType = true;
+					} else {
+						retval = ns.LookupTypeOrNamespace (rc, Name + "_ns", Arity, LookupMode.Normal, loc);
+					}
+				}
 
 				if (retval == null) {
 					ns.Error_NamespaceDoesNotExist (rc, Name, Arity, loc);
@@ -9701,7 +10833,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					targs.Resolve (rc, false);
 				}
 
-				return retval;
+				if (!foundFnType)
+					return retval;
+
+				expr = retval;
 			}
 
 			MemberExpr me;
@@ -9714,6 +10849,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				Arguments args = new Arguments (1);
 				args.Add (new Argument (expr));
 				return new DynamicMemberBinder (Name, args, loc);
+			}
+
+			// Add "static/instance" restrictions to lookup.
+			if (rc.IsPlayScript) {
+				if (expr is TypeExpression) {
+					restrictions |= MemberLookupRestrictions.PreferStatic;
+				} else {
+					restrictions |= MemberLookupRestrictions.PreferInstance;
+				}
 			}
 
 			var cma = this as ConditionalMemberAccess;
@@ -9744,7 +10888,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					// Try to look for extension method when member lookup failed
 					//
 					if (MethodGroupExpr.IsExtensionMethodArgument (expr)) {
-						var methods = rc.LookupExtensionMethod (Name, lookup_arity);
+
+						// Handle extension properties for PlayScript (these have a get_ or set_ prefix).
+						string extMethodName;
+						bool isAsExtGetter = false;
+						bool isAsExtSetter = false;
+						if (rc.IsPlayScript && (restrictions & MemberLookupRestrictions.InvocableOnly) == 0) {
+							if ((restrictions & MemberLookupRestrictions.ReadAccess) != 0) {
+								isAsExtGetter = true;
+								extMethodName = "get_" + Name;
+							} else {
+								isAsExtSetter = true;
+								extMethodName = "set_" + Name;
+							}
+						} else {
+							extMethodName = Name;
+						}
+
+//						var methods = rc.LookupExtensionMethod (Name, lookup_arity);
+						var methods = rc.LookupExtensionMethod (extMethodName, lookup_arity);
+
 						if (methods != null) {
 							var emg = new ExtensionMethodGroupExpr (methods, expr, loc);
 							if (HasTypeArguments) {
@@ -9757,6 +10920,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 							if (cma != null)
 								emg.ConditionalAccess = true;
 
+							// Handle any PlayScript extension getter right here (setters are handled in the Assign expression above)
+							if (isAsExtGetter) {
+								var args = new Arguments(0);
+								return new Invocation(new MemberAccess(expr, extMethodName, targs, expr.Location), args).Resolve (rc);
+							} else if (isAsExtSetter) {
+								return emg;
+							}
+
 							// TODO: it should really skip the checks bellow
 							return emg.Resolve (rc);
 						}
@@ -9765,6 +10936,46 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				if (errorMode) {
 					if (member_lookup == null) {
+
+						// Check AS builtin types
+						if (rc.FileType == SourceFileType.PlayScript) {
+
+							// PlayScript E4X: Handle XML child elements.
+							if (AccessorType == Accessor.Member &&
+								expr.Type.MemberDefinition.Namespace == PsConsts.PsRootNamespace &&
+								(expr.Type.Name == "XML" || expr.Type.Name == "XMLList")) {
+
+								return MakeE4xInvocation(rc, "elements", Name).Resolve (rc);
+
+							}
+
+							if (expr is TypeExpression) {
+								switch (expr_type.BuiltinType) {
+								case BuiltinTypeSpec.Type.String:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "String", Location), Name, Location).Resolve (rc);
+								case BuiltinTypeSpec.Type.Double:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "Number", Location), Name, Location).Resolve (rc);
+								case BuiltinTypeSpec.Type.Int:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "int", Location), Name, Location).Resolve (rc);
+								case BuiltinTypeSpec.Type.UInt:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "uint", Location), Name, Location).Resolve (rc);
+								case BuiltinTypeSpec.Type.Bool:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "Boolean", Location), Name, Location).Resolve (rc);
+								case BuiltinTypeSpec.Type.Type:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "Class", Location), Name, Location).Resolve (rc);
+								case BuiltinTypeSpec.Type.Delegate:
+									return new MemberAccess(new MemberAccess(new SimpleName(PsConsts.PsRootNamespace, Location), "Function", Location), Name, Location).Resolve (rc);
+								}
+
+							} else if (expr_type.IsAsDynamicClass) {
+
+								var arguments = new Arguments(1);
+								arguments.Add(new Argument(new StringLiteral(rc.BuiltinTypes, Name, loc)));
+								return new IndexerExpr (null, rc.BuiltinTypes.Object, new ElementAccess(expr, arguments, loc)).Resolve (rc);
+
+							}
+						}
+
 						var dep = expr_type.GetMissingDependencies ();
 						if (dep != null) {
 							ImportedTypeDefinition.Error_MissingDependency (rc, dep, loc);
@@ -9833,6 +11044,13 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				me.SetTypeArguments (rc, targs);
 			}
 
+			// PlayScript - Add additional restrictions to overload resolution to disambiguate static/instance methods with the
+			// same name and params.
+			if (rc.IsPlayScript && (me is MethodGroupExpr) && ((MethodGroupExpr)me).Candidates.Count > 1) {
+				me.OverloadRestrictions = (expr is TypeExpr) ? 
+					OverloadResolver.Restrictions.StaticOnly : OverloadResolver.Restrictions.InstanceOnly;
+			}
+
 			return me;
 		}
 
@@ -9852,6 +11070,17 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			var ns = expr_resolved as NamespaceExpression;
 			if (ns != null) {
 				FullNamedExpression retval = ns.LookupTypeOrNamespace (rc, Name, Arity, LookupMode.Normal, loc);
+
+				// Lookup ClassName_fn function classes (if PlayScript)
+				SourceFileType ft = (rc is ResolveContext ? ((ResolveContext)rc).FileType : 
+					(rc is MemberCore ? ((MemberCore)rc).FileType : 
+						SourceFileType.CSharp));
+				if (retval == null && ft == SourceFileType.PlayScript) {
+					retval = ns.LookupTypeOrNamespace (rc, Name + "_fn", Arity, LookupMode.Normal, loc);
+					if (retval == null) {
+						retval = ns.LookupTypeOrNamespace (rc, Name + "_ns", Arity, LookupMode.Normal, loc);
+					}
+				}
 
 				if (retval == null) {
 					ns.Error_NamespaceDoesNotExist (rc, Name, Arity, loc);
@@ -9996,10 +11225,21 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			target.expr = expr.Clone (clonectx);
 		}
-		
+
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.LeftExpression != null)
+					this.LeftExpression.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -10022,7 +11262,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	public class CheckedExpr : Expression {
 
 		public Expression Expr;
-		
+
 		public CheckedExpr (Expression e, Location l)
 		{
 			Expr = e;
@@ -10089,7 +11329,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -10159,7 +11410,18 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue && this.Expr != null)
+					this.Expr.Accept (visitor);
+			}
+
+			return ret;
 		}
 	}
 
@@ -10173,6 +11435,14 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	{
 		public Arguments Arguments;
 		public Expression Expr;
+
+		public enum Accessor {
+			ElementAccess,
+			AsE4xNamespaceAccess,
+			AsE4xAttributeAccess
+		}
+
+		public Accessor AccessorType = Accessor.ElementAccess;
 
 		public ElementAccess (Expression e, Arguments args, Location loc)
 		{
@@ -10229,7 +11499,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 
 			var indexers = MemberCache.FindMembers (type, MemberCache.IndexerNameAlias, false);
-			if (indexers != null || type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+			if (indexers != null || type.BuiltinType == BuiltinTypeSpec.Type.Dynamic || type.IsAsDynamicClass) {
 				var indexer = new IndexerExpr (indexers, type, this) {
 					ConditionalAccess = ConditionalAccess
 				};
@@ -10238,6 +11508,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 					indexer.SetConditionalAccessReceiver ();
 
 				return indexer;
+			}
+
+			// PlayScript supports indexer accesses for non-objects
+			if (ec.FileType == SourceFileType.PlayScript) {
+				if (loc.SourceFile == null || !loc.SourceFile.PsExtended) { // .play doesn't allow this
+					type = ec.BuiltinTypes.AsUntyped;
+					Expr = EmptyCast.Create (Expr, type, ec);
+					return new IndexerExpr (indexers, type, this);
+				}
 			}
 
 			Error_CannotApplyIndexing (ec, type, loc);
@@ -10289,6 +11568,15 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		protected override Expression DoResolve (ResolveContext rc)
 		{
+			// Handle PlayScript E4X namespace and attribute accessors.
+			if (rc.IsPlayScript && AccessorType != Accessor.ElementAccess) {
+				if (AccessorType == Accessor.AsE4xAttributeAccess) {
+					return new Invocation(new MemberAccess(Expr, "attribute", loc), Arguments).Resolve (rc);
+				} else if (AccessorType == Accessor.AsE4xNamespaceAccess) {
+					return new Invocation(new MemberAccess(Expr, "namespace", loc), Arguments).Resolve (rc);
+				}
+			}
+
 			Expression expr;
 			if (!rc.HasSet (ResolveContext.Options.ConditionalAccessReceiver)) {
 				if (HasConditionalAccess ()) {
@@ -10354,7 +11642,26 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue)
+					this.Expr.Accept (visitor);
+				if (visitor.Continue) {
+					if (Arguments != null) {
+						foreach (var arg in Arguments) {
+							if (visitor.Continue && arg.Expr != null)
+								arg.Expr.Accept (visitor);
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -10636,7 +11943,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	//
 	// Indexer access expression
 	//
-	class IndexerExpr : PropertyOrIndexerExpr<IndexerSpec>, OverloadResolver.IBaseMembersProvider
+	partial class IndexerExpr : PropertyOrIndexerExpr<IndexerSpec>, OverloadResolver.IBaseMembersProvider
 	{
 		IList<MemberSpec> indexers;
 		Arguments arguments;
@@ -10833,23 +12140,30 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			bool dynamic;
 			arguments.Resolve (rc, out dynamic);
 
-			if (indexers == null && InstanceExpression.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic) {
+			if (indexers == null && (InstanceExpression.Type.BuiltinType == BuiltinTypeSpec.Type.Dynamic || InstanceExpression.Type.IsAsDynamicClass)) {
 				dynamic = true;
-			} else {
+			} else if (indexers != null) {
 				var res = new OverloadResolver (indexers, OverloadResolver.Restrictions.None, loc);
 				res.BaseMembersProvider = this;
 				res.InstanceQualifier = this;
+
+				// If actionscript, try to resolve dynamic args to avoid a dynamic invoke if possible.
+				if (dynamic && rc.FileType == SourceFileType.PlayScript && indexers.Count > 0) {
+					if (arguments.AsTryResolveDynamicArgs(rc, indexers)) {
+						dynamic = false;
+					}
+				}
 
 				// TODO: Do I need 2 argument sets?
 				best_candidate = res.ResolveMember<IndexerSpec> (rc, ref arguments);
 				if (best_candidate != null)
 					type = res.BestCandidateReturnType;
-				else if (!res.BestCandidateIsDynamic)
+				else if (!res.BestCandidateIsDynamic && rc.FileType != SourceFileType.PlayScript)
 					return null;
 			}
 
 			//
-			// It has dynamic arguments
+			// It has dynamic arguments or instance
 			//
 			if (dynamic) {
 				Arguments args = new Arguments (arguments.Count + 1);
@@ -10863,6 +12177,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 				best_candidate = null;
 				return new DynamicIndexBinder (args, loc);
+			}
+
+			if (best_candidate == null) {
+				return null;
 			}
 
 			//
@@ -11124,25 +12442,10 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	public class ErrorExpression : EmptyExpression
 	{
 		public static readonly ErrorExpression Instance = new ErrorExpression ();
-		public readonly int ErrorCode;
-		public readonly string Error;
-		
+
 		private ErrorExpression ()
 			: base (InternalType.ErrorType)
 		{
-		}
-		
-		ErrorExpression (int errorCode, Location location, string error)
-			: base (InternalType.ErrorType)
-		{
-			this.ErrorCode = errorCode;
-			base.loc = location;
-			this.Error = error;
-		}
-		
-		public static ErrorExpression Create (int errorCode, Location location, string error)
-		{
-			return new ErrorExpression (errorCode, location, error);
 		}
 
 		public override Expression CreateExpressionTree (ResolveContext ec)
@@ -11508,7 +12811,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		TypeSpec otype;
 		Expression t;
 		Expression count;
-
+		
 		public StackAlloc (Expression type, Expression count, Location l)
 		{
 			t = type;
@@ -11664,9 +12967,29 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				ec.CurrentInitializerVariable = previous;
 				if (source == null)
 					return null;
-					
+
 				eclass = source.eclass;
 				type = source.Type;
+				return this;
+			} else if (source is AsArrayInitializer) {
+				Expression previous = ec.CurrentInitializerVariable;
+				ec.CurrentInitializerVariable = target;
+				source = source.Resolve(ec);
+				ec.CurrentInitializerVariable = previous;
+				if (source == null)
+					return null;
+				eclass = source.eclass;
+				type = source.Type;
+			} else if (source is AsObjectInitializer) {
+				Expression previous = ec.CurrentInitializerVariable;
+				ec.CurrentInitializerVariable = target;
+				source = source.Resolve(ec);
+				ec.CurrentInitializerVariable = previous;
+				if (source == null)
+					return null;
+				eclass = source.eclass;
+				type = source.Type;
+
 				return this;
 			}
 
@@ -11688,6 +13011,11 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				Arguments args = new Arguments (1);
 				args.Add (new Argument (rc.CurrentInitializerVariable));
 				target = new DynamicMemberBinder (Name, args, loc);
+			} else if (rc.FileType == SourceFileType.PlayScript && (t == rc.Module.PredefinedTypes.AsExpandoObject.Resolve())) {
+				// use expando-specific element accessor
+				var arguments = new Arguments(1);
+				arguments.Add(new Argument(new StringLiteral(rc.BuiltinTypes, Name, loc)));
+				target = new ElementAccess(rc.CurrentInitializerVariable, arguments, loc);
 			} else {
 
 				var member = MemberLookup (rc, false, t, Name, 0, MemberLookupRestrictions.ExactArity, loc);
@@ -11737,7 +13065,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 	class CollectionElementInitializer : Invocation
 	{
 		public readonly bool IsSingle;
-
 
 		public class ElementInitializerArgument : Argument
 		{
@@ -11863,6 +13190,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		IList<Expression> initializers;
 		bool is_collection_initialization;
 
+		protected Assign assign;
+		protected Argument argument;
+
+		public static readonly CollectionOrObjectInitializers Empty = 
+			new CollectionOrObjectInitializers (Array.AsReadOnly (new Expression [0]), Location.Null);
+
 		public CollectionOrObjectInitializers (Location loc)
 			: this (new Expression[0], loc)
 		{
@@ -11872,6 +13205,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		{
 			this.initializers = initializers;
 			this.loc = loc;
+		}
+
+		public IList<Expression> Initializers {
+			get {
+				return initializers;
+			}
 		}
 		
 		public bool IsEmpty {
@@ -11883,12 +13222,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		public bool IsCollectionInitializer {
 			get {
 				return is_collection_initialization;
-			}
-		}
-
-		public IList<Expression> Initializers {
-			get {
-				return initializers;
 			}
 		}
 
@@ -11948,14 +13281,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 						throw new InternalErrorException ("This line should never be reached");
 					} else {
 						var t = ec.CurrentInitializerVariable.Type;
-						// LAMESPEC: The collection must implement IEnumerable only, no dynamic support
-						if (!t.ImplementsInterface (ec.BuiltinTypes.IEnumerable, false) && t.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
-							ec.Report.Error (1922, loc, "A field or property `{0}' cannot be initialized with a collection " +
-								"object initializer because type `{1}' does not implement `{2}' interface",
-								ec.CurrentInitializerVariable.GetSignatureForError (),
-								ec.CurrentInitializerVariable.Type.GetSignatureForError (),
-								ec.BuiltinTypes.IEnumerable.GetSignatureForError ());
-							return null;
+						if (ec.FileType == SourceFileType.CSharp) {
+							// LAMESPEC: The collection must implement IEnumerable only, no dynamic support
+							if (!t.ImplementsInterface (ec.BuiltinTypes.IEnumerable, false) && t.BuiltinType != BuiltinTypeSpec.Type.Dynamic) {
+								ec.Report.Error (1922, loc, "A field or property `{0}' cannot be initialized with a collection " +
+									"object initializer because type `{1}' does not implement `{2}' interface",
+									ec.CurrentInitializerVariable.GetSignatureForError (),
+									ec.CurrentInitializerVariable.Type.GetSignatureForError (),
+									ec.BuiltinTypes.IEnumerable.GetSignatureForError ());
+								return null;
+							}
 						}
 						is_collection_initialization = true;
 					}
@@ -12359,7 +13694,24 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		
 		public override object Accept (StructuralVisitor visitor)
 		{
-			return visitor.Visit (this);
+			var ret = visitor.Visit (this);
+
+			if (visitor.AutoVisit) {
+				if (visitor.Skip) {
+					visitor.Skip = false;
+					return ret;
+				}
+				if (visitor.Continue) {
+					if (arguments != null) {
+						foreach (var args in arguments) {
+							if (visitor.Continue && args.Expr != null)
+								args.Expr.Accept (visitor);
+						}
+					}
+				}
+			}
+
+			return ret;
 		}
 	}
 
@@ -12425,180 +13777,6 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			: base (expr)
 		{
 			this.loc = loc;
-		}
-	}
-
-	public class InterpolatedString : Expression
-	{
-		readonly StringLiteral start, end;
-		readonly List<Expression> interpolations;
-		Arguments arguments;
-
-		public InterpolatedString (StringLiteral start, List<Expression> interpolations, StringLiteral end)
-		{
-			this.start = start;
-			this.end = end;
-			this.interpolations = interpolations;
-			loc = start.Location;
-		}
-
-		public Expression ConvertTo (ResolveContext rc, TypeSpec type)
-		{
-			var factory = rc.Module.PredefinedTypes.FormattableStringFactory.Resolve ();
-			if (factory == null)
-				return null;
-
-			var ma = new MemberAccess (new TypeExpression (factory, loc), "Create", loc);
-			var res = new Invocation (ma, arguments).Resolve (rc);
-			if (res != null && res.Type != type)
-				res = Convert.ExplicitConversion (rc, res, type, loc);
-
-			return res;
-		}
-
-		public override bool ContainsEmitWithAwait ()
-		{
-			if (interpolations == null)
-				return false;
-
-			foreach (var expr in interpolations) {
-				if (expr.ContainsEmitWithAwait ())
-					return true;
-			}
-
-			return false;
-		}
-
-		public override Expression CreateExpressionTree (ResolveContext rc)
-		{
-			var best = ResolveBestFormatOverload (rc);
-			if (best == null)
-				return null;
-			
-			Expression instance = new NullLiteral (loc);
-			var args = Arguments.CreateForExpressionTree (rc, arguments, instance, new TypeOfMethod (best, loc));
-			return CreateExpressionFactoryCall (rc, "Call", args);	
-		}
-
-		protected override Expression DoResolve (ResolveContext rc)
-		{
-			string str;
-
-			if (interpolations == null) {
-				str = start.Value;
-				arguments = new Arguments (1);
-			} else {
-				for (int i = 0; i < interpolations.Count; i += 2) {
-					var ipi = (InterpolatedStringInsert)interpolations [i];
-					ipi.Resolve (rc);
-				}
-	
-				arguments = new Arguments (interpolations.Count);
-
-				var sb = new StringBuilder (start.Value);
-				for (int i = 0; i < interpolations.Count; ++i) {
-					if (i % 2 == 0) {
-						sb.Append ('{').Append (i / 2);
-						var isi = (InterpolatedStringInsert)interpolations [i];
-						if (isi.Alignment != null) {
-							sb.Append (',');
-							var value = isi.ResolveAligment (rc);
-							if (value != null)
-								sb.Append (value.Value);
-						}
-
-						if (isi.Format != null) {
-							sb.Append (':');
-							sb.Append (isi.Format);
-						}
-
-						sb.Append ('}');
-						arguments.Add (new Argument (interpolations [i]));
-					} else {
-						sb.Append (((StringLiteral)interpolations [i]).Value);
-					}
-				}
-
-				sb.Append (end.Value);
-				str = sb.ToString ();
-			}
-
-			arguments.Insert (0, new Argument (new StringLiteral (rc.BuiltinTypes, str, start.Location)));
-
-			eclass = ExprClass.Value;
-			type = rc.BuiltinTypes.String;
-			return this;
-		}
-
-		public override void Emit (EmitContext ec)
-		{
-			// No interpolation, convert to simple string result (needs to match string.Format unescaping)
-			if (interpolations == null) {
-				var str = start.Value.Replace ("{{", "{").Replace ("}}", "}");
-				if (str != start.Value)
-					new StringConstant (ec.BuiltinTypes, str, loc).Emit (ec);
-				else
-					start.Emit (ec);
-
-				return;
-			}
-
-			var best = ResolveBestFormatOverload (new ResolveContext (ec.MemberContext));
-			if (best == null)
-				return;
-
-			var ca = new CallEmitter ();
-			ca.Emit (ec, best, arguments, loc);
-		}
-
-		MethodSpec ResolveBestFormatOverload (ResolveContext rc)
-		{
-			var members = MemberCache.FindMembers (rc.BuiltinTypes.String, "Format", true);
-			var res = new OverloadResolver (members, OverloadResolver.Restrictions.NoBaseMembers, loc);
-			return res.ResolveMember<MethodSpec> (rc, ref arguments);
-		}
-	}
-
-	public class InterpolatedStringInsert : CompositeExpression
-	{
-		public InterpolatedStringInsert (Expression expr)
-			: base (expr)
-		{
-		}
-
-		public Expression Alignment { get; set; }
-		public string Format { get; set; }
-
-		protected override Expression DoResolve (ResolveContext rc)
-		{
-			var expr = base.DoResolve (rc);
-			if (expr == null)
-				return null;
-
-			//
-			// For better error reporting, assumes the built-in implementation uses object
-			// as argument(s)
-			//
-			return Convert.ImplicitConversionRequired (rc, expr, rc.BuiltinTypes.Object, expr.Location);
-		}
-
-		public int? ResolveAligment (ResolveContext rc)
-		{
-			var c = Alignment.ResolveLabelConstant (rc);
-			if (c == null)
-				return null;
-			
-			c = c.ImplicitConversionRequired (rc, rc.BuiltinTypes.Int);
-			if (c == null)
-				return null;
-			
-			var value = (int) c.GetValueAsLong ();
-			if (value > 32767 || value < -32767) {
-				rc.Report.Warning (8094, 1, Alignment.Location, 
-					"Alignment value has a magnitude greater than 32767 and may result in a large formatted string");
-			}
-
-			return value;
 		}
 	}
 }

@@ -19,7 +19,7 @@ namespace ICSharpCode.NRefactory.GtkDemo
 		private global::Gtk.ScrolledWindow GtkScrolledWindow1;
 		
 		private global::Gtk.TreeView treeviewNodes;
-		
+
 		protected virtual void Build ()
 		{
 			global::Stetic.Gui.Initialize (this);

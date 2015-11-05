@@ -44,7 +44,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		bool IsFriendAssemblyTo (IAssemblyDefinition assembly);
 	}
                 
-	public abstract class AssemblyDefinition : IAssemblyDefinition
+	public abstract partial class AssemblyDefinition : IAssemblyDefinition
 	{
 		// TODO: make it private and move all builder based methods here
 		public AssemblyBuilder Builder;
