@@ -17,11 +17,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Looks up an alias (identifier in front of :: operator).

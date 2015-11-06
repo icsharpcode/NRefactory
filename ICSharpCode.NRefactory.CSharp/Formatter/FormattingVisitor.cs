@@ -33,7 +33,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Utils;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[Obsolete("This class was replaced by CSharpFormatter.")]
 	public class AstFormattingVisitor {}

@@ -26,7 +26,7 @@
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("Redundant empty 'default' switch branch",
 	                   Description = "Redundant empty 'default' switch branch",

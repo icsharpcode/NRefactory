@@ -28,9 +28,9 @@ using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Use of Linq methods when there's a better alternative",
 //	                  Description="Detects usage of Linq when there's a simpler and faster alternative",

@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 { 
 	[IssueDescription("Redundant explicit argument name specification",
 	                  Description= "Redundant explicit argument name specification",

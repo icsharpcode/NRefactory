@@ -30,7 +30,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Diagnostics.CodeAnalysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Static field in generic type",
 	                  Description = "Warns about static fields in generic types.",

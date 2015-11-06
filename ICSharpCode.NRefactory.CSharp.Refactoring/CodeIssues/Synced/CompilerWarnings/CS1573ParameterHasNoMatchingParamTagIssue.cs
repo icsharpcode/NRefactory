@@ -35,7 +35,7 @@ using System.Xml;
 using System.IO;
 using ICSharpCode.NRefactory.Documentation;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Parameter has no matching param tag in the XML comment",
 	                  Description = "Parameter has no matching param tag in the XML comment",

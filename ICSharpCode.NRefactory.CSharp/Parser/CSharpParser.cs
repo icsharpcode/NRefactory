@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.MonoCSharp;
 using ICSharpCode.NRefactory.TypeSystem;
 //using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class CSharpParser
 	{

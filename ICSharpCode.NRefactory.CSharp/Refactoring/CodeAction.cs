@@ -26,7 +26,7 @@
 using System;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// A code action provides a code transformation with a description.

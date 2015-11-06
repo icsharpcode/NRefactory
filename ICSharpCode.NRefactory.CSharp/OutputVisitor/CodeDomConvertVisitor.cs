@@ -21,14 +21,14 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory.Refactoring;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Converts from C# AST to CodeDom.

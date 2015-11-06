@@ -27,19 +27,19 @@
 using System;
 using System.Linq;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+//using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Editor;
 using System.ComponentModel.Design;
-using ICSharpCode.NRefactory.CSharp.Analysis;
+//using ICSharpCode.NRefactory.PlayScript.Analysis;
 using ICSharpCode.NRefactory.Utils;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Analysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public abstract class BaseRefactoringContext : IServiceProvider
 	{
@@ -99,7 +99,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			get { return new TypeGraph(Compilation.Assemblies); }
 		}
 		
-		public BaseRefactoringContext (ICSharpCode.NRefactory.CSharp.Resolver.CSharpAstResolver resolver, System.Threading.CancellationToken cancellationToken)
+		public BaseRefactoringContext (CSharpAstResolver resolver, System.Threading.CancellationToken cancellationToken)
 		{
 			this.resolver = resolver;
 			this.cancellationToken = cancellationToken;

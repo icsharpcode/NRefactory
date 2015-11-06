@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Invoke using static method syntax",
 	               Description = "Converts the call into static method call syntax.")]

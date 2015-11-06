@@ -21,14 +21,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.Analysis;
 using System.Text;
 using ICSharpCode.NRefactory.Editor;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class FindReferencesTest

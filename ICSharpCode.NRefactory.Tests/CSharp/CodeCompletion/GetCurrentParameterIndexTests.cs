@@ -25,12 +25,12 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Completion;
+using ICSharpCode.NRefactory.PlayScript.Completion;
 using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class GetCurrentParameterIndexTests

@@ -25,10 +25,10 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	static class NRefactoryExtensions
 	{

@@ -27,7 +27,7 @@ using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Convert 'if' to '?:'",
 	               Description = "Convert 'if' to '?:'")]

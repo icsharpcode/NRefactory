@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Methods have duplicate body",
 //                      Description = "One method has the same body as other method",

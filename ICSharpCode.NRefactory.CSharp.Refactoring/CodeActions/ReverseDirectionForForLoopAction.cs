@@ -30,7 +30,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Reverse the direction of a for loop", Description = "Reverse the direction of a for loop")]
 	public class ReverseDirectionForForLoopAction : SpecializedCodeAction<ForStatement>

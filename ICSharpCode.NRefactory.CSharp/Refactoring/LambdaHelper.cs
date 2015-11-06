@@ -26,10 +26,10 @@
 
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class LambdaHelper
 	{

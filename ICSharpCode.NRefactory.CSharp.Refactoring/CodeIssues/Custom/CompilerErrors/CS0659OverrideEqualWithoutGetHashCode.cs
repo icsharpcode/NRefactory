@@ -28,10 +28,10 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("CS0659: Class overrides Object.Equals but not Object.GetHashCode.",
 		Description = "If two objects are equal then they must both have the same hash code",

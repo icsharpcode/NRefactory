@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Operator 'is' can be used",
 		Description = "Operator Is can be used instead of comparing object GetType() and instances of System.Type object.",

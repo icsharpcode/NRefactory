@@ -19,7 +19,7 @@
 using System;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public sealed class CSharpTypeResolveContext : ITypeResolveContext
 	{

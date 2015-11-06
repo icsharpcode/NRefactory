@@ -27,15 +27,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Documentation;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Xml;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Validate Xml documentation",
 		Description = "Validate Xml docs",

@@ -29,7 +29,7 @@ using System.Text;
 using System.Reflection;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	abstract class ConstructCompleter
 	{

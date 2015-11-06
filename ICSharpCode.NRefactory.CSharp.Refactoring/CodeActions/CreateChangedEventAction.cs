@@ -25,14 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create changed event for property", Description = "Creates a changed event for an property.")]
 	public class CreateChangedEventAction : CodeActionProvider

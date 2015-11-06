@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[ContextAction("Convert to initializer",
 //	               Description = "Converts a set of assignments and .Add() calls to an initializer.")]

@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Implement interface", Description = "Creates an interface implementation.")]
 	public class ImplementInterfaceAction : CodeActionProvider

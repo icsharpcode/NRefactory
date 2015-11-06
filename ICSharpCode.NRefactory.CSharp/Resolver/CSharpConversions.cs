@@ -26,7 +26,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Utils;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Contains logic that determines whether an implicit conversion exists between two types.

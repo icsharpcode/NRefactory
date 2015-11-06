@@ -27,7 +27,7 @@ using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[AttributeUsage(AttributeTargets.Class)]
 	public class IssueDescriptionAttribute : System.Attribute

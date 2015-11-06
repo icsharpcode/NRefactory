@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create local variable", Description = "Creates a local variable for a undefined variable.")]
 	public class CreateLocalVariableAction : CodeActionProvider

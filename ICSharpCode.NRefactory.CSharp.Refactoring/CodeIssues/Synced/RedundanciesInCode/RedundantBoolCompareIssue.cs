@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("Comparison of boolean with 'true' or 'false'",
 					   Description = "Comparison of a boolean value with 'true' or 'false' constant.",

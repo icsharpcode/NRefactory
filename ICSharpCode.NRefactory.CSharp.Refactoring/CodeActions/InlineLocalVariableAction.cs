@@ -28,9 +28,9 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Inline local variable", Description = "Inlines a local variable.")]
 	public class InlineLocalVariableAction : CodeActionProvider

@@ -20,12 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Statement reachability analysis.

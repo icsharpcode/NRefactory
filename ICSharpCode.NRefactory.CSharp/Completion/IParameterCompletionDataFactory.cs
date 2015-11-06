@@ -26,10 +26,10 @@
 using System;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Completion;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public interface IParameterCompletionDataFactory
 	{

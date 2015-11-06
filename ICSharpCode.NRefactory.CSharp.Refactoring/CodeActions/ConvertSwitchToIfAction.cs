@@ -26,7 +26,7 @@
 
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Convert 'switch' to 'if'", Description = "Convert 'switch' statement to 'if' statement")]
 	public class ConvertSwitchToIfAction : SpecializedCodeAction<SwitchStatement>

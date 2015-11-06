@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("CS0127: A method with a void return type cannot return a value.",
 	                  Description = "Since 'function' returns void, a return keyword must not be followed by an object expression",

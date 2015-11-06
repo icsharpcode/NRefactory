@@ -19,7 +19,7 @@
 using System;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.TypeMembers
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class EventDeclarationTests

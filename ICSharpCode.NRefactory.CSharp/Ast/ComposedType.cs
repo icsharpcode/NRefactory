@@ -29,7 +29,7 @@ using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class ComposedType : AstType
 	{

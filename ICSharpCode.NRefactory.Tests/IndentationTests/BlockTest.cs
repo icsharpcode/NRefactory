@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 
 namespace ICSharpCode.NRefactory.IndentationTests
 {

@@ -24,9 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class LocalDeclarationSpaceVisitorTests

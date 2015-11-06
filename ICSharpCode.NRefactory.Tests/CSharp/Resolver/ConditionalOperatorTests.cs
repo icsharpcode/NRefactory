@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	// assign short name to the fake reflection type
 	using dynamic = ICSharpCode.NRefactory.TypeSystem.ReflectionHelper.Dynamic;

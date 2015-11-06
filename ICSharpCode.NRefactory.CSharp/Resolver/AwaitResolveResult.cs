@@ -23,7 +23,7 @@ using System.Linq.Expressions;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Represents the result of an await expression.

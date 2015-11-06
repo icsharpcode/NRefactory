@@ -30,7 +30,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	///     Represents a decorator of an IStateMachineIndentEngine instance

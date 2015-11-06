@@ -29,7 +29,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("Bitwise operation on enum which has no [Flags] attribute",
 	                   Description = "Bitwise operation on enum which has no [Flags] attribute",

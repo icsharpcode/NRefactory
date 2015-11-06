@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Simplify if flow", Description = "Inverts if and reduces branching ")]
 	public class SimplifyIfFlowAction : CodeActionProvider

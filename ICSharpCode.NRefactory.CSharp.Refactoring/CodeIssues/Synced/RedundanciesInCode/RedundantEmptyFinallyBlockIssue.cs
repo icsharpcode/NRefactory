@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription(
 		"Redundant empty finally block",

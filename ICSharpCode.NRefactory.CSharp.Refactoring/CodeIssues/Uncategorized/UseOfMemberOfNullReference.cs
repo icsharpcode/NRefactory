@@ -27,12 +27,8 @@ using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
-using System.Linq;
-using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Use of (non-extension method) member of null value will cause a NullReferenceException",
 //	                  Description = "Detects when a member of a null value is used",

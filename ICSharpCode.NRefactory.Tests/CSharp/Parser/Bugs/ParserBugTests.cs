@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Bugs
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class ParserBugTests

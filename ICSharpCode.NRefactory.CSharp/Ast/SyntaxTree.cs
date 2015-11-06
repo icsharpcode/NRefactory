@@ -26,15 +26,15 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.MonoCSharp;
 using System.IO;
 using ICSharpCode.NRefactory.Editor;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[Obsolete("CompilationUnit was renamed to SyntaxTree", true)]
 	public class CompilationUnit {}

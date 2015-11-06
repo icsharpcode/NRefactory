@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Redundant comparison with 'null'",
 	                  Description = "When 'is' keyword is used, which implicitly check null.",

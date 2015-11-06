@@ -26,10 +26,10 @@
 
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Parser;
+using ICSharpCode.NRefactory.PlayScript.Parser;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture()]
 	public class KeywordTests : TestBase

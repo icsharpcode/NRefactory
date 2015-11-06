@@ -28,7 +28,7 @@ using System;
 
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Introduce constant", Description = "Creates a constant for a non constant primitive expression.")]
 	public class IntroduceConstantAction : CodeActionProvider

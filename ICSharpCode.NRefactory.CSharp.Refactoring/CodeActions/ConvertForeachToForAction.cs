@@ -28,7 +28,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Converts a foreach loop to for.
@@ -39,7 +39,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		static readonly string[] VariableNames = { "i", "j", "k", "l", "n", "m", "x", "y", "z"};
 		static readonly string[] CollectionNames = { "list" };
 
-		static string GetName(ICSharpCode.NRefactory.CSharp.Resolver.CSharpResolver state, string[] variableNames)
+		static string GetName(CSharpResolver state, string[] variableNames)
 		{
 			for (int i = 0; i < 1000; i++) {
 				foreach (var vn in variableNames) {

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Else branch has some redundant if",
 //	                  Description = "One Else-if was checked before so is not be true",

@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Parser;
+using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.PlayScript.Parser;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Statements
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class InvalidStatementsTests

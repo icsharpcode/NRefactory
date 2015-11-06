@@ -25,14 +25,14 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeCompletion;
+using ICSharpCode.NRefactory.PlayScript.CodeCompletion;
 using System.Text;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
 namespace ICSharpCode.NRefactory.Analysis
 {

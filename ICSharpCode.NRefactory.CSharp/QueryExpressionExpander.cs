@@ -24,7 +24,7 @@ using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp {
+namespace ICSharpCode.NRefactory.PlayScript {
 	public class QueryExpressionExpansionResult {
 		public AstNode AstNode { get; private set; }
 

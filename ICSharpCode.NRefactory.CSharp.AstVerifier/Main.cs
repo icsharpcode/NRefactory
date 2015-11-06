@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 
-namespace ICSharpCode.NRefactory.CSharp.AstVerifier
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	class MainClass
 	{

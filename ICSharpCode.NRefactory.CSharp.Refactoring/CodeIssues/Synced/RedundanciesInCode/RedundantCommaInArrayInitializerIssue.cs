@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("Redundant comma in array initializer",
 						Description = "Redundant comma in array initializer.",

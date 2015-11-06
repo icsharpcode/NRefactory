@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 using System.Reflection;
@@ -32,7 +32,7 @@ using System.Text;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Editor;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class SemanticHighlightingTests : SemanticHighlightingVisitor<FieldInfo>

@@ -28,7 +28,7 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Remove region", Description = "Removes a pre processor #region/#endregion directive.")]
 	public class RemoveRegionAction : CodeActionProvider

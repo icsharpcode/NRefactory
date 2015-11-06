@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 using System;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("Possible mistaken call to 'object.GetType()'",
 		Description = "Possible mistaken call to 'object.GetType()'",

@@ -26,7 +26,7 @@
 
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Merge nested 'if'", Description = "Merge two nested 'if' statements.")]
 	public class MergeNestedIfAction : SpecializedCodeAction<IfElseStatement>

@@ -29,13 +29,13 @@
 using System.Collections.Generic;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.Completion;
-using ICSharpCode.NRefactory.CSharp.Completion;
+using ICSharpCode.NRefactory.PlayScript.Completion;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class ParameterCompletionTests : TestBase

@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Invert if", Description = "Inverts an 'if ... else' expression.")]
 	public class InvertIfAction : CodeActionProvider

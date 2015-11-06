@@ -23,13 +23,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System.Collections.Generic;
-using ICSharpCode.NRefactory.PatternMatching;
-using ICSharpCode.NRefactory.Refactoring;
-using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription ("Tail recursive call may be replaced by loop",
 //		Description = "Tail recursive calls should be avoided.",

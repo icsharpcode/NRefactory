@@ -19,7 +19,7 @@
 using System;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Represents a scope in which references are searched.

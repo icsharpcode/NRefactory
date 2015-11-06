@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription(
 		"Replace with simple assignment",

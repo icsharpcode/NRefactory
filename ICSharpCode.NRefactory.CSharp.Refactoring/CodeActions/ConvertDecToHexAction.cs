@@ -26,7 +26,7 @@
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Convert a dec numer to hex. For example: 16 -> 0x10

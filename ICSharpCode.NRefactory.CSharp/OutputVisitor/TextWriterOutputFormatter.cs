@@ -21,7 +21,7 @@ using System.Globalization;
 using System.IO;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Writes C# code into a TextWriter.

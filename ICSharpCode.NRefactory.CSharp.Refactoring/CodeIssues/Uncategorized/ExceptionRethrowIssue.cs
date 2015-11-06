@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("A throw statement throws the caught exception by passing it explicitly",
 //	                  Description = "Finds throws that throws the caught exception and therefore should be empty.",

@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Call to base.Equals resolves to Object.Equals, which is reference equality",
 	                  Description = "Finds potentially erroneous calls to Object.Equals.",

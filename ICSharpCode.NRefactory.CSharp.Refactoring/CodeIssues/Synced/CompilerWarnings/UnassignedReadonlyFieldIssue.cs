@@ -27,12 +27,10 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 using System.Linq;
 using System;
-using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Unassigned readonly field",
 	                  Description = "Unassigned readonly field",

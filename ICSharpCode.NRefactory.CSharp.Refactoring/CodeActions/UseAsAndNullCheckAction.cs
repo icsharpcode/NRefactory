@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction(
 		"Use 'as' and null check", 

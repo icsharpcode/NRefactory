@@ -27,7 +27,7 @@
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Join local variable declaration and assignment",
 					Description = "Join local variable declaration and assignment.")]

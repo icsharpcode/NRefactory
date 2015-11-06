@@ -28,7 +28,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// When array initializer has the different number of elements as specified in size creation, it is an error.

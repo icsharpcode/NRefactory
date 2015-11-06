@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// An invocated extension method hides the extension parameter in its parameter list.

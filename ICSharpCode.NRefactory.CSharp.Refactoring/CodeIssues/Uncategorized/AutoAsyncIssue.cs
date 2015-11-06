@@ -26,18 +26,11 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.PatternMatching;
-
-using ICSharpCode.NRefactory.CSharp;
 using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.Refactoring;
 
-
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Old-style asynchronous function can be converted to C# 5 async",
 //	                  Description = "Detects usage of old-style TaskCompletionSource/ContinueWith and suggests using async/await instead",

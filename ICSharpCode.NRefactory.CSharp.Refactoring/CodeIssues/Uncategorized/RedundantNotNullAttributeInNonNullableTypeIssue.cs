@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Use of NotNullAttribute in non-nullable type is redundant.",
 //		Description = "Detects unnecessary usages of the NotNullAttribute.",

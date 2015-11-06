@@ -27,7 +27,7 @@
 using System;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class DocumentationContextTests

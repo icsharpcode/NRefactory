@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Replace with OfType<T>().Single()",
 	                  Description = "Replace with call to OfType<T>().Single()",

@@ -22,7 +22,7 @@ using System.Linq;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.TypeMembers
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class PropertyDeclarationTests

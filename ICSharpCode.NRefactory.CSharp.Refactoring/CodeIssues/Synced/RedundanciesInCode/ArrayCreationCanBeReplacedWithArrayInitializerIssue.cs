@@ -27,7 +27,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Array creation can be replaced with array initializer",
 		Description = "When initializing explicitly typed local variable or array type, array creation expression can be replaced with array initializer.",

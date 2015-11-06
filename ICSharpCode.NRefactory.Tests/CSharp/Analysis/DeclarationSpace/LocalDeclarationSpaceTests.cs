@@ -25,11 +25,11 @@
 // THE SOFTWARE.
 
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class LocalDeclarationSpaceTests

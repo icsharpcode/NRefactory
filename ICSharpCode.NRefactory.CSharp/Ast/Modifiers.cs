@@ -28,7 +28,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[Flags]
 	public enum Modifiers

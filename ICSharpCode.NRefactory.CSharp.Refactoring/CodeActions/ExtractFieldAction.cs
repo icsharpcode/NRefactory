@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.MonoCSharp;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Extract field", Description = "Extracts a field from a local variable declaration.")]
 	public class ExtractFieldAction : CodeActionProvider

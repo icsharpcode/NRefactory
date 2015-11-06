@@ -25,11 +25,11 @@
 // THE SOFTWARE.
 using System;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	// OfType -> Underline (+suggest to compare to null)
 	[IssueDescription (

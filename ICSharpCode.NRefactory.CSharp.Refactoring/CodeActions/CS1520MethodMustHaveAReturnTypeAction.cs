@@ -31,7 +31,7 @@ using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Class, struct or interface method must have a return type", Description = "Found method without return type.")]
 	public class CS1520MethodMustHaveAReturnTypeAction : CodeActionProvider

@@ -22,13 +22,13 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem;
 using Microsoft.CSharp;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	#if !__MonoCS__
 	[TestFixture]

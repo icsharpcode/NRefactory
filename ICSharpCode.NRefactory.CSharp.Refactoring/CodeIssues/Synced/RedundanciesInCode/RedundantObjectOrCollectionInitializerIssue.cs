@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Redundant empty object or collection initializer",
 		Description = "Redundant empty object or collection initializer.",

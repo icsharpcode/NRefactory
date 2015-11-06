@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Use explicit type", Description = "Converts local variable declaration to be explicit typed.")]
 	public class UseExplicitTypeAction: CodeActionProvider

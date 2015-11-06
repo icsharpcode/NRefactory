@@ -25,14 +25,14 @@
 // THE SOFTWARE.
 
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Tests for the test APIs.

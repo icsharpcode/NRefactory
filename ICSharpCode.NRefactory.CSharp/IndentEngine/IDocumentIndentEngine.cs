@@ -26,7 +26,7 @@
 using ICSharpCode.NRefactory.Editor;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	///     The base interface for all indent engines.

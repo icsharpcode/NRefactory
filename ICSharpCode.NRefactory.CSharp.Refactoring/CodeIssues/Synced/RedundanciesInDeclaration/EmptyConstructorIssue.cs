@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Empty constructor",
 	                   Description = "An empty public constructor without paramaters is redundant.",

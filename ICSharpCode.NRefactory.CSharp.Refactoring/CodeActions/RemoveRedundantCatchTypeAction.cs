@@ -23,15 +23,12 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.CSharp.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using System;
 using ICSharpCode.NRefactory.Semantics;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {	
 	[ContextAction("Remove redundant type",
 	               Description = "Removes a redundant exception type specifier from catch clauses.")]

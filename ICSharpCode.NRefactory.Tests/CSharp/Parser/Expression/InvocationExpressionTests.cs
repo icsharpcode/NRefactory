@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Expression
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class InvocationExpressionTests

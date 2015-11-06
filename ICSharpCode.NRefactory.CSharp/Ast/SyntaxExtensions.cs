@@ -20,7 +20,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Extension methods for the syntax tree.

@@ -27,7 +27,7 @@ using System;
 using System.Linq;
 using ICSharpCode.NRefactory.Editor;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	partial class FormattingVisitor : DepthFirstAstVisitor
 	{

@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Use string.Empty", Description = "Replaces \"\" with string.Empty")]
 	public class ReplaceEmptyStringAction : CodeActionProvider

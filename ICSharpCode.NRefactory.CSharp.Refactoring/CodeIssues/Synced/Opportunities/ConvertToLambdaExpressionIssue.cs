@@ -29,7 +29,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Convert to lambda expression",
 		Description = "Convert to lambda with expression",

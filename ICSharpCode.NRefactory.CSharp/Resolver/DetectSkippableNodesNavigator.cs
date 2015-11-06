@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Resolver
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// When an <see cref="IResolveVisitorNavigator"/> is searching for specific nodes

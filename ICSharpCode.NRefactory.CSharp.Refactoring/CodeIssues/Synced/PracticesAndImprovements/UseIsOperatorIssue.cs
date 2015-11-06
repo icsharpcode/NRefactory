@@ -28,7 +28,7 @@ using System.Linq;
 using System;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Use 'is' operator",
 	                  Description = "'is' operator can be used",

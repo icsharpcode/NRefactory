@@ -28,7 +28,7 @@ using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Add braces", Description = "Removes redundant braces around a statement.")]
 	public class AddBracesAction : CodeActionProvider

@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("'string.StartsWith' is culture-aware",
 	                  Description = "Warns when a culture-aware 'StartsWith' call is used by default.",

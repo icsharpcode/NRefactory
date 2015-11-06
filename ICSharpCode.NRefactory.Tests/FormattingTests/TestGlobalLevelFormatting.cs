@@ -26,9 +26,9 @@
 using System;
 using System.IO;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 
-namespace ICSharpCode.NRefactory.CSharp.FormattingTests
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class TestGlobalLevelFormatting : TestBase

@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class BrowsableAttributeTests : TestBase
@@ -167,7 +167,7 @@ public class NotBrowsableTest {}
 				{
 					$B$
 				}
-			}", false, e => e.EditorBrowsableBehavior = ICSharpCode.NRefactory.CSharp.Completion.EditorBrowsableBehavior.Ignore, engine1.ctx.CurrentAssembly.UnresolvedAssembly);
+			}", false, e => e.EditorBrowsableBehavior = ICSharpCode.NRefactory.PlayScript.Completion.EditorBrowsableBehavior.Ignore, engine1.ctx.CurrentAssembly.UnresolvedAssembly);
 			Assert.IsNotNull (provider, "provider == null");
 			Assert.IsNotNull (provider.Find ("BrowsableTest"), "'BrowsableTest' not found.");
 			Assert.IsNotNull (provider.Find ("NotBrowsableTest"), "'NotBrowsableTest' not found.");
@@ -196,7 +196,7 @@ public class NotBrowsableTest {}
 				{
 					$B$
 				}
-			}", false, e => e.EditorBrowsableBehavior = ICSharpCode.NRefactory.CSharp.Completion.EditorBrowsableBehavior.Normal, engine1.ctx.CurrentAssembly.UnresolvedAssembly);
+			}", false, e => e.EditorBrowsableBehavior = ICSharpCode.NRefactory.PlayScript.Completion.EditorBrowsableBehavior.Normal, engine1.ctx.CurrentAssembly.UnresolvedAssembly);
 			Assert.IsNotNull (provider, "provider == null");
 			Assert.IsNotNull (provider.Find ("BrowsableTest"), "'BrowsableTest' not found.");
 			Assert.IsNull (provider.Find ("NotBrowsableTest"), "'NotBrowsableTest' found.");

@@ -20,7 +20,7 @@ using System;
 using System.Reflection;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class AstStructureTests

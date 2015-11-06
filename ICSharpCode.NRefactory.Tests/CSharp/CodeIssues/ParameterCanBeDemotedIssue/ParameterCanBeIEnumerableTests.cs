@@ -26,10 +26,10 @@
 
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class ParameterCanBeIEnumerableTests : InspectionActionTestBase

@@ -27,14 +27,9 @@ using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.Analysis;
-using System.Threading;
 using ICSharpCode.NRefactory.TypeSystem;
-using System.Threading.Tasks;
-using ICSharpCode.NRefactory.MonoCSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Extract method", Description = "Creates a new method out of selected text.")]
 	public class ExtractMethodAction : CodeActionProvider

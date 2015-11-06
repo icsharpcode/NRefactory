@@ -27,12 +27,12 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	///  Add name for argument
@@ -68,10 +68,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (context.Location != expression.StartLocation)
 				return null;
 			var parent = expression.Parent;
-			if (!(parent is CSharp.Attribute) && !(parent is IndexerExpression) && !(parent is InvocationExpression))
+			if (!(parent is ICSharpCode.NRefactory.PlayScript.Attribute) && !(parent is IndexerExpression) && !(parent is InvocationExpression))
 				return null;
 
-			var attribute = parent as CSharp.Attribute;
+			var attribute = parent as ICSharpCode.NRefactory.PlayScript.Attribute;
 			if (attribute != null) {
 				var resolvedResult = context.Resolve(attribute) as CSharpInvocationResolveResult;
 				if (resolvedResult == null || resolvedResult.IsError)

@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using System.Runtime.InteropServices;
 using ICSharpCode.NRefactory.MonoCSharp;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("Redundant member override",
 	                   Description = "The override of a virtual member is redundant because it consists of only a call to the base",

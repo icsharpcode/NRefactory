@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //    [IssueDescription("Expression has some redundant items",
 //		                   Description = "Expression has some redundant items",

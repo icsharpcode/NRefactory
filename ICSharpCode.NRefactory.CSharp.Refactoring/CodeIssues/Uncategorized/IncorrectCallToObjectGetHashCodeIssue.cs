@@ -28,7 +28,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription("Call resolves to Object.GetHashCode, which is reference based",
 //	                   Description = "Finds calls to Object.GetHashCode inside overridden GetHashCode.",

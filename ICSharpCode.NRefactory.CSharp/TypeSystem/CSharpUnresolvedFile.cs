@@ -25,7 +25,7 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Represents a file that was parsed and converted for the type system.
@@ -168,9 +168,9 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			return rctx;
 		}
 		
-		public ICSharpCode.NRefactory.CSharp.Resolver.CSharpResolver GetResolver (ICompilation compilation, TextLocation loc)
+		public CSharpResolver GetResolver (ICompilation compilation, TextLocation loc)
 		{
-			return new ICSharpCode.NRefactory.CSharp.Resolver.CSharpResolver (GetTypeResolveContext (compilation, loc));
+			return new CSharpResolver (GetTypeResolveContext (compilation, loc));
 		}
 		
 		public string GetDocumentation(IUnresolvedEntity entity)

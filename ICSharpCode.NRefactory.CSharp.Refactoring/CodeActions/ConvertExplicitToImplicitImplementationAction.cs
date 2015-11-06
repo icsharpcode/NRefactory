@@ -28,7 +28,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Convert explicit to implict implementation",
 					Description = " Convert explicit implementation of an interface method to implicit implementation")]

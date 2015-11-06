@@ -30,7 +30,7 @@ using System.Text;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Insert anonymous method signature", Description = "Inserts a signature to parameterless anonymous methods.")]
 	public class InsertAnonymousMethodSignatureAction : CodeActionProvider

@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Completion;
 using System.Linq;
 
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class CompletionDataList
 	{

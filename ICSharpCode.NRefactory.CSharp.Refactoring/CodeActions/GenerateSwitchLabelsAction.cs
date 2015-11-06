@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Generate switch labels", Description = "Creates switch lables for enumerations.")]
 	public class GenerateSwitchLabelsAction : CodeActionProvider

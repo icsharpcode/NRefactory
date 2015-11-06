@@ -26,7 +26,7 @@
 using ICSharpCode.NRefactory.Refactoring;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Replace with single call to LongCount(...)",
         Description = "Replace with single call to LongCount(...)",

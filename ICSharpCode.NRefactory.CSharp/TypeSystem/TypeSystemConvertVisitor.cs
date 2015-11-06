@@ -22,12 +22,12 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.TypeSystem.ConstantValues;
+//using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.TypeSystem.ConstantValues;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.CSharp.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Produces type and member definitions from the DOM.
@@ -888,7 +888,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 		
 		void ConvertAttributes(IList<IUnresolvedAttribute> outputList, AttributeSection attributeSection)
 		{
-			foreach (CSharp.Attribute attr in attributeSection.Attributes) {
+			foreach (ICSharpCode.NRefactory.PlayScript.Attribute attr in attributeSection.Attributes) {
 				outputList.Add(ConvertAttribute(attr));
 			}
 		}
@@ -909,7 +909,7 @@ namespace ICSharpCode.NRefactory.CSharp.TypeSystem
 			return tr;
 		}
 		
-		CSharpAttribute ConvertAttribute(CSharp.Attribute attr)
+		CSharpAttribute ConvertAttribute(ICSharpCode.NRefactory.PlayScript.Attribute attr)
 		{
 			DomRegion region = MakeRegion(attr);
 			ITypeReference type = ConvertAttributeType(attr.Type, interningProvider);

@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// typeof(Type)

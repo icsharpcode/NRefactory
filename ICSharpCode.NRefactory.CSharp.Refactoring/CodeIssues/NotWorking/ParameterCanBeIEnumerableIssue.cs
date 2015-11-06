@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 // Does this even make sense ? We've a parameter can be demoted issue which does mostly the same.
 //	[IssueDescription("A parameter can IEnumerable/ICollection/IList<T>",

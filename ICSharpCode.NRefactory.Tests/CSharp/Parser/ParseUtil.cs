@@ -24,7 +24,7 @@ using System.Text;
 using ICSharpCode.NRefactory.PatternMatching;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Helper methods for parser unit tests.
@@ -71,9 +71,9 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 			return (T)statement;
 		}
 		
-		public static void AssertStatement(string code, CSharp.Statement expectedStmt)
+		public static void AssertStatement(string code, ICSharpCode.NRefactory.PlayScript.Statement expectedStmt)
 		{
-			var stmt = ParseStatement<CSharp.Statement>(code);
+			var stmt = ParseStatement<ICSharpCode.NRefactory.PlayScript.Statement>(code);
 			if (!expectedStmt.IsMatch(stmt)) {
 				Assert.Fail("Expected '{0}' but was '{1}'", ToCSharp(expectedStmt), ToCSharp(stmt));
 			}
@@ -96,9 +96,9 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 			return (T)parsedExpression;
 		}
 		
-		public static void AssertExpression(string code, CSharp.Expression expectedExpr)
+		public static void AssertExpression(string code, ICSharpCode.NRefactory.PlayScript.Expression expectedExpr)
 		{
-			var expr = ParseExpression<CSharp.Expression>(code);
+			var expr = ParseExpression<ICSharpCode.NRefactory.PlayScript.Expression>(code);
 			if (!expectedExpr.IsMatch(expr)) {
 				Assert.Fail("Expected '{0}' but was '{1}'", ToCSharp(expectedExpr), ToCSharp(expr));
 			}
@@ -120,9 +120,9 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 			return (T)m;
 		}
 		
-		public static void AssertTypeMember(string code, CSharp.EntityDeclaration expectedMember)
+		public static void AssertTypeMember(string code, ICSharpCode.NRefactory.PlayScript.EntityDeclaration expectedMember)
 		{
-			var member = ParseTypeMember<CSharp.EntityDeclaration>(code);
+			var member = ParseTypeMember<ICSharpCode.NRefactory.PlayScript.EntityDeclaration>(code);
 			if (!expectedMember.IsMatch(member)) {
 				Assert.Fail("Expected '{0}' but was '{1}'", ToCSharp(expectedMember), ToCSharp(member));
 			}
@@ -143,7 +143,7 @@ namespace ICSharpCode.NRefactory.CSharp.Parser
 			return parsedExpression;
 		}
 		
-		public static void AssertDocumentationReference(string cref, CSharp.DocumentationReference expectedExpr)
+		public static void AssertDocumentationReference(string cref, ICSharpCode.NRefactory.PlayScript.DocumentationReference expectedExpr)
 		{
 			var expr = ParseDocumentationReference(cref);
 			if (!expectedExpr.IsMatch(expr)) {

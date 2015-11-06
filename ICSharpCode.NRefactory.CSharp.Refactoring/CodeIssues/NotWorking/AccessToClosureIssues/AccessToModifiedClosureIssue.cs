@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //    [IssueDescription("Access to modified closure variable",
 //                       Description = "Access to closure variable from anonymous method when the variable is modified " +

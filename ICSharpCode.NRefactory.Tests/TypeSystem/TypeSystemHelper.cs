@@ -18,8 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
 namespace ICSharpCode.NRefactory.TypeSystem
 {

@@ -26,14 +26,14 @@
 
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Threading;
 using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public abstract class ContextActionTestBase
 	{

@@ -26,10 +26,10 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeCompletion;
+using ICSharpCode.NRefactory.PlayScript.CodeCompletion;
 
 namespace ICSharpCode.NRefactory.Analysis
 {
@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.Analysis
 		{
 			IProjectContent oldPctx, newPctx;
 			SyntaxTree tree;
-			ICSharpCode.NRefactory.CSharp.TypeSystem.CSharpUnresolvedFile file;
+			ICSharpCode.NRefactory.PlayScript.TypeSystem.CSharpUnresolvedFile file;
 			CodeCompletionBugTests.CreateCompilation (before, out oldPctx, out tree, out file, false);
 			CodeCompletionBugTests.CreateCompilation (after, out newPctx, out tree, out file, false);
 			return new AbiComparer ().Check (oldPctx.CreateCompilation (), newPctx.CreateCompilation ());

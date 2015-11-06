@@ -29,7 +29,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Replace operator assignment with assignment", Description = "Replace operator assignment with assignment")]
 	public class ReplaceOperatorAssignmentWithAssignmentAction : SpecializedCodeAction<AssignmentExpression>

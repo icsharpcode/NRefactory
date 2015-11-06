@@ -28,7 +28,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create a backing field for a not implemented property", Description = "Creates a backing field for a not implemented property.")]
 	public class ImplementNotImplementedProperty : CodeActionProvider

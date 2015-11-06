@@ -33,7 +33,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Split local variable declaration and assignment", Description = "Splits local variable declaration and assignment.")]
 	public class SplitDeclarationAndAssignmentAction : CodeActionProvider

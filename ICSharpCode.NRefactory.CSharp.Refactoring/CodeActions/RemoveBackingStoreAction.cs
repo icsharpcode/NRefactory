@@ -25,13 +25,13 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Remove backing store for property", Description = "Removes the backing store of a property and creates an auto property.")]
 	public class RemoveBackingStoreAction : CodeActionProvider
@@ -111,7 +111,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			// automatic properties always need getter & setter
 			if (propertyDeclaration == null || propertyDeclaration.Getter.IsNull || propertyDeclaration.Setter.IsNull || propertyDeclaration.Getter.Body.IsNull || propertyDeclaration.Setter.Body.IsNull)
 				return null;
-			if (!context.Supports(csharp3) || propertyDeclaration.HasModifier (ICSharpCode.NRefactory.CSharp.Modifiers.Abstract) || ((TypeDeclaration)propertyDeclaration.Parent).ClassType == ClassType.Interface)
+			if (!context.Supports(csharp3) || propertyDeclaration.HasModifier (ICSharpCode.NRefactory.PlayScript.Modifiers.Abstract) || ((TypeDeclaration)propertyDeclaration.Parent).ClassType == ClassType.Interface)
 				return null;
 			var getterField = ScanGetter (context, propertyDeclaration);
 			if (getterField == null)

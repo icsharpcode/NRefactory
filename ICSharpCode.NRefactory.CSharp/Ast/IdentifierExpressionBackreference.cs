@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Matches identifier expressions that have the same identifier as the referenced variable/type definition/method definition.
@@ -42,13 +42,13 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		public override bool DoMatch(INode other, Match match)
 		{
-			CSharp.IdentifierExpression ident = other as CSharp.IdentifierExpression;
+			ICSharpCode.NRefactory.PlayScript.IdentifierExpression ident = other as ICSharpCode.NRefactory.PlayScript.IdentifierExpression;
 			if (ident == null || ident.TypeArguments.Any())
 				return false;
-			CSharp.AstNode referenced = (CSharp.AstNode)match.Get(referencedGroupName).Last();
+			ICSharpCode.NRefactory.PlayScript.AstNode referenced = (ICSharpCode.NRefactory.PlayScript.AstNode)match.Get(referencedGroupName).Last();
 			if (referenced == null)
 				return false;
-			return ident.Identifier == referenced.GetChildByRole(CSharp.Roles.Identifier).Name;
+			return ident.Identifier == referenced.GetChildByRole(ICSharpCode.NRefactory.PlayScript.Roles.Identifier).Name;
 		}
 	}
 }

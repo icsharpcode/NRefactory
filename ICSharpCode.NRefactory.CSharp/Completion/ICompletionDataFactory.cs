@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Completion;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public interface ICompletionDataFactory
 	{

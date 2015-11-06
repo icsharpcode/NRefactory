@@ -28,7 +28,7 @@ using System.Text;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Use string.Format()",
 	                Description = "Convert concatenation of strings and objects to string.Format()")]

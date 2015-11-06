@@ -23,7 +23,7 @@ using System.Diagnostics;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Represents the children of an AstNode that have a specific role.

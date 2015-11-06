@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 using System;
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// A text node contains text without syntactic or semantic information.

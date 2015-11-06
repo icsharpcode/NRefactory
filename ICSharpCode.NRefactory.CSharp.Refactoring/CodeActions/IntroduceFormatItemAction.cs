@@ -30,7 +30,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Introduce format item. Works on strings that contain selections.

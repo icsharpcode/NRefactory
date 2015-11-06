@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.Editor;
 
-namespace ICSharpCode.NRefactory.CSharp.FormattingTests
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class ConstructFixerTests

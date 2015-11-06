@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Convert LINQ query to fluent syntax", Description = "Convert LINQ query to fluent syntax")]
 	public class LinqFluentToQueryAction : SpecializedCodeAction<InvocationExpression>

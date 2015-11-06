@@ -27,7 +27,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public enum GeneratedCodeMember
 	{

@@ -27,7 +27,7 @@
 using System;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class EnumMemberDeclaration : EntityDeclaration
 	{

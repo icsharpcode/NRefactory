@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Invert logical expression", Description = "Inverts a logical expression")]
 	public class InvertLogicalExpressionAction : CodeActionProvider

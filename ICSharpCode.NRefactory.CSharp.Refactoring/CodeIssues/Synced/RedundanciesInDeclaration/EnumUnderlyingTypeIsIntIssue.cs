@@ -26,9 +26,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Underlying type of enum is int",
 	                  Description = "The default underlying type of enums is int, so defining it explicitly is redundant.",

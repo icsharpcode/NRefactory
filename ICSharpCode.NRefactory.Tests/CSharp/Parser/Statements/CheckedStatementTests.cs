@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Statements
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class CheckedStatementTests

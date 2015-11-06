@@ -24,9 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory.PlayScript
 {/* TOOD: Enable - it's not possible to compile this file on mono 3.0.7 due to an internal compiler error.
 	[TestFixture]
 	public class ConvertDoWhileToWhileLoopTests : ContextActionTestBase

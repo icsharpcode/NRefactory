@@ -27,7 +27,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	partial class FormattingVisitor : DepthFirstAstVisitor
 	{
@@ -336,7 +336,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				arguments = invocationExpression.Arguments.Cast<AstNode>().ToList();
 			}
 
-			if (formatter.FormattingMode == ICSharpCode.NRefactory.CSharp.FormattingMode.OnTheFly)
+			if (formatter.FormattingMode == ICSharpCode.NRefactory.PlayScript.FormattingMode.OnTheFly)
 				methodCallArgumentWrapping = Wrapping.DoNotChange;
 			int argumentStart = 1;
 			var firstarg = arguments.FirstOrDefault();

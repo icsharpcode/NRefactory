@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("CS0126: A method with return type cannot return without value.",
 	                  Description = "Since 'function' doesn't return void, a return keyword must be followed by an object expression",

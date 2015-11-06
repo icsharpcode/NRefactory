@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Make constructor in abstract class protected",
                       Description = "Constructor in abstract class should not be public",

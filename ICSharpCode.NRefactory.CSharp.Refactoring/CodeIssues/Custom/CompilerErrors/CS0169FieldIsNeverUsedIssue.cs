@@ -29,9 +29,8 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 using System;
-using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("CS0169: Field is never used",
 		Description = "CS0169: Field is never used",

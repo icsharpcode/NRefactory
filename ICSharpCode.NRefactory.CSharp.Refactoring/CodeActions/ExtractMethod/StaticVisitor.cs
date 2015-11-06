@@ -27,9 +27,9 @@
 using System;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	class StaticVisitor : DepthFirstAstVisitor
 	{

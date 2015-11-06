@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create method", Description = "Creates a method declaration out of an invocation.")]
 	public class CreateMethodDeclarationAction : CodeActionProvider

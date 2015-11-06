@@ -26,26 +26,26 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public static class Roles
 	{
 		public static readonly Role<AstNode> Root = AstNode.RootRole;
 		
 		// some pre defined constants for common roles
-		public static readonly Role<Identifier> Identifier = new Role<Identifier> ("Identifier", CSharp.Identifier.Null);
-		public static readonly Role<BlockStatement> Body = new Role<BlockStatement> ("Body", CSharp.BlockStatement.Null);
+		public static readonly Role<Identifier> Identifier = new Role<Identifier> ("Identifier", ICSharpCode.NRefactory.PlayScript.Identifier.Null);
+		public static readonly Role<BlockStatement> Body = new Role<BlockStatement> ("Body", ICSharpCode.NRefactory.PlayScript.BlockStatement.Null);
 		public static readonly Role<ParameterDeclaration> Parameter = new Role<ParameterDeclaration> ("Parameter");
-		public static readonly Role<Expression> Argument = new Role<Expression> ("Argument", CSharp.Expression.Null);
-		public static readonly Role<AstType> Type = new Role<AstType> ("Type", CSharp.AstType.Null);
-		public static readonly Role<Expression> Expression = new Role<Expression> ("Expression", CSharp.Expression.Null);
-		public static readonly Role<Expression> TargetExpression = new Role<Expression> ("Target", CSharp.Expression.Null);
-		public readonly static Role<Expression> Condition = new Role<Expression> ("Condition", CSharp.Expression.Null);
+		public static readonly Role<Expression> Argument = new Role<Expression> ("Argument", ICSharpCode.NRefactory.PlayScript.Expression.Null);
+		public static readonly Role<AstType> Type = new Role<AstType> ("Type", ICSharpCode.NRefactory.PlayScript.AstType.Null);
+		public static readonly Role<Expression> Expression = new Role<Expression> ("Expression", ICSharpCode.NRefactory.PlayScript.Expression.Null);
+		public static readonly Role<Expression> TargetExpression = new Role<Expression> ("Target", ICSharpCode.NRefactory.PlayScript.Expression.Null);
+		public readonly static Role<Expression> Condition = new Role<Expression> ("Condition", ICSharpCode.NRefactory.PlayScript.Expression.Null);
 		public static readonly Role<TypeParameterDeclaration> TypeParameter = new Role<TypeParameterDeclaration> ("TypeParameter");
-		public static readonly Role<AstType> TypeArgument = new Role<AstType> ("TypeArgument", CSharp.AstType.Null);
+		public static readonly Role<AstType> TypeArgument = new Role<AstType> ("TypeArgument", ICSharpCode.NRefactory.PlayScript.AstType.Null);
 		public readonly static Role<Constraint> Constraint = new Role<Constraint> ("Constraint");
 		public static readonly Role<VariableInitializer> Variable = new Role<VariableInitializer> ("Variable", VariableInitializer.Null);
-		public static readonly Role<Statement> EmbeddedStatement = new Role<Statement> ("EmbeddedStatement", CSharp.Statement.Null);
+		public static readonly Role<Statement> EmbeddedStatement = new Role<Statement> ("EmbeddedStatement", ICSharpCode.NRefactory.PlayScript.Statement.Null);
 		public readonly static Role<EntityDeclaration> TypeMemberRole = new Role<EntityDeclaration> ("TypeMember");
 		
 

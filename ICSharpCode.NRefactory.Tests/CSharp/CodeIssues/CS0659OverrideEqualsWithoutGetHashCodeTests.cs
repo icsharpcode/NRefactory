@@ -24,12 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeIssues;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.CodeIssues;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class CS0659OverrideEqualsWithoutGetHashCodeTests : InspectionActionTestBase

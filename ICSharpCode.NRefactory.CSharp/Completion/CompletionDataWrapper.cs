@@ -28,9 +28,9 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Completion;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class CompletionDataWrapper
 	{

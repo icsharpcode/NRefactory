@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[Obsolete("This class is obsolete. Remove all referencing code.")]
 	public class EmptyExpression : AstNode

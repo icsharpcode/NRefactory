@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Invert conditional operator", Description = "Inverts an '?:' expression.")]
 	public class InvertConditionalOperatorAction : SpecializedCodeAction<ConditionalExpression>

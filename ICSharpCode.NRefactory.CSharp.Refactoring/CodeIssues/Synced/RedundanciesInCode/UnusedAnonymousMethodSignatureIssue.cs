@@ -28,12 +28,11 @@
 
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Anonymous method signature is not required",
 		Description = "Detects when no delegate parameter is used in the anonymous method body.",
@@ -73,7 +72,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 						var rr = ctx.Resolve(parameter) as LocalResolveResult;
 						if (rr == null)
 							continue;
-						if (usageAnalysis.GetStatus(rr.Variable) != ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.None)
+						if (usageAnalysis.GetStatus(rr.Variable) != VariableState.None)
 							return;
 					}
 				}

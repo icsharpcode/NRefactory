@@ -1,10 +1,10 @@
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeIssues;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.CodeIssues;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions.AddUsing
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class AddUsingActionInsideNamespaceTests : ContextActionTestBase

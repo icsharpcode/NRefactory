@@ -28,7 +28,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Base parameter has 'params' modifier, but missing in overrider",
 	                  Description = "Base parameter has 'params' modifier, but missing in overrider",

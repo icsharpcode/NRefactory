@@ -21,7 +21,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.TypeMembers
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class MethodDeclarationTests

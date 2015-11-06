@@ -26,7 +26,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// (CastTo)Expression

@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Represents a named argument passed to a method or attribute.
@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				return GetChildByRole (Roles.Identifier).Name;
 			}
 			set {
-				SetChildByRole(Roles.Identifier, CSharp.Identifier.Create (value));
+				SetChildByRole(Roles.Identifier, ICSharpCode.NRefactory.PlayScript.Identifier.Create (value));
 			}
 		}
 		

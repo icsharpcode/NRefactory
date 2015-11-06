@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create delegate", Description = "Creates a delegate declaration out of an event declaration.")]
 	public class CreateDelegateAction : CodeActionProvider

@@ -26,7 +26,7 @@
 using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Replace bitwise flag comparison with call to 'Enum.HasFlag'", Description = "Replace bitwise flag comparison with call to 'Enum.HasFlag'")]
 	public class ConvertBitwiseFlagComparisonToHasFlagsAction : SpecializedCodeAction<BinaryOperatorExpression>

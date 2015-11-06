@@ -29,7 +29,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Convert 'Nullable<T>' to 'T?'",
 	                  Description = "Convert 'Nullable<T>' to the short form 'T?'",

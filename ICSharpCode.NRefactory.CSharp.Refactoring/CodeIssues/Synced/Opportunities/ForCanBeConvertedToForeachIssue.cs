@@ -31,7 +31,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("'for' can be converted into 'foreach'",
 	                  Description = "Foreach loops are more efficient",
@@ -195,9 +195,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					false
 				);
 				forStatement.EmbeddedStatement.AcceptVisitor(analyze);
-				if (analyze.GetStatus(lr.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Changed ||
-				    analyze.GetStatus(ir.Variable) == ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod.VariableState.Used)
+				if (analyze.GetStatus(lr.Variable) == VariableState.Changed ||
+				    analyze.GetStatus(ir.Variable) == VariableState.Changed ||
+				    analyze.GetStatus(ir.Variable) == VariableState.Used)
 					return;
 
 				AddIssue(new CodeIssue(

@@ -21,7 +21,7 @@ using System.IO;
 using ICSharpCode.NRefactory.Editor;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Provides utilities to check whether positions and/or tokens in an AST are valid.

@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription(
 		"Remove redundant statement",

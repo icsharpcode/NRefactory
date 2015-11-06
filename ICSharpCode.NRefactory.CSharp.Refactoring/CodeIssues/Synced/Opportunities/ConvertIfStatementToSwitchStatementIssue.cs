@@ -27,7 +27,7 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("'if' statement can be re-written as 'switch' statement",
 	                  Description="Convert 'if' to 'switch'",

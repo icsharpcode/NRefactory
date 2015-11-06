@@ -26,7 +26,7 @@
 
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// delegate ReturnType Name&lt;TypeParameters&gt;(Parameters) where Constraints;

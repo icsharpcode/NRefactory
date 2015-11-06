@@ -18,10 +18,10 @@
 
 using System;
 using System.IO;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+//using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// C# ambience. Used to convert type system symbols to text (usually for displaying the symbol to the user; e.g. in editor tooltips)

@@ -1,7 +1,7 @@
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeActions
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	class InvertIfAndSimplifyTests : ContextActionTestBase

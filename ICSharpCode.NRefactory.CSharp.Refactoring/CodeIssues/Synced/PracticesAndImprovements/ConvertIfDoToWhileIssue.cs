@@ -29,7 +29,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("'if-do-while' statement can be re-written as 'while' statement",
 	                  Description = "Convert 'if-do-while' to 'while' statement",

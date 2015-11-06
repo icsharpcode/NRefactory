@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription ("'true' is redundant as for statement condition",
 	                   Description = "true is redundant as for statement condition, thus can be safely ommited",

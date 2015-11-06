@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create indexer", Description = "Creates an indexer declaration out of an indexer expression.")]
 	public class CreateIndexerAction : CodeActionProvider

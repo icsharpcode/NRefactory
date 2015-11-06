@@ -27,11 +27,11 @@ using System;
 using ICSharpCode.NRefactory.Editor;
 using System.Threading;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+//using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// The formatting changes are used to format a specific region inside a document and apply a minimal formatting

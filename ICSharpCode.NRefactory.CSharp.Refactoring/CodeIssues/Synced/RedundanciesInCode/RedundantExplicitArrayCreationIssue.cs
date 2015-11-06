@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription(
 		"Redundant explicit type in array creation",

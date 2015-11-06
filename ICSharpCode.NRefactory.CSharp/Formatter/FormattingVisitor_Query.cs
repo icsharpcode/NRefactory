@@ -26,7 +26,7 @@
 using System;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	partial class FormattingVisitor
 	{

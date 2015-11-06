@@ -26,7 +26,7 @@
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Convert anonymous delegate to lambda",
 		Description = "Converts an anonymous delegate into a lambda")]

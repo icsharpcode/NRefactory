@@ -25,13 +25,13 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class SupportsIndexingCriterionTests

@@ -26,7 +26,7 @@
 using System;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class VariableDeclarationStatementTests : TestBase
 	{

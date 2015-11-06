@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class IdentifierExpression : Expression
 	{
@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		public IdentifierExpression(string identifier, TextLocation location)
 		{
-			SetChildByRole(Roles.Identifier, CSharp.Identifier.Create (identifier, location));
+			SetChildByRole(Roles.Identifier, ICSharpCode.NRefactory.PlayScript.Identifier.Create (identifier, location));
 		}
 		
 //		public Identifier IdentifierToken {
@@ -52,7 +52,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				return GetChildByRole (Roles.Identifier).Name;
 			}
 			set {
-				SetChildByRole(Roles.Identifier, CSharp.Identifier.Create (value));
+				SetChildByRole(Roles.Identifier, ICSharpCode.NRefactory.PlayScript.Identifier.Create (value));
 			}
 		}
 

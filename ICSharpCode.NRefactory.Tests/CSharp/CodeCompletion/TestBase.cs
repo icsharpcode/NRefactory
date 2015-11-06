@@ -28,14 +28,14 @@ using System;
 using System.Collections.Generic;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.CSharp.Completion;
+using ICSharpCode.NRefactory.PlayScript.Completion;
 using ICSharpCode.NRefactory.Completion;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Editor;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public abstract class TestBase 

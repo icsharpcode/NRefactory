@@ -23,11 +23,11 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
-using ICSharpCode.NRefactory.CSharp.Parser;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory.PlayScript.Parser;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp {
+namespace ICSharpCode.NRefactory.PlayScript {
 	[TestFixture]
 	public class QueryExpressionExpanderTests {
 		private dynamic ElementAt(dynamic d, int index) {

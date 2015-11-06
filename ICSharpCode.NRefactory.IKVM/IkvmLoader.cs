@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (fileName == null)
 				throw new ArgumentNullException("fileName");
 
-			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion | UniverseOptions.ResolveMissingMembers)) {
+			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.ResolveMissingMembers)) {
 				universe.AssemblyResolve += delegate(object sender, IKVM.Reflection.ResolveEventArgs args) {
 					return universe.CreateMissingAssembly(args.Name);
 				};
@@ -98,7 +98,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			if (fileName == null)
 				throw new ArgumentNullException("fileName");
 
-			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval | UniverseOptions.SupressReferenceTypeIdentityConversion)) {
+			using (var universe = new Universe (UniverseOptions.DisablePseudoCustomAttributeRetrieval)) {
 				universe.AssemblyResolve += delegate(object sender, IKVM.Reflection.ResolveEventArgs args) {
 					return universe.CreateMissingAssembly(args.Name);
 				};

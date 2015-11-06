@@ -24,11 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.CSharp.CodeActions;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeIssues
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class OptionalParameterHierarchyMismatchIssueTests : InspectionActionTestBase

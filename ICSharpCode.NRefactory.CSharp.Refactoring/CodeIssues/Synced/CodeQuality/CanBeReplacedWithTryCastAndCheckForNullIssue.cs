@@ -32,7 +32,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Type check and casts can be replaced with 'as' and null check",
 	                  Description="Type check and casts can be replaced with 'as' and null check",

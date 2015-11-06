@@ -26,7 +26,7 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.TypeSystem

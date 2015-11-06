@@ -28,11 +28,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class SimpleType : AstType
 	{
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		public SimpleType(string identifier, TextLocation location)
 		{
-			SetChildByRole (Roles.Identifier, CSharp.Identifier.Create (identifier, location));
+			SetChildByRole (Roles.Identifier, ICSharpCode.NRefactory.PlayScript.Identifier.Create (identifier, location));
 		}
 		
 		public SimpleType (string identifier, IEnumerable<AstType> typeArguments)
@@ -110,7 +110,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				return GetChildByRole (Roles.Identifier).Name;
 			}
 			set {
-				SetChildByRole (Roles.Identifier, CSharp.Identifier.Create (value));
+				SetChildByRole (Roles.Identifier, ICSharpCode.NRefactory.PlayScript.Identifier.Create (value));
 			}
 		}
 		

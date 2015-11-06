@@ -28,7 +28,7 @@ using System.Linq;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// A catch clause that catches System.Exception and has an empty body

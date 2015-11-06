@@ -27,7 +27,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Swaps left and right arguments.", Description = "Swaps left and right arguments.")]
 	public class FlipOperatorArgumentsAction : CodeActionProvider

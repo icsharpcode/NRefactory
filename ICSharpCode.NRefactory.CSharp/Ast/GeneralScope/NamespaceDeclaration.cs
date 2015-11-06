@@ -28,7 +28,7 @@ using System.Linq;
 using System.Text;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// namespace Name { Members }

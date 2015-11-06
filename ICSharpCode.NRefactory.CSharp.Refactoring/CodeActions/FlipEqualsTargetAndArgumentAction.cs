@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Swap 'Equals' target and argument", Description = "Swap 'Equals' target and argument")]
 	public class FlipEqualsTargetAndArgumentAction : CodeActionProvider

@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Create overload without parameter", Description = "Create overload without the selected parameter.")]
 	public class CreateOverloadWithoutParameterAction : SpecializedCodeAction<ParameterDeclaration>

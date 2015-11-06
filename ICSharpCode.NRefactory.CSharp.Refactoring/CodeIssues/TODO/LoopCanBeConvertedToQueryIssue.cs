@@ -26,7 +26,7 @@
 using System;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 //	[IssueDescription ("Loop can be converted into LINQ expression",
 //		Description = "Loop can be converted into LINQ expression",

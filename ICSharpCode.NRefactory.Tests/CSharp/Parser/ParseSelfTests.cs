@@ -22,7 +22,7 @@ using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.TypeSystem;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Test fixture that parses NRefactory itself,

@@ -27,17 +27,10 @@ using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Resolver;
-using System.Threading;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using System;
-using System.Diagnostics;
-using ICSharpCode.NRefactory.Utils;
-using ICSharpCode.NRefactory.CSharp.Refactoring.ExtractMethod;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Convert field to readonly",
 	                  Description = "Convert field to readonly",

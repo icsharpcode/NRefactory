@@ -22,9 +22,9 @@ using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory.Editor;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Parser;
+using ICSharpCode.NRefactory.PlayScript.Parser;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Description of InsertMissingTokensDecoratorTests.

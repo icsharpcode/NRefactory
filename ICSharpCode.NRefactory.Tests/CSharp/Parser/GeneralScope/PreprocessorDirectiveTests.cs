@@ -20,7 +20,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.GeneralScope
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class PreprocessorDirectiveTests

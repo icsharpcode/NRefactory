@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Condition is always 'true' or always 'false'",
 		Description = "Condition is always 'true' or always 'false'.",

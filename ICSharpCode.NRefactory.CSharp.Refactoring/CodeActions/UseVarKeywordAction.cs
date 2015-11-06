@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.PatternMatching;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Use 'var' keyword",
 	               Description = "Converts local variable declaration to be implicit typed.")]

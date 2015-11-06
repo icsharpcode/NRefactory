@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.CSharp.Refactoring;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.Semantics;
 using System;
@@ -32,7 +31,7 @@ using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Cannot resolve symbol in text argument",
 		Description = "Cannot resolve symbol in text argument",

@@ -30,7 +30,7 @@ using System;
 using NUnit.Framework;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.CodeCompletion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture()]
 	public class CodeCompletionCSharpTests : TestBase

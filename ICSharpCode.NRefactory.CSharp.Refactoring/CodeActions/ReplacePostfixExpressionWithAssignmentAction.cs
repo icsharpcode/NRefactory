@@ -29,7 +29,7 @@ using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Replace postfix expression with assignment", Description = "Replace postfix expression with assignment")]
 	public class ReplacePostfixExpressionWithAssignmentAction : SpecializedCodeAction<UnaryOperatorExpression>

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Represents a declaration space. (§3.3)

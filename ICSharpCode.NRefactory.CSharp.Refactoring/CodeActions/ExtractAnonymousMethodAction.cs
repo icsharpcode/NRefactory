@@ -27,9 +27,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Extract anonymous method",
 					Description = "Extract anonymous method to method of the containing type")]
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 		static bool ContainsLocalReferences (RefactoringContext context, AstNode expr, AstNode body)
 		{
-			var visitor = new ExtractMethod.VariableLookupVisitor (context);
+			var visitor = new VariableLookupVisitor (context);
 			body.AcceptVisitor (visitor);
 			return visitor.UsedVariables.Any (variable => !expr.Contains (variable.Region.Begin));
 		}

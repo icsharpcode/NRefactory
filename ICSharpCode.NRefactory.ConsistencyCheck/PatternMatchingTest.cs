@@ -18,7 +18,7 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.ConsistencyCheck

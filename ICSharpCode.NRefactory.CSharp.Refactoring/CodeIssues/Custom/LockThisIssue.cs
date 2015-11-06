@@ -26,15 +26,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 using ICSharpCode.NRefactory.Refactoring;
-using System.Threading.Tasks;
 using System.Runtime.CompilerServices;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Use of lock (this) or MethodImplOptions.Synchronized is discouraged",
 	                  Description = "Warns about using lock (this) or MethodImplOptions.Synchronized.",

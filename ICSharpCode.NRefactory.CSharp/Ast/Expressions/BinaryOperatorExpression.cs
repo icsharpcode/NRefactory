@@ -28,7 +28,7 @@ using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Left Operator Right

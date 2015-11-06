@@ -30,7 +30,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Redundant condition check before assignment",
 	                   Description = "Check for inequality before assignment is redundant if (x != value) x = value;",

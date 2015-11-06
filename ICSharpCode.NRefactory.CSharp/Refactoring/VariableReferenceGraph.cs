@@ -26,11 +26,11 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.CSharp.Analysis;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+using ICSharpCode.NRefactory.Analysis;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using System.Threading;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	class VariableReferenceNode
 	{

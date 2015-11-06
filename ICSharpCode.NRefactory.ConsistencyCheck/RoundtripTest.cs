@@ -20,7 +20,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Text;
-using ICSharpCode.NRefactory.CSharp;
+using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.PatternMatching;
 

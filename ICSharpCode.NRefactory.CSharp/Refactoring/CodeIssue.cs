@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// A code issue marks a region of text with an issue and can provide solution actions for this issue.

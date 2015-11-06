@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.Semantics;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Create class", Description = "Creates a class declaration out of an object creation.")]
 	public class CreateClassDeclarationAction : CodeActionProvider

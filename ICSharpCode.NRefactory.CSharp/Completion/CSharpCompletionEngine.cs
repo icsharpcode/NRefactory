@@ -28,14 +28,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory.Completion;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.Refactoring;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.CSharp.TypeSystem;
+//using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp.Completion
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public enum EditorBrowsableBehavior
 	{
@@ -1237,7 +1237,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 						csResolver = new CSharpResolver(ctx);
 						var nodes = new List<AstNode>();
 						nodes.Add(n);
-						if (n.Parent is ICSharpCode.NRefactory.CSharp.Attribute) {
+						if (n.Parent is ICSharpCode.NRefactory.PlayScript.Attribute) {
 							nodes.Add(n.Parent);
 						}
 						var astResolver = CompletionContextProvider.GetResolver(csResolver, identifierStart.Unit);
@@ -1248,7 +1248,7 @@ namespace ICSharpCode.NRefactory.CSharp.Completion
 							csResolver = GetState();
 						}
 						// add attribute properties.
-						if (n.Parent is ICSharpCode.NRefactory.CSharp.Attribute) {
+						if (n.Parent is ICSharpCode.NRefactory.PlayScript.Attribute) {
 							var rr = ResolveExpression(n.Parent);
 							if (rr != null)
 								AddAttributeProperties(contextList, rr.Result);

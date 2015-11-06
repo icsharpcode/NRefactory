@@ -25,15 +25,15 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using System.Linq;
 using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
-using ICSharpCode.NRefactory.CSharp;
-using ICSharpCode.NRefactory.CSharp.Refactoring;
+using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.CSharp.Analysis
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class NullValueAnalysisTests

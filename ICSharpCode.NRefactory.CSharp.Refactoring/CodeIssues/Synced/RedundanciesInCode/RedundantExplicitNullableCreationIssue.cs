@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Redundant explicit nullable type creation",
 		Description= "Value types are implicitly convertible to nullables",

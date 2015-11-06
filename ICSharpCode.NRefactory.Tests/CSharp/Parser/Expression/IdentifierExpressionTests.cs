@@ -20,7 +20,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PatternMatching;
 
-namespace ICSharpCode.NRefactory.CSharp.Parser.Expression
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[TestFixture]
 	public class IdentifierExpressionTests

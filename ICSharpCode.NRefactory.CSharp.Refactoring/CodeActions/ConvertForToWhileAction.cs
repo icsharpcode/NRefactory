@@ -26,7 +26,7 @@
 using System;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction("Convert 'for' loop to 'while'", Description = "Works on 'for' loops.")]
 	public class ConvertForToWhileAction : SpecializedCodeAction<ForStatement>

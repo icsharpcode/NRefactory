@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.CSharp.Resolver;
+//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[ContextAction ("Replace 'Enum.HasFlag' call with bitwise flag comparison", Description = "Replace 'Enum.HasFlag' call with bitwise flag comparison")]
 	public class ConvertHasFlagsToBitwiseFlagComparisonAction : SpecializedCodeAction<InvocationExpression>

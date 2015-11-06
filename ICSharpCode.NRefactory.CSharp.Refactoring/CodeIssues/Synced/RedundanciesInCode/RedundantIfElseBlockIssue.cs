@@ -25,10 +25,9 @@
 // THE SOFTWARE.
 
 using ICSharpCode.NRefactory.Refactoring;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[IssueDescription("Redundant 'else' keyword",
 	                  Description = "Redundant 'else' keyword.",

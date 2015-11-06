@@ -29,14 +29,10 @@
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.CSharp.Resolver;
 using System.Linq;
 using ICSharpCode.NRefactory.Refactoring;
-using System.Diagnostics;
-using ICSharpCode.NRefactory.Utils;
-using ICSharpCode.NRefactory.CSharp.Analysis;
 
-namespace ICSharpCode.NRefactory.CSharp.Refactoring
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
 	/// Finds redundant this usages.

@@ -27,7 +27,7 @@
 using System.Collections.Generic;
 using System;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	static class RefactoringExtensions
 	{
