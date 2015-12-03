@@ -441,16 +441,17 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			void ProcessNode(VariableReferenceNode node, bool addIssue,
 			                 IDictionary<VariableReferenceNode, NodeState> nodeStates)
 			{
+				if (!visitedNodes.Add (node))
+					return;
+				
 				if (nodeStates [node] == NodeState.None)
 					nodeStates [node] = NodeState.Processing;
 
 				bool? reachable = false;
 				foreach (var nextNode in node.NextNodes) {
-					if (!visitedNodes.Add (nextNode))
-						continue;
-					if (nodeStates [nextNode] == NodeState.None)
-						ProcessNode(nextNode, false, nodeStates);
-
+					if (nodeStates [nextNode] == NodeState.None) {
+						ProcessNode (nextNode, false, nodeStates);
+					}
 					if (nodeStates [nextNode] == NodeState.UsageReachable) {
 						reachable = true;
 						break;
