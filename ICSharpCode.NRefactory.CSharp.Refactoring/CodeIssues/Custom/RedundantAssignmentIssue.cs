@@ -433,8 +433,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					if (IsInsideTryOrCatchBlock(node.References [0]))
 						continue;
 					ProcessNode(node, true, nodeStates);
+					visitedNodes.Clear ();
 				}
 			}
+			HashSet<VariableReferenceNode> visitedNodes = new HashSet<Refactoring.VariableReferenceNode> ();
 
 			void ProcessNode(VariableReferenceNode node, bool addIssue,
 			                 IDictionary<VariableReferenceNode, NodeState> nodeStates)
@@ -444,6 +446,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 
 				bool? reachable = false;
 				foreach (var nextNode in node.NextNodes) {
+					if (!visitedNodes.Add (nextNode))
+						continue;
 					if (nodeStates [nextNode] == NodeState.None)
 						ProcessNode(nextNode, false, nodeStates);
 
