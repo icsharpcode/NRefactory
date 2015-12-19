@@ -19,9 +19,9 @@
 using System;
 using System.Globalization;
 using System.Xml;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// The root object of the XML document

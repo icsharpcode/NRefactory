@@ -20,12 +20,15 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
 	[TestFixture]
 	public class DefiniteAssignmentTests

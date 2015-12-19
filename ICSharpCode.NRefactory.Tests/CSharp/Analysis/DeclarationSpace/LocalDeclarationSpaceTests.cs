@@ -26,10 +26,13 @@
 
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
+using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
 using System;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
 	[TestFixture]
 	public class LocalDeclarationSpaceTests

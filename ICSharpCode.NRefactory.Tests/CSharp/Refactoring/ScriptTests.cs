@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 using NUnit.Framework;
 
 namespace ICSharpCode.NRefactory.CSharp.Refactoring

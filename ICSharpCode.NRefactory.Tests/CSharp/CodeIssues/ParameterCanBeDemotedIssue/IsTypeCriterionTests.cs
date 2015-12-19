@@ -24,12 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using NUnit.Framework;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class IsTypeCriterionTests

@@ -30,7 +30,7 @@ using System.Reflection;
 // Information about this assembly is defined by the following attributes. 
 // Change them to the values specific to your project.
 
-[assembly: AssemblyTitle("ICSharpCode.NRefactory.Cecil")]
+[assembly: AssemblyTitle("ICSharpCode.NRefactory.PlayScript.Cecil")]
 [assembly: AssemblyDescription("Cecil Assembly Loader for NRefactory")]
 
 [assembly: CLSCompliant(true)]

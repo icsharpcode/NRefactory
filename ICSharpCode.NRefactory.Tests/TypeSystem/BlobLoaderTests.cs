@@ -17,11 +17,12 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using Mono.Cecil;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	/* Commented out because the Mono.Cecil 0.9.5 release does not have the SecurityDeclaration ctor
 	[TestFixture]

@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.PatternMatching
+namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
 	/// <summary>
 	/// AST node that supports pattern matching.

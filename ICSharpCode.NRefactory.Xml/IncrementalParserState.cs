@@ -19,9 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// Encapsulates the state of the incremental tag soup parser.

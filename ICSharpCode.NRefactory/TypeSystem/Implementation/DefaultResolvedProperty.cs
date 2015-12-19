@@ -19,9 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Ps.Utils;
 
-namespace ICSharpCode.NRefactory.TypeSystem.Implementation
+namespace ICSharpCode.NRefactory.Ps.TypeSystem.Implementation
 {
 	public class DefaultResolvedProperty : AbstractResolvedMember, IProperty
 	{

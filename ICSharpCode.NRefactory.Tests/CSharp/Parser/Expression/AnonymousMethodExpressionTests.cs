@@ -21,7 +21,7 @@ using System.IO;
 using System.Linq;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Expression
 {
 	[TestFixture]
 	public class AnonymousMethodExpressionTests

@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	[Obsolete("IParsedFile was renamed to IUnresolvedFile", true)]
 	public interface IParsedFile {}

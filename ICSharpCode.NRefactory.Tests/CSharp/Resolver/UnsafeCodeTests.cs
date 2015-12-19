@@ -17,10 +17,10 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.Ps.Semantics;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
 	[TestFixture]
 	public class UnsafeCodeTests : ResolverTestBase

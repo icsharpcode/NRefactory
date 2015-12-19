@@ -17,10 +17,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	[TestFixture]
 	public class LazyLoadedCecilLoaderTests : TypeSystemTests

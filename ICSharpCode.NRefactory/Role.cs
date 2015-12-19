@@ -19,7 +19,7 @@
 using System;
 using System.Threading;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory.Ps
 {
 	/// <summary>
 	/// Represents the role a node plays within its parent.

@@ -19,9 +19,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

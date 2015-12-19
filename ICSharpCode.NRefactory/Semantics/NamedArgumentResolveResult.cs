@@ -18,9 +18,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Semantics
+namespace ICSharpCode.NRefactory.Ps.Semantics
 {
 	/// <summary>
 	/// Represents a named argument.

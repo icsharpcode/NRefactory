@@ -24,11 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.Analysis
+namespace ICSharpCode.NRefactory.Ps.Analysis
 {
 	/// <summary>
 	/// Used to check the compatibility state of two compilations.

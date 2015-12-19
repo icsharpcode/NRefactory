@@ -18,8 +18,12 @@
 
 using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps.Analysis;
 
-namespace ICSharpCode.NRefactory.Editor
+
+namespace ICSharpCode.NRefactory.PlayScript.Editor
 {
 	[TestFixture]
 	public class ReadOnlyDocumentTests

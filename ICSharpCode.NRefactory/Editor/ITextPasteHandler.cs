@@ -23,7 +23,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-namespace ICSharpCode.NRefactory.Editor
+namespace ICSharpCode.NRefactory.Ps.Editor
 {
 	/// <summary>
 	/// The text paste handler can do formattings to a text that is about to be pasted

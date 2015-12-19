@@ -22,10 +22,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Xml.Linq;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps.Utils;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// XML parser that is error tolerant.

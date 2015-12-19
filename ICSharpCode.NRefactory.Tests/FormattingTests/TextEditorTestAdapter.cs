@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using ICSharpCode.NRefactory.PlayScript;
 using System.IO;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.FormattingTests
 {
 	public abstract class TestBase
 	{

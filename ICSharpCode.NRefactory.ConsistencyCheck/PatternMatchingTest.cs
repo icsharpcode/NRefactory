@@ -19,9 +19,9 @@
 using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	/// <summary>
 	/// Validates pattern matching:

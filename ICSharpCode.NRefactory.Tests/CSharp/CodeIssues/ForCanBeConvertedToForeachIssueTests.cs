@@ -27,7 +27,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class ForCanBeConvertedToForeachIssueTests : InspectionActionTestBase

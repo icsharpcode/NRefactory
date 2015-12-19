@@ -28,7 +28,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	[TestFixture]
 	public class CreateClassDeclarationTests : ContextActionTestBase

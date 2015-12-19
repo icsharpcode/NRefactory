@@ -20,11 +20,12 @@ using System;
 using System.IO;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Xml;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.Xml;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Documentation
+namespace ICSharpCode.NRefactory.PlayScript.Documentation
 {
 	[TestFixture]
 	public class CSharpDocumentationTests

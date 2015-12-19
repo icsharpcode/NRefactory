@@ -21,7 +21,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory.Ps
 {
 	[Serializable]
 	public sealed class EmptyList<T> : IList<T>, IEnumerator<T>

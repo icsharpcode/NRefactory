@@ -25,8 +25,10 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	public class VariableDeclarationStatementTests : TestBase
 	{

@@ -22,11 +22,11 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.ConsistencyCheck.Xml;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.Xml;
+using ICSharpCode.NRefactory.PlayScript.ConsistencyCheck.Xml;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.PlayScript.Xml;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	/// <summary>
 	/// Tests incremental tag soup parser.

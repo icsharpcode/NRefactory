@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-namespace ICSharpCode.NRefactory.PatternMatching
+namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
 	/// <summary>
 	/// Base class for all patterns.

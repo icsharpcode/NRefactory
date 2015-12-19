@@ -19,8 +19,9 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.GeneralScope
 {
 	[TestFixture]
 	public class CommentTests

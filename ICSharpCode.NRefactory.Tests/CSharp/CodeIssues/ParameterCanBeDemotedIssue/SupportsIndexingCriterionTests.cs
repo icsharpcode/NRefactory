@@ -26,12 +26,12 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class SupportsIndexingCriterionTests

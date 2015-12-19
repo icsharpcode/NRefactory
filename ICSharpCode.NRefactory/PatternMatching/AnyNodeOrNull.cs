@@ -26,7 +26,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.PatternMatching
+namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
 	/// <summary>
 	/// Matches any node.

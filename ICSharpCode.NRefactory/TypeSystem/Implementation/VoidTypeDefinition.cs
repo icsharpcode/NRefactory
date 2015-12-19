@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.TypeSystem.Implementation
+namespace ICSharpCode.NRefactory.Ps.TypeSystem.Implementation
 {
 	/// <summary>
 	/// Special type definition for 'void'.

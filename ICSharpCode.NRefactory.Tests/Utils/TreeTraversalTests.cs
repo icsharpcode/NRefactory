@@ -19,9 +19,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps.Analysis;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.PlayScript.Utils
 {
 	[TestFixture]
 	public class TreeTraversalTests

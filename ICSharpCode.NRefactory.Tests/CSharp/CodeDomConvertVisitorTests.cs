@@ -22,9 +22,9 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using Microsoft.CSharp;
 using NUnit.Framework;
 

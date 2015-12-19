@@ -20,11 +20,12 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using ICSharpCode.NRefactory.PatternMatching;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.GeneralScope
 {
 	[TestFixture]
 	public class AttributeSectionTests

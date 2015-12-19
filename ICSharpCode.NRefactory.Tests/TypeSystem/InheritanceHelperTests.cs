@@ -27,9 +27,10 @@
 using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	[TestFixture]
 	public class InheritanceHelperTests

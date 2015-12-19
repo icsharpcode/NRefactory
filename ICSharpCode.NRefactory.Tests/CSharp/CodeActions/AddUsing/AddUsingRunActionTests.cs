@@ -1,10 +1,11 @@
 using NUnit.Framework;
+
 using ICSharpCode.NRefactory.PlayScript.CodeIssues;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions.AddUsing
 {
 	[TestFixture]
 	public class AddUsingRunActionTests : ContextActionTestBase

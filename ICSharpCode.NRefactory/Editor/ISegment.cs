@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.Editor
+namespace ICSharpCode.NRefactory.Ps.Editor
 {
 	/// <summary>
 	/// An (Offset,Length)-pair.

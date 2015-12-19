@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	/// <summary>
 	/// Interface for TypeSystem objects that support interning.

@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class RedundantParamsIssueTests : InspectionActionTestBase

@@ -31,7 +31,7 @@ using NUnit.Framework;
 using System.Diagnostics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	[TestFixture]
 	public class CodeCompletionAccessibleTests : TestBase

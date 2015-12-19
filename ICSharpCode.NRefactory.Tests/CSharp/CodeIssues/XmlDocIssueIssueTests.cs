@@ -30,7 +30,7 @@ using NUnit.Framework;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class XmlDocIssueTests: InspectionActionTestBase

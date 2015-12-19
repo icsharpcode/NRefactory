@@ -25,11 +25,10 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Completion;
+using ICSharpCode.NRefactory.Ps.Completion;
 using System.Linq;
 
-
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	public class CompletionDataList
 	{

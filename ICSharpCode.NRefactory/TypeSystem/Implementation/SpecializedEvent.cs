@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.TypeSystem.Implementation
+namespace ICSharpCode.NRefactory.Ps.TypeSystem.Implementation
 {
 	/// <summary>
 	/// Represents a specialized IEvent (event after type substitution).

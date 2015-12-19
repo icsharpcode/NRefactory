@@ -25,8 +25,11 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
+using ICSharpCode.NRefactory.PlayScript.Analysis;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
 	[TestFixture]
 	public class LocalDeclarationSpaceVisitorTests

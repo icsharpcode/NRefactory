@@ -3,7 +3,7 @@ using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions.AddUsing
 {
 	[TestFixture]
 	public class AddUsingActionAlphabeticalTests : ContextActionTestBase

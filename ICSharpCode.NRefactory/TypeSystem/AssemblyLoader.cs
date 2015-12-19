@@ -26,11 +26,11 @@
 using System;
 using System.Reflection;
 using System.Threading;
-using ICSharpCode.NRefactory.Documentation;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.Documentation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	public enum AssemblyLoaderBackend {
 		Auto,
@@ -50,9 +50,9 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			switch (backend) {
 				case AssemblyLoaderBackend.Auto:
 				case AssemblyLoaderBackend.Cecil:
-					return (AssemblyLoader)Assembly.Load ("ICSharpCode.NRefactory.Cecil").CreateInstance ("ICSharpCode.NRefactory.TypeSystem.CecilLoader");
+					return (AssemblyLoader)Assembly.Load ("ICSharpCode.NRefactory.PlayScript.Cecil").CreateInstance ("ICSharpCode.NRefactory.PlayScript.TypeSystem.CecilLoader");
 				case AssemblyLoaderBackend.IKVM:
-					return (AssemblyLoader)Assembly.Load ("ICSharpCode.NRefactory.IKVM").CreateInstance ("ICSharpCode.NRefactory.TypeSystem.IkvmLoader");
+					return (AssemblyLoader)Assembly.Load ("ICSharpCode.NRefactory.PlayScript.IKVM").CreateInstance ("ICSharpCode.NRefactory.PlayScript.TypeSystem.IkvmLoader");
 				default:
 					throw new ArgumentOutOfRangeException ();
 			}

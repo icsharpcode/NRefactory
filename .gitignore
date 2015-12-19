@@ -4,3 +4,6 @@ obj
 /lib/*.dll
 /ICSharpCode.NRefactory.Tests/PartCover/*
 _ReSharper*/*
+.DS_Store
+*.userprefs
+Packages/*

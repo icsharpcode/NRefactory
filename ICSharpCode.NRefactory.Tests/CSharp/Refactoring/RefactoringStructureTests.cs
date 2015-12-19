@@ -19,6 +19,8 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

@@ -22,7 +22,7 @@ using System.Globalization;
 using System.Linq;
 using System.Xml;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// XML element.

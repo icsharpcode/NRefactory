@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 using NUnit.Framework;
 using System.IO;
 using System.Text;

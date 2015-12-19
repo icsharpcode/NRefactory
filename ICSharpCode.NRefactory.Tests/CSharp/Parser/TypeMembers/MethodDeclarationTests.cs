@@ -18,10 +18,11 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.TypeMembers
 {
 	[TestFixture]
 	public class MethodDeclarationTests

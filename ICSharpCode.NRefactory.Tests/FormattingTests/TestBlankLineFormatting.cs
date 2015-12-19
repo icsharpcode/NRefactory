@@ -29,7 +29,7 @@ using System.IO;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.FormattingTests
 {
 	[TestFixture()]
 	public class TestBlankLineFormatting : TestBase

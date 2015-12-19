@@ -23,7 +23,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Windows.Forms;
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.Ps.Semantics;
 
 namespace ICSharpCode.NRefactory.Demo
 {

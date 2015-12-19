@@ -20,10 +20,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// XML object. Base class for all nodes in the XML document.

@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PatternMatching
+namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
 	/// <summary>
 	/// Represents the result of a pattern matching operation.

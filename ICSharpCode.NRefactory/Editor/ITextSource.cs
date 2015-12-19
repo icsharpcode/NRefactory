@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 
-namespace ICSharpCode.NRefactory.Editor
+namespace ICSharpCode.NRefactory.Ps.Editor
 {
 	/// <summary>
 	/// A read-only view on a (potentially mutable) text source.

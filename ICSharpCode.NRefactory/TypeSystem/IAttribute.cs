@@ -19,9 +19,9 @@
 using System;
 using System.Collections.Generic;
 
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.Ps.Semantics;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	/// <summary>
 	/// Represents an unresolved attribute.

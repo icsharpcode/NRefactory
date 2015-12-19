@@ -28,11 +28,12 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Semantics;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	/// <summary>
 	/// Tests for the test APIs.

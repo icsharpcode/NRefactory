@@ -26,15 +26,17 @@
 using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeCompletion;
 using System.Text;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Editor;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.Ps.Analysis;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Analysis
+namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
 	[TestFixture]
 	public class SymbolCollectorTests

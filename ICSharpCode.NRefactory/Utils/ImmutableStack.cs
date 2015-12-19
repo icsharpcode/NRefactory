@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.Ps.Utils
 {
 	/// <summary>
 	/// An immutable stack.

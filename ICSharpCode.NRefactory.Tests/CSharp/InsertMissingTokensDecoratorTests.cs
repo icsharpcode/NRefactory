@@ -20,7 +20,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Parser;
 

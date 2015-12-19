@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.TypeSystem.Implementation
+namespace ICSharpCode.NRefactory.Ps.TypeSystem.Implementation
 {
 	/// <summary>
 	/// Represents an unresolved type definition.

@@ -29,10 +29,16 @@ using Gtk;
 using System.IO;
 using System.Text;
 using System.Reflection;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Documentation;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
 using Gdk;
 using System.Threading;
@@ -230,9 +236,11 @@ namespace ICSharpCode.NRefactory.GtkDemo
 			
 			IProjectContent project = new CSharpProjectContent ();
 			project = project.AddOrUpdateFiles (unresolvedFile);
+//			foreach (var foo in builtInLibs.Value) {
+////				Console.WriteLine ("AssemblyName: {0}", foo.AssemblyName);
+//			}
 			project = project.AddAssemblyReferences (builtInLibs.Value);
-			
-			
+
 			CSharpAstResolver resolver = new CSharpAstResolver(project.CreateCompilation (), unit, unresolvedFile);
 			ShowUnit (unit, resolver);
 			
@@ -243,13 +251,15 @@ namespace ICSharpCode.NRefactory.GtkDemo
 				Assembly[] assemblies =  new Assembly[] {
 					typeof(object).Assembly, // mscorlib
 					typeof(Uri).Assembly, // System.dll
-					typeof(System.Linq.Enumerable).Assembly, // System.Core.dll
+//					typeof(System.Linq.Enumerable).Assembly, // System.Core.dll
 //					typeof(System.Xml.XmlDocument).Assembly, // System.Xml.dll
-//					typeof(System.Drawing.Bitmap).Assembly, // System.Drawing.dll
-//					typeof(Form).Assembly, // System.Windows.Forms.dll
-					typeof(ICSharpCode.NRefactory.TypeSystem.IProjectContent).Assembly,
+					typeof(ICSharpCode.NRefactory.Ps.TypeSystem.IProjectContent).Assembly,
 				};
+				foreach (var foo in assemblies) {
+					Console.WriteLine ("AssemblyName: {0}", foo.FullName);
+				}
 				IUnresolvedAssembly[] projectContents = new IUnresolvedAssembly[assemblies.Length];
+				Console.WriteLine("IUnresolvedAssembly Length: {0}", projectContents.Length);
 				Parallel.For(
 					0, assemblies.Length,
 					delegate (int i) {

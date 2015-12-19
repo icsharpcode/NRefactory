@@ -20,12 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Semantics;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
-	using dynamic = ICSharpCode.NRefactory.TypeSystem.ReflectionHelper.Dynamic;
+	using dynamic = ICSharpCode.NRefactory.Ps.TypeSystem.ReflectionHelper.Dynamic;
 	using C = Conversion;
 	
 	[TestFixture]

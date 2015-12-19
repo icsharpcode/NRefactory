@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	[TestFixture]
 	public class ConvertAnonymousDelegateToLambdaTests : ContextActionTestBase

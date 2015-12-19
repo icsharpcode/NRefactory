@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.Ps.Utils
 {
 	public sealed class ReferenceComparer : IEqualityComparer<object>
 	{

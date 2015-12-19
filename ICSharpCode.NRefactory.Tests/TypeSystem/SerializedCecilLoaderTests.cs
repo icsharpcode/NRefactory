@@ -18,11 +18,12 @@
 
 using System;
 using System.IO;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Utils;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	[TestFixture]
 	public class SerializedCecilLoaderTests : TypeSystemTests

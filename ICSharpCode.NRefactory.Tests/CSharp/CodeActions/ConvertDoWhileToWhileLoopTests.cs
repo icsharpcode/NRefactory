@@ -26,7 +26,7 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {/* TOOD: Enable - it's not possible to compile this file on mono 3.0.7 due to an internal compiler error.
 	[TestFixture]
 	public class ConvertDoWhileToWhileLoopTests : ContextActionTestBase

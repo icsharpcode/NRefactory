@@ -20,10 +20,13 @@ using System;
 using System.IO;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Documentation;
 
-namespace ICSharpCode.NRefactory.Documentation
+namespace ICSharpCode.NRefactory.PlayScript.Documentation
 {
 	[TestFixture]
 	public class CSharpCrefLookupTests

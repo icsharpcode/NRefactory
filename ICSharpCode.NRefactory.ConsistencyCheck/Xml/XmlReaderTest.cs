@@ -25,10 +25,11 @@ using System.Reflection;
 using System.Xml;
 using System.Xml.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.Xml;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck.Xml
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.PlayScript.Xml;
+
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck.Xml
 {
 	public static class XmlReaderTest
 	{

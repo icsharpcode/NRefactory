@@ -19,9 +19,9 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Statements
 {
 	[TestFixture]
 	public class TryCatchStatementTests

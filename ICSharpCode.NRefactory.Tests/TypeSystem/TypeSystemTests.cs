@@ -21,13 +21,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.TypeSystem.TestCase;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem.TestCase;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	/// <summary>
 	/// Base class for the type system tests.
@@ -1177,7 +1178,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		[Test]
 		public void ExplicitDisposableImplementation()
 		{
-			ITypeDefinition disposable = GetTypeDefinition(typeof(NRefactory.TypeSystem.TestCase.ExplicitDisposableImplementation));
+			ITypeDefinition disposable = GetTypeDefinition(typeof(NRefactory.PlayScript.TypeSystem.TestCase.ExplicitDisposableImplementation));
 			IMethod method = disposable.Methods.Single(m => !m.IsConstructor);
 			Assert.IsTrue(method.IsExplicitInterfaceImplementation);
 			Assert.AreEqual("System.IDisposable.Dispose", method.ImplementedInterfaceMembers.Single().FullName);
@@ -1501,12 +1502,12 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			Assert.AreEqual(myAttribute2, inner2MyAttr.AttributeType);
 		}
 		
-		[Test]
-		public void ClassWithAttributeOnTypeParameter()
-		{
-			var tp = GetTypeDefinition(typeof(ClassWithAttributeOnTypeParameter<>)).TypeParameters.Single();
-			var attr = tp.Attributes.Single();
-			Assert.AreEqual("DoubleAttribute", attr.AttributeType.Name);
-		}
+//		[Test]
+//		public void ClassWithAttributeOnTypeParameter()
+//		{
+//			var tp = GetTypeDefinition(typeof(ClassWithAttributeOnTypeParameter<>)).TypeParameters.Single();
+//			var attr = tp.Attributes.Single();
+//			Assert.AreEqual("DoubleAttribute", attr.AttributeType.Name);
+//		}
 	}
 }

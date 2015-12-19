@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class PublicConstructorInAbstractClassIssueTests : InspectionActionTestBase

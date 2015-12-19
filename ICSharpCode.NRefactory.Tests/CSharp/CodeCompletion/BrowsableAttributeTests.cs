@@ -27,7 +27,7 @@ using System;
 using NUnit.Framework;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	[TestFixture]
 	public class BrowsableAttributeTests : TestBase

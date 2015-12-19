@@ -20,13 +20,16 @@ using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.Ps;
 
-[assembly: ICSharpCode.NRefactory.TypeSystem.TestCase.TypeTestAttribute(
-	42, typeof(System.Action<>), typeof(IDictionary<string, IList<NUnit.Framework.TestAttribute>>))]
+//[assembly: ICSharpCode.NRefactory.PlayScript.TypeSystem.TestCase.TypeTestAttribute(
+//	42, typeof(System.Action<>), typeof(IDictionary<string, IList<NUnit.Framework.TestAttribute>>))]
 
 [assembly: TypeForwardedTo(typeof(Func<,>))]
 
-namespace ICSharpCode.NRefactory.TypeSystem.TestCase
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem.TestCase
 {
 	public delegate S GenericDelegate<in T, out S>(T input) where T : S where S : class;
 	
@@ -40,20 +43,20 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		public TypeTestAttribute(int a1, Type a2, Type a3) {}
 	}
 	
-	[Params(1, StringComparison.CurrentCulture, null, 4.0, "Test")]
+//	[Params(1, StringComparison.CurrentCulture, null, 4.0, "Test")]
 	public class ParamsAttribute : Attribute
 	{
 		public ParamsAttribute(params object[] x) {}
 		
-		[Params(Property = new string[] { "a", "b" })]
+//		[Params(Property = new string[] { "a", "b" })]
 		public string[] Property { 
-			[return: Params("Attribute on return type of getter")]
+//			[return: Params("Attribute on return type of getter")]
 			get { return null; }
 			set { }
 		}
 	}
 	
-	[Double(1)]
+//	[Double(1)]
 	public class DoubleAttribute : Attribute
 	{
 		public DoubleAttribute(double val) {}
@@ -431,7 +434,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		int IExplicitImplementationTests.this[int x] { get { return 0; } set {} }
 	}
 
-	[TypeTest(C, typeof(Inner), typeof(int)), My]
+//	[TypeTest(C, typeof(Inner), typeof(int)), My]
 	public class ClassWithAttributesUsingNestedMembers {
 		sealed class MyAttribute : Attribute {}
 
@@ -439,14 +442,14 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		class Inner {
 		}
 
-		[TypeTest(C, typeof(Inner), typeof(int)), My]
+//		[TypeTest(C, typeof(Inner), typeof(int)), My]
 		public int P { get; set; }
 
-		[TypeTest(C, typeof(Inner), typeof(int)), My]
+//		[TypeTest(C, typeof(Inner), typeof(int)), My]
 		class AttributedInner {
 		}
 
-		[TypeTest(C, typeof(Inner), typeof(int)), My]
+//		[TypeTest(C, typeof(Inner), typeof(int)), My]
 		class AttributedInner2 {
 			sealed class MyAttribute : Attribute {}
 
@@ -455,7 +458,7 @@ namespace ICSharpCode.NRefactory.TypeSystem.TestCase
 		}
 	}
 	
-	public class ClassWithAttributeOnTypeParameter<[Double(2)] T> {}
+//	public class ClassWithAttributeOnTypeParameter<[Double(2)] T> {}
 
 	[Guid ("790C6E0B-9194-4cc9-9426-A48A63185696"), InterfaceType (ComInterfaceType.InterfaceIsDual)]
 	[ComImport]

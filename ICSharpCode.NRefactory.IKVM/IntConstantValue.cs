@@ -24,10 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
+//using ICSharpCode.NRefactory.TypeSystem;
+//using ICSharpCode.NRefactory.Semantics;
 
-namespace ICSharpCode.NRefactory
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Documentation;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	[Serializable]
 	sealed class IntConstantValue : IConstantValue, ISupportsInterning 

@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.Ps.Utils
 {
 	/// <summary>
 	/// A dictionary that allows multiple pairs with the same key.

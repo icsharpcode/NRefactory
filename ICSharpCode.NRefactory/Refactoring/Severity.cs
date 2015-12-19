@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory.Refactoring
+namespace ICSharpCode.NRefactory.Ps.Refactoring
 {
 	/// <summary>
 	/// The severity influences how the task bar reacts on found issues.

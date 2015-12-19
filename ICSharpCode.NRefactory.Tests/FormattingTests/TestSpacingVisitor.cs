@@ -27,7 +27,7 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.FormattingTests
 {
 	[TestFixture]
 	public class TestSpacingVisitor : TestBase

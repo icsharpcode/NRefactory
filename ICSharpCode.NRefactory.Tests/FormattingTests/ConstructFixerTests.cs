@@ -26,9 +26,9 @@
 
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.FormattingTests
 {
 	[TestFixture]
 	public class ConstructFixerTests

@@ -18,13 +18,13 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.Ps.Semantics;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
 	// assign short name to the fake reflection type
-	using dynamic = ICSharpCode.NRefactory.TypeSystem.ReflectionHelper.Dynamic;
+	using dynamic = ICSharpCode.NRefactory.Ps.TypeSystem.ReflectionHelper.Dynamic;
 	
 	[TestFixture]
 	public class ConditionalOperatorTests : ResolverTestBase

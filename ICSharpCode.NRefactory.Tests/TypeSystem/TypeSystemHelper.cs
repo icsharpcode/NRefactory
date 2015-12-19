@@ -19,9 +19,10 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	public static class TypeSystemHelper
 	{

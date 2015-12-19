@@ -20,7 +20,7 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	static class Log
 	{

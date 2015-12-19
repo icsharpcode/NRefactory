@@ -21,10 +21,10 @@ using System.IO;
 using System.Linq;
 
 using System.Text;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser
 {
 	/// <summary>
 	/// Helper methods for parser unit tests.

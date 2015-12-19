@@ -6,7 +6,7 @@
   </configuration>
   <import>
     <widget-library name="glade-sharp, Version=2.12.0.0, Culture=neutral, PublicKeyToken=35e10195dab3c99f" />
-    <widget-library name="../bin/Debug/ICSharpCode.NRefactory.GtkDemo.exe" internal="true" />
+    <widget-library name="../bin/Debug/ICSharpCode.NRefactory.PlayScript.GtkDemo.exe" internal="true" />
   </import>
   <widget class="Gtk.Window" id="ICSharpCode.NRefactory.GtkDemo.MainWindow" design-size="400 300">
     <property name="MemberName" />
@@ -25,7 +25,16 @@
               <widget class="Gtk.TextView" id="textview1">
                 <property name="MemberName" />
                 <property name="CanFocus">True</property>
-                <property name="Text" translatable="yes" />
+                <property name="Text" translatable="yes">package
+{
+	public class MainClass
+	{
+		public static function Main():void
+		{
+			trace("Hello World from PlayScript!");
+		}
+	}
+}</property>
               </widget>
             </child>
           </widget>

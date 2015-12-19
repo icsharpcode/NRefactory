@@ -18,9 +18,10 @@
 
 using System;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Expression
 {
 	[TestFixture]
 	public class IdentifierExpressionTests

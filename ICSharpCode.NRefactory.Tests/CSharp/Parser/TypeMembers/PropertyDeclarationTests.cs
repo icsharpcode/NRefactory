@@ -20,9 +20,11 @@ using System;
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.TypeMembers
 {
 	[TestFixture]
 	public class PropertyDeclarationTests

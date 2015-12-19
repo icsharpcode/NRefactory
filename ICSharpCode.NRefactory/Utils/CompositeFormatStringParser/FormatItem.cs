@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.Ps.Utils
 {
 	public class FormatItem : FormatStringSegmentBase
 	{

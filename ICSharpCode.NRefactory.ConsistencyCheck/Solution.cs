@@ -23,10 +23,10 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Utils;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	public class Solution
 	{

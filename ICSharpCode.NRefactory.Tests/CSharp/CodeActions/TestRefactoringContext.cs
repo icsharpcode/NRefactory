@@ -28,16 +28,17 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
 using System.Threading;
 using System.Threading.Tasks;
 using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	public class TestRefactoringContext : RefactoringContext
 	{

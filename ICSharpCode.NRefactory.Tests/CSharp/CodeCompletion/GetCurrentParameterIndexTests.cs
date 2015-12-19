@@ -26,11 +26,11 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Completion;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	[TestFixture]
 	public class GetCurrentParameterIndexTests

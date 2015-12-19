@@ -22,13 +22,14 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
-using ICSharpCode.NRefactory.Analysis;
+using ICSharpCode.NRefactory.Ps.Analysis;
 using System.Text;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
 	[TestFixture]
 	public class FindReferencesTest

@@ -20,10 +20,10 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Text;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 
-namespace ICSharpCode.NRefactory.Documentation
+namespace ICSharpCode.NRefactory.Ps.Documentation
 {
 	/// <summary>
 	/// Provides ID strings for entities. (C# 4.0 spec, §A.3.1)

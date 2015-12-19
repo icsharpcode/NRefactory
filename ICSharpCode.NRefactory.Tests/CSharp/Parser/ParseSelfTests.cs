@@ -18,11 +18,11 @@
 
 using System;
 using System.IO;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser
 {
 	/// <summary>
 	/// Test fixture that parses NRefactory itself,

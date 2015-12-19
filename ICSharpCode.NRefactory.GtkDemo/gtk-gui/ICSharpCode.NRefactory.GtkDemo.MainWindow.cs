@@ -38,6 +38,7 @@ namespace ICSharpCode.NRefactory.GtkDemo
 			this.scrolledwindow1.ShadowType = ((global::Gtk.ShadowType)(1));
 			// Container child scrolledwindow1.Gtk.Container+ContainerChild
 			this.textview1 = new global::Gtk.TextView ();
+			this.textview1.Buffer.Text = "package\n{\n\tpublic class MainClass\n\t{\n\t\tpublic static function Main():void\n\t\t{\n\t\t\ttrace(\"Hello World from PlayScript!\");\n\t\t}\n\t}\n}";
 			this.textview1.CanFocus = true;
 			this.textview1.Name = "textview1";
 			this.scrolledwindow1.Add (this.textview1);

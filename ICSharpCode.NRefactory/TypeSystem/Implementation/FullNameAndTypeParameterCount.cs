@@ -19,7 +19,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.TypeSystem.Implementation
+namespace ICSharpCode.NRefactory.Ps.TypeSystem.Implementation
 {
 	[Obsolete("This struct was renamed to 'TopLevelTypeName'.", true)]
 	public struct FullNameAndTypeParameterCount

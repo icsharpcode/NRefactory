@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	/// <summary>
 	/// Represents an unresolved class, enum, interface, struct, delegate or VB module.

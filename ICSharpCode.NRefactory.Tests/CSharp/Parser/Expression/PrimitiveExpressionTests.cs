@@ -20,8 +20,9 @@ using System;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Expression
 {
 	[TestFixture]
 	public class PrimitiveExpressionTests

@@ -19,8 +19,10 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Expression
 {
 	[TestFixture]
 	public class QueryExpressionTests

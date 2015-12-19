@@ -50,10 +50,10 @@ namespace ICSharpCode.NRefactory.Demo
 			this.tabPage1 = new System.Windows.Forms.TabPage();
 			this.csDemo1 = new ICSharpCode.NRefactory.Demo.CSDemo();
 			this.tabControl1 = new System.Windows.Forms.TabControl();
-			this.tabPage2 = new System.Windows.Forms.TabPage();
+//			this.tabPage2 = new System.Windows.Forms.TabPage();
 			this.tabPage1.SuspendLayout();
 			this.tabControl1.SuspendLayout();
-			this.tabPage2.SuspendLayout();
+//			this.tabPage2.SuspendLayout();
 			this.SuspendLayout();
 			// 
 			// miniToolStrip
@@ -76,7 +76,7 @@ namespace ICSharpCode.NRefactory.Demo
 			this.tabPage1.Padding = new System.Windows.Forms.Padding(3);
 			this.tabPage1.Size = new System.Drawing.Size(507, 458);
 			this.tabPage1.TabIndex = 0;
-			this.tabPage1.Text = "C#";
+			this.tabPage1.Text = "PlayScript";
 			this.tabPage1.UseVisualStyleBackColor = true;
 			// 
 			// csDemo1
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.Demo
 			// tabControl1
 			// 
 			this.tabControl1.Controls.Add(this.tabPage1);
-			this.tabControl1.Controls.Add(this.tabPage2);
+//			this.tabControl1.Controls.Add(this.tabPage2);
 			this.tabControl1.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.tabControl1.Location = new System.Drawing.Point(0, 0);
 			this.tabControl1.Name = "tabControl1";
@@ -100,13 +100,13 @@ namespace ICSharpCode.NRefactory.Demo
 			// 
 			// tabPage2
 			// 
-			this.tabPage2.Location = new System.Drawing.Point(4, 22);
-			this.tabPage2.Name = "tabPage2";
-			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
-			this.tabPage2.Size = new System.Drawing.Size(507, 458);
-			this.tabPage2.TabIndex = 1;
-			this.tabPage2.Text = "VB";
-			this.tabPage2.UseVisualStyleBackColor = true;
+//			this.tabPage2.Location = new System.Drawing.Point(4, 22);
+//			this.tabPage2.Name = "tabPage2";
+//			this.tabPage2.Padding = new System.Windows.Forms.Padding(3);
+//			this.tabPage2.Size = new System.Drawing.Size(507, 458);
+//			this.tabPage2.TabIndex = 1;
+//			this.tabPage2.Text = "VB";
+//			this.tabPage2.UseVisualStyleBackColor = true;
 			// 
 			// MainForm
 			// 
@@ -118,10 +118,10 @@ namespace ICSharpCode.NRefactory.Demo
 			this.Text = "NRefactory Demo";
 			this.tabPage1.ResumeLayout(false);
 			this.tabControl1.ResumeLayout(false);
-			this.tabPage2.ResumeLayout(false);
+//			this.tabPage2.ResumeLayout(false);
 			this.ResumeLayout(false);
 		}
-		private System.Windows.Forms.TabPage tabPage2;
+//		private System.Windows.Forms.TabPage tabPage2;
 		private ICSharpCode.NRefactory.Demo.CSDemo csDemo1;
 		private System.Windows.Forms.ToolStrip miniToolStrip;
 		private System.Windows.Forms.TabPage tabPage1;

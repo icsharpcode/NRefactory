@@ -24,10 +24,13 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Text.RegularExpressions;
 using ICSharpCode.NRefactory.PlayScript.Parser;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.Ps;
+
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript {
+namespace ICSharpCode.NRefactory.PlayScript 
+{
 	[TestFixture]
 	public class QueryExpressionExpanderTests {
 		private dynamic ElementAt(dynamic d, int index) {

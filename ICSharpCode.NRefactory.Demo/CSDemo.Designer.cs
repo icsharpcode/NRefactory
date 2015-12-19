@@ -95,8 +95,24 @@ namespace ICSharpCode.NRefactory.Demo
 			this.csharpCodeTextBox.ScrollBars = System.Windows.Forms.ScrollBars.Both;
 			this.csharpCodeTextBox.Size = new System.Drawing.Size(475, 178);
 			this.csharpCodeTextBox.TabIndex = 0;
-			this.csharpCodeTextBox.Text = "using System;\r\nusing System.Linq;\r\nclass Test\r\n{\r\n    public void Main(string[] a" +
-			"rgs)\r\n    {\r\n         Console.WriteLine(\"Hello, World\");\r\n    }\r\n}";
+			this.csharpCodeTextBox.Text = @"package {
+        import flash.display.Sprite;
+        import flash.text.TextField;
+
+        public class HelloWorld extends Sprite {
+
+                public function HelloWorld() {
+                        var display_txt:TextField = new TextField();
+                        display_txt.text = ""Hello World!"";
+                        addChild(display_txt);
+                }
+        }
+}";
+//
+//
+//
+//				"using System;\r\nusing System.Linq;\r\nclass Test\r\n{\r\n    public void Main(string[] a" +
+//			"rgs)\r\n    {\r\n         Console.WriteLine(\"Hello, World\");\r\n    }\r\n}";
 			this.csharpCodeTextBox.WordWrap = false;
 			this.csharpCodeTextBox.TextChanged += new System.EventHandler(this.CsharpCodeTextBoxTextChanged);
 			// 

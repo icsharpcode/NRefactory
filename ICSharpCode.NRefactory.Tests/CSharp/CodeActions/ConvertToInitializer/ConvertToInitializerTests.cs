@@ -25,10 +25,10 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
 using System;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	[TestFixture]
 	public class ConvertToInitializerTests : ContextActionTestBase

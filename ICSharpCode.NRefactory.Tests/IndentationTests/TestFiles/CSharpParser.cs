@@ -27,11 +27,11 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 using ICSharpCode.NRefactory.MonoCSharp;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.CSharp
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class CSharpParser
 	{

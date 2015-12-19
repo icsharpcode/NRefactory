@@ -21,11 +21,17 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.Documentation;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps.Documentation;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Documentation
+namespace ICSharpCode.NRefactory.PlayScript.Documentation
 {
 	[TestFixture]
 	public class IDStringTests

@@ -21,16 +21,16 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
 	// assign short names to the fake reflection types
-	using Null = ICSharpCode.NRefactory.TypeSystem.ReflectionHelper.Null;
-	using dynamic = ICSharpCode.NRefactory.TypeSystem.ReflectionHelper.Dynamic;
+	using Null = ICSharpCode.NRefactory.Ps.TypeSystem.ReflectionHelper.Null;
+	using dynamic = ICSharpCode.NRefactory.Ps.TypeSystem.ReflectionHelper.Dynamic;
 	using C = Conversion;
 	
 	[TestFixture]

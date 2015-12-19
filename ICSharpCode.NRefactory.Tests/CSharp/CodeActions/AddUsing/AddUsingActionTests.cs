@@ -4,7 +4,7 @@ using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions.AddUsing
 {
 	[TestFixture]
 	public class AddUsingActionTests : ContextActionTestBase

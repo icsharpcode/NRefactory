@@ -22,7 +22,7 @@ using System.Diagnostics;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	/// <summary>
 	/// Determines the fastest way to retrieve a List{IdentifierExpression} of all identifiers

@@ -33,12 +33,21 @@ using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using ICSharpCode.NRefactory.Documentation;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Utils;
+
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Documentation;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem.Implementation;
+
+//using ICSharpCode.NRefactory.Documentation;
+//using ICSharpCode.NRefactory.TypeSystem.Implementation;
+//using ICSharpCode.NRefactory.Utils;
 using IKVM.Reflection;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	/// <summary>
 	/// Allows loading an IProjectContent from an already compiled assembly.

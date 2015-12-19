@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory.Ps
 {
 	/// <summary>
 	/// Provides an interface to handle annotations in an object.

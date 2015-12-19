@@ -26,16 +26,16 @@
 
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
-using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.PlayScript.Completion;
-using ICSharpCode.NRefactory.Completion;
+using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+//using ICSharpCode.NRefactory.PlayScript.Completion;
+using ICSharpCode.NRefactory.Ps.Completion;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Editor;
 using System.Diagnostics;
+using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	[TestFixture]
 	public abstract class TestBase 

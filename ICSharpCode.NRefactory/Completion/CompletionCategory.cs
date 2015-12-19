@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory.Completion
+namespace ICSharpCode.NRefactory.Ps.Completion
 {
 	public abstract class CompletionCategory : IComparable<CompletionCategory>
 	{

@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.PlayScript.CodeActions;
 
 
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class CS0152DuplicateCaseLabelValueIssueTests : InspectionActionTestBase

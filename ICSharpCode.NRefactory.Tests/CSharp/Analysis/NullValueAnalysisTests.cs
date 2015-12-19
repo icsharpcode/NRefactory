@@ -25,15 +25,19 @@
 // THE SOFTWARE.
 using System;
 using NUnit.Framework;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
 using System.Linq;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using System.Diagnostics;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
 	[TestFixture]
 	public class NullValueAnalysisTests
@@ -71,7 +75,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			{
 				throw new NotImplementedException();
 			}
-			public override ICSharpCode.NRefactory.Editor.IDocumentLine GetLineByOffset(int offset)
+			public override ICSharpCode.NRefactory.Ps.Editor.IDocumentLine GetLineByOffset(int offset)
 			{
 				throw new NotImplementedException();
 			}
@@ -83,7 +87,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			{
 				throw new NotImplementedException();
 			}
-			public override string GetText(ICSharpCode.NRefactory.Editor.ISegment segment)
+			public override string GetText(ICSharpCode.NRefactory.Ps.Editor.ISegment segment)
 			{
 				throw new NotImplementedException();
 			}

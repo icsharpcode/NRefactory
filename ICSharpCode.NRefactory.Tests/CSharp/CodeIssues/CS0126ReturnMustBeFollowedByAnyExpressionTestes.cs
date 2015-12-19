@@ -30,7 +30,7 @@ using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Threading.Tasks;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class CS0126ReturnMustBeFollowedByAnyExpressionTests : InspectionActionTestBase

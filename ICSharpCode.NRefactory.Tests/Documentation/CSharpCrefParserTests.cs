@@ -19,10 +19,12 @@
 using System;
 using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.PlayScript.Parser;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Documentation;
 
-namespace ICSharpCode.NRefactory.Documentation
+namespace ICSharpCode.NRefactory.PlayScript.Documentation
 {
 	[TestFixture]
 	public class CSharpCrefParserTests

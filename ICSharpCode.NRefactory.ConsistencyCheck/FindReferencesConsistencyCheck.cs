@@ -22,11 +22,11 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	public class FindReferencesConsistencyCheck
 	{

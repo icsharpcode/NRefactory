@@ -25,9 +25,10 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
 using ICSharpCode.NRefactory.PlayScript.Parser;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Statements
 {
 	[TestFixture]
 	public class InvalidStatementsTests

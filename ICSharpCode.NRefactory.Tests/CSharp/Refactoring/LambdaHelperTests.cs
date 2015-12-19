@@ -29,6 +29,7 @@ using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

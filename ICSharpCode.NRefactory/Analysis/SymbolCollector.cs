@@ -18,10 +18,10 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.Analysis
+namespace ICSharpCode.NRefactory.Ps.Analysis
 {
 	/// <summary>
 	/// The symbol collector collects related symbols that form a group of symbols that should be renamed
@@ -31,7 +31,7 @@ namespace ICSharpCode.NRefactory.Analysis
 	public class SymbolCollector
 	{
 		/// <summary>
-		/// Gets or sets a value indicating whether this <see cref="ICSharpCode.NRefactory.Analysis.SymbolCollector"/> should include overloads.
+		/// Gets or sets a value indicating whether this <see cref="ICSharpCode.NRefactory.Ps.Analysis.SymbolCollector"/> should include overloads.
 		/// </summary>
 		/// <value><c>true</c> if overloads should be included; otherwise, <c>false</c>.</value>
 		public bool IncludeOverloads { 

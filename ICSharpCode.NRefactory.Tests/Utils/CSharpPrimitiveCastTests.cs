@@ -18,8 +18,11 @@
 
 using System;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Analysis;
+using ICSharpCode.NRefactory.Ps.Utils;
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.PlayScript.Utils
 {
 	[TestFixture]
 	public class CSharpPrimitiveCastTests

@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	[TestFixture]
 	public class DelegateContextTests : TestBase

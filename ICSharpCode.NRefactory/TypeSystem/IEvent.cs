@@ -18,9 +18,9 @@
 
 using System;
 using System.Diagnostics.Contracts;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	public interface IUnresolvedEvent : IUnresolvedMember
 	{

@@ -32,8 +32,10 @@ using System.Linq;
 using System.Text;
 using ICSharpCode.NRefactory;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	public abstract class ContextActionTestBase
 	{

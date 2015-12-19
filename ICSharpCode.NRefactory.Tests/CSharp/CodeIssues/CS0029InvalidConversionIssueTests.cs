@@ -4,7 +4,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class CS0029InvalidConversionIssueTests : InspectionActionTestBase

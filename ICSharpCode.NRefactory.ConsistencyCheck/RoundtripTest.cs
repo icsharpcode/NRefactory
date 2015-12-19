@@ -21,10 +21,10 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Editor;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	/// <summary>
 	/// Tests parser + output visitor by roundtripping code.

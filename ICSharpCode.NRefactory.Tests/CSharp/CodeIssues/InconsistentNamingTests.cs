@@ -28,8 +28,11 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Linq;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class InconsistentNamingTests : InspectionActionTestBase

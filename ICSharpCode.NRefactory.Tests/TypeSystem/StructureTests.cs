@@ -19,8 +19,9 @@
 using System;
 using System.Reflection;
 using NUnit.Framework;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	[TestFixture]
 	public class StructureTests

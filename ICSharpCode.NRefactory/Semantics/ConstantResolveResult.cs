@@ -18,9 +18,9 @@
 
 using System;
 using System.Globalization;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Semantics
+namespace ICSharpCode.NRefactory.Ps.Semantics
 {
 	/// <summary>
 	/// ResolveResult representing a compile-time constant.

@@ -27,8 +27,12 @@ using NUnit.Framework;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Utils
+namespace ICSharpCode.NRefactory.PlayScript.Utils
 {
 	[TestFixture]
 	public class CompositeFormatStringParserTests

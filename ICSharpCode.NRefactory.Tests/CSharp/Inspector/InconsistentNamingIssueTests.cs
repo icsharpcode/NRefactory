@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 
-namespace ICSharpCode.NRefactory
+namespace ICSharpCode.NRefactory.PlayScript
 {
 	public class InconsistentNamingIssueTests
 	{

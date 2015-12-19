@@ -18,10 +18,10 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Ps.PatternMatching;
 using NUnit.Framework;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Statements
 {
 	[TestFixture]
 	public class VariableDeclarationStatementTests

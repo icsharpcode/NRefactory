@@ -29,7 +29,7 @@ using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeIssues
 {
 	[TestFixture]
 	public class ReplaceWithOfTypeIssueTests : InspectionActionTestBase

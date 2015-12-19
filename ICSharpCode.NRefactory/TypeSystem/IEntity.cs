@@ -19,9 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
-using ICSharpCode.NRefactory.Documentation;
+using ICSharpCode.NRefactory.Ps.Documentation;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	/// <summary>
 	/// Represents an unresolved entity.

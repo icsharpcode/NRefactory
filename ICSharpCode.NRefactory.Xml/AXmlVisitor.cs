@@ -19,7 +19,7 @@
 using System;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// Derive from this class to create visitor for the XML tree

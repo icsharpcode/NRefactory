@@ -26,7 +26,7 @@
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Refactoring.ExtractMethod;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	[TestFixture]
 	public class ExtractMethodTests : ContextActionTestBase

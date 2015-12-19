@@ -26,9 +26,10 @@
 using System;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript;
+using ICSharpCode.NRefactory.Ps;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.Parser.Bugs
 {
 	[TestFixture]
 	public class ParserBugTests

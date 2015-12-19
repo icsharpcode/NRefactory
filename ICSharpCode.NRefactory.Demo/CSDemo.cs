@@ -29,9 +29,10 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 using ICSharpCode.NRefactory.PlayScript;
-//using ICSharpCode.NRefactory.PlayScript.CSharpResolver;
-using ICSharpCode.NRefactory.Semantics;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps;
 
 namespace ICSharpCode.NRefactory.Demo
 {
@@ -187,7 +188,7 @@ namespace ICSharpCode.NRefactory.Demo
 //					typeof(System.Xml.XmlDocument).Assembly, // System.Xml.dll
 //					typeof(System.Drawing.Bitmap).Assembly, // System.Drawing.dll
 //					typeof(Form).Assembly, // System.Windows.Forms.dll
-					typeof(ICSharpCode.NRefactory.TypeSystem.IProjectContent).Assembly,
+					typeof(ICSharpCode.NRefactory.Ps.TypeSystem.IProjectContent).Assembly,
 				};
 				IUnresolvedAssembly[] projectContents = new IUnresolvedAssembly[assemblies.Length];
 				Stopwatch total = Stopwatch.StartNew();

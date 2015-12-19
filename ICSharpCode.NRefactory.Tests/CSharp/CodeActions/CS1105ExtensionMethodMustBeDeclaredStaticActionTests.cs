@@ -28,7 +28,7 @@ using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.CodeActions;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeActions
 {
 	[TestFixture]
 	public class CS1105ExtensionMethodMustBeDeclaredStaticActionTests : ContextActionTestBase

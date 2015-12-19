@@ -23,9 +23,9 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	class TagReader : TokenReader
 	{

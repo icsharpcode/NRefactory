@@ -19,9 +19,9 @@
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Ps.Editor;
 
-namespace ICSharpCode.NRefactory.Xml
+namespace ICSharpCode.NRefactory.PlayScript.Xml
 {
 	/// <summary>
 	/// Represents any markup starting with "&lt;" and (hopefully) ending with ">"

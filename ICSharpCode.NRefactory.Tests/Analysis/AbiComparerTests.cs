@@ -27,11 +27,13 @@
 using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Ps.Analysis;
 using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.CodeCompletion;
 
-namespace ICSharpCode.NRefactory.Analysis
+
+namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
 	[TestFixture]
 	public class AbiComparerTests

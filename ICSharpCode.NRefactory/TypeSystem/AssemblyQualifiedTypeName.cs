@@ -18,7 +18,7 @@
 
 using System;
 
-namespace ICSharpCode.NRefactory.TypeSystem
+namespace ICSharpCode.NRefactory.Ps.TypeSystem
 {
 	public struct AssemblyQualifiedTypeName : IEquatable<AssemblyQualifiedTypeName>
 	{

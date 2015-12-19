@@ -19,9 +19,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.Semantics
+namespace ICSharpCode.NRefactory.Ps.Semantics
 {
 	/// <summary>
 	/// Represents a unary/binary/ternary operator invocation.

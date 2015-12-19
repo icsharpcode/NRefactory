@@ -29,7 +29,7 @@ using NUnit.Framework;
 using ICSharpCode.NRefactory.PlayScript.Parser;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.PlayScript
+namespace ICSharpCode.NRefactory.PlayScript.CodeCompletion
 {
 	[TestFixture()]
 	public class KeywordTests : TestBase

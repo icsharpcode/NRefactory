@@ -22,11 +22,12 @@ using System.IO;
 using System.Linq;
 
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Logging;
+using ICSharpCode.NRefactory.Ps.TypeSystem;
 
-namespace ICSharpCode.NRefactory.ConsistencyCheck
+namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
 	/// <summary>
 	/// Represents a C# project (.csproj file)
