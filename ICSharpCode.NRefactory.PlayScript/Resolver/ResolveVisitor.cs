@@ -23,10 +23,10 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.PlayScript.Analysis;
 
 namespace ICSharpCode.NRefactory.PlayScript.Resolver
@@ -3970,7 +3970,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Resolver
 			return null;
 		}
 
-		ResolveResult IAstVisitor<ResolveResult>.VisitPatternPlaceholder(AstNode placeholder, ICSharpCode.NRefactory.Ps.PatternMatching.Pattern pattern)
+		ResolveResult IAstVisitor<ResolveResult>.VisitPatternPlaceholder(AstNode placeholder, ICSharpCode.NRefactory.PatternMatching.Pattern pattern)
 		{
 			return null;
 		}

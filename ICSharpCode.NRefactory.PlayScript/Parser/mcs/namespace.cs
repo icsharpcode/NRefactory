@@ -14,7 +14,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Mono.CompilerServices.SymbolWriter;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	public class RootNamespace : Namespace {
 
@@ -933,7 +933,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 		{
 			bool isPlayScript = this.CompilationSourceFile != null &&
 				this.CompilationSourceFile.SourceFile != null && 
-				this.CompilationSourceFile.SourceFile.FileType == ICSharpCode.NRefactory.MonoCSharp.SourceFileType.PlayScript;
+				this.CompilationSourceFile.SourceFile.FileType == ICSharpCode.NRefactory.MonoPlayScript.SourceFileType.PlayScript;
 
 			if (DeclarationFound && !forceAppend && !isPlayScript){
 				Compiler.Report.Error (1529, un.Location, "A using clause must precede all other namespace elements except extern alias declarations");

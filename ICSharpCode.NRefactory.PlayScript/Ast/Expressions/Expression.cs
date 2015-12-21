@@ -18,7 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -57,7 +58,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -65,16 +66,16 @@ namespace ICSharpCode.NRefactory.PlayScript
 		#endregion
 		
 		#region PatternPlaceholder
-		public static implicit operator Expression(Ps.PatternMatching.Pattern pattern)
+		public static implicit operator Expression(Pattern pattern)
 		{
 			return pattern != null ? new PatternPlaceholder(pattern) : null;
 		}
 		
-		sealed class PatternPlaceholder : Expression, Ps.PatternMatching.INode
+		sealed class PatternPlaceholder : Expression, INode
 		{
-			readonly Ps.PatternMatching.Pattern child;
+			readonly Pattern child;
 			
-			public PatternPlaceholder(Ps.PatternMatching.Pattern child)
+			public PatternPlaceholder(Pattern child)
 			{
 				this.child = child;
 			}
@@ -98,12 +99,12 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitPatternPlaceholder(this, child, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return child.DoMatch(other, match);
 			}
 			
-			bool Ps.PatternMatching.INode.DoMatchCollection(Role role, Ps.PatternMatching.INode pos, Ps.PatternMatching.Match match, Ps.PatternMatching.BacktrackingInfo backtrackingInfo)
+			bool INode.DoMatchCollection(Role role, INode pos, Match match, BacktrackingInfo backtrackingInfo)
 			{
 				return child.DoMatchCollection(role, pos, match, backtrackingInfo);
 			}

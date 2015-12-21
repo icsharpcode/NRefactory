@@ -17,6 +17,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -78,7 +79,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitNamedArgumentExpression(this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			NamedArgumentExpression o = other as NamedArgumentExpression;
 			return o != null && MatchString(this.Name, o.Name) && this.Expression.DoMatch(o.Expression, match);

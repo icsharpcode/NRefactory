@@ -27,12 +27,19 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public class PrimitiveType : AstType
 	{
 		TextLocation location;
@@ -100,7 +107,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitPrimitiveType (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			PrimitiveType o = other as PrimitiveType;
 			return o != null && MatchString(this.Keyword, o.Keyword);

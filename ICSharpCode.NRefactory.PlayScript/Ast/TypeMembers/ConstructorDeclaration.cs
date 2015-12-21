@@ -24,8 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -78,7 +79,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitConstructorDeclaration (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			ConstructorDeclaration o = other as ConstructorDeclaration;
 			return o != null && this.MatchAttributesAndModifiers(o, match) && this.Parameters.DoMatch(o.Parameters, match)
@@ -127,7 +128,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -180,7 +181,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitConstructorInitializer (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			ConstructorInitializer o = other as ConstructorInitializer;
 			return o != null && !o.IsNull 

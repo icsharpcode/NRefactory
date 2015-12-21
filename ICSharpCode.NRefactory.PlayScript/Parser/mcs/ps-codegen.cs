@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Text;
 using ICSharpCode.NRefactory.MonoCSharp;
 
-namespace Mono.PlayScript
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	public static class CodeGenerator
 	{
@@ -170,7 +170,7 @@ namespace {1} {{
 				if (!(f.TypeExpression is TypeExpression) || f.TypeExpression.Type != module.Compiler.BuiltinTypes.Type)
 					continue;
 
-				ICSharpCode.NRefactory.MonoCSharp.Attribute embedAttr = null;
+				ICSharpCode.NRefactory.MonoPlayScript.Attribute embedAttr = null;
 				foreach (var attr in f.OptAttributes.Attrs) {
 					if (attr.Name == "Embed") {
 						embedAttr = attr;

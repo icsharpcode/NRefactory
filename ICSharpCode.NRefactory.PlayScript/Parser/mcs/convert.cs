@@ -22,7 +22,7 @@ using System.Reflection.Emit;
 
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	//
 	// A container class for all the conversion operations

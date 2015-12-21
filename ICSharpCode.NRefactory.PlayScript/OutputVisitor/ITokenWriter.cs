@@ -18,7 +18,7 @@
 
 using System;
 using System.IO;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

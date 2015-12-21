@@ -24,9 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
-
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -82,7 +82,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitDelegateDeclaration (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			DelegateDeclaration o = other as DelegateDeclaration;
 			return o != null && MatchString(this.Name, o.Name) 

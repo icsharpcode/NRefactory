@@ -25,8 +25,9 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -59,7 +60,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -109,7 +110,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitAccessor (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			Accessor o = other as Accessor;
 			return o != null && !o.IsNull && this.MatchAttributesAndModifiers(o, match) && this.Body.DoMatch(o.Body, match);

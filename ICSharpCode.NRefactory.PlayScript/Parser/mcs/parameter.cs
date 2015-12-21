@@ -24,7 +24,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	/// <summary>
 	///   Abstract Base class for parameters of a method.

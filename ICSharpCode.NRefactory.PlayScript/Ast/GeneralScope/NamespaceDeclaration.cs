@@ -27,7 +27,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -150,7 +151,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitNamespaceDeclaration(this, data);
 		}
 
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			NamespaceDeclaration o = other as NamespaceDeclaration;
 			return o != null && MatchString(this.Name, o.Name) && this.Members.DoMatch(o.Members, match);

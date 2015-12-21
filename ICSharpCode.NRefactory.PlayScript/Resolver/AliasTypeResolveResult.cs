@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Semantics;
 using System.Collections.Generic;
 //using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 

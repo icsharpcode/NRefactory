@@ -32,12 +32,12 @@ using System.Linq;
 using System.Threading;
 using System.Text;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {

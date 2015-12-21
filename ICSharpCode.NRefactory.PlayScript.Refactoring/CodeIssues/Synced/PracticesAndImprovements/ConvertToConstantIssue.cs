@@ -24,14 +24,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.Refactoring.ExtractMethod;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

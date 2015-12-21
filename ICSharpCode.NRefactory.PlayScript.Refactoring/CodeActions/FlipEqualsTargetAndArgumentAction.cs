@@ -26,8 +26,8 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring

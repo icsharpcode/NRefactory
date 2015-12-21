@@ -23,9 +23,9 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Semantics;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 

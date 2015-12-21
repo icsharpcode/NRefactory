@@ -25,10 +25,16 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public static class Roles
 	{
 		public static readonly Role<AstNode> Root = AstNode.RootRole;

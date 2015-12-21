@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.Analysis;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring

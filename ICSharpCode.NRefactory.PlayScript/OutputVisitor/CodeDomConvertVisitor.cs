@@ -21,11 +21,11 @@ using System.CodeDom;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
 

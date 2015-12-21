@@ -25,12 +25,12 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Completion
 {

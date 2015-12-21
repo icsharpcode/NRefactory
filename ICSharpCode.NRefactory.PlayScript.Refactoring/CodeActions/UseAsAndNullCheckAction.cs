@@ -26,9 +26,9 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

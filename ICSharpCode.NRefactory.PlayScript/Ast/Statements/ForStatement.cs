@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
-
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitForStatement (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			ForStatement o = other as ForStatement;
 			return o != null && this.Initializers.DoMatch(o.Initializers, match) && this.Condition.DoMatch(o.Condition, match)

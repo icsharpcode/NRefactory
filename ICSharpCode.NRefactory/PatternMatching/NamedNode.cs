@@ -18,6 +18,8 @@
 
 using System;
 
+using INode = ICSharpCode.NRefactory.PatternMatching.INode;
+
 namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
 	/// <summary>

@@ -21,8 +21,6 @@
     <NoWin32Manifest>False</NoWin32Manifest>
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DocumentationFile>$(IntermediateOutputPath)ICSharpCode.NRefactory.CSharp.xml</DocumentationFile>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
@@ -73,6 +71,18 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp.Refactoring">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Xml">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">
@@ -299,8 +309,6 @@
     <Compile Include="Resolver\ResolveAtLocation.cs" />
     <Compile Include="Resolver\ResolveVisitor.cs" />
     <Compile Include="Resolver\TypeInference.cs" />
-    <Compile Include="Completion\ICompletionDataFactory.cs" />
-    <Compile Include="Completion\IParameterCompletionDataFactory.cs" />
     <Compile Include="NameLookupMode.cs" />
     <Compile Include="TypeSystem\AliasNamespaceReference.cs" />
     <Compile Include="TypeSystem\AttributeTypeReference.cs" />
@@ -340,7 +348,6 @@
     <Compile Include="Ast\GeneralScope\WhitespaceNode.cs" />
     <Compile Include="Ast\GeneralScope\TextNode.cs" />
     <Compile Include="Formatter\FormattingOptionsFactory.cs" />
-    <Compile Include="Completion\ICompletionContextProvider.cs" />
     <Compile Include="Refactoring\NamingHelper.cs" />
     <Compile Include="Parser\SeekableStreamReader.cs" />
     <Compile Include="Refactoring\LocalReferenceFinder.cs" />
@@ -383,6 +390,10 @@
     <Compile Include="Parser\mcs\ps-lang.cs" />
     <Compile Include="Parser\mcs\ps-parser.cs" />
     <Compile Include="Parser\mcs\ps-tokenizer.cs" />
+    <Compile Include="Completion\ICompletionDataFactory.cs" />
+    <Compile Include="Completion\ICompletionContextProvider.cs" />
+    <Compile Include="Completion\IParameterCompletionDataFactory.cs" />
+    <Compile Include="Refactoring\ICodeIssueProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup />
@@ -405,11 +416,5 @@
   <ItemGroup>
     <Folder Include="PatternMatching\" />
     <Folder Include="IndentEngine\" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.Ps.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
-      <Name>ICSharpCode.NRefactory.Ps</Name>
-    </ProjectReference>
   </ItemGroup>
 </Project>

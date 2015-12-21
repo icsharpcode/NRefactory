@@ -33,7 +33,7 @@ using System.Reflection.Emit;
 #endif
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	/// <summary>
 	///   Base class for objects that can have Attributes applied to them.

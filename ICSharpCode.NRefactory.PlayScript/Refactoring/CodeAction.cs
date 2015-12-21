@@ -24,8 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps.Refactoring;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

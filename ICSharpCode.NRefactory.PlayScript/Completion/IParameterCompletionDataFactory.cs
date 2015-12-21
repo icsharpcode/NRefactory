@@ -24,8 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Completion;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Completion;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 using System.Collections.Generic;
 

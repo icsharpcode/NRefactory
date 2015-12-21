@@ -20,7 +20,7 @@ using System.Reflection.Emit;
 #endif
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	//
 	// Argument expression used for invocation

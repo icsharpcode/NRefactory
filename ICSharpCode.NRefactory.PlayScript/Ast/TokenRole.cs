@@ -1,12 +1,19 @@
 using System;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// A specific role only used for C# tokens
 	/// </summary>
-	public sealed class TokenRole : Ps.Role<CSharpTokenNode>
+	public sealed class TokenRole : Role<CSharpTokenNode>
 	{
 		internal readonly static List<string> Tokens = new List<string> ();
 		internal readonly static List<int>    TokenLengths = new List<int> ();

@@ -26,10 +26,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps.Refactoring;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -59,7 +59,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				if (!(assignmentExpression.Right is AnonymousMethodExpression || assignmentExpression.Right is LambdaExpression))
 					return;
 				var rr = ctx.Resolve(assignmentExpression.Left) as MemberResolveResult;
-				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.Ps.TypeSystem.SymbolKind.Event)
+				if (rr == null || rr.Member.SymbolKind != ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event)
 					return;
 				AddIssue(new CodeIssue(
 					assignmentExpression.OperatorToken,

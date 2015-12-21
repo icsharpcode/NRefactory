@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Completion;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Completion;
 
 namespace ICSharpCode.NRefactory.PlayScript.Completion
 {

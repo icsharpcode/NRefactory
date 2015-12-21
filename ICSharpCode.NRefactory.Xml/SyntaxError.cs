@@ -17,7 +17,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Editor;
 
 namespace ICSharpCode.NRefactory.PlayScript.Xml
 {

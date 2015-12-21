@@ -26,7 +26,7 @@
 using System;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

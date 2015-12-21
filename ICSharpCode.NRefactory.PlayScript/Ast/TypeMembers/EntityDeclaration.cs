@@ -19,7 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -34,7 +35,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			get { return NodeType.Member; }
 		}
 		
-		public abstract NRefactory.Ps.TypeSystem.SymbolKind SymbolKind { get; }
+		public abstract NRefactory.TypeSystem.SymbolKind SymbolKind { get; }
 		
 		public AstNodeCollection<AttributeSection> Attributes {
 			get { return base.GetChildrenByRole (AttributeRole); }
@@ -110,7 +111,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			}
 		}
 		
-		protected bool MatchAttributesAndModifiers (EntityDeclaration o, Ps.PatternMatching.Match match)
+		protected bool MatchAttributesAndModifiers (EntityDeclaration o, Match match)
 		{
 			return (this.Modifiers == Modifiers.Any || this.Modifiers == o.Modifiers) && this.Attributes.DoMatch (o.Attributes, match);
 		}

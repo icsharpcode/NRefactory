@@ -26,7 +26,7 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript;
 
 namespace ICSharpCode.NRefactory.PlayScript.PatternMatching

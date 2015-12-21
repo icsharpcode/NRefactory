@@ -1,5 +1,5 @@
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -84,7 +84,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitNewLine (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
 		{
 			return other is NewLineNode;
 		}

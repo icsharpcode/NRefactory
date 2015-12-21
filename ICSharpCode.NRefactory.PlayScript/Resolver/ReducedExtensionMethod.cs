@@ -24,11 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
@@ -330,7 +330,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Resolver
 			}
 		}
 
-		public ICSharpCode.NRefactory.Ps.Documentation.DocumentationComment Documentation {
+		public ICSharpCode.NRefactory.Documentation.DocumentationComment Documentation {
 			get {
 				return baseMethod.Documentation;
 			}

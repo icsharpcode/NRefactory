@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -68,7 +68,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			set { checkForOverflow = value; }
 		}
 		
-		Version languageVersion = new Version((int)ICSharpCode.NRefactory.MonoCSharp.LanguageVersion.Default, 0);
+		Version languageVersion = new Version((int)ICSharpCode.NRefactory.MonoPlayScript.LanguageVersion.Default, 0);
 		
 		/// <summary>
 		/// Gets/Sets the language version used by the parser.
@@ -131,12 +131,12 @@ namespace ICSharpCode.NRefactory.PlayScript
 			get { return disabledWarnings; }
 		}
 		
-		internal ICSharpCode.NRefactory.MonoCSharp.CompilerSettings ToMono()
+		internal ICSharpCode.NRefactory.MonoPlayScript.CompilerSettings ToMono()
 		{
-			var s = new ICSharpCode.NRefactory.MonoCSharp.CompilerSettings();
+			var s = new ICSharpCode.NRefactory.MonoPlayScript.CompilerSettings();
 			s.Unsafe = allowUnsafeBlocks;
 			s.Checked = checkForOverflow;
-			s.Version = (ICSharpCode.NRefactory.MonoCSharp.LanguageVersion)languageVersion.Major;
+			s.Version = (ICSharpCode.NRefactory.MonoPlayScript.LanguageVersion)languageVersion.Major;
 			s.WarningsAreErrors = treatWarningsAsErrors;
 			s.WarningLevel = warningLevel;
 			foreach (int code in disabledWarnings)

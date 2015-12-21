@@ -27,14 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Ps.Completion;
+using ICSharpCode.NRefactory.Completion;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Completion
 {
@@ -3436,7 +3436,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 
 		ExpressionResult GetExpressionAt(int offset)
 		{
-			var parser = new CSharpParser();
+			var parser = new PlayScriptParser();
 			var text = GetMemberTextToCaret(); 
 
 			int closingBrackets = 0, generatedLines = 0;
@@ -3457,7 +3457,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 
 		ExpressionResult GetNewExpressionAt(int offset)
 		{
-			var parser = new CSharpParser();
+			var parser = new PlayScriptParser();
 			var text = GetMemberTextToCaret();
 			int closingBrackets = 0, generatedLines = 0;
 			var sb = CreateWrapper("a ();", false, "", text.Item1, text.Item2, ref closingBrackets, ref generatedLines);

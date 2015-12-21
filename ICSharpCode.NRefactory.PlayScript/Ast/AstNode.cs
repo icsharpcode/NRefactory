@@ -31,13 +31,17 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using INode = ICSharpCode.NRefactory.PatternMatching.INode;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
-	public abstract class AstNode : AbstractAnnotatable, ICSharpCode.NRefactory.Ps.TypeSystem.IFreezable, Ps.PatternMatching.INode, ICloneable
+
+	public abstract class AstNode : AbstractAnnotatable, ICSharpCode.NRefactory.TypeSystem.IFreezable, INode, ICloneable
 	{
 		// the Root role must be available when creating the null nodes, so we can't put it in the Roles class
 		internal static readonly Role<AstNode> RootRole = new Role<AstNode> ("Root");
@@ -74,7 +78,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch (AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch (AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -82,16 +86,16 @@ namespace ICSharpCode.NRefactory.PlayScript
 		#endregion
 		
 		#region PatternPlaceholder
-		public static implicit operator AstNode (Ps.PatternMatching.Pattern pattern)
+		public static implicit operator AstNode (Pattern pattern)
 		{
 			return pattern != null ? new PatternPlaceholder (pattern) : null;
 		}
 		
-		sealed class PatternPlaceholder : AstNode, Ps.PatternMatching.INode
+		sealed class PatternPlaceholder : AstNode, INode
 		{
-			readonly Ps.PatternMatching.Pattern child;
+			readonly Pattern child;
 			
-			public PatternPlaceholder (Ps.PatternMatching.Pattern child)
+			public PatternPlaceholder (Pattern child)
 			{
 				this.child = child;
 			}
@@ -115,12 +119,12 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitPatternPlaceholder (this, child, data);
 			}
 			
-			protected internal override bool DoMatch (AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch (AstNode other, Match match)
 			{
 				return child.DoMatch (other, match);
 			}
 			
-			bool Ps.PatternMatching.INode.DoMatchCollection (Role role, Ps.PatternMatching.INode pos, Ps.PatternMatching.Match match, Ps.PatternMatching.BacktrackingInfo backtrackingInfo)
+			bool INode.DoMatchCollection (Role role, INode pos, Match match, BacktrackingInfo backtrackingInfo)
 			{
 				return child.DoMatchCollection (role, pos, match, backtrackingInfo);
 			}
@@ -208,11 +212,11 @@ namespace ICSharpCode.NRefactory.PlayScript
 		/// The file name of the region is set based on the parent SyntaxTree's file name.
 		/// If this node is not connected to a whole compilation, the file name will be null.
 		/// </summary>
-		public ICSharpCode.NRefactory.Ps.TypeSystem.DomRegion GetRegion()
+		public ICSharpCode.NRefactory.TypeSystem.DomRegion GetRegion()
 		{
 			var syntaxTree = (this.Ancestors.LastOrDefault() ?? this) as SyntaxTree;
 			string fileName = (syntaxTree != null ? syntaxTree.FileName : null);
-			return new ICSharpCode.NRefactory.Ps.TypeSystem.DomRegion(fileName, this.StartLocation, this.EndLocation);
+			return new ICSharpCode.NRefactory.TypeSystem.DomRegion(fileName, this.StartLocation, this.EndLocation);
 		}
 		
 		public AstNode Parent {
@@ -651,29 +655,29 @@ namespace ICSharpCode.NRefactory.PlayScript
 		#region Pattern Matching
 		protected static bool MatchString (string pattern, string text)
 		{
-			return Ps.PatternMatching.Pattern.MatchString(pattern, text);
+			return Pattern.MatchString(pattern, text);
 		}
 		
-		protected internal abstract bool DoMatch (AstNode other, Ps.PatternMatching.Match match);
+		protected internal abstract bool DoMatch (AstNode other, Match match);
 		
-		bool Ps.PatternMatching.INode.DoMatch (Ps.PatternMatching.INode other, Ps.PatternMatching.Match match)
+		bool INode.DoMatch (INode other, Match match)
 		{
 			AstNode o = other as AstNode;
 			// try matching if other is null, or if other is an AstNode
 			return (other == null || o != null) && DoMatch (o, match);
 		}
 		
-		bool Ps.PatternMatching.INode.DoMatchCollection (Role role, Ps.PatternMatching.INode pos, Ps.PatternMatching.Match match, Ps.PatternMatching.BacktrackingInfo backtrackingInfo)
+		bool INode.DoMatchCollection (Role role, INode pos, Match match, BacktrackingInfo backtrackingInfo)
 		{
 			AstNode o = pos as AstNode;
 			return (pos == null || o != null) && DoMatch (o, match);
 		}
 		
-		Ps.PatternMatching.INode Ps.PatternMatching.INode.NextSibling {
+		INode INode.NextSibling {
 			get { return nextSibling; }
 		}
 		
-		Ps.PatternMatching.INode Ps.PatternMatching.INode.FirstChild {
+		INode INode.FirstChild {
 			get { return firstChild; }
 		}
 

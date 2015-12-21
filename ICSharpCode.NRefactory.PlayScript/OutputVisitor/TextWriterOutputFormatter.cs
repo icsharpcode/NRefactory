@@ -20,7 +20,7 @@ using System;
 using System.Globalization;
 using System.IO;
 using System.Text;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

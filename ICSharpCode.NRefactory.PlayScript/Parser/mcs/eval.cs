@@ -23,7 +23,7 @@ using System.Linq;
 using Mono.CSharp;
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 
 	/// <summary>
@@ -682,7 +682,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 				parser.parse ();
 				// PlayScript needs to add generated code after parsing.
 				if (ctx.Settings.PsOnlyMode) {
-					Mono.PlayScript.CodeGenerator.GenerateCode(module, session, ctx.Report);
+					CodeGenerator.GenerateCode(module, session, ctx.Report);
 				}
 			} finally {
 				if (ctx.Report.Errors != 0){

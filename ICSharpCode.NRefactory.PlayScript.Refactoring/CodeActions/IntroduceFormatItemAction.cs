@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;

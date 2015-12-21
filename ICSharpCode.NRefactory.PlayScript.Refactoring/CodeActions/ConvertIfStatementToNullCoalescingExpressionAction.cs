@@ -26,7 +26,7 @@
 
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

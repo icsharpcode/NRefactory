@@ -23,8 +23,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
@@ -80,7 +80,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				!expr.DescendantsAndSelf.All(x => !(x is BinaryOperatorExpression) || ((BinaryOperatorExpression)x).Operator == BinaryOperatorType.BitwiseAnd))
 				return null;
 			var rr = context.Resolve(target);
-			if (rr.Type.Kind != ICSharpCode.NRefactory.Ps.TypeSystem.TypeKind.Enum)
+			if (rr.Type.Kind != ICSharpCode.NRefactory.TypeSystem.TypeKind.Enum)
 				return null;
 
 			return new CodeAction(

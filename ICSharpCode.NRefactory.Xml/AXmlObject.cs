@@ -20,9 +20,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Xml
 {

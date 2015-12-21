@@ -27,9 +27,10 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -78,7 +79,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitEventDeclaration (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			EventDeclaration o = other as EventDeclaration;
 			return o != null && this.MatchAttributesAndModifiers(o, match)
@@ -141,7 +142,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitCustomEventDeclaration (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			CustomEventDeclaration o = other as CustomEventDeclaration;
 			return o != null && MatchString(this.Name, o.Name)

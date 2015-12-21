@@ -22,9 +22,10 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript {
+	
 	public class QueryExpressionExpansionResult {
 		public AstNode AstNode { get; private set; }
 
@@ -153,14 +154,14 @@ namespace ICSharpCode.NRefactory.PlayScript {
 			LambdaExpression CreateLambda(IList<ParameterDeclaration> parameters, Expression body) {
 				var result = new LambdaExpression();
 				if (parameters.Count > 1)
-					result.AddChild(new CSharpTokenNode(Ps.TextLocation.Empty, Roles.LPar), Roles.LPar);
+					result.AddChild(new CSharpTokenNode(TextLocation.Empty, Roles.LPar), Roles.LPar);
 				result.AddChild(parameters[0], Roles.Parameter);
 				for (int i = 1; i < parameters.Count; i++) {
-					result.AddChild(new CSharpTokenNode(Ps.TextLocation.Empty, Roles.Comma), Roles.Comma);
+					result.AddChild(new CSharpTokenNode(TextLocation.Empty, Roles.Comma), Roles.Comma);
 					result.AddChild(parameters[i], Roles.Parameter);
 				}
 				if (parameters.Count > 1)
-					result.AddChild(new CSharpTokenNode(Ps.TextLocation.Empty, Roles.RPar), Roles.RPar);
+					result.AddChild(new CSharpTokenNode(TextLocation.Empty, Roles.RPar), Roles.RPar);
 				result.AddChild(body, LambdaExpression.BodyRole);
 
 				return result;
@@ -301,7 +302,7 @@ namespace ICSharpCode.NRefactory.PlayScript {
 				Expression resultSelectorBody = null;
 				var inExpression = VisitNested(queryJoinClause.InExpression, null);
 				if (!queryJoinClause.Type.IsNull) {
-					inExpression = inExpression.Invoke("Cast", new[] { queryJoinClause.Type.Clone() }, Ps.EmptyList<Expression>.Instance);
+					inExpression = inExpression.Invoke("Cast", new[] { queryJoinClause.Type.Clone() }, EmptyList<Expression>.Instance);
 				}
 				var key1SelectorFirstParam = CreateParameterForCurrentRangeVariable();
 				var key1Selector = CreateLambda(new[] { key1SelectorFirstParam }, VisitNested(queryJoinClause.OnExpression, key1SelectorFirstParam));

@@ -40,7 +40,7 @@ using System.Reflection.Emit;
 #endif
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	public abstract class MethodCore : InterfaceMemberBase, IParametersMember
 	{

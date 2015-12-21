@@ -15,7 +15,7 @@ using System.Diagnostics;
 using System.Collections.Generic;
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	public enum VisitDepth
 	{

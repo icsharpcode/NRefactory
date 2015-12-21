@@ -17,9 +17,16 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// AST visitor.
 	/// </summary>
@@ -149,7 +156,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 		
 		void VisitNullNode(AstNode nullNode);
 		void VisitErrorNode(AstNode errorNode);
-		void VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern);
+		void VisitPatternPlaceholder(AstNode placeholder, Pattern pattern);
 	}
 	
 	/// <summary>
@@ -281,7 +288,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 		
 		S VisitNullNode(AstNode nullNode);
 		S VisitErrorNode(AstNode errorNode);
-		S VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern);
+		S VisitPatternPlaceholder(AstNode placeholder, Pattern pattern);
 	}
 	
 	/// <summary>
@@ -413,6 +420,6 @@ namespace ICSharpCode.NRefactory.PlayScript
 		
 		S VisitNullNode(AstNode nullNode, T data);
 		S VisitErrorNode(AstNode errorNode, T data);
-		S VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern, T data);
+		S VisitPatternPlaceholder(AstNode placeholder, Pattern pattern, T data);
 	}
 }

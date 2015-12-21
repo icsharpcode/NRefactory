@@ -27,16 +27,19 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using ICSharpCode.NRefactory.MonoCSharp;
 using System.IO;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Editor;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	[Obsolete("CompilationUnit was renamed to SyntaxTree", true)]
 	public class CompilationUnit {}
 	
@@ -130,7 +133,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 		}
 
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			SyntaxTree o = other as SyntaxTree;
 			return o != null && this.Members.DoMatch(o.Members, match);
@@ -166,28 +169,28 @@ namespace ICSharpCode.NRefactory.PlayScript
 		public static SyntaxTree Parse (string program, string fileName = "", CompilerSettings settings = null, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			var parser = new CSharpParser (settings);
+			var parser = new PlayScriptParser (settings);
 			return parser.Parse (program, fileName);
 		}
 		
 		public static SyntaxTree Parse (TextReader reader, string fileName = "", CompilerSettings settings = null, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			var parser = new CSharpParser (settings);
+			var parser = new PlayScriptParser (settings);
 			return parser.Parse (reader, fileName);
 		}
 		
 		public static SyntaxTree Parse (Stream stream, string fileName = "", CompilerSettings settings = null, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			var parser = new CSharpParser (settings);
+			var parser = new PlayScriptParser (settings);
 			return parser.Parse (stream, fileName);
 		}
 		
 		public static SyntaxTree Parse (ITextSource textSource, string fileName = "", CompilerSettings settings = null, CancellationToken cancellationToken = default (CancellationToken))
 		{
 			cancellationToken.ThrowIfCancellationRequested();
-			var parser = new CSharpParser (settings);
+			var parser = new PlayScriptParser (settings);
 			return parser.Parse (textSource, fileName);
 		}
 	}

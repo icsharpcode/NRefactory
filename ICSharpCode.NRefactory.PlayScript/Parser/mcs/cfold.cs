@@ -10,7 +10,7 @@
 // 
 using System;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	public static class ConstantFold
 	{

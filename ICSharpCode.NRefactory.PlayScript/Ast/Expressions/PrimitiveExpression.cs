@@ -25,7 +25,8 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -154,7 +155,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return new TextLocation (line, col);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			PrimitiveExpression o = other as PrimitiveExpression;
 			return o != null && (this.Value == AnyValue || object.Equals(this.Value, o.Value));

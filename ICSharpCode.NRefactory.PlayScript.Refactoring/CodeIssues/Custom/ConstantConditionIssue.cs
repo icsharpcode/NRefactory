@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.Refactoring;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

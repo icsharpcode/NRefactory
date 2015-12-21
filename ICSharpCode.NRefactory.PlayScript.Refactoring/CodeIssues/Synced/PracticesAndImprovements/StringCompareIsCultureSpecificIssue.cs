@@ -26,9 +26,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Linq;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring

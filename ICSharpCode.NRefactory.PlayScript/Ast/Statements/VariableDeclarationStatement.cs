@@ -26,7 +26,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -82,7 +83,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitVariableDeclarationStatement (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			VariableDeclarationStatement o = other as VariableDeclarationStatement;
 			return o != null && this.Modifiers == o.Modifiers && this.Type.DoMatch(o.Type, match) && this.Variables.DoMatch(o.Variables, match);

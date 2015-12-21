@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 

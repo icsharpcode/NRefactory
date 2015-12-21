@@ -27,7 +27,8 @@
 using System;
 using System.Linq.Expressions;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -103,7 +104,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitAssignmentExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			AssignmentExpression o = other as AssignmentExpression;
 			return o != null && (this.Operator == AssignmentOperatorType.Any || this.Operator == o.Operator)

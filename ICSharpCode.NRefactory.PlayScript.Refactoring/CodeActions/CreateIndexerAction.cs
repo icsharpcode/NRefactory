@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Text;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
@@ -95,7 +95,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				}
 
 				script.InsertWithCursor(context.TranslateString("Create indexer"), Script.InsertPosition.Before, decl);
-			}, indexer) { Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error };
+			}, indexer) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
 	}

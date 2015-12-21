@@ -19,7 +19,7 @@ using System.Text;
 using System.Xml;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	//
 	// Implements XML documentation generation.

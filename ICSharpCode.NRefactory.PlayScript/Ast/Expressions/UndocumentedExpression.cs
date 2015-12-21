@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -95,7 +96,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitUndocumentedExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			UndocumentedExpression o = other as UndocumentedExpression;
 			return o != null && this.UndocumentedExpressionType == o.UndocumentedExpressionType && this.Arguments.DoMatch(o.Arguments, match);

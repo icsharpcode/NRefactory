@@ -21,11 +21,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// Represents the children of an AstNode that have a specific role.
 	/// </summary>

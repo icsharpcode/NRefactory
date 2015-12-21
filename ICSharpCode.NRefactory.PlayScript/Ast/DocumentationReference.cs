@@ -17,11 +17,15 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// Represents a 'cref' reference in XML documentation.
 	/// </summary>
@@ -111,7 +115,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			get { return GetChildrenByRole (Roles.Parameter); }
 		}
 		
-		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
 		{
 			DocumentationReference o = other as DocumentationReference;
 			if (!(o != null && this.SymbolKind == o.SymbolKind && this.HasParameterList == o.HasParameterList))

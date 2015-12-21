@@ -24,10 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps.Refactoring;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Refactoring;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -55,7 +55,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				if (binaryOperatorExpression.Operator != BinaryOperatorType.Subtract)
 					return;
 				var rr = ctx.Resolve(binaryOperatorExpression.Right);
-				if (rr.Type.Kind == ICSharpCode.NRefactory.Ps.TypeSystem.TypeKind.Delegate && !IsEvent (binaryOperatorExpression.Left)) {
+				if (rr.Type.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate && !IsEvent (binaryOperatorExpression.Left)) {
 					AddIssue(new CodeIssue(binaryOperatorExpression, ctx.TranslateString("Delegate subtraction has unpredictable result")));
 				}
 			}
@@ -63,7 +63,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 			bool IsEvent(AstNode node)
 			{
 				var rr = ctx.Resolve(node) as MemberResolveResult;
-				return rr != null && rr.Member.SymbolKind == ICSharpCode.NRefactory.Ps.TypeSystem.SymbolKind.Event;
+				return rr != null && rr.Member.SymbolKind == ICSharpCode.NRefactory.TypeSystem.SymbolKind.Event;
 			}
 
 			public override void VisitAssignmentExpression(AssignmentExpression assignmentExpression)
@@ -72,7 +72,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				if (assignmentExpression.Operator != AssignmentOperatorType.Subtract)
 					return;
 				var rr = ctx.Resolve(assignmentExpression.Right);
-				if (rr.Type.Kind == ICSharpCode.NRefactory.Ps.TypeSystem.TypeKind.Delegate && !IsEvent (assignmentExpression.Left))
+				if (rr.Type.Kind == ICSharpCode.NRefactory.TypeSystem.TypeKind.Delegate && !IsEvent (assignmentExpression.Left))
 					AddIssue(new CodeIssue(assignmentExpression, ctx.TranslateString("Delegate subtraction has unpredictable result")));
 			}
 		}

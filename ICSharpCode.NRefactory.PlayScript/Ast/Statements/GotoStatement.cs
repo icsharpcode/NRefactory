@@ -23,6 +23,7 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -77,7 +78,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitGotoStatement (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			GotoStatement o = other as GotoStatement;
 			return o != null && MatchString(this.Label, o.Label);
@@ -127,7 +128,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitGotoCaseStatement (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			GotoCaseStatement o = other as GotoCaseStatement;
 			return o != null && this.LabelExpression.DoMatch(o.LabelExpression, match);
@@ -169,7 +170,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitGotoDefaultStatement (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			GotoDefaultStatement o = other as GotoDefaultStatement;
 			return o != null;

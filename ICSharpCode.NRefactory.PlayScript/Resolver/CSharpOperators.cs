@@ -20,10 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
@@ -169,7 +169,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Resolver
 				get { return EmptyList<IAttribute>.Instance; }
 			}
 			
-			Ps.Documentation.DocumentationComment IEntity.Documentation {
+			Documentation.DocumentationComment IEntity.Documentation {
 				get { return null; }
 			}
 			

@@ -28,10 +28,10 @@ using ICSharpCode.NRefactory.PlayScript;
 using System.Collections.Generic;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.PlayScript.Xml;
-using ICSharpCode.NRefactory.Ps.Documentation;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Documentation;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

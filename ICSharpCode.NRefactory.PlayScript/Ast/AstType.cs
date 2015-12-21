@@ -19,11 +19,14 @@
 using System;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// A type reference in the C# AST.
 	/// </summary>
@@ -55,7 +58,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -68,16 +71,16 @@ namespace ICSharpCode.NRefactory.PlayScript
 		#endregion
 		
 		#region PatternPlaceholder
-		public static implicit operator AstType(Ps.PatternMatching.Pattern pattern)
+		public static implicit operator AstType(Pattern pattern)
 		{
 			return pattern != null ? new PatternPlaceholder(pattern) : null;
 		}
 		
-		sealed class PatternPlaceholder : AstType, Ps.PatternMatching.INode
+		sealed class PatternPlaceholder : AstType, INode
 		{
-			readonly Ps.PatternMatching.Pattern child;
+			readonly Pattern child;
 			
-			public PatternPlaceholder(Ps.PatternMatching.Pattern child)
+			public PatternPlaceholder(Pattern child)
 			{
 				this.child = child;
 			}
@@ -106,12 +109,12 @@ namespace ICSharpCode.NRefactory.PlayScript
 				throw new NotSupportedException();
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return child.DoMatch(other, match);
 			}
 			
-			bool Ps.PatternMatching.INode.DoMatchCollection(Role role, Ps.PatternMatching.INode pos, Ps.PatternMatching.Match match, Ps.PatternMatching.BacktrackingInfo backtrackingInfo)
+			bool INode.DoMatchCollection(Role role, INode pos, Match match, BacktrackingInfo backtrackingInfo)
 			{
 				return child.DoMatchCollection(role, pos, match, backtrackingInfo);
 			}

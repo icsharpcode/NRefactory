@@ -26,9 +26,9 @@
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 using ICSharpCode.NRefactory.PlayScript.Analysis;
 

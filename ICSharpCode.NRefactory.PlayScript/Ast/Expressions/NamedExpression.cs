@@ -26,6 +26,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -88,7 +89,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitNamedExpression(this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			var o = other as NamedExpression;
 			return o != null && MatchString(this.Name, o.Name) && this.Expression.DoMatch(o.Expression, match);

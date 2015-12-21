@@ -17,7 +17,7 @@ using System.Security.Cryptography;
 using System.Diagnostics;
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	public enum LookupMode
 	{

@@ -25,8 +25,9 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -62,7 +63,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitEnumMemberDeclaration (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			EnumMemberDeclaration o = other as EnumMemberDeclaration;
 			return o != null && this.MatchAttributesAndModifiers(o, match)

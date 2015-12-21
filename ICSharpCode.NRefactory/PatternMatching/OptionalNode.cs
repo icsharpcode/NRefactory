@@ -20,6 +20,8 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 
+using INode = ICSharpCode.NRefactory.PatternMatching.INode;
+
 namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
 	public class OptionalNode : Pattern

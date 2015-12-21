@@ -37,7 +37,7 @@ using System.Reflection.Emit;
 #endif
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	//
 	// General types container, used as a base class for all constructs which can hold types

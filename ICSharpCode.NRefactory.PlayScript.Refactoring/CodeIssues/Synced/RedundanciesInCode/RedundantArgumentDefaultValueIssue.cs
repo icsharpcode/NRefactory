@@ -26,9 +26,9 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Refactoring;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 using System.Linq;
 
@@ -54,7 +54,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 			{
 			}
 
-			bool IsDefaultValue(Expression arg, ICSharpCode.NRefactory.Ps.TypeSystem.IParameter par)
+			bool IsDefaultValue(Expression arg, ICSharpCode.NRefactory.TypeSystem.IParameter par)
 			{
 				var ne = arg as NamedArgumentExpression;
 				if (ne != null) {

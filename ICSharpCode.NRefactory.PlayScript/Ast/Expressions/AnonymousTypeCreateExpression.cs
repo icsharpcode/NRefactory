@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -81,7 +82,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitAnonymousTypeCreateExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			var o = other as AnonymousTypeCreateExpression;
 			return o != null && this.Initializers.DoMatch(o.Initializers, match);

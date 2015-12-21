@@ -25,9 +25,9 @@
 // THE SOFTWARE.using System;
 
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

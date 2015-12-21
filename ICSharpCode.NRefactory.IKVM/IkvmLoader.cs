@@ -34,17 +34,14 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.Documentation;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Documentation;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
-//using ICSharpCode.NRefactory.Documentation;
-//using ICSharpCode.NRefactory.TypeSystem.Implementation;
-//using ICSharpCode.NRefactory.Utils;
 using IKVM.Reflection;
 
 namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
@@ -146,8 +143,8 @@ namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 			moduleAttributes = interningProvider.InternList(moduleAttributes);
 
 			currentAssembly.Location = assembly.Location;
-			currentAssembly.AssemblyAttributes.AddRange(assemblyAttributes);
-			currentAssembly.ModuleAttributes.AddRange(moduleAttributes);
+//			currentAssembly.AssemblyAttributes.AddRange(assemblyAttributes);
+//			currentAssembly.ModuleAttributes.AddRange(moduleAttributes);
 			// Register type forwarders:
 			foreach (var type in assembly.ManifestModule.__GetExportedTypes ()) {
 				if (type.Assembly != assembly) {
@@ -1308,30 +1305,31 @@ namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 			if (attribute.ConstructorArguments.Count != 5)
 				return null;
 
-			var reader = new BlobReader(attribute.__GetBlob(), null);
-			if (reader.ReadUInt16() != 0x0001) {
-				Debug.WriteLine("Unknown blob prolog");
-				return null;
-			}
+			throw new NotImplementedException ();
+//			var reader = new BlobReader(attribute.__GetBlob(), null);
+//			if (reader.ReadUInt16() != 0x0001) {
+//				Debug.WriteLine("Unknown blob prolog");
+//				return null;
+//			}
 
 			// DecimalConstantAttribute has the arguments (byte scale, byte sign, uint hi, uint mid, uint low) or (byte scale, byte sign, int hi, int mid, int low)
 			// Both of these invoke the Decimal constructor (int lo, int mid, int hi, bool isNegative, byte scale) with explicit argument conversions if required.
 			var ctorArgs = new object[attribute.ConstructorArguments.Count];
-			for (int i = 0; i < ctorArgs.Length; i++) {
-				switch (attribute.ConstructorArguments[i].ArgumentType.FullName) {
-					case "System.Byte":
-					ctorArgs[i] = reader.ReadByte();
-					break;
-					case "System.Int32":
-					ctorArgs[i] = reader.ReadInt32();
-					break;
-					case "System.UInt32":
-					ctorArgs[i] = unchecked((int)reader.ReadUInt32());
-					break;
-					default:
-					return null;
-				}
-			}
+//			for (int i = 0; i < ctorArgs.Length; i++) {
+//				switch (attribute.ConstructorArguments[i].ArgumentType.FullName) {
+//					case "System.Byte":
+//					ctorArgs[i] = reader.ReadByte();
+//					break;
+//					case "System.Int32":
+//					ctorArgs[i] = reader.ReadInt32();
+//					break;
+//					case "System.UInt32":
+//					ctorArgs[i] = unchecked((int)reader.ReadUInt32());
+//					break;
+//					default:
+//					return null;
+//				}
+//			}
 
 			if (!ctorArgs.Select(a => a.GetType()).SequenceEqual(new[] { typeof(byte), typeof(byte), typeof(int), typeof(int), typeof(int) }))
 				return null;
@@ -1473,7 +1471,7 @@ namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 				p.Name = property.Name.Substring(property.Name.LastIndexOf('.') + 1);
 				p.IsExplicitInterfaceImplementation = true;
 				foreach (var mr in accessor.ExplicitInterfaceImplementations) {
-					p.ExplicitInterfaceImplementations.Add(new AccessorOwnerMemberReference(mr));
+//					p.ExplicitInterfaceImplementations.Add(new AccessorOwnerMemberReference(mr));
 				}
 			}
 
@@ -1506,7 +1504,7 @@ namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 				e.Name = ev.Name.Substring(ev.Name.LastIndexOf('.') + 1);
 				e.IsExplicitInterfaceImplementation = true;
 				foreach (var mr in accessor.ExplicitInterfaceImplementations) {
-					e.ExplicitInterfaceImplementations.Add(new AccessorOwnerMemberReference(mr));
+//					e.ExplicitInterfaceImplementations.Add(new AccessorOwnerMemberReference(mr));
 				}
 			}
 

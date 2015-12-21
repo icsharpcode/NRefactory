@@ -27,12 +27,12 @@
 using System;
 using System.Text;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

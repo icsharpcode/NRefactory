@@ -26,8 +26,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Text;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
@@ -228,7 +228,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				script
 					.InsertWithCursor(context.TranslateString("Create method"), Script.InsertPosition.Before, decl)
 					.ContinueScript(() => script.Select(throwStatement));
-			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode)  { Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error };
+			}, createFromNode.GetNodeAt(context.Location) ?? createFromNode)  { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
 		public static IEnumerable<ParameterDeclaration> GenerateParameters(RefactoringContext context, IEnumerable<Expression> arguments)

@@ -25,13 +25,13 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -90,7 +90,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				if (isStatic)
 					decl.Modifiers |= Modifiers.Static;
 				script.InsertWithCursor(context.TranslateString("Create field"), Script.InsertPosition.Before, decl);
-			}, expr.GetNodeAt(context.Location) ?? expr) { Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error };
+			}, expr.GetNodeAt(context.Location) ?? expr) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
 	}

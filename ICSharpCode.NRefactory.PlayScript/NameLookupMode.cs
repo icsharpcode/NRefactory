@@ -18,8 +18,11 @@
 
 using System;
 
+using ICSharpCode.NRefactory.PatternMatching;
+
 namespace ICSharpCode.NRefactory.PlayScript
 {
+
 	public enum NameLookupMode
 	{
 		/// <summary>

@@ -19,7 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -53,7 +54,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -79,7 +80,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryExpression o = other as QueryExpression;
 			return o != null && !o.IsNull && this.Clauses.DoMatch(o.Clauses, match);
@@ -219,7 +220,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryContinuationClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryContinuationClause o = other as QueryContinuationClause;
 			return o != null && MatchString(this.Identifier, o.Identifier) && this.PrecedingQuery.DoMatch(o.PrecedingQuery, match);
@@ -277,7 +278,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryFromClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryFromClause o = other as QueryFromClause;
 			return o != null && this.Type.DoMatch(o.Type, match) && MatchString(this.Identifier, o.Identifier)
@@ -330,7 +331,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryLetClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryLetClause o = other as QueryLetClause;
 			return o != null && MatchString(this.Identifier, o.Identifier) && this.Expression.DoMatch(o.Expression, match);
@@ -366,7 +367,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryWhereClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryWhereClause o = other as QueryWhereClause;
 			return o != null && this.Condition.DoMatch(o.Condition, match);
@@ -475,7 +476,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryJoinClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryJoinClause o = other as QueryJoinClause;
 			return o != null && this.IsGroupJoin == o.IsGroupJoin
@@ -514,7 +515,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryOrderClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryOrderClause o = other as QueryOrderClause;
 			return o != null && this.Orderings.DoMatch(o.Orderings, match);
@@ -559,7 +560,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryOrdering (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryOrdering o = other as QueryOrdering;
 			return o != null && this.Direction == o.Direction && this.Expression.DoMatch(o.Expression, match);
@@ -601,7 +602,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQuerySelectClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QuerySelectClause o = other as QuerySelectClause;
 			return o != null && this.Expression.DoMatch(o.Expression, match);
@@ -648,7 +649,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitQueryGroupClause (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			QueryGroupClause o = other as QueryGroupClause;
 			return o != null && this.Projection.DoMatch(o.Projection, match) && this.Key.DoMatch(o.Key, match);

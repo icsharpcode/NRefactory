@@ -20,7 +20,7 @@ using IKVM.Reflection.Emit;
 using System.Reflection.Emit;
 #endif
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 	
 	public abstract partial class Statement {
 		public Location loc;
@@ -4044,7 +4044,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 				if (param != null && (param.ParameterModifier & Parameter.Modifier.PARAMS) != 0) {
 					string argName = param.Name.Substring (2); // Arg should start with "__" (we added it in the parser).
 					var li = new LocalVariable (this, argName, this.loc);
-					var decl = new BlockVariable (new  ICSharpCode.NRefactory.MonoCSharp.TypeExpression(rc.Module.PredefinedTypes.AsArray.Resolve(), this.loc), li);
+					var decl = new BlockVariable (new  ICSharpCode.NRefactory.MonoPlayScript.TypeExpression(rc.Module.PredefinedTypes.AsArray.Resolve(), this.loc), li);
 					var arguments = new Arguments (1);
 					arguments.Add (new Argument(new SimpleName(param.Name, this.loc)));
 					decl.Initializer = new Invocation (new MemberAccess(new MemberAccess(new SimpleName("PlayScript", this.loc), "Support", this.loc), "CreateArgListArray", this.loc), arguments);

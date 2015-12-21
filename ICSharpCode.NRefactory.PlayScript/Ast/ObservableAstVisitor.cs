@@ -26,8 +26,12 @@
 
 using System;
 
+using ICSharpCode.NRefactory.PatternMatching;
+
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public class ObservableAstVisitor : IAstVisitor
 	{
 		void Visit<T>(Action<T> enter, Action<T> leave, T node) where T : AstNode
@@ -850,7 +854,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			Visit(EnterNamedExpression, LeaveNamedExpression, namedExpression);
 		}
 		
-		void IAstVisitor.VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern)
+		void IAstVisitor.VisitPatternPlaceholder(AstNode placeholder, Pattern pattern)
 		{
 		}
 	}

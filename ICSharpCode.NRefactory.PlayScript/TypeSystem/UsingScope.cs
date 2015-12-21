@@ -21,9 +21,9 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 //using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {

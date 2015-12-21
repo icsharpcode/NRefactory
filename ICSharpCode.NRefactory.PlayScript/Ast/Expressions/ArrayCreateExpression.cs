@@ -18,7 +18,8 @@
 
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -72,7 +73,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitArrayCreateExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			ArrayCreateExpression o = other as ArrayCreateExpression;
 			return o != null && this.Type.DoMatch(o.Type, match) && this.Arguments.DoMatch(o.Arguments, match) && this.AdditionalArraySpecifiers.DoMatch(o.AdditionalArraySpecifiers, match) && this.Initializer.DoMatch(o.Initializer, match);

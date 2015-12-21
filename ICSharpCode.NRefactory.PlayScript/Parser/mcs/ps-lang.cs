@@ -24,7 +24,7 @@ using System.Reflection.Emit;
 #endif
 using ICSharpCode.NRefactory.MonoCSharp;
 
-namespace Mono.PlayScript
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	//
 	// Constants

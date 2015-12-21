@@ -19,9 +19,9 @@
 using System;
 using System.Linq;
 using System.Diagnostics;
-using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Editor;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -107,7 +107,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 			foreach (var node in nodes.OrderByDescending (n => n.StartLocation)) {
 				var segment = GetSegment(node);
 				
-				formatter.AddFormattingRegion (new ICSharpCode.NRefactory.Ps.TypeSystem.DomRegion (
+				formatter.AddFormattingRegion (new ICSharpCode.NRefactory.TypeSystem.DomRegion (
 					currentDocument.GetLocation (segment.Offset), 
 					currentDocument.GetLocation (segment.EndOffset)
 					));

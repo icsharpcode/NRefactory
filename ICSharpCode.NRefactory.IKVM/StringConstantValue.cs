@@ -27,12 +27,12 @@ using System;
 //using ICSharpCode.NRefactory.TypeSystem;
 //using ICSharpCode.NRefactory.Semantics;
 
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.Documentation;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Documentation;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

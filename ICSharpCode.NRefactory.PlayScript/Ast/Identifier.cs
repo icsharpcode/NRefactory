@@ -25,10 +25,16 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public class Identifier : AstNode
 	{
 		public new static readonly Identifier Null = new NullIdentifier ();
@@ -55,7 +61,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return visitor.VisitNullNode(this, data);
 			}
 			
-			protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+			protected internal override bool DoMatch(AstNode other, Match match)
 			{
 				return other == null || other.IsNull;
 			}
@@ -165,7 +171,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitIdentifier (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			Identifier o = other as Identifier;
 			return o != null && !o.IsNull && MatchString(this.Name, o.Name);

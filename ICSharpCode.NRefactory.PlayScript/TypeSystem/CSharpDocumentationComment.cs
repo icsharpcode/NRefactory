@@ -18,10 +18,10 @@
 
 using System;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Documentation;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Documentation;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
@@ -40,7 +40,7 @@ namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 				// resolve ID string
 				return base.ResolveCref(cref);
 			}
-			var documentationReference = new CSharpParser().ParseDocumentationReference(cref);
+			var documentationReference = new PlayScriptParser().ParseDocumentationReference(cref);
 			var csharpContext = context as CSharpTypeResolveContext;
 			CSharpResolver resolver;
 			if (csharpContext != null) {

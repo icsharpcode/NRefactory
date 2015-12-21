@@ -26,9 +26,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps.Refactoring;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.Refactoring;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -129,7 +129,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				if (m.Success) {
 					var str = m.Get<Expression>("str").Single();
 					var def = ctx.Resolve(str).Type.GetDefinition();
-					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.Ps.TypeSystem.KnownTypeCode.String)
+					if (def == null || def.KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.String)
 						return;
 					AddIssue(new CodeIssue(
 						binaryOperatorExpression,

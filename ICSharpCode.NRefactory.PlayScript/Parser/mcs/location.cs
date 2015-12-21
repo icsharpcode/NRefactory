@@ -17,7 +17,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	public enum SourceFileType 
 	{

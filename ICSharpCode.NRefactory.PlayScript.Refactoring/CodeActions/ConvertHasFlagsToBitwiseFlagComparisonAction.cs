@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 using System.Linq;
 
@@ -41,7 +41,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 			var rr = context.Resolve(node) as CSharpInvocationResolveResult;
 			if (rr == null || rr.IsError)
 				return null;
-			if (rr.Member.Name != "HasFlag" || rr.Member.DeclaringType.GetDefinition().KnownTypeCode != ICSharpCode.NRefactory.Ps.TypeSystem.KnownTypeCode.Enum)
+			if (rr.Member.Name != "HasFlag" || rr.Member.DeclaringType.GetDefinition().KnownTypeCode != ICSharpCode.NRefactory.TypeSystem.KnownTypeCode.Enum)
 				return null;
 			var arg = node.Arguments.First ().Clone ();
 			if (!arg.DescendantsAndSelf.All(x => !(x is BinaryOperatorExpression) || ((BinaryOperatorExpression)x).Operator == BinaryOperatorType.BitwiseOr))

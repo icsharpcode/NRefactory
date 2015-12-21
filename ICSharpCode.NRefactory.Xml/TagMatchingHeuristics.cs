@@ -21,8 +21,8 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.PlayScript.Xml
 {

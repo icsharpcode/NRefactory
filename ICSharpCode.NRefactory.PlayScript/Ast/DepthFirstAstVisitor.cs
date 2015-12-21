@@ -25,9 +25,16 @@
 // THE SOFTWARE.
 
 using System;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// AST visitor with a default implementation that visits all node depth-first.
 	/// </summary>
@@ -627,7 +634,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			VisitChildren(errorNode);
 		}
 
-		public virtual void VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern)
+		public virtual void VisitPatternPlaceholder(AstNode placeholder, Pattern pattern)
 		{
 			VisitChildren (placeholder);
 		}
@@ -1234,7 +1241,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return VisitChildren(errorNode);
 		}
 
-		public virtual T VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern)
+		public virtual T VisitPatternPlaceholder(AstNode placeholder, Pattern pattern)
 		{
 			return VisitChildren (placeholder);
 		}
@@ -1841,7 +1848,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return VisitChildren(errorNode, data);
 		}
 
-		public virtual S VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern, T data)
+		public virtual S VisitPatternPlaceholder(AstNode placeholder, Pattern pattern, T data)
 		{
 			return VisitChildren (placeholder, data);
 		}

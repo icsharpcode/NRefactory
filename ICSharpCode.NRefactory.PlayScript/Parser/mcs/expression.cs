@@ -27,7 +27,7 @@ using System.Reflection.Emit;
 
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	//
 	// This is an user operator expression, automatically created during
@@ -807,16 +807,16 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 		//
 		protected virtual Expression ResolveUserOperator (ResolveContext ec, Expression expr)
 		{
-			ICSharpCode.NRefactory.MonoCSharp.Operator.OpType op_type;
+			ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType op_type;
 			switch (Oper) {
 			case Operator.LogicalNot:
-					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.LogicalNot; break;
+					op_type = ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType.LogicalNot; break;
 			case Operator.OnesComplement:
-					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.OnesComplement; break;
+					op_type = ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType.OnesComplement; break;
 			case Operator.UnaryNegation:
-					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.UnaryNegation; break;
+					op_type = ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType.UnaryNegation; break;
 			case Operator.UnaryPlus:
-					op_type = ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.UnaryPlus; break;
+					op_type = ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType.UnaryPlus; break;
 			default:
 				throw new InternalErrorException (Oper.ToString ());
 			}
@@ -3717,43 +3717,43 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			}
 		}
 
-		static MonoCSharp.Operator.OpType ConvertBinaryToUserOperator (Operator op)
+		static MonoPlayScript.Operator.OpType ConvertBinaryToUserOperator (Operator op)
 		{
 			switch (op) {
 			case Operator.Addition:
-					return MonoCSharp.Operator.OpType.Addition;
+					return MonoPlayScript.Operator.OpType.Addition;
 			case Operator.BitwiseAnd:
 			case Operator.LogicalAnd:
-				return MonoCSharp.Operator.OpType.BitwiseAnd;
+					return MonoPlayScript.Operator.OpType.BitwiseAnd;
 			case Operator.BitwiseOr:
 			case Operator.LogicalOr:
-				return MonoCSharp.Operator.OpType.BitwiseOr;
+					return MonoPlayScript.Operator.OpType.BitwiseOr;
 			case Operator.Division:
-				return MonoCSharp.Operator.OpType.Division;
+					return MonoPlayScript.Operator.OpType.Division;
 			case Operator.Equality:
-				return MonoCSharp.Operator.OpType.Equality;
+					return MonoPlayScript.Operator.OpType.Equality;
 			case Operator.ExclusiveOr:
-				return MonoCSharp.Operator.OpType.ExclusiveOr;
+					return MonoPlayScript.Operator.OpType.ExclusiveOr;
 			case Operator.GreaterThan:
-				return MonoCSharp.Operator.OpType.GreaterThan;
+					return MonoPlayScript.Operator.OpType.GreaterThan;
 			case Operator.GreaterThanOrEqual:
-				return MonoCSharp.Operator.OpType.GreaterThanOrEqual;
+					return MonoPlayScript.Operator.OpType.GreaterThanOrEqual;
 			case Operator.Inequality:
-				return MonoCSharp.Operator.OpType.Inequality;
+					return MonoPlayScript.Operator.OpType.Inequality;
 			case Operator.LeftShift:
-				return MonoCSharp.Operator.OpType.LeftShift;
+					return MonoPlayScript.Operator.OpType.LeftShift;
 			case Operator.LessThan:
-				return MonoCSharp.Operator.OpType.LessThan;
+					return MonoPlayScript.Operator.OpType.LessThan;
 			case Operator.LessThanOrEqual:
-				return MonoCSharp.Operator.OpType.LessThanOrEqual;
+					return MonoPlayScript.Operator.OpType.LessThanOrEqual;
 			case Operator.Modulus:
-				return MonoCSharp.Operator.OpType.Modulus;
+					return MonoPlayScript.Operator.OpType.Modulus;
 			case Operator.Multiply:
-				return MonoCSharp.Operator.OpType.Multiply;
+					return MonoPlayScript.Operator.OpType.Multiply;
 			case Operator.RightShift:
-				return MonoCSharp.Operator.OpType.RightShift;
+					return MonoPlayScript.Operator.OpType.RightShift;
 			case Operator.Subtraction:
-				return MonoCSharp.Operator.OpType.Subtraction;
+					return MonoPlayScript.Operator.OpType.Subtraction;
 			default:
 				throw new InternalErrorException (op.ToString ());
 			}
@@ -5440,12 +5440,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 			if (!TypeSpec.IsReferenceType (l) || !TypeSpec.IsReferenceType (r))
 				ret = null;
 
-			if (l.BuiltinType == BuiltinTypeSpec.Type.String || l.BuiltinType == BuiltinTypeSpec.Type.Delegate || l.IsDelegate || MemberCache.GetUserOperator (l, ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.Equality, false) != null)
+			if (l.BuiltinType == BuiltinTypeSpec.Type.String || l.BuiltinType == BuiltinTypeSpec.Type.Delegate || l.IsDelegate || MemberCache.GetUserOperator (l, ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType.Equality, false) != null)
 				ec.Report.Warning (253, 2, loc,
 					"Possible unintended reference comparison. Consider casting the right side expression to type `{0}' to get value comparison",
 					l.GetSignatureForError ());
 
-			if (r.BuiltinType == BuiltinTypeSpec.Type.String || r.BuiltinType == BuiltinTypeSpec.Type.Delegate || r.IsDelegate || MemberCache.GetUserOperator (r, ICSharpCode.NRefactory.MonoCSharp.Operator.OpType.Equality, false) != null)
+			if (r.BuiltinType == BuiltinTypeSpec.Type.String || r.BuiltinType == BuiltinTypeSpec.Type.Delegate || r.IsDelegate || MemberCache.GetUserOperator (r, ICSharpCode.NRefactory.MonoPlayScript.Operator.OpType.Equality, false) != null)
 				ec.Report.Warning (252, 2, loc,
 					"Possible unintended reference comparison. Consider casting the left side expression to type `{0}' to get value comparison",
 					r.GetSignatureForError ());

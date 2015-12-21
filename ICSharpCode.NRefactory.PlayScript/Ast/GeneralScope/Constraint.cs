@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -75,7 +76,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitConstraint (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			Constraint o = other as Constraint;
 			return o != null && this.TypeParameter.DoMatch (o.TypeParameter, match) && this.BaseTypes.DoMatch(o.BaseTypes, match);

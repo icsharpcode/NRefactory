@@ -21,7 +21,7 @@ using IKVM.Reflection.Emit;
 using System.Reflection.Emit;
 #endif
 	
-namespace ICSharpCode.NRefactory.MonoCSharp.Nullable
+namespace ICSharpCode.NRefactory.MonoPlayScript.Nullable
 {
 	public class NullableType : TypeExpr
 	{

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using System.Collections.Generic;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -110,7 +111,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitMemberReferenceExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			MemberReferenceExpression o = other as MemberReferenceExpression;
 			return o != null && this.Target.DoMatch(o.Target, match) && MatchString(this.MemberName, o.MemberName) && this.TypeArguments.DoMatch(o.TypeArguments, match);

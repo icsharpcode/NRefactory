@@ -26,8 +26,8 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
@@ -50,7 +50,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 			var typeDeclaration = entity.GetParent<TypeDeclaration>();
 
 			yield return new CodeAction(context.TranslateString("This is a constructor"), script => script.Replace(entity.NameToken, Identifier.Create(typeDeclaration.Name, TextLocation.Empty)), entity) {
-				Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error
+				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
 			};
 
 			yield return new CodeAction(context.TranslateString("This is a void method"), script => {
@@ -64,7 +64,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 
 				script.Replace(entity, generatedMethod);
 			}, entity) {
-				Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error
+				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
 			};
 		}
 	}

@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 using System.Linq;
@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 				context.TranslateString("Convert method to static"),
 				script => script.ChangeModifier(method, method.Modifiers | Modifiers.Static), 
 				method) {
-				Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error
+				Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error
 			};
 		}
 	}

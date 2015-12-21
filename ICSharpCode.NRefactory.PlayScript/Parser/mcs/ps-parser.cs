@@ -24,13 +24,17 @@ using System.Collections.Generic;
 //using Attribute = Mono.CSharp.Attribute;
 //using Delegate = Mono.CSharp.Delegate;
 //using Nullable = Mono.CSharp.Nullable;
-using ICSharpCode.NRefactory.MonoCSharp;
-using Delegate = ICSharpCode.NRefactory.MonoCSharp.Delegate;
-using Linq = ICSharpCode.NRefactory.MonoCSharp.Linq;
-using Enum = ICSharpCode.NRefactory.MonoCSharp.Enum;
-using Attribute = ICSharpCode.NRefactory.MonoCSharp.Attribute;
-using Nullable = ICSharpCode.NRefactory.MonoCSharp.Nullable;
-using System.Linq;
+using ICSharpCode.NRefactory.MonoPlayScript;
+using Linq = ICSharpCode.NRefactory.MonoPlayScript.Linq;
+using Enum = ICSharpCode.NRefactory.MonoPlayScript.Enum;
+using Attribute = ICSharpCode.NRefactory.MonoPlayScript.Attribute;
+using Delegate = ICSharpCode.NRefactory.MonoPlayScript.Delegate;
+using Nullable = ICSharpCode.NRefactory.MonoPlayScript.Nullable;
+
+using System.Text;
+using System.IO;
+using System;
+using System.Collections.Generic;
 
 namespace Mono.PlayScript
 {

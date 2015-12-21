@@ -29,7 +29,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	// It is used as a base class for all property based members
 	// This includes properties, indexers, and events

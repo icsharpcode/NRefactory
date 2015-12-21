@@ -26,10 +26,13 @@
 using System;
 using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
+
 	/// <summary>
 	/// Combines query expressions and removes transparent identifiers.
 	/// </summary>

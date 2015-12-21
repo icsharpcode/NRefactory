@@ -26,8 +26,9 @@
 
 using System;
 using System.ComponentModel;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -258,7 +259,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			set { throw new NotSupportedException(); }
 		}
 		
-		protected internal override bool DoMatch (AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch (AstNode other, Match match)
 		{
 			OperatorDeclaration o = other as OperatorDeclaration;
 			return o != null && this.MatchAttributesAndModifiers (o, match) && this.OperatorType == o.OperatorType

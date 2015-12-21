@@ -26,10 +26,17 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public class CSharpModifierToken : CSharpTokenNode
 	{
 		Modifiers modifier;
@@ -53,7 +60,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return GetModifierName (Modifier);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			CSharpModifierToken o = other as CSharpModifierToken;
 			return o != null && this.modifier == o.modifier;

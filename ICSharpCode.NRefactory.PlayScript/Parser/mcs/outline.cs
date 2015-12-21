@@ -36,7 +36,7 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Text;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 public class Outline {
 
 	bool declared_only;

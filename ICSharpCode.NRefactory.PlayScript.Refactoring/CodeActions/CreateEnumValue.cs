@@ -24,13 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
+using ICSharpCode.NRefactory.PatternMatching;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
 using System.Collections.Generic;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.Semantics;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -77,7 +77,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 					Name = propertyName
 				};
 				script.InsertWithCursor(context.TranslateString("Create enum value"), guessedType.GetDefinition (), (s, c) => decl);
-			}, expr) { Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error };
+			}, expr) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 		
 	}

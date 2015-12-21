@@ -23,10 +23,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using ICSharpCode.NRefactory.Ps.PatternMatching;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -2248,7 +2248,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 		#endregion
 
 		#region Pattern Nodes
-		public virtual void VisitPatternPlaceholder(AstNode placeholder, Ps.PatternMatching.Pattern pattern)
+		public virtual void VisitPatternPlaceholder(AstNode placeholder, Pattern pattern)
 		{
 			StartNode(placeholder);
 			VisitNodeInPattern(pattern);

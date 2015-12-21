@@ -24,6 +24,8 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+using ICSharpCode.NRefactory.PatternMatching;
+
 namespace ICSharpCode.NRefactory.PlayScript
 {
 	/// <summary>
@@ -74,7 +76,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitUncheckedExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			UncheckedExpression o = other as UncheckedExpression;
 			return o != null && this.Expression.DoMatch(o.Expression, match);

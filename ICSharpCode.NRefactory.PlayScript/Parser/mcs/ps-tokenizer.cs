@@ -20,7 +20,7 @@ using System.Globalization;
 using System.Diagnostics;
 using System.Collections;
 //using Mono.CSharp;
-using ICSharpCode.NRefactory.MonoCSharp;
+using ICSharpCode.NRefactory.MonoPlayScript;
 
 namespace Mono.PlayScript
 {

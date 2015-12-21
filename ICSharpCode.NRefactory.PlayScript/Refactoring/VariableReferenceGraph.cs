@@ -26,7 +26,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Analysis;
+using ICSharpCode.NRefactory.Analysis;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 using ICSharpCode.NRefactory.PlayScript.Analysis;

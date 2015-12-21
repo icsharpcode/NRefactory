@@ -16,7 +16,7 @@ using System.IO;
 using System.Text;
 using System.Collections.Generic;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	sealed class ReferenceEquality<T> : IEqualityComparer<T> where T : class
 	{

@@ -23,12 +23,12 @@ using System.Linq;
 using System.Threading;
 using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
-using ICSharpCode.NRefactory.Ps.Utils;
+using ICSharpCode.NRefactory.Utils;
 
 namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {

@@ -25,7 +25,8 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -83,7 +84,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitWhitespace (this, data);
 		}
 
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			var o = other as WhitespaceNode;
 			return o != null && o.WhiteSpaceText == WhiteSpaceText;

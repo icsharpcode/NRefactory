@@ -19,7 +19,7 @@ using System.Text;
 using System.IO;
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	//
 	// All compiler built-in types (they have to exist otherwise the compiler will not work)

@@ -21,11 +21,11 @@ using System.Text;
 using System.Globalization;
 using System.Diagnostics;
 using System.Threading;
-using ICSharpCode.NRefactory.MonoCSharp;
-using Linq = ICSharpCode.NRefactory.MonoCSharp.Linq;
+//using ICSharpCode.NRefactory.MonoCSharp;
+//using Linq = ICSharpCode.NRefactory.MonoCSharp.Linq;
 using Mono.PlayScript;
 	
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 	/// <summary>
 	///    The compiler driver.
@@ -115,7 +115,7 @@ namespace ICSharpCode.NRefactory.MonoCSharp
 
 			// PlayScript needs to add generated code after parsing.
 			if (has_playscript_files) {
-				Mono.PlayScript.CodeGenerator.GenerateCode(module, session, Report);
+				CodeGenerator.GenerateCode(module, session, Report);
 			}
 		}
 

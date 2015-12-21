@@ -29,12 +29,13 @@ using System.Linq;
 using System.Text;
 
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Completion;
 
 namespace ICSharpCode.NRefactory.PlayScript.Completion
 {
@@ -744,7 +745,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 			int closingBrackets = 1;
 			int generatedLines = 0;
 			var wrapper = CreateWrapper(continuation, appendSemicolon, afterContinuation, memberText, memberLocation, ref closingBrackets, ref generatedLines);
-			var parser = new CSharpParser ();
+			var parser = new PlayScriptParser ();
 			foreach (var sym in CompletionContextProvider.ConditionalSymbols)
 				parser.CompilerSettings.ConditionalSymbols.Add (sym);
 			parser.InitialLocation = new TextLocation(memberLocation.Line - generatedLines, 1);

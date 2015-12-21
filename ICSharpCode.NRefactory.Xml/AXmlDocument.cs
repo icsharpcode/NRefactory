@@ -19,7 +19,7 @@
 using System;
 using System.Globalization;
 using System.Xml;
-using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Editor;
 
 namespace ICSharpCode.NRefactory.PlayScript.Xml
 {

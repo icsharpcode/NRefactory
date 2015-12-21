@@ -20,7 +20,7 @@ using System.Globalization;
 using System;
 using Mono.PlayScript;
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	public enum LanguageVersion
 	{

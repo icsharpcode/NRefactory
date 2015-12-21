@@ -26,7 +26,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -196,7 +197,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitPreProcessorDirective (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			PreProcessorDirective o = other as PreProcessorDirective;
 			return o != null && Type == o.Type && MatchString(Argument, o.Argument);

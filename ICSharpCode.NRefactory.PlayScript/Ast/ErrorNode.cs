@@ -24,10 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	/// <summary>
 	/// Represents a parsing error in the ast. At the moment it only represents missing closing bracket.
 	/// This closing bracket is replaced by a node at the highest possible position.
@@ -74,7 +81,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitErrorNode(this, data);
 		}
 
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			var o = other as ErrorNode;
 			return o != null;

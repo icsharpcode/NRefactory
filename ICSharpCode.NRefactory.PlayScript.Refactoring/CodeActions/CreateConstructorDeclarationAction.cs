@@ -58,7 +58,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 						return decl;
 					}
 				)
-			, createExpression) { Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error };
+			, createExpression) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 	}
 }

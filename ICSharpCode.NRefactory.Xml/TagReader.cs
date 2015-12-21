@@ -23,7 +23,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
-using ICSharpCode.NRefactory.Ps.Editor;
+using ICSharpCode.NRefactory.Editor;
 
 namespace ICSharpCode.NRefactory.PlayScript.Xml
 {

@@ -19,7 +19,7 @@
 using System;
 using System.IO;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

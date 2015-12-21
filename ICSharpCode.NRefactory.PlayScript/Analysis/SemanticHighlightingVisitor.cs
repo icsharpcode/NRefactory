@@ -20,14 +20,15 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading;
-using ICSharpCode.NRefactory.Ps.Completion;
+using ICSharpCode.NRefactory.Completion;
 using System.Collections.ObjectModel;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.PlayScript.Refactoring;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript.Analysis
 {
@@ -87,8 +88,8 @@ namespace ICSharpCode.NRefactory.PlayScript.Analysis
 
 		protected TColor syntaxErrorColor;
 		
-		protected Ps.TextLocation regionStart;
-		protected Ps.TextLocation regionEnd;
+		protected TextLocation regionStart;
+		protected TextLocation regionEnd;
 		
 		protected CSharpAstResolver resolver;
 		protected bool isInAccessorContainingValueParameter;

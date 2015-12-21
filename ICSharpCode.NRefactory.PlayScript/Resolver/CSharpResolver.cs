@@ -20,12 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Resolver
 {
@@ -1392,7 +1392,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Resolver
 		
 		internal object CSharpPrimitiveCast(TypeCode targetType, object input)
 		{
-			return Ps.Utils.CSharpPrimitiveCast.Cast(targetType, input, this.CheckForOverflow);
+			return Utils.CSharpPrimitiveCast.Cast(targetType, input, this.CheckForOverflow);
 		}
 		#endregion
 		

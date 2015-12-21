@@ -25,7 +25,7 @@
 // THE SOFTWARE.
 
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -96,7 +96,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitFixedVariableInitializer (this, data);
 		}
 		
-		protected internal override bool DoMatch (AstNode other, ICSharpCode.NRefactory.Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch (AstNode other, ICSharpCode.NRefactory.PatternMatching.Match match)
 		{
 			var o = other as FixedVariableInitializer;
 			return o != null && MatchString (this.Name, o.Name) && this.CountExpression.DoMatch (o.CountExpression, match);

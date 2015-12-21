@@ -27,14 +27,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
-using ICSharpCode.NRefactory.Ps.Editor;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Editor;
+using ICSharpCode.NRefactory.TypeSystem;
 using System.Threading.Tasks;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.MonoCSharp;
-using ITypeDefinition = ICSharpCode.NRefactory.Ps.TypeSystem.ITypeDefinition;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory.MonoPlayScript;
+using ITypeDefinition = ICSharpCode.NRefactory.TypeSystem.ITypeDefinition;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {

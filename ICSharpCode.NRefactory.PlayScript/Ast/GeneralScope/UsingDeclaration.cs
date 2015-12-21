@@ -28,7 +28,8 @@ using System;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -114,7 +115,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitUsingDeclaration (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			UsingDeclaration o = other as UsingDeclaration;
 			return o != null && this.Import.DoMatch(o.Import, match);

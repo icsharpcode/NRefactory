@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -33,10 +33,10 @@ namespace ICSharpCode.NRefactory.PlayScript
 	/// </summary>
 	public sealed class NullIStateMachineIndentEngine : IStateMachineIndentEngine
 	{
-		readonly ICSharpCode.NRefactory.Ps.Editor.IDocument document;
+		readonly ICSharpCode.NRefactory.Editor.IDocument document;
 		int offset;
 
-		public NullIStateMachineIndentEngine(ICSharpCode.NRefactory.Ps.Editor.IDocument document)
+		public NullIStateMachineIndentEngine(ICSharpCode.NRefactory.Editor.IDocument document)
 		{
 			if (document == null)
 				throw new ArgumentNullException("document");
@@ -155,7 +155,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return Clone();
 		}
 
-		ICSharpCode.NRefactory.Ps.Editor.IDocument IDocumentIndentEngine.Document {
+		ICSharpCode.NRefactory.Editor.IDocument IDocumentIndentEngine.Document {
 			get {
 				return document;
 			}

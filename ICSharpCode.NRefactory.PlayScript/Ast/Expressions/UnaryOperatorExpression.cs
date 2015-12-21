@@ -26,6 +26,7 @@
 
 using System;
 using System.Linq.Expressions;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -84,7 +85,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitUnaryOperatorExpression (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			UnaryOperatorExpression o = other as UnaryOperatorExpression;
 			return o != null && (this.Operator == UnaryOperatorType.Any || this.Operator == o.Operator)

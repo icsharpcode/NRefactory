@@ -17,7 +17,7 @@ using System.Runtime.CompilerServices;
 using System.Reflection.Emit;
 using System.Security;
 
-namespace ICSharpCode.NRefactory.MonoCSharp
+namespace ICSharpCode.NRefactory.MonoPlayScript
 {
 #if STATIC
 	public class ReflectionImporter

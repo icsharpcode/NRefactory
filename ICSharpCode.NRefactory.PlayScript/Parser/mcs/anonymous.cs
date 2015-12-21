@@ -24,7 +24,7 @@ using System.Reflection.Emit;
 #endif
 
 // ICSharpCode.NRefactory.MonoCSharp
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	public abstract class CompilerGeneratedContainer : ClassOrStruct
 	{

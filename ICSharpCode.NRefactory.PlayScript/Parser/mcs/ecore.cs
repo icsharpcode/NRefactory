@@ -25,7 +25,7 @@ using System.Reflection;
 using System.Reflection.Emit;
 #endif
 
-namespace ICSharpCode.NRefactory.MonoCSharp {
+namespace ICSharpCode.NRefactory.MonoPlayScript {
 
 	/// <remarks>
 	///   The ExprClass class contains the is used to pass the 
@@ -7840,12 +7840,12 @@ namespace ICSharpCode.NRefactory.MonoCSharp {
 			// nothing
 		}
 
-		public override ICSharpCode.NRefactory.MonoCSharp.Expression CreateExpressionTree (ResolveContext ec)
+		public override ICSharpCode.NRefactory.MonoPlayScript.Expression CreateExpressionTree (ResolveContext ec)
 		{
 			return null;
 		}
 
-		public override object Accept (ICSharpCode.NRefactory.MonoCSharp.StructuralVisitor visitor)
+		public override object Accept (ICSharpCode.NRefactory.MonoPlayScript.StructuralVisitor visitor)
 		{
 			return visitor.Visit (this);
 		}

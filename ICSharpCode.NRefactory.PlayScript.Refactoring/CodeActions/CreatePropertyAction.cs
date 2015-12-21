@@ -25,8 +25,8 @@
 // THE SOFTWARE.
 using System;
 using System.Collections.Generic;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
@@ -112,7 +112,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 
 				script.InsertWithCursor(context.TranslateString("Create property"), Script.InsertPosition.Before, decl);
 
-			}, identifier.GetNodeAt(context.Location) ?? identifier) { Severity = ICSharpCode.NRefactory.Ps.Refactoring.Severity.Error };
+			}, identifier.GetNodeAt(context.Location) ?? identifier) { Severity = ICSharpCode.NRefactory.Refactoring.Severity.Error };
 		}
 
 		internal static string GetPropertyName(Expression expr)

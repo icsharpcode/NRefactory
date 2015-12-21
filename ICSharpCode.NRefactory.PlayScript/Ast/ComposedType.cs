@@ -27,11 +27,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public class ComposedType : AstType
 	{
 		public static readonly TokenRole NullableRole = new TokenRole("?");
@@ -100,7 +107,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitComposedType (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			ComposedType o = other as ComposedType;
 			return o != null && this.HasNullableSpecifier == o.HasNullableSpecifier && this.PointerRank == o.PointerRank
@@ -216,7 +223,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitArraySpecifier(this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			ArraySpecifier o = other as ArraySpecifier;
 			return o != null && this.Dimensions == o.Dimensions;

@@ -28,12 +28,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
-using ICSharpCode.NRefactory.Ps;
+using ICSharpCode.NRefactory;
+
+using ICSharpCode.NRefactory.PatternMatching;
+
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
+
 {
+
 	public class MemberType : AstType
 	{
 		public static readonly Role<AstType> TargetRole = new Role<AstType>("Target", AstType.Null);
@@ -113,7 +119,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			return visitor.VisitMemberType (this, data);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			MemberType o = other as MemberType;
 			return o != null && this.IsDoubleColon == o.IsDoubleColon

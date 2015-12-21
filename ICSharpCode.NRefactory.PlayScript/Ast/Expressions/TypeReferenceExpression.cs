@@ -17,6 +17,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 using System;
+using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {
@@ -55,7 +56,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 			AddChild (type, Roles.Type);
 		}
 		
-		protected internal override bool DoMatch(AstNode other, Ps.PatternMatching.Match match)
+		protected internal override bool DoMatch(AstNode other, Match match)
 		{
 			TypeReferenceExpression o = other as TypeReferenceExpression;
 			return o != null && this.Type.DoMatch(o.Type, match);

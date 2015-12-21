@@ -3,8 +3,6 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{A7EEF7F8-238F-459D-95A9-96467539641D}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.GtkDemo</RootNamespace>
