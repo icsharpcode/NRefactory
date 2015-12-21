@@ -31,12 +31,7 @@ using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.PatternMatching;
 
-using ICSharpCode.NRefactory.PatternMatching;
-
-using ICSharpCode.NRefactory.PatternMatching;
-
 namespace ICSharpCode.NRefactory.PlayScript
-
 {
 
 	public class ComposedType : AstType

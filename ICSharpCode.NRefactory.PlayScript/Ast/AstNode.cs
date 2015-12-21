@@ -682,7 +682,51 @@ namespace ICSharpCode.NRefactory.PlayScript
 		}
 
 		#endregion
-		
+
+
+		// For PlayScript, we want to fix out of order nodes, as the current parser puts the nodes in C# order, and PlayScript's 
+		// nodes typically don't go in the same order.  We need to fix the parser, but for the time being this actually puts the
+		// nodes in the right order so that the GetNodeAt() methods can actually find the right node.
+		private static List<AstNode> _sortList = new List<AstNode>();
+		public void FixOutOfOrderLocations()
+		{
+			// Get list of nodes
+			_sortList.Clear();
+			var node = firstChild;
+			while (node != null) {
+				_sortList.Add(node);
+				node = node.nextSibling;
+			}
+
+			// Resort list by start location (assuming some of them might be out of order due to incorrect placement in PlayScript).
+			if (_sortList.Count > 0) {
+				_sortList.Sort((a,b) => a.StartLocation.CompareTo(b.StartLocation));
+				for (var i = 0; i < _sortList.Count; i++) {
+					if (i == 0) {
+						firstChild = _sortList[i];
+						_sortList[i].prevSibling = null;
+					} else {
+						_sortList[i - 1].nextSibling = _sortList[i];
+						_sortList[i].prevSibling = _sortList[i - 1];
+					}
+					if (i == _sortList.Count - 1) {
+						lastChild = _sortList[i];
+						_sortList[i].nextSibling = null;
+					} else {
+						_sortList[i].nextSibling = _sortList[i + 1];
+						_sortList[i + 1].prevSibling = _sortList[i];
+					}
+				}
+			}
+
+			// Fix all children nodes
+			node = firstChild;
+			while (node != null) {
+				node.FixOutOfOrderLocations();
+				node = node.nextSibling;
+			}
+		}
+
 		public AstNode GetNextNode ()
 		{
 			if (NextSibling != null)

@@ -26,13 +26,9 @@
 
 using System;
 using ICSharpCode.NRefactory;
-
-using ICSharpCode.NRefactory.PatternMatching;
-
 using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
-
 {
 
 	public static class Roles
@@ -88,10 +84,10 @@ namespace ICSharpCode.NRefactory.PlayScript
 
 		public readonly static TokenRole WhereKeyword = new TokenRole ("where");
 		public readonly static Role<SimpleType> ConstraintTypeParameter = new Role<SimpleType> ("TypeParameter", SimpleType.Null);
-		public readonly static TokenRole DelegateKeyword = new TokenRole ("delegate");
+		public readonly static TokenRole DelegateKeyword = new TokenRole ("function");
 		public static readonly TokenRole ExternKeyword = new TokenRole ("extern");
 		public static readonly TokenRole AliasKeyword = new TokenRole ("alias");
-		public static readonly TokenRole NamespaceKeyword = new TokenRole ("namespace");
+		public static readonly TokenRole NamespaceKeyword = new TokenRole ("package");
 
 		public static readonly TokenRole EnumKeyword = new TokenRole ("enum");
 		public static readonly TokenRole InterfaceKeyword = new TokenRole ("interface");

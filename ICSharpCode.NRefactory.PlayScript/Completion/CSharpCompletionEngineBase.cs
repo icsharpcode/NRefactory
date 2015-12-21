@@ -718,9 +718,9 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 			var wrapper = new StringBuilder();
 			bool wrapInClass = memberLocation != new TextLocation(1, 1);
 			if (wrapInClass) {
-				wrapper.Append("class Stub {");
+				wrapper.Append("package { class Stub {");
 				wrapper.AppendLine();
-				closingBrackets++;
+				closingBrackets += 2;
 				generatedLines++;
 			}
 			wrapper.Append(memberText);
@@ -742,7 +742,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 
 			string memberText = mt.Item1;
 			var memberLocation = mt.Item2;
-			int closingBrackets = 1;
+			int closingBrackets = 0;
 			int generatedLines = 0;
 			var wrapper = CreateWrapper(continuation, appendSemicolon, afterContinuation, memberText, memberLocation, ref closingBrackets, ref generatedLines);
 			var parser = new PlayScriptParser ();

@@ -80,12 +80,12 @@ namespace ICSharpCode.NRefactory.MonoPlayScript
 			this.Name = name;
 			this.FullPathName = path;
 			var ext = Path.GetExtension (path);
-			if (ext.ToLower() == ".as") {
-				FileType = SourceFileType.PlayScript;
-				PsExtended = false;
-			} else if (ext.ToLower() == ".play") {
+			if (String.IsNullOrEmpty(name) || String.IsNullOrEmpty(ext) || ext.ToLower() == ".play") {
 				FileType = SourceFileType.PlayScript;
 				PsExtended = true;
+			} else if (ext.ToLower() == ".as") {
+				FileType = SourceFileType.PlayScript;
+				PsExtended = false;
 			} else {
 				FileType = SourceFileType.CSharp;
 			}
