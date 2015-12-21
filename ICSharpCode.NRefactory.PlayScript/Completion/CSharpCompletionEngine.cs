@@ -628,16 +628,24 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 					var text = GetMemberTextToCaret();
 					var lexer = new MiniLexer(text.Item1);
 					lexer.Parse();
-					if (lexer.IsInSingleComment ||
-						lexer.IsInChar ||
-						lexer.IsInMultiLineComment ||
-						lexer.IsInPreprocessorDirective) {
-						return Enumerable.Empty<ICompletionData>();
-					}
-
-					if (lexer.IsInString || lexer.IsInVerbatimString)
-						return HandleStringFormatItems();
-					return HandleMemberReferenceCompletion(GetExpressionBeforeCursor());
+//					if (lexer.IsInSingleComment ||
+//						lexer.IsInChar ||
+//						lexer.IsInMultiLineComment ||
+//						lexer.IsInPreprocessorDirective) {
+//						return Enumerable.Empty<ICompletionData>();
+//					}
+//					if (lexer.IsInString || lexer.IsInVerbatimString)
+//						return HandleStringFormatItems();
+//					return HandleMemberReferenceCompletion(GetExpressionBeforeCursor());
+					// PlayScript
+					var wrapper1 = new CompletionDataWrapper(this);
+					AddTypesAndNamespaces(
+						wrapper1,
+						GetState(),
+						null,
+						t => currentType != null && !currentType.ReflectionName.Equals(t.ReflectionName) ? t : null
+					);
+					return wrapper1.Result;
 				case '"':
 					text = GetMemberTextToCaret();
 					lexer = new MiniLexer(text.Item1);
@@ -895,14 +903,14 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 							}
 							return null;
 						case ":":
-							if (currentMember == null) {
+//							if (currentMember == null) {
 								token = GetPreviousToken(ref tokenIndex, false);
 								token = GetPreviousToken(ref tokenIndex, false);
 								if (token == "enum")
 									return HandleEnumContext();
-								var wrapper = new CompletionDataWrapper(this);
+								var wrapperTwo = new CompletionDataWrapper(this);
 								AddTypesAndNamespaces(
-									wrapper,
+									wrapperTwo,
 									GetState(),
 									null,
 									t =>  {
@@ -914,8 +922,8 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 										return t;
 									}
 								);
-								return wrapper.Result;
-							}
+							return wrapperTwo.Result;
+//							}
 							return null;
 					}
 
@@ -1024,7 +1032,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 					// Do not pop up completion on identifier identifier (should be handled by keyword completion).
 					tokenIndex = offset - 1;
 					token = GetPreviousToken(ref tokenIndex, false);
-					if (token == "class" || token == "interface" || token == "struct" || token == "enum" || token == "namespace") {
+					if (token == "class" || token == "interface" || token == "struct" || token == "enum" || token == "package" || token == "var" || token == "const") {
 						// after these always follows a name
 						return null;
 					}
@@ -1040,7 +1048,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 
 					int prevTokenIndex = tokenIndex;
 					var prevToken2 = GetPreviousToken(ref prevTokenIndex, false);
-					if (prevToken2 == "delegate") {
+					if (prevToken2 == "function") {
 						// after these always follows a name
 						return null;
 					}
@@ -2044,9 +2052,9 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 				return null;
 			}
 			switch (word) {
-				case "namespace":
+				case "pacakge":
 					return null;
-				case "using":
+				case "import":
 					if (currentType != null) {
 						return null;
 					}
@@ -3735,7 +3743,8 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 			"out",
 			"ref",
 			"null",
-			"delegate",
+			"undefined",
+			"function",
 			"default"
 		};
 		static string[] primitiveTypesKeywords = new string [] {
@@ -3754,7 +3763,10 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 			"float",
 			"double",
 			"decimal",
-			"string"
+			"string",
+			"String",
+			"Number",
+			"Boolean"
 		};
 		static string[] statementStartKeywords = new string [] { "base", "new", "sizeof", "this", 
 			"true", "false", "typeof", "checked", "unchecked", "from", "break", "checked",
@@ -3764,7 +3776,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 			"catch"
 		};
 		static string[] globalLevelKeywords = new string [] {
-			"namespace", "using", "extern", "public", "internal", 
+			"package", "import", "use", "public", "internal", 
 			"class", "interface", "struct", "enum", "delegate",
 			"abstract", "sealed", "static", "unsafe", "partial"
 		};
@@ -3775,9 +3787,10 @@ namespace ICSharpCode.NRefactory.PlayScript.Completion
 			"public", "internal", "protected", "private", "async",
 			"class", "interface", "struct", "enum", "delegate",
 			"abstract", "sealed", "static", "unsafe", "partial",
-			"const", "event", "extern", "fixed", "new", 
+			"const", "var", "event", "extern", "fixed", "new", 
 			"operator", "explicit", "implicit", 
-			"override", "readonly", "virtual", "volatile"
+			"override", "readonly", "virtual", "volatile",
+			"function", "indexer", "operator"
 		};
 		static string[] linqKeywords = new string[] {
 			"from",
