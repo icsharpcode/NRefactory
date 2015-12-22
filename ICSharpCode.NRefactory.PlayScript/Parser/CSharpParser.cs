@@ -607,7 +607,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				
 				if (s.TypeBaseExpressions != null) {
 					if (location != null && curLoc < location.Count)
-						newType.AddChild(new CSharpTokenNode(Convert(location [curLoc++]), Roles.Colon), Roles.Colon);
+						newType.AddChild(new CSharpTokenNode(Convert(location [curLoc++]), Roles.ClassKeyword), Roles.ClassKeyword);
 					var commaLocations = LocationsBag.GetLocations(s.TypeBaseExpressions);
 					int i = 0;
 					foreach (var baseTypes in s.TypeBaseExpressions) {
@@ -652,7 +652,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				
 				if (i.TypeBaseExpressions != null) {
 					if (location != null && curLoc < location.Count)
-						newType.AddChild(new CSharpTokenNode(Convert(location [curLoc++]), Roles.Colon), Roles.Colon);
+						newType.AddChild(new CSharpTokenNode(Convert(location [curLoc++]), Roles.ClassKeyword), Roles.ClassKeyword);
 					var commaLocations = LocationsBag.GetLocations(i.TypeBaseExpressions);
 					int j = 0;
 					foreach (var baseTypes in i.TypeBaseExpressions) {
@@ -1664,19 +1664,19 @@ namespace ICSharpCode.NRefactory.PlayScript
 				return result;
 			}
 
-			public object Visit(InvalidStatementExpression invalidStatementExpression)
-			{
-				var result = new ExpressionStatement();
-				if (invalidStatementExpression.Expression == null)
-					return result;
-				var expr = invalidStatementExpression.Expression.Accept(this) as Expression;
-				if (expr != null)
-					result.AddChild(expr, Roles.Expression);
-				var location = LocationsBag.GetLocations(invalidStatementExpression);
-				if (location != null)
-					result.AddChild(new CSharpTokenNode(Convert(location [0]), Roles.Semicolon), Roles.Semicolon);
-				return result;
-			}
+//			public object Visit(InvalidStatementExpression invalidStatementExpression)
+//			{
+//				var result = new ExpressionStatement();
+//				if (invalidStatementExpression.Expression == null)
+//					return result;
+//				var expr = invalidStatementExpression.Expression.Accept(this) as Expression;
+//				if (expr != null)
+//					result.AddChild(expr, Roles.Expression);
+//				var location = LocationsBag.GetLocations(invalidStatementExpression);
+//				if (location != null)
+//					result.AddChild(new CSharpTokenNode(Convert(location [0]), Roles.Semicolon), Roles.Semicolon);
+//				return result;
+//			}
 
 			public override object Visit(Return returnStatement)
 			{
@@ -4152,8 +4152,8 @@ namespace ICSharpCode.NRefactory.PlayScript
 				var report = new Report(ctx, errorReportPrinter);
 				var session = new ParserSession();
 				session.LocationsBag = new LocationsBag();
-//				var parser = new ICSharpCode.NRefactory.MonoCSharp.CSharpParser(reader, source_file, report, session);
 				var parser = new Mono.PlayScript.PlayScriptParser(reader, source_file, report, session);
+				parser.parsing_playscript = (source_file.SourceFile != null) ? source_file.SourceFile.PsExtended : true;
 				parser.Lexer.Line += initialLocation.Line - 1;
 				parser.Lexer.Column += initialLocation.Column - 1;
 				parser.Lexer.putback_char = Mono.PlayScript.Tokenizer.DocumentationXref;

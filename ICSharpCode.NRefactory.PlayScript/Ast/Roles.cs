@@ -94,6 +94,9 @@ namespace ICSharpCode.NRefactory.PlayScript
 		public static readonly TokenRole StructKeyword = new TokenRole ("struct");
 		public static readonly TokenRole ClassKeyword = new TokenRole ("class");
 
+		public static readonly TokenRole FunctionKeyword = new TokenRole ("function");
+		public static readonly TokenRole IndexerKeyword = new TokenRole ("indexer");
+		public static readonly TokenRole PropertyKeyword = new TokenRole ("property");
 	}
 }
 

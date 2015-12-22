@@ -34,7 +34,7 @@ using ICSharpCode.NRefactory.TypeSystem.Implementation;
 
 namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 {
-	[ContextAction("Sort usings", Description = "Sorts usings by their origin and then alphabetically.")]
+	[ContextAction("Sort imports", Description = "Sorts imports by their origin and then alphabetically.")]
 	public class SortUsingsAction: CodeActionProvider
 	{
 		public override IEnumerable<CodeAction> GetActions(RefactoringContext context)
@@ -43,7 +43,7 @@ namespace ICSharpCode.NRefactory.PlayScript.Refactoring
 			if (usingNode == null)
 				yield break;
 
-			yield return new CodeAction(context.TranslateString("Sort usings"), script =>
+			yield return new CodeAction(context.TranslateString("Sort imports"), script =>
 			{
 				var blocks = EnumerateUsingBlocks(context.RootNode);
 

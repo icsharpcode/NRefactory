@@ -27,9 +27,9 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyCompany("ICSharpCode")]
-[assembly: AssemblyProduct("SharpDevelop/MonoDevelop")]
-[assembly: AssemblyCopyright("Copyright 2010-2014 AlphaSierraPapa and Xamarin Inc.")]
+[assembly: AssemblyCompany("PlayScript")]
+[assembly: AssemblyProduct("PlayScript/SharpDevelop/MonoDevelop")]
+[assembly: AssemblyCopyright("Copyright 2010-2015 AlphaSierraPapa and Xamarin Inc and PlayScriptRedux.")]
 
 // This sets the default COM visibility of types in the assembly to invisible.
 // If you need to expose a type to COM, use [ComVisible(true)] on that type.
@@ -37,9 +37,9 @@ using System.Runtime.InteropServices;
 
 // We keep the AssemblyVersion at 5.0.0.0 for all versions of NRefactory 5.
 // This eliminates the need for binding redirects.
-[assembly: AssemblyVersion("5.0.0.0")]
+[assembly: AssemblyVersion("1.0.0.0")]
 
 // [AssemblyFileVersion] is the version of the NuGet package,
 // Versions with breaking changes / new features should increment the 'minor' (2nd) number.
 // Bugfix releases should increment the 'build' (3rd) number.
-[assembly: AssemblyFileVersion("5.5.1")]
+[assembly: AssemblyFileVersion("1.0.0")]
