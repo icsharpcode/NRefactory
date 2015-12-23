@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A727169F-D94F-443F-B305-B057D7F3B420}</ProjectGuid>
+    <ProjectGuid>{6FBE63EB-4D01-4BED-BC3E-F4AB31AB7D6F}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.IKVM</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory.PlayScript.IKVM</AssemblyName>
@@ -33,9 +33,6 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">
@@ -54,6 +51,10 @@
     <ProjectReference Include="..\..\ikvm\reflect\IKVM.Reflection.csproj">
       <Project>{4CB170EF-DFE6-4A56-9E1B-A85449E827A7}</Project>
       <Name>IKVM.Reflection</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Nrefactory-upstream\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
+      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
+      <Name>ICSharpCode.NRefactory</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

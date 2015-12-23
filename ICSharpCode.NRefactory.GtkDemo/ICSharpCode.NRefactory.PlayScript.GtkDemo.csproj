@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A7EEF7F8-238F-459D-95A9-96467539641D}</ProjectGuid>
+    <ProjectGuid>{bf360491-0779-4ada-b4b4-70265417e672}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.GtkDemo</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory.PlayScript.GtkDemo</AssemblyName>

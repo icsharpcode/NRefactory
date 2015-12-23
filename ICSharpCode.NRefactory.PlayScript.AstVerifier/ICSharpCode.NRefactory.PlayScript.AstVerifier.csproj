@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{961DADFA-7CE6-429F-BC22-47630D6DB826}</ProjectGuid>
+    <ProjectGuid>{54c56049-dd33-4ad4-af45-4d1aaf883449}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.CSharp.AstVerifier</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory.PlayScript.AstVerifier</AssemblyName>
