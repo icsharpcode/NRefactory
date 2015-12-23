@@ -28,8 +28,6 @@ using System.Linq;
 using ICSharpCode.NRefactory.PlayScript;
 using ICSharpCode.NRefactory.PatternMatching;
 
-using ICSharpCode.NRefactory.PatternMatching;
-
 namespace ICSharpCode.NRefactory.PlayScript
 {
 

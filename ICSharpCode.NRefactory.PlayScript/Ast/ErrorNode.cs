@@ -27,10 +27,6 @@ using System;
 using ICSharpCode.NRefactory;
 using ICSharpCode.NRefactory.PatternMatching;
 
-using ICSharpCode.NRefactory.PatternMatching;
-
-using ICSharpCode.NRefactory.PatternMatching;
-
 namespace ICSharpCode.NRefactory.PlayScript
 
 {

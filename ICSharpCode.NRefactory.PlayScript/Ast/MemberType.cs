@@ -28,13 +28,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using ICSharpCode.NRefactory;
-
 using ICSharpCode.NRefactory.PatternMatching;
-
-using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript
 

@@ -29,10 +29,10 @@
 //
 
 using System;
-using System.Security.Cryptography;
 using System.Collections.Generic;
-using System.Text;
 using System.IO;
+using System.Security.Cryptography;
+using System.Text;
 
 //
 // Parts which are actually written into the symbol file are marked with

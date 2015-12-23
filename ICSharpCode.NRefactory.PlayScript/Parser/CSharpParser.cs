@@ -471,7 +471,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 				AddToNamespace(ud);
 			}
 
-			public void Visit(UsingClause un)
+			public override void Visit(UsingClause un)
 			{
 				var ud = new UsingDeclaration();
 				var loc = LocationsBag.GetLocations(un);

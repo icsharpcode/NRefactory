@@ -26,18 +26,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.PatternMatching;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
-using ICSharpCode.NRefactory;
-using ICSharpCode.NRefactory.PatternMatching;
-
-using ICSharpCode.NRefactory.PatternMatching;
-
-using ICSharpCode.NRefactory.PatternMatching;
 
 namespace ICSharpCode.NRefactory.PlayScript
-
 {
 
 	public class PrimitiveType : AstType
