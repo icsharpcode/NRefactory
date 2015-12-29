@@ -33,7 +33,7 @@ namespace ICSharpCode.NRefactory.PlayScript
 	/// </summary>
 	public class UsingAliasDeclaration : AstNode
 	{
-		public static readonly TokenRole UsingKeywordRole = new TokenRole ("using");
+		public static readonly TokenRole UsingKeywordRole = new TokenRole ("import");
 		public static readonly Role<Identifier> AliasRole = new Role<Identifier>("Alias", Identifier.Null);
 		public static readonly Role<AstType> ImportRole = UsingDeclaration.ImportRole;
 		
