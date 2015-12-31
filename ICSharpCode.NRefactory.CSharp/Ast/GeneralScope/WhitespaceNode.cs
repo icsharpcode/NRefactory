@@ -62,7 +62,7 @@ namespace ICSharpCode.NRefactory.CSharp
 
 		public WhitespaceNode(string whiteSpaceText, TextLocation startLocation)
 		{
-			this.WhiteSpaceText = WhiteSpaceText;
+			this.WhiteSpaceText = whiteSpaceText;
 			this.startLocation = startLocation;
 		}
 
