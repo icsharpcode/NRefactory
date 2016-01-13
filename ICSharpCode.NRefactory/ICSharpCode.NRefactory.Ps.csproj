@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{cbdf3a0d-8b3a-4dee-b9f9-6fa492a06187}</ProjectGuid>
+    <ProjectGuid>{CBDF3A0D-8B3A-4DEE-B9F9-6FA492A06187}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>Library</OutputType>
@@ -24,6 +24,8 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DocumentationFile>$(IntermediateOutputPath)ICSharpCode.NRefactory.xml</DocumentationFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -73,29 +75,32 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Mdb">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Mdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Pdb">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Pdb.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil.Rocks">
-      <HintPath>..\..\..\packages\Mono.Cecil.0.9.5.4\lib\net40\Mono.Cecil.Rocks.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\..\..\packages\ICSharpCode.NRefactory.5.5.1\lib\Net40\ICSharpCode.NRefactory.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.NRefactory.Cecil">
-      <HintPath>..\..\..\packages\ICSharpCode.NRefactory.5.5.1\lib\Net40\ICSharpCode.NRefactory.Cecil.dll</HintPath>
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\..\..\packages\ICSharpCode.NRefactory.5.5.1\lib\Net40\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp.Refactoring">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.IKVM">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Tests">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Tests.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.Xml">
-      <HintPath>..\..\..\packages\ICSharpCode.NRefactory.5.5.1\lib\Net40\ICSharpCode.NRefactory.Xml.dll</HintPath>
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.Reflection">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\IKVM.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\Mono.Cecil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -307,6 +312,7 @@
     <Compile Include="PatternMatching\AnyNodeOrNull.cs" />
     <Compile Include="Editor\ITextPasteHandler.cs" />
     <Compile Include="PatternMatching\Pattern.cs" />
+    <Compile Include="PatternMatching\INode.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Completion\" />
@@ -315,14 +321,12 @@
     <Folder Include="Refactoring\" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\doc\Pattern Matching.html">
-      <Link>PatternMatching\Pattern Matching.html</Link>
-    </None>
     <None Include="..\doc\XML Documentation.html">
       <Link>Documentation\XML Documentation.html</Link>
     </None>
-    <None Include="PatternMatching\INode.cs" />
-    <None Include="packages.config" />
+    <None Include="..\doc\Pattern Matching.html">
+      <Link>PatternMatching\Pattern Matching.html</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

@@ -15,6 +15,8 @@
     <NoWarn>1591,1587,1570</NoWarn>
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -70,6 +72,33 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
+    <Reference Include="ICSharpCode.NRefactory.Cecil">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp.Refactoring">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.IKVM">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Tests">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Tests.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Xml">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.Reflection">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\IKVM.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\Mono.Cecil.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">
@@ -446,10 +475,6 @@
     <ProjectReference Include="..\ICSharpCode.NRefactory.Xml\ICSharpCode.NRefactory.PlayScript.Xml.csproj">
       <Project>{B1AF7070-8E25-4117-A441-14684219F4FD}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript.Xml</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Nrefactory-upstream\ICSharpCode.NRefactory\ICSharpCode.NRefactory.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
-      <Name>ICSharpCode.NRefactory</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

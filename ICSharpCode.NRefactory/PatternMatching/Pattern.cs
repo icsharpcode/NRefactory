@@ -21,7 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 
-using INode = ICSharpCode.NRefactory.PatternMatching.INode;
+//using INode = ICSharpCode.NRefactory.PatternMatching.INode;
 
 namespace ICSharpCode.NRefactory.Ps.PatternMatching
 {
@@ -56,9 +56,9 @@ namespace ICSharpCode.NRefactory.Ps.PatternMatching
 			get { return false; }
 		}
 		
-//		Role INode.Role {
-//			get { return null; }
-//		}
+		Role INode.Role {
+			get { return null; }
+		}
 		
 		INode INode.NextSibling {
 			get { return null; }

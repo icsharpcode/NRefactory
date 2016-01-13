@@ -56,7 +56,7 @@ namespace ICSharpCode.NRefactory.PlayScript.AstVerifier
 			int failed = 0, passed = 0;
 			Console.WriteLine ("search in " + directory);
 			foreach (var file in Directory.GetFileSystemEntries (directory, "*", SearchOption.AllDirectories)) {
-				if (!file.EndsWith (".cs", StringComparison.Ordinal))
+				if (!file.EndsWith (".as", StringComparison.Ordinal))
 					continue;
 				string text = File.ReadAllText (file);
 				var unit = SyntaxTree.Parse (text, file);

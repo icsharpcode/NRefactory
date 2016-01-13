@@ -3,11 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{54c56049-dd33-4ad4-af45-4d1aaf883449}</ProjectGuid>
+    <ProjectGuid>{54C56049-DD33-4AD4-AF45-4D1AAF883449}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.CSharp.AstVerifier</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory.PlayScript.AstVerifier</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -29,6 +31,33 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="ICSharpCode.NRefactory.Cecil">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp.Refactoring">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.IKVM">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Tests">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Tests.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Xml">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
+    </Reference>
+    <Reference Include="IKVM.Reflection">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\IKVM.Reflection.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\..\Nrefactory-upstream\bin\Debug\Mono.Cecil.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Main.cs" />
@@ -37,11 +66,11 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.Ps.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
+      <Project>{CBDF3A0D-8B3A-4DEE-B9F9-6FA492A06187}</Project>
       <Name>ICSharpCode.NRefactory.Ps</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.PlayScript\ICSharpCode.NRefactory.PlayScript.csproj">
-      <Project>{53DCA265-3C3C-42F9-B647-F72BA678122B}</Project>
+      <Project>{0D8EC1C8-9706-4D8B-96F2-8636F2C9F894}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript</Name>
     </ProjectReference>
   </ItemGroup>

@@ -31,12 +31,15 @@ using System.Text;
 using System.Reflection;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
 
-using ICSharpCode.NRefactory.Ps;
-using ICSharpCode.NRefactory.Ps.Documentation;
-using ICSharpCode.NRefactory.Ps.Utils;
-using ICSharpCode.NRefactory.Ps.Semantics;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
-using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+using ICSharpCode.NRefactory;
+using ICSharpCode.NRefactory.Documentation;
+using ICSharpCode.NRefactory.Utils;
+using ICSharpCode.NRefactory.Semantics;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.TypeSystem.Implementation;
+
+using ResolveResult = ICSharpCode.NRefactory.Semantics.ResolveResult;
+
 
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -229,12 +232,13 @@ namespace ICSharpCode.NRefactory.GtkDemo
 		
 		void HandleClicked (object sender, EventArgs e)
 		{
-			var parser = new CSharpParser ();
-			var unit = parser.Parse (textview1.Buffer.Text, "dummy.cs");
+			var parser = new PlayScriptParser (); // CSharpParser ();
+			var unit = parser.Parse (textview1.Buffer.Text, "ActionScript.as");
 			
 			var unresolvedFile = unit.ToTypeSystem();
-			
-			IProjectContent project = new CSharpProjectContent ();
+
+			IProjectContent project = (IProjectContent)new CSharpProjectContent ();
+
 			project = project.AddOrUpdateFiles (unresolvedFile);
 //			foreach (var foo in builtInLibs.Value) {
 ////				Console.WriteLine ("AssemblyName: {0}", foo.AssemblyName);
@@ -253,7 +257,7 @@ namespace ICSharpCode.NRefactory.GtkDemo
 					typeof(Uri).Assembly, // System.dll
 //					typeof(System.Linq.Enumerable).Assembly, // System.Core.dll
 //					typeof(System.Xml.XmlDocument).Assembly, // System.Xml.dll
-					typeof(ICSharpCode.NRefactory.Ps.TypeSystem.IProjectContent).Assembly,
+					typeof(ICSharpCode.NRefactory.TypeSystem.IProjectContent).Assembly,
 				};
 				foreach (var foo in assemblies) {
 					Console.WriteLine ("AssemblyName: {0}", foo.FullName);

@@ -20,12 +20,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
-using ICSharpCode.NRefactory.TypeSystem;
-using ICSharpCode.NRefactory.PlayScript.TypeSystem;
+
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
-
 using ICSharpCode.NRefactory.PatternMatching;
+using ICSharpCode.NRefactory.TypeSystem;
+using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript
 {

@@ -25,6 +25,10 @@ using ICSharpCode.NRefactory.TypeSystem;
 using ICSharpCode.NRefactory.TypeSystem.Implementation;
 using ICSharpCode.NRefactory.Utils;
 
+//using ICSharpCode.NRefactory.Ps.TypeSystem;
+//using ICSharpCode.NRefactory.Ps.TypeSystem.Implementation;
+//using ICSharpCode.NRefactory.Ps.Utils;
+
 namespace ICSharpCode.NRefactory.PlayScript.TypeSystem
 {
 	public class CSharpAssembly : IAssembly
