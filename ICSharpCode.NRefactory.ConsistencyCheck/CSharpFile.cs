@@ -19,9 +19,10 @@
 using System;
 using System.IO;
 using ICSharpCode.NRefactory.PlayScript;
-using ICSharpCode.NRefactory.Ps.TypeSystem;
+//using ICSharpCode.NRefactory.Ps.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript.TypeSystem;
 using ICSharpCode.NRefactory.PlayScript.Resolver;
+using ICSharpCode.NRefactory.TypeSystem;
 
 namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 {
@@ -39,7 +40,7 @@ namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 			this.Project = project;
 			this.FileName = fileName;
 			
-			CSharpParser p = new CSharpParser(project.CompilerSettings);
+			PlayScriptParser p = new PlayScriptParser(project.CompilerSettings);
 //			using (var stream = File.OpenRead(fileName)) {
 //				this.CompilationUnit = p.Parse(stream, fileName);
 //			}

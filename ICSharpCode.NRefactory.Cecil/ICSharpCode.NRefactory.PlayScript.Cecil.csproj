@@ -3,7 +3,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{c2b518ac-75dd-4267-a18a-8e310ccf9181}</ProjectGuid>
+    <ProjectGuid>{C2B518AC-75DD-4267-A18A-8E310CCF9181}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ICSharpCode.NRefactory.Cecil</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory.PlayScript.Cecil</AssemblyName>
@@ -72,7 +72,9 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Mono.Cecil, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
+    <Reference Include="Mono.Cecil">
+      <HintPath>..\external\NRefactory\bin\Debug\Mono.Cecil.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">
@@ -84,15 +86,15 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory.Xml\ICSharpCode.NRefactory.PlayScript.Xml.csproj">
-      <Project>{DC393B66-92ED-4CAD-AB25-CFEF23F3D7C6}</Project>
+      <Project>{B1AF7070-8E25-4117-A441-14684219F4FD}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript.Xml</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.Ps.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
+      <Project>{CBDF3A0D-8B3A-4DEE-B9F9-6FA492A06187}</Project>
       <Name>ICSharpCode.NRefactory.Ps</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.PlayScript\ICSharpCode.NRefactory.PlayScript.csproj">
-      <Project>{53DCA265-3C3C-42F9-B647-F72BA678122B}</Project>
+      <Project>{0D8EC1C8-9706-4D8B-96F2-8636F2C9F894}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript</Name>
     </ProjectReference>
   </ItemGroup>

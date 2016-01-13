@@ -8,8 +8,6 @@
     <RootNamespace>ICSharpCode.NRefactory.GtkDemo</RootNamespace>
     <AssemblyName>ICSharpCode.NRefactory.PlayScript.GtkDemo</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -41,31 +39,22 @@
     <Reference Include="System.Core" />
     <Reference Include="Mono.Cecil, Version=0.9.5.0, Culture=neutral, PublicKeyToken=0738eb9f132ed756" />
     <Reference Include="ICSharpCode.NRefactory.Cecil">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Cecil.dll</HintPath>
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.Cecil.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.CSharp">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.CSharp.Refactoring">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.IKVM">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
-    </Reference>
-    <Reference Include="ICSharpCode.NRefactory.Tests">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Tests.dll</HintPath>
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
     </Reference>
     <Reference Include="ICSharpCode.NRefactory.Xml">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.Reflection">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\IKVM.Reflection.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\Mono.Cecil.dll</HintPath>
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

@@ -16,6 +16,8 @@
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <OutputPath>bin\$(Configuration)\</OutputPath>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -68,6 +70,24 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.Linq" />
+    <Reference Include="ICSharpCode.NRefactory.Cecil">
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.Cecil.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp">
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.CSharp.Refactoring">
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.CSharp.Refactoring.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory">
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.IKVM">
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
+    </Reference>
+    <Reference Include="ICSharpCode.NRefactory.Xml">
+      <HintPath>..\external\NRefactory\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\ICSharpCode.NRefactory\Properties\GlobalAssemblyInfo.cs">
@@ -95,27 +115,27 @@
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory.PlayScript\ICSharpCode.NRefactory.PlayScript.csproj">
-      <Project>{53DCA265-3C3C-42F9-B647-F72BA678122B}</Project>
+      <Project>{0D8EC1C8-9706-4D8B-96F2-8636F2C9F894}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.PlayScript.AstVerifier\ICSharpCode.NRefactory.PlayScript.AstVerifier.csproj">
-      <Project>{961DADFA-7CE6-429F-BC22-47630D6DB826}</Project>
+      <Project>{54C56049-DD33-4AD4-AF45-4D1AAF883449}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript.AstVerifier</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.Xml\ICSharpCode.NRefactory.PlayScript.Xml.csproj">
-      <Project>{DC393B66-92ED-4CAD-AB25-CFEF23F3D7C6}</Project>
+      <Project>{B1AF7070-8E25-4117-A441-14684219F4FD}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript.Xml</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.Ps.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
+      <Project>{CBDF3A0D-8B3A-4DEE-B9F9-6FA492A06187}</Project>
       <Name>ICSharpCode.NRefactory.Ps</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.PlayScript.Refactoring\ICSharpCode.NRefactory.PlayScript.Refactoring.csproj">
-      <Project>{2A705FC6-1A9E-4941-9E47-254D79F2D9D5}</Project>
+      <Project>{D9654D35-F86C-4105-B4E6-FAA656487BF8}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript.Refactoring</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.Cecil\ICSharpCode.NRefactory.PlayScript.Cecil.csproj">
-      <Project>{2B8F4F83-C2B3-4E84-A27B-8DEE1BE0E006}</Project>
+      <Project>{C2B518AC-75DD-4267-A18A-8E310CCF9181}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript.Cecil</Name>
     </ProjectReference>
   </ItemGroup>

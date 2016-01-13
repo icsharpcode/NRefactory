@@ -55,12 +55,12 @@ namespace ICSharpCode.NRefactory.PlayScript.ConsistencyCheck
 			if (file.FileName.EndsWith("DefaultResolvedTypeDefinition.cs"))
 				return; // skip due to MethodDeclarationTests.GenericMethodWithMultipleConstraints
 			
-			Roundtrip(new CSharpParser(file.Project.CompilerSettings), file.FileName, code);
+			Roundtrip(new PlayScriptParser(file.Project.CompilerSettings), file.FileName, code);
 			// After trying unix-style newlines, also try windows-style newlines:
-			Roundtrip(new CSharpParser(file.Project.CompilerSettings), file.FileName, code.Replace("\n", "\r\n"));
+			Roundtrip(new PlayScriptParser(file.Project.CompilerSettings), file.FileName, code.Replace("\n", "\r\n"));
 		}
 		
-		public static void Roundtrip(CSharpParser parser, string fileName, string code)
+		public static void Roundtrip(PlayScriptParser parser, string fileName, string code)
 		{
 			// 1. Parse
 			SyntaxTree syntaxTree = parser.Parse(code, fileName);

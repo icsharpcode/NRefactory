@@ -22,8 +22,6 @@
     <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DocumentationFile>$(IntermediateOutputPath)ICSharpCode.NRefactory.CSharp.xml</DocumentationFile>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -88,17 +86,8 @@
     <Reference Include="ICSharpCode.NRefactory.IKVM">
       <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.NRefactory.Tests">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Tests.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.NRefactory.Xml">
       <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
-    </Reference>
-    <Reference Include="IKVM.Reflection">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\IKVM.Reflection.dll</HintPath>
-    </Reference>
-    <Reference Include="Mono.Cecil">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\Mono.Cecil.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

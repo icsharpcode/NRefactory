@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
   <PropertyGroup>
-    <ProjectGuid>{70269b19-1bbb-4384-af22-5140f396e469}</ProjectGuid>
+    <ProjectGuid>{70269B19-1BBB-4384-AF22-5140F396E469}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <OutputType>WinExe</OutputType>
@@ -10,6 +10,8 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <OutputPath>..\bin\$(Configuration)\</OutputPath>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'x86' ">
     <PlatformTarget>x86</PlatformTarget>
@@ -107,11 +109,11 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\ICSharpCode.NRefactory\ICSharpCode.NRefactory.Ps.csproj">
-      <Project>{3B2A5653-EC97-4001-BB9B-D90F1AF2C371}</Project>
+      <Project>{CBDF3A0D-8B3A-4DEE-B9F9-6FA492A06187}</Project>
       <Name>ICSharpCode.NRefactory.Ps</Name>
     </ProjectReference>
     <ProjectReference Include="..\ICSharpCode.NRefactory.PlayScript\ICSharpCode.NRefactory.PlayScript.csproj">
-      <Project>{53DCA265-3C3C-42F9-B647-F72BA678122B}</Project>
+      <Project>{0D8EC1C8-9706-4D8B-96F2-8636F2C9F894}</Project>
       <Name>ICSharpCode.NRefactory.PlayScript</Name>
     </ProjectReference>
   </ItemGroup>

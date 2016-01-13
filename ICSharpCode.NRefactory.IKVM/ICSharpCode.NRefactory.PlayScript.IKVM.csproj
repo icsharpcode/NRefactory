@@ -11,8 +11,6 @@
     <AssemblyOriginatorKeyFile>..\ICSharpCode.NRefactory.snk</AssemblyOriginatorKeyFile>
     <UseMSBuildEngine>False</UseMSBuildEngine>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,9 +48,6 @@
     <Reference Include="ICSharpCode.NRefactory.IKVM">
       <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.IKVM.dll</HintPath>
     </Reference>
-    <Reference Include="ICSharpCode.NRefactory.Tests">
-      <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Tests.dll</HintPath>
-    </Reference>
     <Reference Include="ICSharpCode.NRefactory.Xml">
       <HintPath>..\..\Nrefactory-upstream\bin\Debug\ICSharpCode.NRefactory.Xml.dll</HintPath>
     </Reference>
@@ -76,10 +71,4 @@
     <Compile Include="NonFrozenInterningProvider.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <ItemGroup>
-    <ProjectReference Include="..\..\ikvm\reflect\IKVM.Reflection.csproj">
-      <Project>{4CB170EF-DFE6-4A56-9E1B-A85449E827A7}</Project>
-      <Name>IKVM.Reflection</Name>
-    </ProjectReference>
-  </ItemGroup>
 </Project>

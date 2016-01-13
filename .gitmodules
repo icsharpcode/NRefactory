@@ -1,0 +1,9 @@
+[submodule "external/ikvm"]
+	path = external/ikvm
+	url = https://github.com/mono/ikvm-fork
+[submodule "external/NRefactory"]
+	path = external/NRefactory
+	url = https://github.com/icsharpcode/NRefactory.git
+[submodule "external/cecil"]
+	path = external/cecil
+	url = https://github.com/jbevain/cecil.git
