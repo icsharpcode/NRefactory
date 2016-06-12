@@ -256,14 +256,18 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		{
 			if (TypeParameterSubstitution.Identity.Equals(substitution))
 				return this;
+			if (TypeParameters.Count == 0) {
+				if (DeclaringTypeDefinition == null || DeclaringTypeDefinition.TypeParameterCount == 0)
+					return this;
+				if (substitution.MethodTypeArguments != null && substitution.MethodTypeArguments.Count > 0)
+					substitution = new TypeParameterSubstitution(substitution.ClassTypeArguments, EmptyList<IType>.Instance);
+			}
 			return new SpecializedMethod(this, substitution);
 		}
 		
 		IMethod IMethod.Specialize(TypeParameterSubstitution substitution)
 		{
-			if (TypeParameterSubstitution.Identity.Equals(substitution))
-				return this;
-			return new SpecializedMethod(this, substitution);
+			return (IMethod)Specialize(substitution);
 		}
 		
 		public override string ToString()
