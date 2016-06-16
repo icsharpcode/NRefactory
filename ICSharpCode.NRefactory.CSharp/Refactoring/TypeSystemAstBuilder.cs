@@ -742,8 +742,10 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			decl.ReturnType = ConvertType(invokeMethod.ReturnType);
 			decl.Name = d.Name;
 			
+			int outerTypeParameterCount = (d.DeclaringTypeDefinition == null) ? 0 : d.DeclaringTypeDefinition.TypeParameterCount;
+			
 			if (this.ShowTypeParameters) {
-				foreach (ITypeParameter tp in d.TypeParameters) {
+				foreach (ITypeParameter tp in d.TypeParameters.Skip(outerTypeParameterCount)) {
 					decl.TypeParameters.Add(ConvertTypeParameter(tp));
 				}
 			}
@@ -753,7 +755,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}
 			
 			if (this.ShowTypeParameters && this.ShowTypeParameterConstraints) {
-				foreach (ITypeParameter tp in d.TypeParameters) {
+				foreach (ITypeParameter tp in d.TypeParameters.Skip(outerTypeParameterCount)) {
 					var constraint = ConvertTypeParameterConstraint(tp);
 					if (constraint != null)
 						decl.Constraints.Add(constraint);
