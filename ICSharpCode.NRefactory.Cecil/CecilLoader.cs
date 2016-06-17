@@ -86,6 +86,21 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// <c>true</c> if this instance has references to the cecil objects; otherwise, <c>false</c>.
 		/// </value>
 		public bool HasCecilReferences { get { return typeSystemTranslationTable != null; } }
+		
+		bool shortenInterfaceImplNames = true;
+		
+		/// <summary>
+		/// Specifies whether method names of explicit interface-implementations should be shortened.
+		/// </summary>
+		/// <remarks>This is important when working with parser-initialized type-systems in order to be consistent.</remarks>
+		public bool ShortenInterfaceImplNames {
+			get {
+				return shortenInterfaceImplNames;
+			}
+			set {
+				shortenInterfaceImplNames = value;
+			}
+		}
 		#endregion
 		
 		ModuleDefinition currentModule;
@@ -121,6 +136,7 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			this.IncludeInternalMembers = loader.IncludeInternalMembers;
 			this.LazyLoad = loader.LazyLoad;
 			this.OnEntityLoaded = loader.OnEntityLoaded;
+			this.ShortenInterfaceImplNames = loader.ShortenInterfaceImplNames;
 			this.currentModule = loader.currentModule;
 			this.currentAssembly = loader.currentAssembly;
 			// don't use interning - the interning provider is most likely not thread-safe
@@ -1367,16 +1383,18 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				m.IsExtensionMethod = true;
 			}
 
-			int lastDot = method.Name.LastIndexOf('.');
-			if (lastDot >= 0 && method.HasOverrides) {
-				// To be consistent with the parser-initialized type system, shorten the method name:
-				m.Name = method.Name.Substring(lastDot + 1);
-				m.IsExplicitInterfaceImplementation = true;
-				foreach (var or in method.Overrides) {
-					m.ExplicitInterfaceImplementations.Add(new DefaultMemberReference(
-						accessorOwner != null ? SymbolKind.Accessor : SymbolKind.Method,
-						ReadTypeReference(or.DeclaringType),
-						or.Name, or.GenericParameters.Count, m.Parameters.Select(p => p.Type).ToList()));
+			if (ShortenInterfaceImplNames) {
+				int lastDot = method.Name.LastIndexOf('.');
+				if (lastDot >= 0 && method.HasOverrides) {
+					// To be consistent with the parser-initialized type system, shorten the method name:
+					m.Name = method.Name.Substring(lastDot + 1);
+					m.IsExplicitInterfaceImplementation = true;
+					foreach (var or in method.Overrides) {
+						m.ExplicitInterfaceImplementations.Add(new DefaultMemberReference(
+							accessorOwner != null ? SymbolKind.Accessor : SymbolKind.Method,
+							ReadTypeReference(or.DeclaringType),
+							or.Name, or.GenericParameters.Count, m.Parameters.Select(p => p.Type).ToList()));
+					}
 				}
 			}
 
