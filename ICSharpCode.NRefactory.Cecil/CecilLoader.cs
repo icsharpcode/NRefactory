@@ -1383,18 +1383,17 @@ namespace ICSharpCode.NRefactory.TypeSystem
 				m.IsExtensionMethod = true;
 			}
 
-			if (ShortenInterfaceImplNames) {
-				int lastDot = method.Name.LastIndexOf('.');
-				if (lastDot >= 0 && method.HasOverrides) {
-					// To be consistent with the parser-initialized type system, shorten the method name:
+			int lastDot = method.Name.LastIndexOf('.');
+			if (lastDot >= 0 && method.HasOverrides) {
+				// To be consistent with the parser-initialized type system, shorten the method name:
+				if (ShortenInterfaceImplNames)
 					m.Name = method.Name.Substring(lastDot + 1);
-					m.IsExplicitInterfaceImplementation = true;
-					foreach (var or in method.Overrides) {
-						m.ExplicitInterfaceImplementations.Add(new DefaultMemberReference(
-							accessorOwner != null ? SymbolKind.Accessor : SymbolKind.Method,
-							ReadTypeReference(or.DeclaringType),
-							or.Name, or.GenericParameters.Count, m.Parameters.Select(p => p.Type).ToList()));
-					}
+				m.IsExplicitInterfaceImplementation = true;
+				foreach (var or in method.Overrides) {
+					m.ExplicitInterfaceImplementations.Add(new DefaultMemberReference(
+						accessorOwner != null ? SymbolKind.Accessor : SymbolKind.Method,
+						ReadTypeReference(or.DeclaringType),
+						or.Name, or.GenericParameters.Count, m.Parameters.Select(p => p.Type).ToList()));
 				}
 			}
 
@@ -1678,7 +1677,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 
 			var accessor = p.Getter ?? p.Setter;
 			if (accessor != null && accessor.IsExplicitInterfaceImplementation) {
-				p.Name = property.Name.Substring(property.Name.LastIndexOf('.') + 1);
+				if (ShortenInterfaceImplNames)
+					p.Name = property.Name.Substring(property.Name.LastIndexOf('.') + 1);
 				p.IsExplicitInterfaceImplementation = true;
 				foreach (var mr in accessor.ExplicitInterfaceImplementations) {
 					p.ExplicitInterfaceImplementations.Add(new AccessorOwnerMemberReference(mr));
@@ -1711,7 +1711,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 			
 			var accessor = e.AddAccessor ?? e.RemoveAccessor ?? e.InvokeAccessor;
 			if (accessor != null && accessor.IsExplicitInterfaceImplementation) {
-				e.Name = ev.Name.Substring(ev.Name.LastIndexOf('.') + 1);
+				if (ShortenInterfaceImplNames)
+					e.Name = ev.Name.Substring(ev.Name.LastIndexOf('.') + 1);
 				e.IsExplicitInterfaceImplementation = true;
 				foreach (var mr in accessor.ExplicitInterfaceImplementations) {
 					e.ExplicitInterfaceImplementations.Add(new AccessorOwnerMemberReference(mr));
