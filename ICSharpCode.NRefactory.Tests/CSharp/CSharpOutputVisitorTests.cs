@@ -192,5 +192,12 @@ namespace NS
 			var options = FormattingOptionsFactory.CreateMono();
 			AssertOutput("#pragma warning disable 414\n", unit, options);
 		}
+		
+		[Test]
+		public void Undocumented ()
+		{
+			AssertOutput("__arglist", new UndocumentedExpression { UndocumentedExpressionType = UndocumentedExpressionType.ArgListAccess });
+			AssertOutput("__arglist ()", new UndocumentedExpression { UndocumentedExpressionType = UndocumentedExpressionType.ArgList });
+		}
 	}
 }

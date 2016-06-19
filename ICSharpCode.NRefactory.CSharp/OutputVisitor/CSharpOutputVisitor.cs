@@ -502,7 +502,7 @@ namespace ICSharpCode.NRefactory.CSharp
 					WriteKeyword(UndocumentedExpression.RefvalueKeywordRole);
 					break;
 			}
-			if (undocumentedExpression.Arguments.Count > 0) {
+			if (undocumentedExpression.UndocumentedExpressionType != UndocumentedExpressionType.ArgListAccess) {
 				Space(policy.SpaceBeforeMethodCallParentheses);
 				WriteCommaSeparatedListInParenthesis(undocumentedExpression.Arguments, policy.SpaceWithinMethodCallParentheses);
 			}
