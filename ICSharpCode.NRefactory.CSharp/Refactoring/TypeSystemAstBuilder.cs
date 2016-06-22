@@ -141,6 +141,14 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		public bool AlwaysUseShortTypeNames { get; set; }
 		
 		/// <summary>
+		/// Determines the name lookup mode for converting a type name.
+		/// 
+		/// The default value is <c>NameLookupMode.Expression</c>, which means the name is disambiguated
+		/// for use in expression context.
+		/// </summary>
+		public NameLookupMode NameLookupMode { get; set; }
+		
+		/// <summary>
 		/// Controls whether to generate a body that throws a <c>System.NotImplementedException</c>.
 		/// The default value is <c>false</c>.
 		/// </summary>
@@ -162,7 +170,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// Controls if aliases should be used inside the type name or not.
 		/// The default value is <c>true</c>.
 		/// </summary>
-		public bool UseAliases { get; set;}
+		public bool UseAliases { get; set; }
 		#endregion
 		
 		#region Convert Type
@@ -274,7 +282,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				} else {
 					localTypeArguments = EmptyList<IType>.Instance;
 				}
-				ResolveResult rr = resolver.ResolveSimpleName(typeDef.Name, localTypeArguments);
+				ResolveResult rr = resolver.LookupSimpleNameOrTypeName(typeDef.Name, localTypeArguments, NameLookupMode);
 				TypeResolveResult trr = rr as TypeResolveResult;
 				if (trr != null || (localTypeArguments.Count == 0 && resolver.IsVariableReferenceWithSameType(rr, typeDef.Name, out trr))) {
 					if (!trr.IsError && TypeMatches(trr.Type, typeDef, typeArguments)) {
