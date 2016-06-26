@@ -193,11 +193,14 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			AssertConstant(StringComparison.InvariantCulture, resolver.ResolveBinaryOperator(
 				BinaryOperatorType.Subtract, MakeConstant(StringComparison.InvariantCulture), MakeConstant(0)));
 			
-			AssertConstant(0 - StringComparison.InvariantCulture, resolver.ResolveBinaryOperator(
+			AssertConstant(-2, resolver.ResolveBinaryOperator(
 				BinaryOperatorType.Subtract, MakeConstant(0), MakeConstant(StringComparison.InvariantCulture)));
 			
-			AssertConstant(1 - StringComparison.InvariantCulture, resolver.ResolveBinaryOperator(
+			AssertConstant((StringComparison)(-1), resolver.ResolveBinaryOperator(
 				BinaryOperatorType.Subtract, MakeConstant(1), MakeConstant(StringComparison.InvariantCulture)));
+			
+			AssertConstant(-2, resolver.ResolveBinaryOperator(
+				BinaryOperatorType.Subtract, MakeConstant(0L), MakeConstant(StringComparison.InvariantCulture)));
 			
 			TestOperator(MakeResult(typeof(StringComparison?)), BinaryOperatorType.Subtract, MakeResult(typeof(int)),
 			             Conversion.IdentityConversion, Conversion.ImplicitNullableConversion, typeof(StringComparison?));
