@@ -725,7 +725,7 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 						}
 						if (rhsType.Kind == TypeKind.Enum) {
 							// U operator –(E x, E y);
-							if (TryConvertEnum(ref lhs, rhs.Type, ref isNullable, ref rhs, allowConversionFromConstantZero: false)) {
+							if (TryConvertEnum(ref lhs, rhs.Type, ref isNullable, ref rhs)) {
 								return HandleEnumSubtraction(isNullable, rhsType, lhs, rhs);
 							}
 
