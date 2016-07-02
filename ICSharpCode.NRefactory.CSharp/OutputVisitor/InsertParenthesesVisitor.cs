@@ -167,7 +167,10 @@ namespace ICSharpCode.NRefactory.CSharp
 		
 		public override void VisitCastExpression(CastExpression castExpression)
 		{
-			ParenthesizeIfRequired(castExpression.Expression, InsertParenthesesForReadability ? Primary : Unary);
+			// Even in readability mode, don't parenthesize casts of casts.
+			if (!(castExpression.Expression is CastExpression)) {
+				ParenthesizeIfRequired(castExpression.Expression, InsertParenthesesForReadability ? Primary : Unary);
+			}
 			// There's a nasty issue in the C# grammar: cast expressions including certain operators are ambiguous in some cases
 			// "(int)-1" is fine, but "(A)-b" is not a cast.
 			UnaryOperatorExpression uoe = castExpression.Expression as UnaryOperatorExpression;
