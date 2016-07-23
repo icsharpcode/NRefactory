@@ -63,6 +63,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			if (expr is CastExpression)
 				return Unary;
+			if (expr is PrimitiveExpression) {
+				var value = ((PrimitiveExpression)expr).Value;
+				if (value is int && (int)value < 0)
+					return Unary;
+				if (value is long && (long)value < 0)
+					return Unary;
+			}
 			BinaryOperatorExpression boe = expr as BinaryOperatorExpression;
 			if (boe != null) {
 				switch (boe.Operator) {
