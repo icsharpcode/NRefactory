@@ -1832,6 +1832,9 @@ namespace ICSharpCode.NRefactory.CSharp
 			StartNode(destructorDeclaration);
 			WriteAttributes(destructorDeclaration.Attributes);
 			WriteModifiers(destructorDeclaration.ModifierTokens);
+			if (destructorDeclaration.ModifierTokens.Any()) {
+				Space();
+			}
 			WriteToken(DestructorDeclaration.TildeRole);
 			TypeDeclaration type = destructorDeclaration.Parent as TypeDeclaration;
 			if (type != null && type.Name != destructorDeclaration.Name)
