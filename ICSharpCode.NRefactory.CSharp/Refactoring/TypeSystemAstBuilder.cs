@@ -747,6 +747,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					AttributeTarget = "return"
 				}));
 			}
+			if (AddResolveResultAnnotations) {
+				decl.AddAnnotation(new TypeResolveResult(d));
+			}
 			decl.ReturnType = ConvertType(invokeMethod.ReturnType);
 			decl.Name = d.Name;
 			
