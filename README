@@ -8,7 +8,7 @@ How to download:
 	- Sourcecode is available on GitHub (https://github.com/icsharpcode/NRefactory)
 
 How to compile:
-	1. Get Mono.Cecil
+	1. Get Mono.Cecil 0.9.6
 		Get Cecil from https://github.com/jbevain/cecil ('git clone git://github.com/jbevain/cecil.git')
 		or download Cecil from https://github.com/jbevain/cecil/ and unzip it into a directory named "cecil"
 		next to the directory containing NRefactory.
