@@ -126,7 +126,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			Expression expr = new PrimitiveExpression(int.MinValue).CastTo(new PrimitiveType("double"));
 			
 			Assert.AreEqual("(double)-2147483648", InsertRequired(expr));
-			Assert.AreEqual("(double)-2147483648", InsertReadable(expr));
+			Assert.AreEqual("(double)(-2147483648)", InsertReadable(expr));
 		}
 		
 		[Test]

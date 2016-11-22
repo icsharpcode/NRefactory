@@ -62,8 +62,7 @@ class Foo {
 	void Bar(int x) {
 		do {
 			x++;
-		}
-		while (x > 0);
+		} while (x > 0);
 	}
 }");
 		}

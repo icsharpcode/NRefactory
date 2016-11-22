@@ -423,8 +423,18 @@ namespace ICSharpCode.NRefactory.CSharp
 				writer.WriteIdentifier(ident);
 			}
 		}
-		
-		protected virtual void WriteEmbeddedStatement(Statement embeddedStatement)
+
+		/// <summary>
+		/// Writes an embedded statement.
+		/// </summary>
+		/// <param name="embeddedStatement">The statement to write.</param>
+		/// <param name="nlp">Determines whether a trailing newline should be written following a block.
+		/// Non-blocks always write a trailing newline.</param>
+		/// <remarks>
+		/// Blocks may or may not write a leading newline depending on StatementBraceStyle.
+		/// Non-blocks always write a leading newline.
+		/// </remarks>
+		protected virtual void WriteEmbeddedStatement(Statement embeddedStatement, NewLinePlacement nlp = NewLinePlacement.NewLine)
 		{
 			if (embeddedStatement.IsNull) {
 				NewLine();
@@ -432,7 +442,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			BlockStatement block = embeddedStatement as BlockStatement;
 			if (block != null) {
-				VisitBlockStatement(block);
+				WriteBlock(block, policy.StatementBraceStyle);
+				if (nlp == NewLinePlacement.SameLine) {
+					Space(); // if not a trailing newline, then at least a trailing space
+				} else {
+					NewLine();
+				}
 			} else {
 				NewLine();
 				writer.Indent();
@@ -441,12 +456,13 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 		}
 		
-		protected virtual void WriteMethodBody(BlockStatement body)
+		protected virtual void WriteMethodBody(BlockStatement body, BraceStyle style)
 		{
 			if (body.IsNull) {
 				Semicolon();
 			} else {
-				VisitBlockStatement(body);
+				WriteBlock(body, style);
+				NewLine();
 			}
 		}
 		
@@ -480,7 +496,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				Space(policy.SpaceBeforeMethodDeclarationParentheses);
 				WriteCommaSeparatedListInParenthesis(anonymousMethodExpression.Parameters, policy.SpaceWithinMethodDeclarationParentheses);
 			}
-			anonymousMethodExpression.Body.AcceptVisitor(this);
+			WriteBlock(anonymousMethodExpression.Body, policy.AnonymousMethodBraceStyle);
 			EndNode(anonymousMethodExpression);
 		}
 		
@@ -801,8 +817,12 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			Space();
 			WriteToken(LambdaExpression.ArrowRole);
-			Space();
-			lambdaExpression.Body.AcceptVisitor(this);
+			if (lambdaExpression.Body is BlockStatement) {
+				WriteBlock((BlockStatement)lambdaExpression.Body, policy.AnonymousMethodBraceStyle);
+			} else {
+				Space();
+				lambdaExpression.Body.AcceptVisitor(this);
+			}
 			EndNode(lambdaExpression);
 		}
 		
@@ -1311,43 +1331,29 @@ namespace ICSharpCode.NRefactory.CSharp
 		}
 
 		#endregion
-		
+
 		#region Statements
 		public virtual void VisitBlockStatement(BlockStatement blockStatement)
 		{
+			WriteBlock(blockStatement, policy.StatementBraceStyle);
+			NewLine();
+		}
+
+		/// <summary>
+		/// Writes a block statement.
+		/// Similar to VisitBlockStatement() except that:
+		/// 1) it allows customizing the BraceStyle
+		/// 2) it does not write a trailing newline after the '}' (this job is left to the caller)
+		/// </summary>
+		protected virtual void WriteBlock(BlockStatement blockStatement, BraceStyle style)
+		{
 			StartNode(blockStatement);
-			BraceStyle style;
-			if (blockStatement.Parent is AnonymousMethodExpression || blockStatement.Parent is LambdaExpression) {
-				style = policy.AnonymousMethodBraceStyle;
-			} else if (blockStatement.Parent is ConstructorDeclaration) {
-				style = policy.ConstructorBraceStyle;
-			} else if (blockStatement.Parent is DestructorDeclaration) {
-				style = policy.DestructorBraceStyle;
-			} else if (blockStatement.Parent is MethodDeclaration) {
-				style = policy.MethodBraceStyle;
-			} else if (blockStatement.Parent is Accessor) {
-				if (blockStatement.Parent.Role == PropertyDeclaration.GetterRole) {
-					style = policy.PropertyGetBraceStyle;
-				} else if (blockStatement.Parent.Role == PropertyDeclaration.SetterRole) {
-					style = policy.PropertySetBraceStyle;
-				} else if (blockStatement.Parent.Role == CustomEventDeclaration.AddAccessorRole) {
-					style = policy.EventAddBraceStyle;
-				} else if (blockStatement.Parent.Role == CustomEventDeclaration.RemoveAccessorRole) {
-					style = policy.EventRemoveBraceStyle;
-				} else {
-					style = policy.StatementBraceStyle;
-				}
-			} else {
-				style = policy.StatementBraceStyle;
-			}
 			OpenBrace(style);
 			foreach (var node in blockStatement.Statements) {
 				node.AcceptVisitor(this);
 			}
 			EndNode(blockStatement);
 			CloseBrace(style);
-			if (!(blockStatement.Parent is Expression))
-				NewLine();
 		}
 		
 		public virtual void VisitBreakStatement(BreakStatement breakStatement)
@@ -1378,7 +1384,7 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			StartNode(doWhileStatement);
 			WriteKeyword(DoWhileStatement.DoKeywordRole);
-			WriteEmbeddedStatement(doWhileStatement.EmbeddedStatement);
+			WriteEmbeddedStatement(doWhileStatement.EmbeddedStatement, policy.WhileNewLinePlacement);
 			WriteKeyword(DoWhileStatement.WhileKeywordRole);
 			Space(policy.SpaceBeforeWhileParentheses);
 			LPar();
@@ -1506,8 +1512,11 @@ namespace ICSharpCode.NRefactory.CSharp
 			ifElseStatement.Condition.AcceptVisitor(this);
 			Space(policy.SpacesWithinIfParentheses);
 			RPar();
-			WriteEmbeddedStatement(ifElseStatement.TrueStatement);
-			if (!ifElseStatement.FalseStatement.IsNull) {
+			
+			if (ifElseStatement.FalseStatement.IsNull) {
+				WriteEmbeddedStatement(ifElseStatement.TrueStatement);
+			} else {
+				WriteEmbeddedStatement(ifElseStatement.TrueStatement, policy.ElseNewLinePlacement);
 				WriteKeyword(IfElseStatement.ElseKeywordRole);
 				if (ifElseStatement.FalseStatement is IfElseStatement) {
 					// don't put newline between 'else' and 'if'
@@ -1779,16 +1788,21 @@ namespace ICSharpCode.NRefactory.CSharp
 			StartNode(accessor);
 			WriteAttributes(accessor.Attributes);
 			WriteModifiers(accessor.ModifierTokens);
+			BraceStyle style = policy.StatementBraceStyle;
 			if (accessor.Role == PropertyDeclaration.GetterRole) {
 				WriteKeyword("get", PropertyDeclaration.GetKeywordRole);
+				style = policy.PropertyGetBraceStyle;
 			} else if (accessor.Role == PropertyDeclaration.SetterRole) {
 				WriteKeyword("set", PropertyDeclaration.SetKeywordRole);
+				style = policy.PropertySetBraceStyle;
 			} else if (accessor.Role == CustomEventDeclaration.AddAccessorRole) {
 				WriteKeyword("add", CustomEventDeclaration.AddKeywordRole);
+				style = policy.EventAddBraceStyle;
 			} else if (accessor.Role == CustomEventDeclaration.RemoveAccessorRole) {
 				WriteKeyword("remove", CustomEventDeclaration.RemoveKeywordRole);
+				style = policy.EventRemoveBraceStyle;
 			}
-			WriteMethodBody(accessor.Body);
+			WriteMethodBody(accessor.Body, style);
 			EndNode(accessor);
 		}
 		
@@ -1808,7 +1822,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				Space();
 				constructorDeclaration.Initializer.AcceptVisitor(this);
 			}
-			WriteMethodBody(constructorDeclaration.Body);
+			WriteMethodBody(constructorDeclaration.Body, policy.ConstructorBraceStyle);
 			EndNode(constructorDeclaration);
 		}
 		
@@ -1844,7 +1858,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			Space(policy.SpaceBeforeConstructorDeclarationParentheses);
 			LPar();
 			RPar();
-			WriteMethodBody(destructorDeclaration.Body);
+			WriteMethodBody(destructorDeclaration.Body, policy.DestructorBraceStyle);
 			EndNode(destructorDeclaration);
 		}
 		
@@ -1976,7 +1990,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			foreach (Constraint constraint in methodDeclaration.Constraints) {
 				constraint.AcceptVisitor(this);
 			}
-			WriteMethodBody(methodDeclaration.Body);
+			WriteMethodBody(methodDeclaration.Body, policy.MethodBraceStyle);
 			EndNode(methodDeclaration);
 		}
 		
@@ -2002,7 +2016,7 @@ namespace ICSharpCode.NRefactory.CSharp
 			}
 			Space(policy.SpaceBeforeMethodDeclarationParentheses);
 			WriteCommaSeparatedListInParenthesis(operatorDeclaration.Parameters, policy.SpaceWithinMethodDeclarationParentheses);
-			WriteMethodBody(operatorDeclaration.Body);
+			WriteMethodBody(operatorDeclaration.Body, policy.MethodBraceStyle);
 			EndNode(operatorDeclaration);
 		}
 		

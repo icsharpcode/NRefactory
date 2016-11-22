@@ -564,7 +564,7 @@ class TestClass
 	public static void TestMethod ()
 	{
 		<-int i = 0;
-		Action<string> action = (str) =>  {
+		Action<string> action = (str) => {
 			Console.WriteLine (str);
 		};->
 	}
@@ -573,7 +573,7 @@ class TestClass
 	static void NewMethod ()
 	{
 		int i = 0;
-		Action<string> action = str =>  {
+		Action<string> action = str => {
 			Console.WriteLine (str);
 		};
 	}
