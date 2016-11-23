@@ -1660,14 +1660,23 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			StartNode(tryCatchStatement);
 			WriteKeyword(TryCatchStatement.TryKeywordRole);
-			tryCatchStatement.TryBlock.AcceptVisitor(this);
+			WriteBlock(tryCatchStatement.TryBlock, policy.StatementBraceStyle);
 			foreach (var catchClause in tryCatchStatement.CatchClauses) {
+				if (policy.CatchNewLinePlacement == NewLinePlacement.SameLine)
+					Space();
+				else
+					NewLine();
 				catchClause.AcceptVisitor(this);
 			}
 			if (!tryCatchStatement.FinallyBlock.IsNull) {
+				if (policy.FinallyNewLinePlacement == NewLinePlacement.SameLine)
+					Space();
+				else
+					NewLine();
 				WriteKeyword(TryCatchStatement.FinallyKeywordRole);
-				tryCatchStatement.FinallyBlock.AcceptVisitor(this);
+				WriteBlock(tryCatchStatement.FinallyBlock, policy.StatementBraceStyle);
 			}
+			NewLine();
 			EndNode(tryCatchStatement);
 		}
 		
@@ -1697,7 +1706,7 @@ namespace ICSharpCode.NRefactory.CSharp
 				Space(policy.SpacesWithinIfParentheses);
 				RPar();
 			}
-			catchClause.Body.AcceptVisitor(this);
+			WriteBlock(catchClause.Body, policy.StatementBraceStyle);
 			EndNode(catchClause);
 		}
 		
