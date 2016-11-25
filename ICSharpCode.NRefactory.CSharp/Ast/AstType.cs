@@ -209,7 +209,15 @@ namespace ICSharpCode.NRefactory.CSharp
 		{
 			return new ComposedType { BaseType = this, HasNullableSpecifier = true };
 		}
-		
+
+		/// <summary>
+		/// Creates a C# 7 ref type from this type by nesting it in a <see cref="ComposedType"/>.
+		/// </summary>
+		public virtual AstType MakeRefType()
+		{
+			return new ComposedType { BaseType = this, HasRefSpecifier = true };
+		}
+
 		/// <summary>
 		/// Builds an expression that can be used to access a static member on this type.
 		/// </summary>

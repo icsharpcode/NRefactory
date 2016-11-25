@@ -3379,6 +3379,9 @@ namespace ICSharpCode.NRefactory.CSharp.Resolver
 			foreach (var a in composedType.ArraySpecifiers.Reverse()) {
 				t = new ArrayType(resolver.Compilation, t, a.Dimensions);
 			}
+			if (composedType.HasRefSpecifier) {
+				t = new ByReferenceType(t);
+			}
 			return new TypeResolveResult(t);
 		}
 		#endregion

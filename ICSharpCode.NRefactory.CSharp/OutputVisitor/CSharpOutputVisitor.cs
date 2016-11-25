@@ -2146,6 +2146,9 @@ namespace ICSharpCode.NRefactory.CSharp
 		public virtual void VisitComposedType(ComposedType composedType)
 		{
 			StartNode(composedType);
+			if (composedType.HasRefSpecifier) {
+				WriteKeyword(ComposedType.RefRole);
+			}
 			composedType.BaseType.AcceptVisitor(this);
 			if (composedType.HasNullableSpecifier) {
 				WriteToken(ComposedType.NullableRole);

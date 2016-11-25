@@ -217,6 +217,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 					return ConvertType(typeWithElementType.ElementType).MakePointerType();
 				} else if (typeWithElementType is ArrayType) {
 					return ConvertType(typeWithElementType.ElementType).MakeArrayType(((ArrayType)type).Dimensions);
+				} else if (typeWithElementType is ByReferenceType) {
+					return ConvertType(typeWithElementType.ElementType).MakeRefType();
 				} else {
 					// e.g. ByReferenceType; not supported as type in C#
 					return ConvertType(typeWithElementType.ElementType);
@@ -584,7 +586,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			if (ShowAttributes) {
 				decl.Attributes.AddRange (parameter.Attributes.Select ((a) => new AttributeSection (ConvertAttribute (a))));
 			}
-			decl.Type = ConvertType(parameter.Type);
+			if (parameter.Type.Kind == TypeKind.ByReference) {
+				// avoid 'out ref'
+				decl.Type = ConvertType(((ByReferenceType)parameter.Type).ElementType);
+			} else {
+				decl.Type = ConvertType(parameter.Type);
+			}
 			if (this.ShowParameterNames) {
 				decl.Name = parameter.Name;
 			}
