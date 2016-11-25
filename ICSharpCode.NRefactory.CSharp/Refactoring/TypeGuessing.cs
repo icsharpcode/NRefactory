@@ -313,6 +313,8 @@ namespace ICSharpCode.NRefactory.CSharp
 			var typeInference = new TypeInference(context.Compilation);
 			typeInference.Algorithm = TypeInferenceAlgorithm.Improved;
 			var inferedType = typeInference.FindTypeInBounds(type, emptyTypes);
+			if (inferedType.Kind == TypeKind.ByReference)
+				inferedType = ((ByReferenceType)inferedType).ElementType;
 			if (inferedType.Kind == TypeKind.Unknown)
 				return new PrimitiveType("object");
 			return context.CreateShortType(inferedType);
