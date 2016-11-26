@@ -1,4 +1,14 @@
-﻿Overview of the NRefactory library:
+﻿Note: There is currently no maintainer for NRefactory.
+
+If you need a C# parser / compiler frontend, use Microsoft.CodeAnalysis (Roslyn)
+instead.
+
+The refactorings in NRefactory have been ported to Roslyn:
+    https://github.com/icsharpcode/RefactoringEssentials/
+
+------------------------------------------------------------------------------
+
+Overview of the NRefactory library:
 
 Introductory documentation:
 	 http://www.codeproject.com/Articles/408663/Using-NRefactory-for-analyzing-Csharp-code
@@ -25,12 +35,13 @@ Features:
 	- Lots of C# refactorings
 	
 Non-Features:
-	- VB support is not implemented yet.
+    - C# 6 is not supported.
+	- VB support is not implemented.
 	- NRefactory cannot generate IL code -- it's a compiler frontend, not a full compiler
 
 Dependencies:
 	.NET 4.0
-	Mono.Cecil 0.9.5
+	Mono.Cecil 0.9.6
 	NRefactory contains a modified copy of mcs (Mono's C# compiler) for the C# parser.
 
 
