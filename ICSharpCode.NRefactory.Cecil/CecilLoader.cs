@@ -309,6 +309,10 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		// used to prevent Cecil from loading referenced assemblies
 		sealed class DummyAssemblyResolver : IAssemblyResolver
 		{
+			public void Dispose ()
+			{
+			}
+
 			public AssemblyDefinition Resolve(AssemblyNameReference name)
 			{
 				return null;
@@ -931,7 +935,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 					baseTypes.Add(ReadTypeReference(typeDefinition.BaseType));
 				}
 				if (typeDefinition.HasInterfaces) {
-					foreach (TypeReference iface in typeDefinition.Interfaces) {
+					foreach (InterfaceImplementation ii in typeDefinition.Interfaces) {
+						var iface = ii.InterfaceType;
 						baseTypes.Add(ReadTypeReference(iface));
 					}
 				}
