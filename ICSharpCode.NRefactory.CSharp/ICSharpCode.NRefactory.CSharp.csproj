@@ -396,7 +396,7 @@
       <Name>ICSharpCode.NRefactory</Name>
     </ProjectReference>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.Targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup />
   <ProjectExtensions>
     <MonoDevelop>
