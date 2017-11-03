@@ -47,6 +47,8 @@ namespace ICSharpCode.NRefactory.TypeSystem
 		/// </summary>
 		bool IsAsync { get; }
 
+		bool IsExtensionMethod { get; }
+
 		[Obsolete("Use IsPartial && !HasBody instead")]
 		bool IsPartialMethodDeclaration { get; }
 		

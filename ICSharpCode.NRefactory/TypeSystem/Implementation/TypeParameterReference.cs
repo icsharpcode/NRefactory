@@ -49,6 +49,12 @@ namespace ICSharpCode.NRefactory.TypeSystem.Implementation
 		readonly SymbolKind ownerType;
 		readonly int index;
 
+		public SymbolKind OwnerType {
+			get {
+				return ownerType;
+			}
+		}
+
 		public int Index {
 			get {
 				return index;
