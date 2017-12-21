@@ -47,7 +47,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// </summary>
 		public static void InsertUsing(RefactoringContext context, Script script, AstNode newUsing)
 		{
-			UsingInfo newUsingInfo = new UsingInfo(newUsing, context);
+			UsingInfo newUsingInfo = new UsingInfo(newUsing, context, script);
 			AstNode enclosingNamespace = context.GetNode<NamespaceDeclaration>() ?? context.RootNode;
 			// Find nearest enclosing parent that has usings:
 			AstNode usingParent = enclosingNamespace;
@@ -71,7 +71,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				insertionPoint = usingParent.GetChildrenByRole(SyntaxTree.MemberRole).SkipWhile(CanAppearBeforeUsings).FirstOrDefault();
 			} else {
 				insertionPoint = blockStart;
-				while (IsUsingFollowing (ref insertionPoint) && newUsingInfo.CompareTo(new UsingInfo(insertionPoint, context)) > 0)
+				while (IsUsingFollowing (ref insertionPoint) && newUsingInfo.CompareTo(new UsingInfo(insertionPoint, context, script)) > 0)
 					insertionPoint = insertionPoint.NextSibling;
 				if (!IsUsingDeclaration(insertionPoint)) {
 					// Insert after last using instead of before next node
@@ -122,9 +122,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 		/// <summary>
 		/// Sorts the specified usings.
 		/// </summary>
-		public static IEnumerable<AstNode> SortUsingBlock(IEnumerable<AstNode> nodes, BaseRefactoringContext context)
+		public static IEnumerable<AstNode> SortUsingBlock(IEnumerable<AstNode> nodes, BaseRefactoringContext context, Script script)
 		{
-			var infos = nodes.Select(_ => new UsingInfo(_, context));
+			var infos = nodes.Select(_ => new UsingInfo(_, context, script));
 			var orderedInfos = infos.OrderBy(_ => _);
 			var orderedNodes = orderedInfos.Select(_ => _.Node);
 
@@ -142,8 +142,9 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public bool IsAlias;
 			public bool HasTypesFromOtherAssemblies;
 			public bool IsSystem;
+            public bool IsSimpleAlphabeticalCompare;
 
-			public UsingInfo(AstNode node, BaseRefactoringContext context)
+			public UsingInfo(AstNode node, BaseRefactoringContext context, Script script)
 			{
 				var importAndAlias = GetImportAndAlias(node);
 
@@ -153,6 +154,8 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				Name = importAndAlias.Item1.ToString();
 
 				IsAlias = Alias != null;
+
+                IsSimpleAlphabeticalCompare = script.FormattingOptions.AlphabeticalSortUsing;
 
 				ResolveResult rr;
 				if (node.Ancestors.Contains(context.RootNode)) {
@@ -186,16 +189,33 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			public int CompareTo(UsingInfo y)
 			{
 				UsingInfo x = this;
-				if (x.IsAlias != y.IsAlias)
-					return x.IsAlias ? 1 : -1;
-				if (x.IsAlias)
-					return StringComparer.OrdinalIgnoreCase.Compare(x.Alias, y.Alias);
-//				if (x.HasTypesFromOtherAssemblies != y.HasTypesFromOtherAssemblies)
-//					return x.HasTypesFromOtherAssemblies ? -1 : 1;
-				if (x.IsSystem != y.IsSystem)
-					return x.IsSystem ? -1 : 1;
-				return StringComparer.OrdinalIgnoreCase.Compare(x.Name, y.Name);
+                if (IsSimpleAlphabeticalCompare)
+                {
+                    return AlphabeticalCompare(y);
+                }
+                else
+                {
+                    if (x.IsAlias != y.IsAlias)
+                        return x.IsAlias ? 1 : -1;
+                    else if (x.HasTypesFromOtherAssemblies != y.HasTypesFromOtherAssemblies)
+                        return x.HasTypesFromOtherAssemblies ? -1 : 1;
+                    else if (x.IsSystem != y.IsSystem)
+                        return x.IsSystem ? -1 : 1;
+                    else 
+                        return AlphabeticalCompare(y);
+                }
 			}
+
+            private int AlphabeticalCompare(UsingInfo y)
+            {
+                UsingInfo x = this;
+                if (x.Alias != y.Alias)
+					return StringComparer.Ordinal.Compare(x.Alias, y.Alias);
+				else if (x.Name != y.Name)
+					return StringComparer.Ordinal.Compare(x.Name, y.Name);
+				else
+					return 0;
+            }
 		}
 	}
 }

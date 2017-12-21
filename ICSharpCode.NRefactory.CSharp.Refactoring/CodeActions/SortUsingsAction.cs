@@ -49,7 +49,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				foreach (var block in blocks)
 				{
 					var originalNodes = block.ToArray();
-					var sortedNodes = UsingHelper.SortUsingBlock(originalNodes, context).ToArray();
+					var sortedNodes = UsingHelper.SortUsingBlock(originalNodes, context, script).ToArray();
 
 					for (var i = 0; i < originalNodes.Length; ++i)
 						script.Replace(originalNodes[i], sortedNodes[i].Clone());
@@ -57,7 +57,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			}, usingNode);
 		}
 
-		static AstNode FindUsingNodeAtCursor(RefactoringContext context)
+		private static AstNode FindUsingNodeAtCursor(RefactoringContext context)
 		{
 			// If cursor is inside using declaration
 			var locationAsIs = context.Location;
@@ -71,12 +71,12 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 			return usingNode;
 		}
 
-		static bool IsUsingDeclaration(AstNode node)
+		private static bool IsUsingDeclaration(AstNode node)
 		{
 			return node is UsingDeclaration || node is UsingAliasDeclaration;
 		}
 
-		static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
+		private static IEnumerable<IEnumerable<AstNode>> EnumerateUsingBlocks(AstNode root)
 		{
 			var alreadyAddedNodes = new HashSet<AstNode>();
 
@@ -89,7 +89,7 @@ namespace ICSharpCode.NRefactory.CSharp.Refactoring
 				}
 		}
 
-		static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
+		private static IEnumerable<AstNode> EnumerateUsingBlockNodes(AstNode firstNode)
 		{
 			for (var node = firstNode; IsUsingDeclaration(node); node = node.GetNextSibling (n => n.Role != Roles.NewLine))
 				yield return node;
