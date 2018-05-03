@@ -77,6 +77,26 @@ class SomeClass<T> {
 			var lrr = Resolve<LocalResolveResult>(program);
 			Assert.AreEqual("System.String", lrr.Type.ReflectionName);
 		}
+
+		[Test]
+		public void LambdaTaskParameterTest()
+		{
+			string program = @"using System.Threading.Tasks;
+
+class TestClass {
+	public void TestMethod () {
+		Task<int> foo = null;
+		foo.ContinueWith($precedent => {
+			Console.WriteLine (precedent.IsFaulted);
+		}$);
+	}
+}";
+
+			var lambdaResolveResult = Resolve<LambdaResolveResult>(program);
+
+			//Precedent must be of type Task<int>, not just Task
+			Assert.IsTrue(lambdaResolveResult.Parameters[0].Type.IsParameterized);
+		}
 		
 		#region Lambda In Array Initializer
 		[Test]
